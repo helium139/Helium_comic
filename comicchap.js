@@ -111,5 +111,57 @@ fetch("data/data.json")
         ).href =
         `comicchap.html?id=${mangaId}&chap=${next.id}`;
     }
+    if(currentIndex > 0){
+
+        const prev =
+            manga.chapters[
+                currentIndex - 1
+            ];
+
+        document.getElementById(
+            "toolbar-prev"
+        ).href =
+        `comicchap.html?id=${mangaId}&chap=${prev.id}`;
+    }
+
+    if(
+        currentIndex <
+        manga.chapters.length - 1
+    ){
+
+        const next =
+            manga.chapters[
+                currentIndex + 1
+            ];
+
+        document.getElementById(
+            "toolbar-next"
+        ).href =
+        `comicchap.html?id=${mangaId}&chap=${next.id}`;
+    }
+
+    const select =
+document.getElementById("chapSelect");
+
+manga.chapters.forEach(chap => {
+
+    select.innerHTML += `
+        <option value="${chap.id}">
+            ${chap.title}
+        </option>
+    `;
 
 });
+    select.value = chapterId;
+
+    select.addEventListener(
+    "change",
+    function(){
+
+        window.location.href =
+        `comicchap.html?id=${mangaId}&chap=${this.value}`;
+
+    }
+);
+});
+
