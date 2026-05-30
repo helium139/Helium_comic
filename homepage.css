@@ -4,9 +4,145 @@ html, body {
     background-color: #ffe1f7;
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     background-image:url("#");
     background-size: cover;
+}
+
+/* ==========================================================================
+   BỐ CỤC TRÊN ĐIỆN THOẠI (MOBILE) - Xử lý theo Hình 3
+   ========================================================================== */
+@media (max-width: 700px) {
+  html, body {
+    padding: 0;
+    overflow-x: hidden;
+  }
+  first_banner {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  first_banner img {
+    width: 70px;
+    height: 70px;
+  }
+
+  first_banner h1 {
+    font-size: 2rem;
+    margin: 0;
+  }
+  .search_bar {
+    width: 160px!important;
+  }
+  .search_bar_form {
+    width: 0.5rem;
+  }
+
+  .user_button {
+    margin-left: 80px;
+    gap: 15px;
+  }
+
+  .comics-grid {
+    grid-template-columns: repeat(3, 1fr)!important;
+    gap: 12px;
+  }
+
+  .comic-name {
+    font-size: 12px;
+  }
+
+  .comic-chapter {
+    font-size: 10px;
+  }
+
+  .comic-poster {
+    border-radius: 15px;
+  }
+  .swiper-slide {
+    width: 180px;
+    height: 250px;
+  }
+
+  .slide-title {
+    font-size: 12px;
+    padding: 6px;
+  }
+  navigation {
+    width: 100%;
+    border-radius: 10px;
+    overflow-x: auto;
+    justify-content: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+  navigation::-webkit-scrollbar {
+    display: none;
+  }
+
+
+  navigation a {
+    padding: 6px 10px;
+    margin-left: 20px;
+    font-size: 14px;
+  }
+
+   /* Chuyển Flex sang chiều dọc */
+  .comic-main-info {
+    flex-direction: column; 
+    gap: 15px;
+  }
+  .comic-cover {
+    width: 100%;
+    height: auto!important;
+    flex: unset;
+    overflow: visible!important;
+  }
+
+  .comic-cover img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* hoặc cover nếu muốn full khung */
+    display: block;
+    border-radius: 10px;
+  }
+  .comic-detail-container {
+    width: 95%;
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  /* Đẩy khoảng cách chữ giãn đều hợp lý trên mobile */
+  .comic-details {
+    padding: 0 5px;
+  }
+
+  .comic-title {
+    font-size: 20px; /* Thu nhỏ cỡ chữ tiêu đề */
+  }
+
+  /* Ép các ô input của bình luận xếp dọc hàng đơn */
+  .comment-inputs {
+    flex-direction: column;
+  }
+  .comic-actions {
+    flex-direction: column;
+  align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn {
+    width:200px;
+    padding: 8px 12px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
 }
 first_banner {
     justify-content: center;
@@ -23,7 +159,7 @@ first_banner {
     font-size: 2.5em;
     margin-left: -25px;
     margin-right: 20px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-family: 'Mea Culpa';
 }
 navigation {
     margin: 0 auto 20px auto;
@@ -35,10 +171,10 @@ navigation {
     justify-content: center;
     gap: 20px;
     max-width: 100%;
-    border-radius: 50px;
+    border-radius: 40px;
 }
 navigation a {
-    color: #fff;
+    color: #6b325d;
     text-decoration: none;
     font-weight: bold;
     padding: 10px 20px;
@@ -270,7 +406,7 @@ navigation a:hover {
 /* Phần ảnh bìa cố định chiều rộng trên PC */
 .comic-cover {
   flex: 0 0 220px; 
-  height: 310px;
+  height: auto;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -408,39 +544,6 @@ navigation a:hover {
   cursor: pointer;
 }
 
-/* ==========================================================================
-   BỐ CỤC TRÊN ĐIỆN THOẠI (MOBILE) - Xử lý theo Hình 3
-   ========================================================================== */
-@media (max-width: 1000px) {
-  /* Chuyển Flex sang chiều dọc */
-  .comic-main-info {
-    flex-direction: column; 
-    gap: 15px;
-  }
-
-  /* Ảnh bìa bung lụa full chiều rộng màn hình đúng như Hình 3 */
-  .comic-cover {
-    flex: 0 0 auto;
-    width: 100vw; /* Chiếm trọn chiều ngang màn hình */
-    height: auto; /* Chiều cao tự động co giãn theo tỉ lệ ảnh */
-    aspect-ratio: 3 / 4; /* Hoặc giữ nguyên tỉ lệ ảnh */
-    border-radius: 8px; /* Giảm bớt bo góc cho khớp viền điện thoại */
-  }
-
-  /* Đẩy khoảng cách chữ giãn đều hợp lý trên mobile */
-  .comic-details {
-    padding: 0 5px;
-  }
-
-  .comic-title {
-    font-size: 20px; /* Thu nhỏ cỡ chữ tiêu đề */
-  }
-
-  /* Ép các ô input của bình luận xếp dọc hàng đơn */
-  .comment-inputs {
-    flex-direction: column;
-  }
-}
 
 /*chap cua tung truyen*/
 /* Khung bọc toàn trang */

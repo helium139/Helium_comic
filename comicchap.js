@@ -35,7 +35,7 @@ fetch("data/data.json")
     document.getElementById(
         "breadcrumb"
     ).innerHTML = `
-        <a href="homepage.html">
+        <a href="index.html">
             Trang Chủ
         </a>
 
