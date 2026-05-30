@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <title>Helium Team</title>
+    <link rel = "stylesheet" href = "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <link rel="icon"type="image/png" href="helium_logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="homepage.css" rel="stylesheet">
+  </head>
+  <body>
+    <navigation>
+      <a href="index.html">Trang Chủ</a>
+      <a href="comics.html">Truyện Hoàn Thành</a>
+      <a href="about.html">Theo Dõi</a>
+      <a href="contact.html">Fanpage</a>
+      <a href="contact.html">Nhóm Dịch</a>
+    </navigation>
+    <div class="chapter-page-container">
+  
+  <div class="chapter-header">
+    <div class="breadcrumb" id="breadcrumb"></div>
+    
+    <h1 class="chapter-title" id="chapter-title">
+    </h1>
+
+    <div class="navigation-buttons">
+      <a id="prev-btn"
+   class="btn-nav">
+   ← Chap trước
+</a>
+
+<a id="next-btn"
+   class="btn-nav">
+   Chap sau →
+</a>
+      </div>
+  </div>
+
+  <div class="chapter-content" id="chapter-content">
+    <!-- Hình ảnh chương sẽ được chèn vào đây bằng JavaScript -->
+    </div>
+</div>
+<div class="chapter-toolbar" id="chapterToolbar">
+  <div class="toolbar-left">
+    <a href="index.html" class="toolbar-item">
+      <i class="bx bx-home-alt"></i> Trang chủ
+    </a>
+  </div>
+
+  <div class="toolbar-center">
+    <button class="btn-arrow" id="prevChap"><i class="bx bx-left-arrow-circle"></i></button>
+    
+    <select class="chapter-select" id="chapSelect">
+      <option value="9">Chương 9</option>
+      <option value="8">Chương 8</option>
+      <option value="7">Chương 7</option>
+    </select>
+    
+    <button class="btn-arrow" id="nextChap"><i class="bx bx-right-arrow-circle"></i></button>
+  </div>
+
+  <div class="toolbar-right">
+    <button class="toolbar-item" id="lightBtn">
+      <i class="bx bx-bulb"></i> Bật đèn
+    </button>
+    <button class="toolbar-item heart-btn">
+      <i class="bx bx-heart"></i>
+    </button>
+  </div>
+</div>
+</body>
+<script>
+  let lastScrollTop = 0;
+  const toolbar = document.getElementById('chapterToolbar');
+
+  window.addEventListener('scroll', function() {
+    // Lấy vị trí cuộn hiện tại của trang
+    let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+    // Nếu cuộn xuống và cuộn qua một khoảng nhỏ (tránh bị giật giật ở đỉnh trang)
+    if (currentScroll > lastScrollTop && currentScroll > 50) {
+      // Cuộn xuống -> Ẩn thanh công cụ
+      toolbar.classList.add('hide');
+    } else {
+      // Cuộn lên -> Hiện lại thanh công cụ
+      toolbar.classList.remove('hide');
+    }
+    
+    // Cập nhật lại vị trí cuộn cũ
+    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; 
+  }, false);
+</script>
+<script src="comicchap.js"></script>
+</html>
