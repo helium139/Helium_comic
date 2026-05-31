@@ -380,7 +380,7 @@ navigation a:hover {
 }
 /* Khung bao ngoài toàn bộ trang chi tiết */
 .comic-detail-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
@@ -405,7 +405,7 @@ navigation a:hover {
 
 /* Phần ảnh bìa cố định chiều rộng trên PC */
 .comic-cover {
-  flex: 0 0 220px; 
+  flex: 0 0 400px!important;
   height: auto;
   border-radius: 10px;
   overflow: hidden;
