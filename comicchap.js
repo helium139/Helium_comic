@@ -193,25 +193,30 @@ const lightBtn =
 const overlay =
     document.getElementById("darkOverlay");
 
-let lightOff = false;
+let lightOff = localStorage.getItem("lightOffState") === "true";
 
+// Hàm xử lý giao diện dựa trên trạng thái của biến lightOff
+function applyLightSettings() {
+    if (lightOff) {
+        overlay.classList.add("active");
+        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> Bật đèn';
+    } else {
+        overlay.classList.remove("active");
+        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> Tắt đèn';
+    }
+}
+
+// 2. Chạy hàm này ngay khi vừa tải trang để áp dụng cấu hình cũ của người dùng
+applyLightSettings();
+
+// 3. XỬ LÝ SỰ KIỆN CLICK NÚT ĐÈN
 lightBtn.addEventListener("click", () => {
-
+    // Đảo trạng thái true <-> false
     lightOff = !lightOff;
 
-    if(lightOff){
+    // LƯU TRẠNG THÁI MỚI VÀO TRÌNH DUYỆT (Chuyển boolean thành chuỗi để lưu)
+    localStorage.setItem("lightOffState", lightOff);
 
-        overlay.classList.add("active");
-
-        lightBtn.innerHTML =
-            '<i class="bx bx-bulb"></i> Bật đèn';
-
-    }else{
-
-        overlay.classList.remove("active");
-
-        lightBtn.innerHTML =
-            '<i class="bx bx-bulb"></i> Tắt đèn';
-    }
-
+    // Cập nhật lại giao diện ngay lập tức
+    applyLightSettings();
 });
