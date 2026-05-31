@@ -135,6 +135,37 @@
     </div>
     <button class="view-more-button">Xem Thêm (chua hoat dong)</button>
 </div>
+
+<button id="menuToggleBtn" class="menu-toggle-btn">
+  <i class="bx bx-menu"></i>
+</button>
+
+<div id="sideMenu" class="side-menu">
+  <div class="menu-header">
+    <h3>Cài Đặt</h3>
+    <button id="menuCloseBtn" class="close-btn">&times;</button>
+  </div>
+  
+  <div class="menu-content">
+    <div class="setting-item">
+      <p><i class="bx bx-palette"></i> Chọn Giao Diện</p>
+      <div class="theme-options">
+        <button id="themeLightBtn" class="theme-btn active">Theme Sáng</button>
+        <button id="themeDarkBtn" class="theme-btn">Theme Tối</button>
+      </div>
+    </div>
+
+    <hr class="menu-divider">
+
+    <div class="setting-item">
+      <a href="https://www.facebook.com/profile.php?id=61551473212863" target="_blank" class="contact-link">
+        <i class="bx bxl-facebook-circle"></i> Liên hệ Fanpage
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="menuOverlay" class="menu-overlay"></div>
   </body>
   <script>
   var swiper = new Swiper(".mySwiper", {
