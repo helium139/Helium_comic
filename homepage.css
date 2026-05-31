@@ -733,3 +733,34 @@ navigation a:hover {
   display: flex;
   gap: 20px;
 }
+
+/*nut cuon dau trang*/
+.scroll-top-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 60px;
+
+    width: 50px;
+    height: 50px;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: #f291ec;
+    color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+    z-index: 9999;
+
+    display: none;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.scroll-top-btn i {
+    font-size: 30px;
+}
