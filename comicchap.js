@@ -187,3 +187,31 @@ scrollBtn.addEventListener("click", () => {
 
 });
 
+const lightBtn =
+    document.getElementById("lightBtn");
+
+const overlay =
+    document.getElementById("darkOverlay");
+
+let lightOff = false;
+
+lightBtn.addEventListener("click", () => {
+
+    lightOff = !lightOff;
+
+    if(lightOff){
+
+        overlay.classList.add("active");
+
+        lightBtn.innerHTML =
+            '<i class="bx bx-bulb"></i> Bật đèn';
+
+    }else{
+
+        overlay.classList.remove("active");
+
+        lightBtn.innerHTML =
+            '<i class="bx bx-bulb"></i> Tắt đèn';
+    }
+
+});

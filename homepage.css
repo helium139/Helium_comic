@@ -162,6 +162,7 @@ first_banner {
     font-family: 'Mea Culpa';
 }
 navigation {
+  position: relative;
     margin: 0 auto 20px auto;
     background-color: #f291ecb3;
     padding: 10px;
@@ -172,6 +173,7 @@ navigation {
     gap: 20px;
     max-width: 100%;
     border-radius: 40px;
+    z-index: 2000;
 }
 navigation a {
     color: #6b325d;
@@ -551,6 +553,8 @@ navigation a:hover {
   max-width: 1000px; /* Thu hẹp chiều rộng vùng đọc để dễ nhìn trên PC */
   margin: 0 auto;
   padding: 15px;
+  position: relative;
+  z-index: 2000;
 }
 
 /* ==========================================================================
@@ -563,12 +567,14 @@ navigation a:hover {
   padding: 20px;
   margin-bottom: 25px;
   font-family: sans-serif;
+  z-index: 2000;
 }
 
 .breadcrumb {
   font-size: 13px;
   color: #777;
   margin-bottom: 15px;
+  z-index: 2000;
 }
 
 .chapter-title {
@@ -628,6 +634,7 @@ navigation a:hover {
   max-width: 800px; /* Độ rộng tối ưu để đọc truyện Webtoon không bị mỏi mắt */
   margin: 0 auto;
   background-color: #000; /* Thường để nền đen hoặc trắng tùy theo tone truyện */
+  z-index: 2000;
 }
 
 .chapter-content img {
@@ -637,6 +644,7 @@ navigation a:hover {
   margin: 0;
   padding: 0;
   border: none;
+  z-index: 2000;
 }
 
 /* ==========================================================================
@@ -727,6 +735,7 @@ navigation a:hover {
   border-radius: 4px;
   outline: none;
   cursor: pointer;
+  z-index: 2000;
 }
 
 .toolbar-right {
@@ -759,8 +768,31 @@ navigation a:hover {
     display: none;
 
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 2000;
 }
 
 .scroll-top-btn i {
     font-size: 30px;
+}
+
+/* lop nen den trong che do DARK*/
+#darkOverlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.85);
+
+    z-index: 1000;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: all 0.3s ease;
+
+    pointer-events: none;
+}
+
+#darkOverlay.active {
+    opacity: 1;
+    visibility: visible;
 }
