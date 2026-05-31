@@ -16,7 +16,7 @@ fetch("data/data.json")
 
             <div class="comic-info">
                 <h3 class="comic-name">${manga.title}</h3>
-                <span class="comic-chapter">Chap ${manga.chapters.length}</span>
+                <span class="comic-chapter">${manga.chapters[manga.chapters.length - 1].title}</span>
             </div>
             </a>
         `;
