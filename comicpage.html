@@ -52,17 +52,31 @@
       <p class="comic-meta"><strong>Tình trạng:</strong><span id="comic-status"></span></p>
       
       <div class="comic-stats">
-        <span>❤️ 999</span>
-        <span>👁️ 9999</span>
-      </div>
+
+  <span>
+    ❤️
+    <span id="like-count">0</span>
+  </span>
+
+  <span>
+    👁️
+    <span id="view-count">0</span>
+  </span>
+
+  <span>
+    💖
+    <span id="follow-count">0</span>
+  </span>
+
+</div>
 
       <div class="comic-tags" id="comic-tags">
         </div>
 
       <div class="comic-actions">
         <button class="btn btn-read">🟩 Đọc từ đầu</button>
-        <button class="btn btn-follow">💖 Theo dõi</button>
-        <button class="btn btn-like">💜 Thích</button>
+        <button class="btn btn-follow" id="followBtn">💖 Theo dõi</button>
+        <button class="btn btn-like" id="likeBtn">💜 Thích</button>
         <p>Để cho đẹp thui chứ chưa hoạt động đâu nhen! Đọc truyện từ danh sách chap</p>
       </div>
 
@@ -86,6 +100,8 @@
         <textarea placeholder="Nội dung bình luận"></textarea>
         <button class="btn-send-comment">🚀</button>
       </div>
+    </div>
+    <div class="comment-box" id="renderComments">
     </div>
   </div>
 
@@ -123,5 +139,5 @@
 <div id="menuOverlay" class="menu-overlay"></div>
 </div>
     </body>
-    <script src="comicpage.js"></script>
+    <script type="module" src="comicpage.js"></script>
     </html>
