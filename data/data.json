@@ -65,6 +65,13 @@
                 "date": "31/05/2026",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
                 "pages": 27
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "date": "02/06/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
+                "pages": 29
             }
         ]
 },
@@ -133,6 +140,13 @@
                 "date": "31/05/2026",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap7",
                 "pages": 28
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "date": "03/06/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap8",
+                "pages": 43
             }
         ]
 },
