@@ -412,6 +412,51 @@
                 "pages": 26
             }
         ]
+    },
+        "toi-co-the-nhin-thay-thong-so-cua-cau": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/cover.png",
+        "title": "Tôi Có Thể Nhìn Thấy Thông Số Của Cậu!",
+        "original_title": "I Can See Your Stat!",
+        "author": "CarpeXD",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": 
+        ["BL",
+        "Manhwa",
+        "Âu Cổ",
+        "Xuyên Không"],
+        "description": "Một dinh thự phải trị, một người thương phải thuần. Sau cái chết dã man của gia đình mình, pháp sư Eyra trở thành địa chủ chỉ trong một đêm và phát hiện được mình có thể nhìn thấy chỉ số của những người mình gặp. Trong đó có Yanu, một kẻ đa tài mà kiên quyết, kéo anh khỏi số phận mới này…",
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "date": "29/05/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap1",
+                "pages": 15
+            },
+            {
+                "id": 2,
+                "title":"Chap 2",
+                "date":"31/05/2026",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap2",
+                "pages": 29
+            },
+            {
+                "id": 3,
+                "title":"Chap 3",
+                "date":"31/05/2026",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap3",
+                "pages": 23
+            },
+            {
+                "id": 4,
+                "title":"Chap 4",
+                "date":"31/05/2026",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap4",
+                "pages": 26
+            }
+        ]
+
     }
 
 }
