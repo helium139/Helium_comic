@@ -431,6 +431,13 @@
                 "date":"04/06/2026",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap2",
                 "pages": 30
+            },
+            {
+                "id": 3,
+                "title":"Chap 3",
+                "date":"11/06/2026",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap3",
+                "pages": 31
             }
         ]
     },
