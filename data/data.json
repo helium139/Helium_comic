@@ -72,6 +72,20 @@
                 "date": "02/06/2026",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
                 "pages": 29
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "date": "09/06/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
+                "pages": 26
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "date": "16/06/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
+                "pages": 34
             }
         ]
 },
@@ -378,6 +392,20 @@
                 "title": "Chap 3",
                 "date": "04/06/2026",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap3",
+                "pages": 15
+            },
+            {
+                "id":4,
+                "title": "Chap 4",
+                "date": "11/06/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap4",
+                "pages": 13
+            },
+            {
+                "id":5,
+                "title": "Chap 5",
+                "date": "18/06/2026",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap5",
                 "pages": 15
             }
         ]
