@@ -1,3 +1,39 @@
+import { app, db } from "./firebase.js";
+
+import {
+    getAuth,
+    onAuthStateChanged
+}
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+
+import {
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    increment,
+    arrayUnion,
+    arrayRemove
+}
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+const auth = getAuth(app);
+
+let currentUser = null;
+
+
+onAuthStateChanged(
+    auth,
+    (user) => {
+
+        currentUser = user;
+
+    }
+);
+
+console.log(currentUser);
 const params =
     new URLSearchParams(
         window.location.search
