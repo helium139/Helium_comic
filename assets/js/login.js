@@ -76,11 +76,18 @@ loginBtn.addEventListener(
                         avatar:
                             user.photoURL,
 
-                        createdAt:
-                            new Date(),
+                        createdAt: new Date(),
 
-                        role:
-                            "user"
+                        role: "user",
+
+                        likes: [],
+
+                        follows: [],
+
+                        history: []
+                    },
+                    {
+                        merge: true
                     }
                 );
 

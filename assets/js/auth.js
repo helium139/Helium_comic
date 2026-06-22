@@ -60,6 +60,9 @@ if(!userSnap.exists()){
             likes: [],
             follows: [],
             history: []
+        },
+        {
+            merge: true
         }
     );
 }
