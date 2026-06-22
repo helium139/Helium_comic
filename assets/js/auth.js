@@ -24,16 +24,56 @@ onAuthStateChanged(
 
         if(user){
 
-            console.log(
-                "Đã đăng nhập:",
-                user.displayName
+            userBox.innerHTML = `
+            
+            <div class="user-profile">
+
+                <img 
+                    src="${user.photoURL}"
+                    class="user-avatar"
+                    alt="avatar"
+                >
+
+                <span>
+                    ${user.displayName}
+                </span>
+
+                <button id="logout-btn">
+                    Đăng xuất
+                </button>
+
+            </div>
+            
+            `;
+
+
+            document
+            .getElementById("logout-btn")
+            .addEventListener(
+                "click",
+                async () => {
+
+                    await signOut(auth);
+
+                    location.reload();
+
+                }
             );
 
-        }else{
+        }
+        else{
 
-            console.log(
-                "Chưa đăng nhập"
-            );
+            userBox.innerHTML = `
+            
+            <a href="login.html">
+
+                <i class="bx bx-user"></i>
+
+                Đăng nhập
+
+            </a>
+            
+            `;
 
         }
 
