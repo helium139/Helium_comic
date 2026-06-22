@@ -52,10 +52,69 @@ const params =
 const mangaId =
     params.get("id");
 
+    async function updateView() {
+
+    const viewKey =
+        `viewed-${mangaId}`;
+
+
+    // Đã xem rồi thì không tăng
+    if(localStorage.getItem(viewKey)) {
+
+        return;
+    }
+
+
+    const statRef =
+        doc(
+            db,
+            "mangaStats",
+            mangaId
+        );
+
+
+    const statSnap =
+        await getDoc(statRef);
+
+
+    // Nếu chưa có dữ liệu
+    if(!statSnap.exists()) {
+
+        await setDoc(
+            statRef,
+            {
+                views: 1,
+                likes: 0,
+                follows: 0
+            }
+        );
+
+    }
+    else {
+
+        await updateDoc(
+            statRef,
+            {
+                views: increment(1)
+            }
+        );
+
+    }
+
+
+    // Đánh dấu đã xem
+    localStorage.setItem(
+        viewKey,
+        "1"
+    );
+
+}
 
     fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
+
+    updateView();
 
     const manga =
         data[mangaId];
