@@ -42,16 +42,6 @@ onAuthStateChanged(
 
     }
 );
-await updateDoc(
-    statRef,
-    {
-        views: increment(1)
-    }
-);
-
-document.getElementById("view-count")
-.textContent =
-`👁️ ${views}`;
 
 
 const params =
