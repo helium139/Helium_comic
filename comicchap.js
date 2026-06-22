@@ -41,7 +41,7 @@ fetch("data/data.json")
 
         &gt;
 
-        <a href="comicpage.html?id=${mangaId}">
+        <a href="manga.html?id=${mangaId}">
             ${manga.title}
         </a>
 
@@ -93,7 +93,7 @@ fetch("data/data.json")
         document.getElementById(
             "prev-btn"
         ).href =
-        `comicchap.html?id=${mangaId}&chap=${prev.id}`;
+        `chapter.html?id=${mangaId}&chap=${prev.id}`;
     }
 
     if(
@@ -109,7 +109,7 @@ fetch("data/data.json")
         document.getElementById(
             "next-btn"
         ).href =
-        `comicchap.html?id=${mangaId}&chap=${next.id}`;
+        `chapter.html?id=${mangaId}&chap=${next.id}`;
     }
     if(currentIndex > 0){
 
@@ -121,7 +121,7 @@ fetch("data/data.json")
         document.getElementById(
             "toolbar-prev"
         ).href =
-        `comicchap.html?id=${mangaId}&chap=${prev.id}`;
+        `chapter.html?id=${mangaId}&chap=${prev.id}`;
     }
 
     if(

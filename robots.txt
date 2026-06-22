@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://heliumcomic.com/sitemap.xml

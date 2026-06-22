@@ -71,7 +71,7 @@ const chapterContainer =
         <div class="chapter-item">
 
             <a href="
-                comicchap.html?id=${mangaId}&chap=${chap.id}">
+                chapter.html?id=${mangaId}&chap=${chap.id}">
                 ${chap.title}
             </a>
 
@@ -82,7 +82,7 @@ const chapterContainer =
         </div>
     `;
     console.log(
-    `comicchap.html?id=${mangaId}&chap=${chap.id}`
+    `chapter.html?id=${mangaId}&chap=${chap.id}`
 );
 
 });
