@@ -30,10 +30,34 @@ onAuthStateChanged(
 
         currentUser = user;
 
+        console.log(currentUser);
+
+        if(user){
+
+        console.log(
+            "Đã đăng nhập:",
+            user.uid
+        );
+
+        await setupLikeButton();
+        await setupFollowButton();
+
+    }
+
+    }
+);
+await updateDoc(
+    statRef,
+    {
+        views: increment(1)
     }
 );
 
-console.log(currentUser);
+document.getElementById("view-count")
+.textContent =
+`👁️ ${views}`;
+
+
 const params =
     new URLSearchParams(
         window.location.search
