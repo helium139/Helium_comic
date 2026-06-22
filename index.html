@@ -40,8 +40,11 @@ content="website">
       <a href="index.html"><img src="assets/images/helium_logo.webp" alt="Helium Team Logo" width="150px"></a>
       <h1 class="welcome_text">Helium Team</h1>
       <div class="search_bar_form justify-content-center">
-                    <input class="search_bar" id="search-input" oninput="handleSearch()" type="text" placeholder="Search">
+                    <input class="search_bar" id="search-input" oninput="handleSearch()" type="text" placeholder="Tìm kiếm truyện, tác giả, thể loại...">
                     <button class="search_button justify-content-center" id="search-button" onclick="performSearch()"><i class='bx bx-search'></i></button>
+
+                    <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+                     <div id="search-result"></div>
                 </div>
         <div class="user_button">
             <a href="login.html"><i class='bx bx-user'></i></a>

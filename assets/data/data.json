@@ -48,42 +48,42 @@
             {
                 "id": 3,
                 "title": "Chap 3",
-                "date": "15/05/2026",
+                "createAt": "2025-09-22T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
                 "pages": 25
             },
             {
                 "id": 4,
                 "title": "Chap 4",
-                "date": "08/05/2026",
+                "createAt": "2025-09-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
                 "pages": 22
             },
             {
                 "id": 5,
                 "title": "Chap 5",
-                "date": "31/05/2026",
+                "createAt": "2025-10-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
                 "pages": 27
             },
             {
                 "id": 6,
                 "title": "Chap 6",
-                "date": "02/06/2026",
+                "createAt": "2025-10-13T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
                 "pages": 29
             },
             {
                 "id": 7,
                 "title": "Chap 7",
-                "date": "09/06/2026",
+                "createAt": "2025-10-20T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
                 "pages": 26
             },
             {
                 "id": 8,
                 "title": "Chap 8",
-                "date": "16/06/2026",
+                "createAt": "2026-01-01T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
                 "pages": 34
             }
@@ -109,56 +109,56 @@
             {
                 "id": 1,
                 "title": "Chap 1",
-                "date": "29/05/2026",
+                "createAt": "2025-09-22T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap1",
                 "pages": 23
             },
             {
                 "id": 2,
                 "title": "Chap 2",
-                "date": "22/05/2026",
+                "createAt": "2025-09-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap2",
                 "pages": 12
             },
             {
                 "id": 3,
                 "title": "Chap 3",
-                "date": "15/05/2026",
+                "createAt": "2025-10-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap3",
                 "pages": 28
             },
             {
                 "id": 4,
                 "title": "Chap 4",
-                "date": "08/05/2026",
+                "createAt": "2025-10-13T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap4",
                 "pages": 21
             },
             {
                 "id": 5,
                 "title": "Chap 5",
-                "date": "01/05/2026",
+                "createAt": "2025-10-20T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap5",
                 "pages": 22
             },
             {
                 "id": 6,
                 "title": "Chap 6",
-                "date": "24/04/2026",
+                "createAt": "2026-04-24T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap6",
                 "pages": 24
             },
             {
                 "id": 7,
                 "title": "Chap 7",
-                "date": "31/05/2026",
+                "createAt": "2026-05-31T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap7",
                 "pages": 28
             },
             {
                 "id": 8,
                 "title": "Chap 8",
-                "date": "03/06/2026",
+                "createAt": "2026-06-03T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap8",
                 "pages": 43
             }
@@ -194,70 +194,70 @@
             {
                 "id": 0,
                 "title": "Chap 0 - Prologue",
-                "date": "29/05/2026",
+                "createAt": "2025-09-22T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap0",
                 "pages":9
             },
             {
                 "id": 1,
                 "title": "Chap 1",
-                "date": "22/05/2026",
+                "createAt": "2025-09-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap1",
                 "pages": 27
             },
             {
                 "id": 2,
                 "title": "Chap 2",
-                "date": "15/05/2026",
+                "createAt": "2025-10-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap2",
                 "pages": 29
             },
             {
                 "id": 3,
                 "title": "Chap 3",
-                "date": "08/05/2026",
+                "createAt": "2025-10-13T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap3",
                 "pages": 20
             },
             {
                 "id": 4,
                 "title": "Chap 4",
-                "date": "01/05/2026",
+                "createAt": "2025-10-20T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap4",
                 "pages": 22
             },
             {
                 "id": 5,
                 "title": "Chap 5",
-                "date": "24/04/2026",
+                "createAt": "2026-04-24T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap5",
                 "pages": 24
             },
             {
                 "id": 6,
                 "title": "Chap 6",
-                "date": "17/04/2026",
+                "createAt": "2026-04-17T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap6",
                 "pages": 22
             },
             {
                 "id": 7,
                 "title": "Chap 7",
-                "date": "10/04/2026",
+                "createAt": "2026-04-10T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap7",
                 "pages": 8
             },
             {
                 "id": 8,
                 "title": "Chap 8-END",
-                "date": "03/04/2026",
+                "createAt": "2026-04-03T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap8",
                 "pages": 24
             },
             {
                 "id": 9,
                 "title": "Chap 9 - Tái Bút",
-                "date": "27/03/2026",
+                "createAt": "2026-03-27T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/chap9",
                 "pages": 3
             }
@@ -284,49 +284,49 @@
             {
                 "id": 1,
                 "title": "Chap 1",
-                "date": "29/05/2026",
+                "createAt": "2025-09-22T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap1",
                 "pages": 21
             },
             {
                 "id": 2,
                 "title": "Chap 2",
-                "date": "22/05/2026",
+                "createAt": "2025-09-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap2",
                 "pages": 25
             },
             {
                 "id": 3,
                 "title": "Chap 3",
-                "date": "15/05/2026",
+                "createAt": "2025-10-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap3",
                 "pages": 9
             },
             {
                 "id": 4,
                 "title": "Chap 4",
-                "date": "08/05/2026",
+                "createAt": "2025-10-13T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap4",
                 "pages": 28
             },
             {
                 "id": 5,
                 "title": "Chap 5",
-                "date": "01/05/2026",
+                "createAt": "2025-10-20T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap5",
                 "pages": 31
             },
             {
                 "id": 6,
                 "title": "Chap 6",
-                "date": "24/04/2026",
+                "createAt": "2026-04-24T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap6",
                 "pages": 27
             },
             {
                 "id": 7,
                 "title": "Chap 7 - END",
-                "date": "17/04/2026",
+                "createAt": "2026-04-17T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/chap7",
                 "pages": 28
             }
@@ -369,42 +369,42 @@
             {
                 "id": 0,
                 "title": "Chap 0 - Prologue",
-                "date": "31/05/2026",
+                "createAt": "2025-09-22T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap0",
                 "pages": 6
             },
             {
                 "id": 1,
                 "title": "Chap 1",
-                "date": "31/05/2026",
+                "createAt": "2025-09-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap1",
                 "pages": 23
             },
             {
                 "id":2,
                 "title": "Chap 2",
-                "date": "04/05/2026",
+                "createAt": "2025-10-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap2",
                 "pages": 14
             },
             {
                 "id":3,
                 "title": "Chap 3",
-                "date": "04/06/2026",
+                "createAt": "2026-04-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap3",
                 "pages": 15
             },
             {
                 "id":4,
                 "title": "Chap 4",
-                "date": "11/06/2026",
+                "createAt": "2026-04-13T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap4",
                 "pages": 13
             },
             {
                 "id":5,
                 "title": "Chap 5",
-                "date": "18/06/2026",
+                "createAt": "2026-06-18T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap5",
                 "pages": 15
             }
@@ -442,28 +442,28 @@
             {
                 "id": 0,
                 "title": "Chap 0 - Prologue",
-                "date": "29/05/2026",
+                "createAt": "2026-05-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap0",
                 "pages": 10
             },
             {
                 "id": 1,
                 "title":"Chap 1",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap1",
                 "pages": 26
             },
             {
                 "id": 2,
                 "title":"Chap 2",
-                "date":"04/06/2026",
+                "createAt":"2026-06-04T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap2",
                 "pages": 30
             },
             {
                 "id": 3,
                 "title":"Chap 3",
-                "date":"11/06/2026",
+                "createAt":"2026-06-11T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap3",
                 "pages": 31
             }
@@ -486,243 +486,603 @@
             {
                 "id": 1,
                 "title": "Chap 1",
-                "date": "29/05/2026",
+                "createAt": "2026-05-29T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap1",
                 "pages": 15
             },
             {
                 "id": 2,
                 "title":"Chap 2",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap2",
                 "pages": 29
             },
             {
                 "id": 3,
                 "title":"Chap 3",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap3",
                 "pages": 23
             },
             {
                 "id": 4,
                 "title":"Chap 4",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap4",
                 "pages": 26
             },
             {
                 "id": 5,
                 "title":"Chap 5",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap5",
                 "pages": 25
             },
             {
                 "id": 6,
                 "title":"Chap 6",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap6",
                 "pages": 25
             },
             {
                 "id": 7,
                 "title":"Chap 7",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap7",
                 "pages": 25
             },
             {
                 "id": 8,
                 "title":"Chap 8",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap8",
                 "pages": 26
             },
             {
                 "id": 9,
                 "title":"Chap 9",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap9",
                 "pages": 28
             },
             {
                 "id": 10,
                 "title":"Chap 10",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap10",
                 "pages": 29
             },
             {
                 "id": 11,
                 "title":"Chap 11",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap11",
                 "pages": 16
             },
             {
                 "id": 12,
                 "title":"Chap 12",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap12",
                 "pages": 22
             },
             {
                 "id": 13,
                 "title":"Chap 13",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap13",
                 "pages": 20
             },
             {
                 "id": 14,
                 "title":"Chap 14",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap14",
                 "pages": 19
             },
             {
                 "id": 15,
                 "title":"Chap 15",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap15",
                 "pages": 22
             },
             {
                 "id": 16,
                 "title":"Chap 16",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap16",
                 "pages": 17
             },
             {
                 "id": 17,
                 "title":"Chap 17",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap17",
                 "pages": 20
             },
             {
                 "id": 18,
                 "title":"Chap 18",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap18",
                 "pages": 11            },
             {
                 "id": 19,
                 "title":"Chap 19",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap19",
                 "pages": 36
             },
             {
                 "id": 20,
                 "title":"Chap 20",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap20",
                 "pages": 33
             },
             {
                 "id": 21,
                 "title":"Chap 21",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap21",
                 "pages": 40
             },
             {
                 "id": 22,
                 "title":"Chap 22",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap22",
                 "pages": 29
             },
             {
                 "id": 23,
                 "title":"Chap 23",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap23",
                 "pages": 22
             },
             {
                 "id": 24,
                 "title":"Chap 24",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap24",
                 "pages": 30
             },
             {
                 "id": 25,
                 "title":"Chap 25",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap25",
                 "pages": 33
             },
             {
                 "id": 26,
                 "title":"Chap 26",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap26",
                 "pages": 33
             },
             {
                 "id": 27,
                 "title":"Chap 27",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap27",
                 "pages": 27
             },
              {
                 "id": 28,
                 "title":"Chap 28",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap28",
                 "pages": 26
             },
             {
                 "id": 29,
                 "title":"Chap 29",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap29",
                 "pages": 30
             },
             {
                 "id": 30,
                 "title":"Chap 30",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap30",
                 "pages": 31
             },
              {
                 "id": 31,
                 "title":"Chap 31",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap31",
                 "pages": 29
             },
              {
                 "id": 32,
                 "title":"Chap 32",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap32",
                 "pages": 7
             },
              {
                 "id": 33,
                 "title":"Chap 33",
-                "date":"31/05/2026",
+                "createAt":"2026-05-31T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap33",
                 "pages": 7
             },
              {
                 "id": 34,
                 "title":"Chap 34 - END SS1",
-                "date":"1/06/2026",
+                "createAt":"2026-06-01T7:00:00Z",
                 "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap34",
                 "pages": 23
             }
             
         ]
 
+    },
+    "nguoi-hau": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
+        "title": "Người Hầu Trong Tủ Kính",
+        "original_title": "캐비넷 메이드",
+        "author": "필구",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+      "Hiện Đại",
+      "BL 18+",
+      "Campus",
+      "Chiếm Hữu",
+      "Yêu Đơn Phương",
+      "Niên Hạ Công",
+      "Cợt Nhả Chiếm Hữu Công",
+      "Mỹ Nhân Công",
+      "Niên Thượng Thụ",
+        "Nhút Nhát Thụ",
+        "Tự Ti Thụ",
+        "Quan Hệ Bí Mật",
+        "Tủ Đồ",
+        "Đồ Hầu Gái"
+    ],
+        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
+        "chapters": [
+            {
+                "id": 0,
+                "title": "Chap 0 - Prologue",
+                "createAt": "2025-09-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
+                "pages": 4
+            },
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2025-09-08T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
+                "pages": 19
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2025-09-15T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
+                "pages": 15
+            },
+            {
+                "id": 3,
+                "title": "Chap 3",
+                "createAt": "2025-09-22T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
+                "pages": 25
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2025-09-29T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
+                "pages": 22
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2025-10-06T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
+                "pages": 27
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2025-10-13T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
+                "pages": 29
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "createAt": "2025-10-20T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
+                "pages": 26
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "createAt": "2026-01-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
+                "pages": 34
+            }
+        ]
+    },
+    "nguoi-hau-trong": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
+        "title": "Người Hầu Trong Tủ Kính",
+        "original_title": "캐비넷 메이드",
+        "author": "필구",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+      "Hiện Đại",
+      "BL 18+",
+      "Campus",
+      "Chiếm Hữu",
+      "Yêu Đơn Phương",
+      "Niên Hạ Công",
+      "Cợt Nhả Chiếm Hữu Công",
+      "Mỹ Nhân Công",
+      "Niên Thượng Thụ",
+        "Nhút Nhát Thụ",
+        "Tự Ti Thụ",
+        "Quan Hệ Bí Mật",
+        "Tủ Đồ",
+        "Đồ Hầu Gái"
+    ],
+        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
+        "chapters": [
+            {
+                "id": 0,
+                "title": "Chap 0 - Prologue",
+                "createAt": "2025-09-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
+                "pages": 4
+            },
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2025-09-08T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
+                "pages": 19
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2025-09-15T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
+                "pages": 15
+            },
+            {
+                "id": 3,
+                "title": "Chap 3",
+                "createAt": "2025-09-22T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
+                "pages": 25
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2025-09-29T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
+                "pages": 22
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2025-10-06T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
+                "pages": 27
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2025-10-13T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
+                "pages": 29
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "createAt": "2025-10-20T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
+                "pages": 26
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "createAt": "2026-01-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
+                "pages": 34
+            }
+        ]
+    },
+    "nguoi-hau-trong-tu": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
+        "title": "Người Hầu Trong Tủ Kính",
+        "original_title": "캐비넷 메이드",
+        "author": "필구",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+      "Hiện Đại",
+      "BL 18+",
+      "Campus",
+      "Chiếm Hữu",
+      "Yêu Đơn Phương",
+      "Niên Hạ Công",
+      "Cợt Nhả Chiếm Hữu Công",
+      "Mỹ Nhân Công",
+      "Niên Thượng Thụ",
+        "Nhút Nhát Thụ",
+        "Tự Ti Thụ",
+        "Quan Hệ Bí Mật",
+        "Tủ Đồ",
+        "Đồ Hầu Gái"
+    ],
+        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
+        "chapters": [
+            {
+                "id": 0,
+                "title": "Chap 0 - Prologue",
+                "createAt": "2025-09-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
+                "pages": 4
+            },
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2025-09-08T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
+                "pages": 19
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2025-09-15T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
+                "pages": 15
+            },
+            {
+                "id": 3,
+                "title": "Chap 3",
+                "createAt": "2025-09-22T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
+                "pages": 25
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2025-09-29T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
+                "pages": 22
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2025-10-06T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
+                "pages": 27
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2025-10-13T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
+                "pages": 29
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "createAt": "2025-10-20T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
+                "pages": 26
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "createAt": "2026-01-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
+                "pages": 34
+            }
+        ]
+    },
+    "nguoi": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
+        "title": "Người Hầu Trong Tủ Kính",
+        "original_title": "캐비넷 메이드",
+        "author": "필구",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+      "Hiện Đại",
+      "BL 18+",
+      "Campus",
+      "Chiếm Hữu",
+      "Yêu Đơn Phương",
+      "Niên Hạ Công",
+      "Cợt Nhả Chiếm Hữu Công",
+      "Mỹ Nhân Công",
+      "Niên Thượng Thụ",
+        "Nhút Nhát Thụ",
+        "Tự Ti Thụ",
+        "Quan Hệ Bí Mật",
+        "Tủ Đồ",
+        "Đồ Hầu Gái"
+    ],
+        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
+        "chapters": [
+            {
+                "id": 0,
+                "title": "Chap 0 - Prologue",
+                "createAt": "2025-09-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
+                "pages": 4
+            },
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2025-09-08T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
+                "pages": 19
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2025-09-15T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
+                "pages": 15
+            },
+            {
+                "id": 3,
+                "title": "Chap 3",
+                "createAt": "2025-09-22T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
+                "pages": 25
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2025-09-29T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
+                "pages": 22
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2025-10-06T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
+                "pages": 27
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2025-10-13T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
+                "pages": 29
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "createAt": "2025-10-20T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
+                "pages": 26
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "createAt": "2026-01-01T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
+                "pages": 34
+            }
+        ]
     }
 
 }
