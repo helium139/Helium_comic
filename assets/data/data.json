@@ -1,10 +1,12 @@
 {
     "nguoi-hau-trong-tu-kinh": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.webp",
         "title": "Người Hầu Trong Tủ Kính",
         "original_title": "캐비넷 메이드",
         "author": "필구",
         "team": "HeliumTG",
+        "adminPick": true,
+        "pickOder": 1,
         "status": "Ongoing",
         "tags": [
       "Hiện Đại",
@@ -90,12 +92,14 @@
         ]
 },
     "cai-the-loai-kim-chu-gi-the-nay": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/cover.JPG",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/cover.webp",
         "title": "Cái Thể Loại Kim Chủ Gì Thế Này!",
         "original_title": "이딴 게 스폰서",
         "author": "사탕&안나",
         "team": "HeliumTG",
         "status": "Ongoing",
+        "adminPick": true,
+        "pickOder": 2,
         "tags": 
         ["BL",
         "Hài Hước",
@@ -165,12 +169,14 @@
         ]
 },
     "co-on-khong-khi-ke-giet-nguoi-la-mot-idol": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/cover.jpg",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/cover.webp",
         "title": "Có Ổn Không Khi Kẻ Giết Người Là Một Idol?",
         "original_title": "살인마가 아이돌을 해도 되나요?",
         "author": "đang cập nhật (thật ra là lười tìm)",
         "team": "HeliumTG",
         "status": "Completed",
+        "adminPick": true,
+        "pickOrder": 3,
         "tags": 
         ["BL",
         "Hài Hước",
@@ -264,12 +270,14 @@
         ]
 },
     "ruoc-hoa-vao-than": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/cover.jpg",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/cover.webp",
         "title": "Rước Họa Vào Thân",
         "original_title": "자취지화",
         "author": "해진",
         "team": "HeliumTG",
         "status": "Completed",
+        "adminPick": true,
+        "pickOrder": 4,
         "tags": 
         ["BL",
         "Mỹ Nhân Công",
@@ -333,12 +341,13 @@
         ]
     },
     "mot-ngay-ky-la": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/cover.jpg",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/cover.webp",
         "title": "Một Ngày Kỳ Lạ",
         "original_title": "이상한 하루",
         "author": "지하",
         "team": "HeliumTG",
         "status": "Ongoing",
+        "adminPick": true,
         "tags": 
         ["BL",
         "Đời Thường",
@@ -411,12 +420,14 @@
         ]
     },
     "ost-ngoai-ong-kinh": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/cover.jpg",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/cover.webp",
         "title": "OST Ngoài Ống Kính",
         "original_title": "카메라 밖 OST",
         "author": "도봉",
         "team": "HeliumTG",
         "status": "Ongoing",
+        "adminPick": true,
+        "pickOrder": 5,
         "tags": 
         ["BL",
         "Giới Giải Trí",
@@ -470,12 +481,14 @@
         ]
     },
         "toi-co-the-nhin-thay-thong-so-cua-cau": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/cover.png",
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/cover.webp",
         "title": "Tôi Có Thể Nhìn Thấy Thông Số Của Cậu!",
         "original_title": "I Can See Your Stat!",
         "author": "CarpeXD",
         "team": "HeliumTG",
         "status": "Ongoing",
+        "adminPick": true,
+        "pickOrder": 6,
         "tags": 
         ["BL",
         "Manhwa",
@@ -724,365 +737,121 @@
         ]
 
     },
-    "nguoi-hau": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
-        "title": "Người Hầu Trong Tủ Kính",
-        "original_title": "캐비넷 메이드",
-        "author": "필구",
+        "xich-ho":{
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/cover.webp",
+        "title": "Xích Hồ",
+        "original_title": "더 리쉬드",
+        "author": "뿌너&챠피",   
         "team": "HeliumTG",
         "status": "Ongoing",
-        "tags": [
-      "Hiện Đại",
-      "BL 18+",
-      "Campus",
-      "Chiếm Hữu",
-      "Yêu Đơn Phương",
-      "Niên Hạ Công",
-      "Cợt Nhả Chiếm Hữu Công",
-      "Mỹ Nhân Công",
-      "Niên Thượng Thụ",
-        "Nhút Nhát Thụ",
-        "Tự Ti Thụ",
-        "Quan Hệ Bí Mật",
-        "Tủ Đồ",
-        "Đồ Hầu Gái"
-    ],
-        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
+        "adminPick": true,
+        "pickOrder": 7,
+        "tags":
+        ["BL",
+        "Mỹ Nhân Đại Chiến",
+        "Thú Nhân",
+        "Tình Yêu Cấm Kỵ",
+        "Công Chiếm Hữu",
+        "Hồ Ly Công",
+        "Công Hối Hận",
+        "Thụ Yêu Cuồng Nhiệt",
+        "Mỹ Nam Thụ",
+        "Thụ Điềm Đạm",
+        "Fantasy Hiện Đại",
+        "Công Mạnh Mẽ",
+        "Yêu Hết Mình",
+        "Thanh Mai Trúc Mã",
+        "Hồ Ly Công X Sói Thụ",
+        "Từ Bạn Bè Thành Người Yêu"],
+        "description": "'Tôi thích nhất là việc cậu không thể rời xa tôi.' Do Yul, người thừa kế của gia tộc hồ ly chín đuôi, và Jae Hyun, con trai thứ của gia tộc sói. Hai người đã lớn lên bên nhau từ thuở nhỏ. Nhưng giữa họ tồn tại một bí mật không ai biết. Đó là việc Do Yul đã ép Jae Hyun nuốt hồ ly ngọc để khiến cậu không thể rời xa mình. Vì viên hồ ly ngọc ấy, Do Yul chỉ có thể hấp thụ tinh khí thông qua Jae Hyun. Còn Jae Hyun thì vừa ở bên Do Yul, vừa đau khổ che giấu tình yêu cuồng nhiệt mà mình dành cho hắn. Trước khi Do Yul, với tư cách người thừa kế gia tộc, tìm được bạn đời định mệnh, Jae Hyun quyết định phải tự chấm dứt đoạn tình cảm đơn phương này. Trong khi đó, hai gia tộc thú nhân quyền lực nhất, gia tộc Sói và gia tộc Hồ Ly, bề ngoài duy trì mối quan hệ hữu hảo, nhưng thực chất luôn âm thầm đề phòng và kiềm chế lẫn nhau. Sau khi cảm nhận được sự giám sát đầy khả nghi từ cha của Do Yul là Lee Ui Won, Jae Hyun quyết định thâm nhập vào viện nghiên cứu của gia tộc Hồ Ly để điều tra sự thật.",
         "chapters": [
-            {
-                "id": 0,
-                "title": "Chap 0 - Prologue",
-                "createAt": "2025-09-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
-                "pages": 4
-            },
             {
                 "id": 1,
                 "title": "Chap 1",
-                "createAt": "2025-09-08T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
-                "pages": 19
+                "createAt": "2025-09-22T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap1",
+                "pages": 22
             },
             {
                 "id": 2,
                 "title": "Chap 2",
-                "createAt": "2025-09-15T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
-                "pages": 15
+                "createAt": "2025-09-29T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap2",
+                "pages": 28
             },
             {
                 "id": 3,
                 "title": "Chap 3",
-                "createAt": "2025-09-22T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
-                "pages": 25
+                "createAt": "2025-10-06T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap3",
+                "pages": 31
             },
             {
                 "id": 4,
                 "title": "Chap 4",
-                "createAt": "2025-09-29T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
-                "pages": 22
+                "createAt": "2025-10-13T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap4",
+                "pages": 31
             },
             {
                 "id": 5,
                 "title": "Chap 5",
-                "createAt": "2025-10-06T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
-                "pages": 27
-            },
-            {
-                "id": 6,
-                "title": "Chap 6",
-                "createAt": "2025-10-13T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
-                "pages": 29
-            },
-            {
-                "id": 7,
-                "title": "Chap 7",
-                "createAt": "2025-10-20T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
-                "pages": 26
-            },
-            {
-                "id": 8,
-                "title": "Chap 8",
-                "createAt": "2026-01-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
-                "pages": 34
-            }
+                "createAt": "2026-10-20T7:00:00Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap5",
+                "pages": 31
+             }
         ]
-    },
-    "nguoi-hau-trong": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
-        "title": "Người Hầu Trong Tủ Kính",
-        "original_title": "캐비넷 메이드",
-        "author": "필구",
-        "team": "HeliumTG",
-        "status": "Ongoing",
-        "tags": [
-      "Hiện Đại",
-      "BL 18+",
-      "Campus",
-      "Chiếm Hữu",
-      "Yêu Đơn Phương",
-      "Niên Hạ Công",
-      "Cợt Nhả Chiếm Hữu Công",
-      "Mỹ Nhân Công",
-      "Niên Thượng Thụ",
-        "Nhút Nhát Thụ",
-        "Tự Ti Thụ",
-        "Quan Hệ Bí Mật",
-        "Tủ Đồ",
-        "Đồ Hầu Gái"
-    ],
-        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
-        "chapters": [
+        },
+        "tro-tan":{
+        "cover":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/cover.webp",
+        "title":"Tro Tàn",
+        "original_title":"담뱃재",
+        "author":"원리드&신이날&차풀",
+        "team":"HeliumTG",
+        "status":"Ongoing",
+        "adminPick": true,
+        "pickOrder": 8,
+        "tags":
+        ["BL",
+        "công vạm vỡ",
+        "công sung mãn",
+        "truyện ngọt",
+        "công thô bạo",
+        "cường công",
+        "công lạnh lùng",
+        "công máu lạnh",
+        "thụ nghèo",
+        "thụ bỏ trốn",
+        "thụ lém lỉnh",
+        "thụ kiêu",
+        "thụ trẻ con",
+        "thụ đáng yêu",
+        "công xã hội đen",
+        "thụ dưới cơ",
+        "hài lãng mạng ngược tâm"],
+        "description":"Jung Tae Joo vì người bà sống lẻ loi một mình mà lao vào cuộc sống mưu sinh khi còn chưa tốt nghiệp tử tế. Từ công việc giao đồ ăn nhà hàng cho đến trung tâm nhận chạy việc vặt, Tae Joo làm đủ mọi nghề. Thế nhưng cậu lại bị cuốn vào một vụ mất cắp oan uổng và gánh trên vai khoản nợ vay nặng lãi khổng lồ. Dưới sự đe doạ lẫn dụ dỗ của ông chủ trung tâm, Tae Joo bị giữ lại làm việc tại quán host bar cao cấp tên là 'Mai Hoa.' 'Tae Joo à, cẩn thận đấy.' Một ngày nọ, khi Tae Joo chuẩn bị vào phòng VVIP để phục vụ, bếp trưởng đã cảnh báo cậu như vậy. Manh theo cảm giác căng thẳng khó tả Tae Joo bước vào phòng VVIP và nhìn thấy một người đàn ông bê bết máu, đám xã hội đen cùng vị khách VVIP Kye Beom Ho đang ngồi đó. Beom Ho quan sát Tae Joo từ đầu tới chân rồi thưởng cho cậu số tiền boa rất lớn chỉ với lần phục vụ đơn giản ấy. 'Chỉ cần kiếm được thế này thì chưa đầy một năm nữa mình có thể rời khỏi đây…!' Xem nhẹ lời cảnh báo của bếp trưởng, Tae Joo bắt đầu trông đợi từ những khoản tiền boa của Beom Ho… Liệu Tae Joo có thể trả hết nợ và rời khỏi 'Mai Hoa' an toàn không? Hay là…",
+        "chapters":[
             {
-                "id": 0,
-                "title": "Chap 0 - Prologue",
-                "createAt": "2025-09-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
-                "pages": 4
-            },
-            {
-                "id": 1,
-                "title": "Chap 1",
-                "createAt": "2025-09-08T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
-                "pages": 19
-            },
-            {
-                "id": 2,
-                "title": "Chap 2",
-                "createAt": "2025-09-15T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
-                "pages": 15
-            },
-            {
-                "id": 3,
-                "title": "Chap 3",
-                "createAt": "2025-09-22T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
-                "pages": 25
-            },
-            {
-                "id": 4,
-                "title": "Chap 4",
-                "createAt": "2025-09-29T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
+                "id":1,
+                "title":"Chap 1",
+                "createAt":"2025-09-22T7:00:00Z",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap1",
                 "pages": 22
             },
             {
-                "id": 5,
-                "title": "Chap 5",
-                "createAt": "2025-10-06T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
-                "pages": 27
+                "id":2,
+                "title":"Chap 2",
+                "createAt":"2025-09-29T7:00:00Z",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap2",
+                "pages": 28
             },
             {
-                "id": 6,
-                "title": "Chap 6",
-                "createAt": "2025-10-13T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
-                "pages": 29
-            },
-            {
-                "id": 7,
-                "title": "Chap 7",
-                "createAt": "2025-10-20T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
-                "pages": 26
-            },
-            {
-                "id": 8,
-                "title": "Chap 8",
-                "createAt": "2026-01-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
-                "pages": 34
-            }
+                "id":3,
+                "title":"Chap 3",
+                "createAt":"2026-10-06T7:00:00Z",
+                "folder":"https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap3",
+                "pages": 31
+             }
         ]
-    },
-    "nguoi-hau-trong-tu": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
-        "title": "Người Hầu Trong Tủ Kính",
-        "original_title": "캐비넷 메이드",
-        "author": "필구",
-        "team": "HeliumTG",
-        "status": "Ongoing",
-        "tags": [
-      "Hiện Đại",
-      "BL 18+",
-      "Campus",
-      "Chiếm Hữu",
-      "Yêu Đơn Phương",
-      "Niên Hạ Công",
-      "Cợt Nhả Chiếm Hữu Công",
-      "Mỹ Nhân Công",
-      "Niên Thượng Thụ",
-        "Nhút Nhát Thụ",
-        "Tự Ti Thụ",
-        "Quan Hệ Bí Mật",
-        "Tủ Đồ",
-        "Đồ Hầu Gái"
-    ],
-        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
-        "chapters": [
-            {
-                "id": 0,
-                "title": "Chap 0 - Prologue",
-                "createAt": "2025-09-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
-                "pages": 4
-            },
-            {
-                "id": 1,
-                "title": "Chap 1",
-                "createAt": "2025-09-08T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
-                "pages": 19
-            },
-            {
-                "id": 2,
-                "title": "Chap 2",
-                "createAt": "2025-09-15T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
-                "pages": 15
-            },
-            {
-                "id": 3,
-                "title": "Chap 3",
-                "createAt": "2025-09-22T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
-                "pages": 25
-            },
-            {
-                "id": 4,
-                "title": "Chap 4",
-                "createAt": "2025-09-29T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
-                "pages": 22
-            },
-            {
-                "id": 5,
-                "title": "Chap 5",
-                "createAt": "2025-10-06T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
-                "pages": 27
-            },
-            {
-                "id": 6,
-                "title": "Chap 6",
-                "createAt": "2025-10-13T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
-                "pages": 29
-            },
-            {
-                "id": 7,
-                "title": "Chap 7",
-                "createAt": "2025-10-20T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
-                "pages": 26
-            },
-            {
-                "id": 8,
-                "title": "Chap 8",
-                "createAt": "2026-01-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
-                "pages": 34
-            }
-        ]
-    },
-    "nguoi": {
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.jpg",
-        "title": "Người Hầu Trong Tủ Kính",
-        "original_title": "캐비넷 메이드",
-        "author": "필구",
-        "team": "HeliumTG",
-        "status": "Ongoing",
-        "tags": [
-      "Hiện Đại",
-      "BL 18+",
-      "Campus",
-      "Chiếm Hữu",
-      "Yêu Đơn Phương",
-      "Niên Hạ Công",
-      "Cợt Nhả Chiếm Hữu Công",
-      "Mỹ Nhân Công",
-      "Niên Thượng Thụ",
-        "Nhút Nhát Thụ",
-        "Tự Ti Thụ",
-        "Quan Hệ Bí Mật",
-        "Tủ Đồ",
-        "Đồ Hầu Gái"
-    ],
-        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
-        "chapters": [
-            {
-                "id": 0,
-                "title": "Chap 0 - Prologue",
-                "createAt": "2025-09-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
-                "pages": 4
-            },
-            {
-                "id": 1,
-                "title": "Chap 1",
-                "createAt": "2025-09-08T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
-                "pages": 19
-            },
-            {
-                "id": 2,
-                "title": "Chap 2",
-                "createAt": "2025-09-15T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
-                "pages": 15
-            },
-            {
-                "id": 3,
-                "title": "Chap 3",
-                "createAt": "2025-09-22T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap3",
-                "pages": 25
-            },
-            {
-                "id": 4,
-                "title": "Chap 4",
-                "createAt": "2025-09-29T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap4",
-                "pages": 22
-            },
-            {
-                "id": 5,
-                "title": "Chap 5",
-                "createAt": "2025-10-06T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap5",
-                "pages": 27
-            },
-            {
-                "id": 6,
-                "title": "Chap 6",
-                "createAt": "2025-10-13T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap6",
-                "pages": 29
-            },
-            {
-                "id": 7,
-                "title": "Chap 7",
-                "createAt": "2025-10-20T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap7",
-                "pages": 26
-            },
-            {
-                "id": 8,
-                "title": "Chap 8",
-                "createAt": "2026-01-01T7:00:00Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap8",
-                "pages": 34
-            }
-        ]
-    }
-
+        }
 }

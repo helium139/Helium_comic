@@ -1,4 +1,71 @@
+import { db } from "./firebase.js";
+console.log(db);
+
+import {
+ collection,
+ getDocs,
+ query,
+ orderBy,
+ limit
+}
+from 
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
 let mangas = [];
+
+function renderAdminPicks(data){
+
+    const container =
+        document.getElementById(
+            "admin-picks"
+        );
+
+    container.innerHTML = "";
+
+
+    Object.entries(data)
+
+.filter(([slug, manga]) =>
+    manga.adminPick === true
+)
+
+.sort(([, a], [, b]) =>
+    a.pickOrder - b.pickOrder
+)
+.slice(0, 8)
+
+    .forEach(([slug, manga]) => {
+
+
+        container.innerHTML += `
+        
+        <div class="swiper-slide">
+
+            <a href="manga.html?id=${slug}">
+
+                <img
+                    src="${manga.cover}"
+                    alt="${manga.title}"
+                    loading="lazy"
+                >
+
+                <div class="slide-title">
+                    ${manga.title}
+                </div>
+
+            </a>
+
+        </div>
+
+        `;
+
+    });
+
+
+    initSwiper();
+
+}
 
 let currentPage = 1;
 const perPage = 10;
@@ -33,7 +100,8 @@ function renderComics() {
                 <img
                     src="${manga.cover}"
                     alt="${manga.title}"
-                    loading="lazy">
+                    loading="lazy"
+                    decoding="async">
 
             </div>
 
@@ -58,6 +126,97 @@ function renderComics() {
 
 
     checkViewMore();
+}
+
+function renderHotComics(list, data) {
+
+    const container =
+        document.getElementById(
+            "hot-comic-list"
+        );
+
+    container.innerHTML = "";
+
+    list.forEach(doc => {
+
+        const id = doc.id;
+
+        const stats = doc.data();
+
+        const manga = data[id];
+
+        // Nếu không có trong JSON thì bỏ qua
+        if(!manga) return;
+
+
+        const latestChap =
+            manga.chapters[
+                manga.chapters.length - 1
+            ];
+
+
+        container.innerHTML += `
+        
+        <a href="manga.html?id=${id}"
+           class="comic-item">
+
+            <div class="comic-poster">
+
+                <img 
+                    src="${manga.cover}"
+                    alt="${manga.title}"
+                    loading="lazy"
+                >
+
+            </div>
+
+
+            <div class="comic-info">
+
+                <h3 class="comic-name">
+                     ${manga.title}
+                </h3>
+
+
+                <span class="comic-chapter">
+                    ${latestChap.title}
+                </span>
+
+
+
+            </div>
+
+        </a>
+        
+        `;
+    });
+}
+
+async function loadHotComics(data) {
+
+    const statsRef =
+        collection(
+            db,
+            "mangaStats"
+        );
+
+
+    const q =
+        query(
+            statsRef,
+            orderBy("views", "desc"),
+            limit(8)
+        );
+
+
+    const snapshot =
+        await getDocs(q);
+
+
+    renderHotComics(
+        snapshot.docs,
+        data
+    );
 }
 
 function checkViewMore(){
@@ -89,8 +248,9 @@ fetch("assets/data/data.json")
   .then(res => res.json())
   .then(data => {
 
-    mangas = Object.entries(data);
+    renderAdminPicks(data);
 
+    mangas = Object.entries(data);
 
     mangas.sort(([,a],[,b]) => {
 
@@ -108,6 +268,7 @@ fetch("assets/data/data.json")
 
 
     renderComics();
+    loadHotComics(data);
    });    
 
 
@@ -297,3 +458,46 @@ document.addEventListener("click", function(e){
     }
 
 });
+
+// ================= XỬ LÝ RENDER ADMIN PICKS ================= //
+function initSwiper(){
+
+    new Swiper(".mySwiper", {
+
+        effect: "coverflow",
+
+        grabCursor: true,
+
+        centeredSlides: true,
+
+        slidesPerView: "auto",
+
+        loop: true,
+
+
+        coverflowEffect: {
+
+            rotate: 0,
+
+            stretch: -20,
+
+            depth: 150,
+
+            modifier: 1,
+
+            slideShadows: false
+
+        },
+
+
+        navigation: {
+
+            nextEl: ".swiper-button-next",
+
+            prevEl: ".swiper-button-prev"
+
+        }
+
+    });
+
+}
