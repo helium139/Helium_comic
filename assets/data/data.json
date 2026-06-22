@@ -27,21 +27,21 @@
             {
                 "id": 0,
                 "title": "Chap 0 - Prologue",
-                "date": "29/05/2026",
+                "createAt": "2025-09-01T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
                 "pages": 4
             },
             {
                 "id": 1,
                 "title": "Chap 1",
-                "date": "29/05/2026",
+                "createAt": "2025-09-08T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap1",
                 "pages": 19
             },
             {
                 "id": 2,
                 "title": "Chap 2",
-                "date": "22/05/2026",
+                "createAt": "2025-09-15T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap2",
                 "pages": 15
             },

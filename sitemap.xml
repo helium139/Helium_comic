@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<urlset
+<urlset 
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>
-https://heliumcomic.com/
+https://helium139.github.io/Helium_comic/
+</loc>
+</url>
+
+<url>
+<loc>
+https://helium139.github.io/Helium_comic/manga.html?id=mot-ngay-ky-la
 </loc>
 </url>
 

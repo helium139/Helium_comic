@@ -7,7 +7,7 @@ const chapterId = parseInt(
     params.get("chap")
 );
 
-fetch("assest/data/data.json")
+fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
