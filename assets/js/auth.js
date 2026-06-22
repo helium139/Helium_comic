@@ -1,13 +1,22 @@
-import { app } from "./firebase.js";
+import { app, db } from "./firebase.js";
 
 import {
     getAuth,
     onAuthStateChanged,
     signOut
 }
-from 
+from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
+
+import {
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp
+}
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 const auth = getAuth(app);
 
@@ -23,6 +32,37 @@ onAuthStateChanged(
     (user) => {
 
         if(user){
+
+            const userRef =
+    doc(
+        db,
+        "users",
+        user.uid
+    );
+
+
+const userSnap =
+    await getDoc(userRef);
+
+
+if(!userSnap.exists()){
+
+    await setDoc(
+        userRef,
+        {
+            name: user.displayName,
+            email: user.email,
+            avatar: user.photoURL,
+
+            createdAt:
+                serverTimestamp(),
+
+            likes: [],
+            follows: [],
+            history: []
+        }
+    );
+}
 
             userBox.innerHTML = `
             
