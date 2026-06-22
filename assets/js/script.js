@@ -1,4 +1,4 @@
-fetch("data/data.json")
+fetch("assets/data/data.json")
   .then(res => res.json())
   .then(data => {
 
@@ -31,7 +31,7 @@ fetch("data/data.json")
       const latestChap = manga.chapters[manga.chapters.length - 1];
 
       container.innerHTML += `
-        <a href="comicpage.html?id=${slug}" class="comic-item">
+        <a href="manga.html?id=${slug}" class="comic-item">
           <div class="comic-poster">
             <img src="${manga.cover}" alt="${manga.title}">
           </div>

@@ -7,7 +7,7 @@ const chapterId = parseInt(
     params.get("chap")
 );
 
-fetch("data/data.json")
+fetch("assest/data/data.json")
 .then(res => res.json())
 .then(data => {
 
@@ -137,7 +137,7 @@ fetch("data/data.json")
         document.getElementById(
             "toolbar-next"
         ).href =
-        `comicchap.html?id=${mangaId}&chap=${next.id}`;
+        `chapter.html?id=${mangaId}&chap=${next.id}`;
     }
 
     const select =
@@ -159,7 +159,7 @@ manga.chapters.forEach(chap => {
     function(){
 
         window.location.href =
-        `comicchap.html?id=${mangaId}&chap=${this.value}`;
+        `chapter.html?id=${mangaId}&chap=${this.value}`;
 
     }
 );

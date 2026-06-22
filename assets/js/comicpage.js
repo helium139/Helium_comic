@@ -7,7 +7,7 @@ const mangaId =
     params.get("id");
 
 
-    fetch("data/data.json")
+    fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
