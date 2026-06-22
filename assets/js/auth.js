@@ -29,7 +29,7 @@ const userBox =
 
 onAuthStateChanged(
     auth,
-    (user) => {
+    async (user) => {
 
         if(user){
 
