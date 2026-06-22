@@ -38,10 +38,6 @@ onAuthStateChanged(
             "Đã đăng nhập:",
             user.uid
         );
-
-        await setupLikeButton();
-        await setupFollowButton();
-
     }
 
     }
