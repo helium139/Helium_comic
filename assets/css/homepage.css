@@ -1098,3 +1098,34 @@ footer p {
     color: #ffffff;
     text-decoration: none;
 }
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffe1f7;
+}
+.login-box {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    text-align: center;
+}
+.login-box h1 {
+    margin-bottom: 30px;
+    color: #f291ec;
+}
+#google-login {
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+#google-login:hover {
+    background-color: #357ae8;
+} 
