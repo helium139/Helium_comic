@@ -5,6 +5,8 @@
     <meta name="keywords" 
 content="truyện BL, đọc truyện BL, manhwa BL, yaoi, Helium Team, truyện tranh Việt hóa">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
     <title>Helium Team - Kho Truyện BL Nhà Helium</title>
     <meta name="description"
 content="Đọc truyện BL, manhwa, manhua Việt hóa bởi Helium Team. Cập nhật chương mới nhanh nhất.">
@@ -36,8 +38,11 @@ content="website">
       <a href="index.html"><img src="assets/images/helium_logo.webp" alt="Helium Team Logo" width="150px"></a>
       <h1 class="welcome_text">Helium Team</h1>
       <div class="search_bar_form justify-content-center">
-                    <input class="search_bar" id="search-input" oninput="handleSearch()" type="text" placeholder="Search">
+                    <input class="search_bar" id="search-input" oninput="handleSearch()" type="text" placeholder="Tìm kiếm truyện, tác giả, thể loại...">
                     <button class="search_button justify-content-center" id="search-button" onclick="performSearch()"><i class='bx bx-search'></i></button>
+
+                    <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+                     <div id="search-result"></div>
                 </div>
         <div class="user_button" id="user-box">
 
@@ -47,7 +52,7 @@ content="website">
     </a>
 
 </div>
-    </header>
+      </header>
     <nav class="navigation">
       <a href="index.html">Trang Chủ</a>
       <a href="comics.html">Truyện Hoàn Thành</a>
@@ -56,74 +61,28 @@ content="website">
       <a href="likes.html">Yêu Thích</a>
       <a href="contact.html">Nhóm Dịch</a>
     </nav>
-    <div class="comic-detail-container">
-  
-  <div class="breadcrumb"><a href="index.html">Trang Chủ</a> <!---&gt;---> <a href="#"></a></div>
+    <div class="profile-header">
 
-  <div class="comic-main-info">
-    <div class="comic-cover">
-      <img id="comic-cover" src="" alt="">
+    <img
+        id="user-avatar"
+        class="profile-avatar">
+
+    <div>
+
+        <h2 id="user-name"></h2>
+
+        <p id="user-email"></p>
+
     </div>
-
-    <div class="comic-details">
-      <h1 class="comic-title" id="comic-title"></h1>
-      <p class="comic-meta"><strong>Tên Khác:</strong><span id="comic-original-title"></span></p>
-      <p class="comic-meta"><strong>Tác giả:</strong><span id="comic-author"></span></p>
-      <p class="comic-meta"><strong>Nhóm dịch:</strong><span id="comic-team"></span></p>
-      <p class="comic-meta"><strong>Tình trạng:</strong><span id="comic-status"></span></p>
-      
-      <div class="comic-stats">
-
-    <span id="like-count">❤️ 0</span>
-    <span id="follow-count">💖 0</span>
-    <span id="view-count">👁️ 0</span>
 
 </div>
+    <h1>
+📖 Danh sách yêu thích
+</h1>
 
-      <div class="comic-tags" id="comic-tags">
-        </div>
-
-      <div class="comic-actions">
-        <button class="btn btn-read">🟩 Đọc từ đầu</button>
-        <button
-    id="followBtn"
-    class="btn btn-follow">
-
-    💖 Theo dõi
-
-</button>
-        <button
-    id="likeBtn"
-    class="btn btn-like">
-
-    💜 Thích
-
-</button>
-      </div>
-
-      <div class="comic-summary">
-        <p id="comic-description"></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="comic-chapters-section">
-    <h2 class="section-heading">📜 Danh sách chap</h2>
-    <div class="chapters-list" id="chapters-list">
-        <!-- Các chap sẽ được thêm vào đây bằng JavaScript -->
-      </div>
-  </div>
-
-  <div class="comic-comments-section">
-    <h2 class="section-heading">💬 Bình luận (14) (khong hoat dong)</h2>
-    <div class="comment-box">
-      <div class="comment-textarea">
-        <textarea placeholder="Nội dung bình luận"></textarea>
-        <button class="btn-send-comment">🚀</button>
-      </div>
-    </div>
-  </div>
-
+<div
+    id="likes-list"
+    class="comics-grid">
 </div>
 
 <button id="menuToggleBtn" class="menu-toggle-btn">
@@ -156,7 +115,7 @@ content="website">
 </div>
 
 <div id="menuOverlay" class="menu-overlay"></div>
-</div>
+</main>
 <footer>
     <p>
         © 2024 Helium Team. All rights reserved.
@@ -177,7 +136,13 @@ content="website">
         </a>
     </p>
 </footer>
-    <script type="module" src="assets/js/auth.js"></script>
-    <script type="module" src="assets/js/comicpage.js"></script>
-  </body>
-    </html>
+
+<script
+    type="module"
+    src="assets/js/auth.js">
+</script>
+<script
+    type="module"
+    src="assets/js/likes.js">
+</script>
+    </body>

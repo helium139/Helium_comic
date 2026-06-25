@@ -15,6 +15,27 @@ import {
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
+
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, user => {
+
+    if(!user) return;
+
+    document.getElementById(
+        "user-avatar"
+    ).src = user.photoURL;
+
+    document.getElementById(
+        "user-name"
+    ).textContent = user.displayName;
+
+    document.getElementById(
+        "user-email"
+    ).textContent = user.email;
+
+});
+
 const auth =
     getAuth(app);
 

@@ -9,8 +9,8 @@ from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
-    collection,
-    getDocs
+    doc,
+    getDoc
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -36,43 +36,46 @@ onAuthStateChanged(auth, user => {
 
 });
 
+const auth =
+    getAuth(app);
 
-async function loadHistory(user){
+onAuthStateChanged(
+    auth,
+    async(user)=>{
 
-    const historyRef =
-        collection(
-            db,
-            "users",
-            user.uid,
-            "history"
+        if(!user){
+
+            location.href =
+                "login.html";
+
+            return;
+        }
+
+        const userRef =
+            doc(
+                db,
+                "users",
+                user.uid
+            );
+
+        const userSnap =
+            await getDoc(
+                userRef
+            );
+
+        const userData =
+            userSnap.data();
+
+        loadLikedManga(
+            userData.likes || []
         );
 
-    const snapshot =
-        await getDocs(historyRef);
+    }
+);
 
-    const history =
-        snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-
-    history.sort((a,b) => {
-
-    const timeA =
-        a.updatedAt?.seconds || 0;
-
-    const timeB =
-        b.updatedAt?.seconds || 0;
-
-    return timeB - timeA;
-
-});
-
-    renderHistory(history);
-
-}
-
-async function renderHistory(history){
+async function loadLikedManga(
+    likes
+){
 
     const res =
         await fetch(
@@ -84,80 +87,47 @@ async function renderHistory(history){
 
     const container =
         document.getElementById(
-            "history-list"
+            "likes-list"
         );
 
     container.innerHTML = "";
 
-    history.forEach(item => {
+    likes.forEach(id => {
 
-    const manga =
-        data[item.mangaId];
+        const manga =
+            data[id];
 
-    if(!manga) return;
+        if(!manga) return;
 
-    const chapter =
-        manga.chapters.find(
-            c => c.id === item.chapterId
-        );
+        container.innerHTML += `
+        
+        <a
+            href="manga.html?id=${id}"
+            class="comic-item">
 
-    container.innerHTML += `
-    
-    <div class="comic-item">
+            <div class="comic-poster">
 
-        <div class="comic-poster">
+                <img
+                    src="${manga.cover}"
+                    alt="${manga.title}">
 
-            <img
-                src="${manga.cover}"
-                alt="${manga.title}">
+            </div>
 
-        </div>
+            <div class="comic-info">
 
-        <div class="comic-info">
+                <h3>
+                    ${manga.title}
+                </h3>
 
-            <h3>
-                ${manga.title}
-            </h3>
+            </div>
 
-            <p>
-                Đọc đến:
-                ${chapter?.title || ""}
-            </p>
+        </a>
+        
+        `;
 
-            <a
-                class="continue-btn"
-                href="
-                chapter.html?id=${item.mangaId}&chap=${item.chapterId}
-                "
-            >
-                Tiếp tục đọc
-            </a>
+    });
 
-        </div>
-
-    </div>
-    
-    `;
-});
 }
-
-const auth = getAuth(app);
-
-onAuthStateChanged(
-    auth,
-    async (user) => {
-
-        if(!user){
-
-            location.href = "login.html";
-            return;
-
-        }
-
-        loadHistory(user);
-
-    }
-);
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const menuCloseBtn = document.getElementById("menuCloseBtn");
