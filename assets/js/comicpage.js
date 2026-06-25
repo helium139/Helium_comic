@@ -33,6 +33,7 @@ onAuthStateChanged(
         if(user){
 
             await setupLikeButton();
+            await setupFollowButton();
 
         }
 
@@ -133,6 +134,11 @@ async function loadStats() {
     ).textContent =
         `❤️ ${stats.likes || 0}`;
 
+    document.getElementById(
+        "follow-count"
+    ).textContent =
+        `💖 ${stats.follows || 0}`;
+
 }
 
 async function setupLikeButton() {
@@ -222,6 +228,96 @@ async function setupLikeButton() {
                 "💜 Đã thích";
 
             loadStats();
+
+        }
+    );
+
+}
+
+async function setupFollowButton(){
+
+    const followBtn =
+        document.getElementById(
+            "followBtn"
+        );
+
+    if(!followBtn) return;
+
+    if(!currentUser){
+
+        followBtn.addEventListener(
+            "click",
+            () => {
+
+                alert(
+                    "Vui lòng đăng nhập"
+                );
+
+            }
+        );
+
+        return;
+    }
+
+    const userRef =
+        doc(
+            db,
+            "users",
+            currentUser.uid
+        );
+
+    const statRef =
+        doc(
+            db,
+            "mangaStats",
+            mangaId
+        );
+
+    const userSnap =
+        await getDoc(userRef);
+
+    const userData =
+        userSnap.data();
+
+    const followed =
+        userData.follows?.includes(
+            mangaId
+        );
+
+    if(followed){
+
+        followBtn.textContent =
+            "💖 Đã theo dõi";
+
+        followBtn.disabled = true;
+
+        return;
+    }
+
+    followBtn.addEventListener(
+        "click",
+        async () => {
+
+            followBtn.disabled = true;
+
+            await updateDoc(
+                statRef,
+                {
+                    follows: increment(1)
+                }
+            );
+
+            await updateDoc(
+                userRef,
+                {
+                    follows: arrayUnion(
+                        mangaId
+                    )
+                }
+            );
+
+            followBtn.textContent =
+                "💖 Đã theo dõi";
 
         }
     );
