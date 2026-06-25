@@ -110,11 +110,42 @@ const mangaId =
 
 }
 
+async function loadStats() {
+
+    const statRef =
+        doc(
+            db,
+            "mangaStats",
+            mangaId
+        );
+
+    const statSnap =
+        await getDoc(statRef);
+
+    if(!statSnap.exists()) return;
+
+    const stats =
+        statSnap.data();
+
+    document.getElementById(
+        "view-count"
+    ).textContent =
+        `👁️ ${stats.views || 0}`;
+
+    document.getElementById(
+        "like-count"
+    ).textContent =
+        `❤️ ${stats.likes || 0}`;
+
+}
+
     fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
     updateView();
+    
+    loadStats();
 
     const manga =
         data[mangaId];
