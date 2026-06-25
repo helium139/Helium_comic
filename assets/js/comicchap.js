@@ -10,7 +10,8 @@ import { app, db }
 from "./firebase.js";
 
 import {
-    getAuth
+    getAuth,
+    onAuthStateChanged
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
@@ -28,6 +29,8 @@ const chapterId = parseInt(
 );
 
 async function saveHistory() {
+
+    console.log("saveHistory called");
 
     if(!auth.currentUser) return;
 
