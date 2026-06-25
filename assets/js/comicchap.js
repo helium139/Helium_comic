@@ -32,6 +32,7 @@ const chapterId = parseInt(
 );
 
 
+
 async function updateChapterView() {
 
     const viewKey =
@@ -80,6 +81,7 @@ async function updateChapterView() {
         "1"
     );
 }
+updateChapterView();
 
 async function saveHistory() {
 
@@ -116,8 +118,6 @@ onAuthStateChanged(auth, (user) => {
     }
 
 });
-
-updateChapterView();
 
 fetch("assets/data/data.json")
 .then(res => res.json())
