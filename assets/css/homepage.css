@@ -1058,6 +1058,7 @@ body::before {
 footer {
     position: fixed;
     bottom: 0;
+    width: 100vw;
     text-align: center;
     padding: 20px;
     background-color: #f291ec;
