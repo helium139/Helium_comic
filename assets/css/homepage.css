@@ -6,6 +6,13 @@ html, body {
     margin: 0;
     padding: 10px;
     background-size: cover;
+
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+main{
+    flex:1;
 }
 /* BACKGROUND THEME */
 /* 1. ĐỊNH NGHĨA BIẾN MÀU SẮC CHO 2 THEME */
@@ -1056,9 +1063,6 @@ body::before {
     visibility: visible;
 }
 footer {
-    position: absolute;
-    bottom: 0;
-    left: 0 !important;
     width: 100vw;
     text-align: center;
     padding: 20px;
