@@ -36,8 +36,6 @@ onAuthStateChanged(auth, user => {
 
 });
 
-const auth =
-    getAuth(app);
 
 onAuthStateChanged(
     auth,
