@@ -87,10 +87,6 @@ const snap =
     const historySnap =
         await getDocs(historyRef);
 
-    document.getElementById(
-        "history-count"
-    ).textContent =
-        historySnap.size;
 });
 
 document
