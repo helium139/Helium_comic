@@ -1,3 +1,9 @@
+import {
+    requireLogin
+}
+from "./authGuard.js";
+
+requireLogin();
 import { app, db }
 from "./firebase.js";
 

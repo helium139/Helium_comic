@@ -1,3 +1,9 @@
+import {
+    requireLogin
+}
+from "./authGuard.js";
+
+requireLogin();
 import { app, db } from "./firebase.js";
 
 import {
@@ -18,7 +24,7 @@ import {
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-
+let currentUserRef = null;
 const auth = getAuth(app);
 
 onAuthStateChanged(auth, async(user)=>{
@@ -30,6 +36,16 @@ onAuthStateChanged(auth, async(user)=>{
 
         return;
     }
+
+    currentUserRef =
+    doc(
+        db,
+        "users",
+        user.uid
+    );
+
+const snap =
+    await getDoc(currentUserRef);
 
     const userRef =
         doc(
@@ -109,11 +125,11 @@ document
         );
 
         await updateDoc(
-            userRef,
-            {
-                name:newName
-            }
-        );
+    currentUserRef,
+    {
+        name:newName
+    }
+);
 
         alert("Đã cập nhật");
 
@@ -133,19 +149,13 @@ document
             .getElementById("avatarUrl")
             .value;
 
-        await updateProfile(
-            auth.currentUser,
-            {
-                photoURL:avatar
-            }
-        );
 
         await updateDoc(
-            userRef,
-            {
-                avatar:avatar
-            }
-        );
+    currentUserRef,
+    {
+        avatar: avatar
+    }
+);
 
         alert("Đã cập nhật avatar");
 
