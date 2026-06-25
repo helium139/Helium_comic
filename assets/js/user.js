@@ -47,16 +47,6 @@ onAuthStateChanged(auth, async(user)=>{
 const snap =
     await getDoc(currentUserRef);
 
-    const userRef =
-        doc(
-            db,
-            "users",
-            user.uid
-        );
-
-    const snap =
-        await getDoc(userRef);
-
     const data =
         snap.data();
 
