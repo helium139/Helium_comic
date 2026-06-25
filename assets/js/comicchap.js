@@ -31,6 +31,7 @@ const chapterId = parseInt(
     params.get("chap")
 );
 
+
 async function updateChapterView() {
 
     const viewKey =
