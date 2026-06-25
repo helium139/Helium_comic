@@ -12,6 +12,7 @@ import {
     doc,
     getDoc,
     collection,
+    updateDoc,
     getDocs
 }
 from
