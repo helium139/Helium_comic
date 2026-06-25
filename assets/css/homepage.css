@@ -1056,7 +1056,7 @@ body::before {
     visibility: visible;
 }
 footer {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0 !important;
     width: 100vw;
