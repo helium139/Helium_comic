@@ -112,11 +112,12 @@ onAuthStateChanged(auth, (user) => {
     if(user){
 
         saveHistory();
-        updateChapterView();
 
     }
 
 });
+
+updateChapterView();
 
 fetch("assets/data/data.json")
 .then(res => res.json())
