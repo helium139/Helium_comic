@@ -147,7 +147,6 @@ async function renderHistory(history){
 });
 }
 
-const auth = getAuth(app);
 
 onAuthStateChanged(
     auth,
