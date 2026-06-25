@@ -1,3 +1,12 @@
+import {
+    doc,
+    setDoc,
+    serverTimestamp
+}
+from
+"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
 const params = new URLSearchParams(
     window.location.search
 );
@@ -7,11 +16,38 @@ const chapterId = parseInt(
     params.get("chap")
 );
 
+async function saveHistory() {
+
+    if(!auth.currentUser) return;
+
+    const historyRef =
+        doc(
+            db,
+            "users",
+            auth.currentUser.uid,
+            "history",
+            mangaId
+        );
+
+    await setDoc(
+        historyRef,
+        {
+            mangaId: mangaId,
+            chapterId: chapterId,
+            updatedAt: serverTimestamp()
+        }
+    );
+
+}
+
 fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
+    saveHistory();
+    
     const manga = data[mangaId];
+
 
     const chapter = manga.chapters.find(
         c => c.id === chapterId
