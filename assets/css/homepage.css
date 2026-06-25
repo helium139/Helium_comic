@@ -1056,6 +1056,8 @@ body::before {
     visibility: visible;
 }
 footer {
+    position: fixed;
+    bottom: 0;
     text-align: center;
     padding: 20px;
     background-color: #f291ec;
