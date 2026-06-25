@@ -51,11 +51,20 @@ async function saveHistory() {
 
 }
 
+onAuthStateChanged(auth, (user) => {
+
+    if(user){
+
+        saveHistory();
+
+    }
+
+});
+
 fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
-    saveHistory();
     
     const manga = data[mangaId];
 
