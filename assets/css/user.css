@@ -178,3 +178,29 @@
     }
 
 }
+.avatar-edit input, .edit-box input {
+
+    padding:10px;
+
+    border-radius:8px;
+
+    border:1px solid #ccc;
+
+    width:200px;
+
+}
+.avatar-edit button, .edit-box button {
+
+    padding:10px 15px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#b388ff;
+
+    color:white;
+
+    cursor:pointer;
+
+}
