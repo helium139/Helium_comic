@@ -45,6 +45,9 @@ onAuthStateChanged(
 const userSnap =
     await getDoc(userRef);
 
+const userData =
+    userSnap.data();
+
 
 if(!userSnap.exists()){
 
@@ -71,21 +74,22 @@ if(!userSnap.exists()){
             userBox.innerHTML = `
             
             <div class="user-profile">
+            <a href="user.html" class="user-link">
 
                 <img 
-                    src="${user.photoURL}"
+                    src="${userData.avatar || user.photoURL}"
                     class="user-avatar"
                     alt="avatar"
                 >
 
                 <span>
-                    ${user.displayName}
+                    ${userData.name || user.displayName}
                 </span>
-
+                </a>
                 <button id="logout-btn">
                     Đăng xuất
                 </button>
-
+            
             </div>
             
             `;

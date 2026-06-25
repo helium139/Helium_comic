@@ -1129,3 +1129,42 @@ footer p {
 #google-login:hover {
     background-color: #357ae8;
 } 
+.header-avatar{
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+    object-fit:cover;
+}
+.user-profile{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.user-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+    color:inherit;
+}
+
+.user-avatar{
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+    object-fit:cover;
+
+    border:2px solid #ff87c8;
+}
+
+#logout-btn{
+    padding:6px 10px;
+
+    border:none;
+    border-radius:8px;
+
+    cursor:pointer;
+}
