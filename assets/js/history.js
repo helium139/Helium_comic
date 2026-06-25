@@ -35,12 +35,17 @@ async function loadHistory(user){
             ...doc.data()
         }));
 
-    history.sort(
-        (a,b) =>
-            b.updatedAt.seconds
-            -
-            a.updatedAt.seconds
-    );
+    history.sort((a,b) => {
+
+    const timeA =
+        a.updatedAt?.seconds || 0;
+
+    const timeB =
+        b.updatedAt?.seconds || 0;
+
+    return timeB - timeA;
+
+});
 
     renderHistory(history);
 
