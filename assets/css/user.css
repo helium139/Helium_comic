@@ -214,3 +214,9 @@
     transform:translateY(-2px);
     color: #777;
 }
+.stat-card2{
+    padding:20px;
+    text-align:center;
+    margin-top: 20px;
+    argin-bottom: 20px;
+}
