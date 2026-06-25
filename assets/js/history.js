@@ -15,23 +15,6 @@ import {
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-const auth = getAuth(app);
-
-onAuthStateChanged(
-    auth,
-    async (user) => {
-
-        if(!user){
-
-            location.href = "login.html";
-            return;
-
-        }
-
-        loadHistory(user);
-
-    }
-);
 
 async function loadHistory(user){
 
@@ -131,6 +114,24 @@ async function renderHistory(history){
     `;
 });
 }
+
+const auth = getAuth(app);
+
+onAuthStateChanged(
+    auth,
+    async (user) => {
+
+        if(!user){
+
+            location.href = "login.html";
+            return;
+
+        }
+
+        loadHistory(user);
+
+    }
+);
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const menuCloseBtn = document.getElementById("menuCloseBtn");
