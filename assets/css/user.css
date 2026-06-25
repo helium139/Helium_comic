@@ -204,3 +204,13 @@
     cursor:pointer;
 
 }
+.profile-actions a{
+
+    text-decoration:none;
+
+}
+.profile-actions a:hover{
+
+    transform:translateY(-2px);
+    color: #777;
+}
