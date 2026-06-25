@@ -1,6 +1,9 @@
 import {
     doc,
     setDoc,
+    getDoc,
+    updateDoc,
+    increment,
     serverTimestamp
 }
 from
@@ -27,6 +30,55 @@ const mangaId = params.get("id");
 const chapterId = parseInt(
     params.get("chap")
 );
+
+async function updateChapterView() {
+
+    const viewKey =
+        `viewed-${mangaId}-${chapterId}`;
+
+    // Đã tính view chap này rồi
+    if(localStorage.getItem(viewKey)) {
+        return;
+    }
+
+    const statRef =
+        doc(
+            db,
+            "mangaStats",
+            mangaId
+        );
+
+    const statSnap =
+        await getDoc(statRef);
+
+    if(!statSnap.exists()) {
+
+        await setDoc(
+            statRef,
+            {
+                views: 1,
+                likes: 0,
+                follows: 0
+            }
+        );
+
+    } else {
+
+        await updateDoc(
+            statRef,
+            {
+                views: increment(1)
+            }
+        );
+
+    }
+
+    // Đánh dấu chap đã tính view
+    localStorage.setItem(
+        viewKey,
+        "1"
+    );
+}
 
 async function saveHistory() {
 
@@ -59,6 +111,7 @@ onAuthStateChanged(auth, (user) => {
     if(user){
 
         saveHistory();
+        updateChapterView();
 
     }
 
