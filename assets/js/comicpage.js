@@ -26,19 +26,15 @@ let currentUser = null;
 
 onAuthStateChanged(
     auth,
-    (user) => {
+    async (user) => {
 
         currentUser = user;
 
-        console.log(currentUser);
-
         if(user){
 
-        console.log(
-            "Đã đăng nhập:",
-            user.uid
-        );
-    }
+            await setupLikeButton();
+
+        }
 
     }
 );
@@ -139,12 +135,105 @@ async function loadStats() {
 
 }
 
+async function setupLikeButton() {
+
+    const likeBtn =
+        document.getElementById(
+            "likeBtn"
+        );
+
+    if(!likeBtn) return;
+
+    // Chưa đăng nhập
+    if(!currentUser){
+
+        likeBtn.addEventListener(
+            "click",
+            () => {
+
+                alert(
+                    "Vui lòng đăng nhập"
+                );
+
+            }
+        );
+
+        return;
+    }
+
+    const userRef =
+        doc(
+            db,
+            "users",
+            currentUser.uid
+        );
+
+    const statRef =
+        doc(
+            db,
+            "mangaStats",
+            mangaId
+        );
+
+    const userSnap =
+        await getDoc(userRef);
+
+    const userData =
+        userSnap.data();
+
+    const liked =
+        userData.likes?.includes(
+            mangaId
+        );
+
+    if(liked){
+
+        likeBtn.textContent =
+            "💜 Đã thích";
+
+        likeBtn.disabled = true;
+
+        return;
+    }
+
+    likeBtn.addEventListener(
+        "click",
+        async () => {
+
+            likeBtn.disabled = true;
+
+            await updateDoc(
+                statRef,
+                {
+                    likes: increment(1)
+                }
+            );
+
+            await updateDoc(
+                userRef,
+                {
+                    likes: arrayUnion(
+                        mangaId
+                    )
+                }
+            );
+
+            likeBtn.textContent =
+                "💜 Đã thích";
+
+            loadStats();
+
+        }
+    );
+
+}
+
     fetch("assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
     updateView();
-    
+
     loadStats();
 
     const manga =
