@@ -24,23 +24,6 @@ from
 
 const auth = getAuth(app);
 
-onAuthStateChanged(auth, user => {
-
-    if(!user) return;
-
-    document.getElementById(
-        "user-avatar"
-    ).src = user.photoURL;
-
-    document.getElementById(
-        "user-name"
-    ).textContent = user.displayName;
-
-    document.getElementById(
-        "user-email"
-    ).textContent = user.email;
-
-});
 
 
 async function loadHistory(user){
