@@ -220,3 +220,25 @@
     margin-top: 20px;
     argin-bottom: 20px;
 }
+stats-grid{
+    max-width:1000px;
+    margin:40px auto;
+
+    display:grid;
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:20px;
+}
+.stat-card{
+    background:white;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    text-align:center;
+
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.1);
+}

@@ -30,7 +30,7 @@ onAuthStateChanged(auth, user => {
 
     document.getElementById(
         "user-avatar"
-    ).src = user.photoURL;
+    ).src = `${userData.avatar || user.photoURL}`;
 
     document.getElementById(
         "user-name"
