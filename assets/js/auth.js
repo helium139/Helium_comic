@@ -26,7 +26,6 @@ const userBox =
         "user-box"
     );
 
-    if(!userBox) return;
 
 
 onAuthStateChanged(
