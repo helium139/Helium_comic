@@ -1078,6 +1078,8 @@ footer p {
     margin: 5px 0;
 }
 .continue-btn {
+    position: relative;
+    bottom: 5px;
     display: block;
     margin: 20px auto;
     padding: 10px 20px;
@@ -1091,4 +1093,8 @@ footer p {
 }
 .continue-btn:hover {
     background-color: #e070d1;
+}
+.comic-info a {
+    color: #ffffff;
+    text-decoration: none;
 }
