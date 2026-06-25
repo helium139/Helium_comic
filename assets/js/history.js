@@ -79,7 +79,6 @@ async function renderHistory(history){
         );
 
     container.innerHTML = "";
-    }
 
     history.forEach(item => {
 
@@ -131,6 +130,7 @@ async function renderHistory(history){
     
     `;
 });
+}
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const menuCloseBtn = document.getElementById("menuCloseBtn");
