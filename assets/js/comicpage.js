@@ -407,8 +407,14 @@ async function setupFollowButton(){
 
     const firstChapter = manga.chapters[0];
 
-document.getElementById("read-first-btn").href =
-`chapter.html?id=${mangaId}&chap=${firstChapter.id}`;
+document
+.getElementById("read-first-btn")
+.onclick = () => {
+
+    location.href =
+    `chapter.html?id=${mangaId}&chap=${firstChapter.id}`;
+
+};
 
     document.getElementById(
         "comic-title"
