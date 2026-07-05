@@ -403,8 +403,10 @@ async function setupFollowButton(){
 
     loadStats();
 
-    document.getElementById("read-first-btn").href =
-    `chapter.html?id=${mangaId}&chap=${manga.chapters[0].id}`;
+    const firstChapter = manga.chapters[0];
+
+document.getElementById("read-first").href =
+`chapter.html?id=${mangaId}&chap=${firstChapter.id}`;
 
     const manga =
         data[mangaId];
