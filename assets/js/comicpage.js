@@ -468,7 +468,7 @@ const chapterContainer =
             </a>
 
             <span class="chapter-date">
-                ${chapter.createAt.split("T")[0]}
+                ${chap.createAt.split("T")[0]}
             </span>
 
         </div>
