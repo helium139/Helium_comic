@@ -1193,7 +1193,7 @@ footer p {
     margin: 0;
     font-size: 14px;
     color: #333;
-    align-self: center;
+    align-self: center !important;
 }
 .comment-avatar {
     width: 40px;
