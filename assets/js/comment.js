@@ -6,6 +6,8 @@ collection,
 
 addDoc,
 
+doc,
+
 getDocs,
 
 query,
@@ -66,39 +68,51 @@ async function sendComment(){
 
     if(text==="") return;
 
-    await addDoc(
-
-        collection(
+    const userSnap =
+    await getDoc(
+        doc(
             db,
-            "comments",
-            mangaId,
-            "messages"
-        ),
-
-        {
-
-            uid:
-            auth.currentUser.uid,
-
-            name:
-            auth.currentUser.displayName,
-
-            avatar:
-            auth.currentUser.photoURL,
-
-            content:
-            text,
-
-            createdAt:
-            serverTimestamp(),
-
-            edited:false,
-
-            likes:[]
-
-        }
-
+            "users",
+            auth.currentUser.uid
+        )
     );
+
+const userData =
+    userSnap.data();
+
+await addDoc(
+
+    collection(
+        db,
+        "comments",
+        mangaId,
+        "messages"
+    ),
+
+    {
+
+        uid:
+        auth.currentUser.uid,
+
+        name:
+        userData.name,
+
+        avatar:
+        userData.avatar,
+
+        content:
+        text,
+
+        createdAt:
+        serverTimestamp(),
+
+        edited:false,
+
+        likes:[]
+
+    }
+
+);
 
     document
     .getElementById(
