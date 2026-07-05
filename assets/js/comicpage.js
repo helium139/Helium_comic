@@ -403,6 +403,9 @@ async function setupFollowButton(){
 
     loadStats();
 
+    document.getElementById("read-first-btn").href =
+    `chapter.html?id=${mangaId}&chap=${manga.chapters[0].id}`;
+
     const manga =
         data[mangaId];
 
@@ -479,8 +482,6 @@ const chapterContainer =
 
 });
 
-document.getElementById("read-first-btn").href =
-    `chapter.html?id=${mangaId}&chap=${manga.chapters[0].id}`;
 
 });
 
