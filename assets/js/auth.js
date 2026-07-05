@@ -45,6 +45,8 @@ onAuthStateChanged(
 const userSnap =
     await getDoc(userRef);
 
+const data = userSnap.data();
+
 const userData =
     userSnap.data();
 
@@ -93,6 +95,19 @@ if(!userSnap.exists()){
             </div>
             
             `;
+
+            if(data.role === "admin"){
+
+    document.querySelector(
+        ".navigation"
+    ).innerHTML +=
+    `
+    <a href="admin/index.html">
+        ⚙ Admin
+    </a>
+    `;
+
+}
 
 
             document
