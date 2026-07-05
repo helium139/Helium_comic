@@ -1183,3 +1183,13 @@ footer p {
     display: flex;
     gap: 10px;
 }
+.comment div {
+    display: flex;
+    flex-direction: row;
+}
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
