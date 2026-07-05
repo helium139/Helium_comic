@@ -1185,7 +1185,7 @@ footer p {
 }
 .comment div {
   width: 100vw;
-  justify-content: center;
+  justify-content: left;
     display: flex;
     flex-direction: row;
 }
