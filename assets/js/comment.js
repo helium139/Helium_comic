@@ -140,7 +140,7 @@ await getDocs(q);
 
 const list=
 document.getElementById(
-"comment-list"
+"comments-list"
 );
 
 list.innerHTML="";
