@@ -58,21 +58,15 @@ if(!userSnap.exists()){
         {
             name: user.displayName,
             email: user.email,
-            avatar: user.photoURL,
-
-            createdAt:
-                serverTimestamp(),
-
+            avatar: user.photoURL || "assets/images/default-avatar.png",
+            createdAt: serverTimestamp(),
             likes: [],
             follows: [],
             history: []
-        },
-        {
-            merge: true
         }
     );
-}
 
+}
             userBox.innerHTML = `
             
             <div class="user-profile">

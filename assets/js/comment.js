@@ -82,8 +82,9 @@ async function sendComment(){
 const userData =
     userSnap.data();
 
-    console.log(userData);
-    console.log(userData.avatar);
+    console.log(auth.currentUser.uid);
+console.log(userSnap.exists());
+console.log(userSnap.data());
 
 await addDoc(
 
@@ -168,8 +169,6 @@ snapshot.forEach(docSnap=>{
 
 const c=
 docSnap.data();
-
-console.log(c);
 
 list.innerHTML+=`
 
