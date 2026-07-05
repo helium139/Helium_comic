@@ -140,7 +140,7 @@ fetch("assets/data/data.json")
         - ${chapter.title}
 
         <span class="update-time">
-            (${chapter.date})
+            (${chapter.createAt.split("T")[0]})
         </span>
     `;
 
