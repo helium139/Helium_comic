@@ -1189,6 +1189,7 @@ footer p {
     flex-direction: row;
 }
 .comment h4 {
+    padding-left: 15px;
     margin: 0;
     font-size: 14px;
     color: #333;
