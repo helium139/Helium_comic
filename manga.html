@@ -115,15 +115,18 @@ content="website">
       </div>
   </div>
 
-  <div class="comic-comments-section">
-    <h2 class="section-heading">💬 Bình luận (14) (khong hoat dong)</h2>
+  <section class="comic-comments-section">
+    <h2 class="section-heading">💬 Bình luận</h2>
     <div class="comment-box">
       <div class="comment-textarea">
-        <textarea placeholder="Nội dung bình luận"></textarea>
-        <button class="btn-send-comment">🚀</button>
+        <textarea id="comment-input" placeholder="Nội dung bình luận"></textarea>
+        <button id="send-comment" class="btn-send-comment">🚀</button>
       </div>
     </div>
-  </div>
+    <div class="comments-list" id="comments-list">
+      <!-- Các bình luận sẽ được thêm vào đây bằng JavaScript -->
+    </div>
+  </section>
 
 </div>
 
@@ -180,5 +183,9 @@ content="website">
 </footer>
     <script type="module" src="assets/js/auth.js"></script>
     <script type="module" src="assets/js/comicpage.js"></script>
+    <script
+type="module"
+src="assets/js/comment.js">
+</script>
   </body>
     </html>

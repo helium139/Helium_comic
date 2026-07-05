@@ -103,7 +103,7 @@ if(!userSnap.exists()){
     ).innerHTML +=
     `
     <a href="admin/index.html">
-        ⚙ Admin
+        Admin
     </a>
     `;
 
