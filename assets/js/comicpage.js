@@ -402,8 +402,6 @@ async function setupFollowButton(){
     updateView();
 
     loadStats();
-
-
     const manga =
         data[mangaId];
 
