@@ -442,6 +442,14 @@ function handleSearch(){
 
 }
 
+document
+.getElementById("search-input")
+.addEventListener("input", handleSearch);
+
+document
+.getElementById("search-button")
+.addEventListener("click", handleSearch);
+
 document.addEventListener("click", function(e){
 
     const search =

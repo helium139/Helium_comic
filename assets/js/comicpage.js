@@ -194,41 +194,75 @@ async function setupLikeButton() {
 
     if(liked){
 
-        likeBtn.textContent =
-            "💜 Đã thích";
+    likeBtn.textContent =
+        "🤍 Bỏ thích";
 
-        likeBtn.disabled = true;
+}else{
 
-        return;
-    }
+    likeBtn.textContent =
+        "💜 Thích";
+
+}
 
     likeBtn.addEventListener(
         "click",
         async () => {
+        const snap =
+            await getDoc(userRef);
 
-            likeBtn.disabled = true;
+        const data =
+            snap.data();
+
+        const liked =
+            data.likes?.includes(mangaId);
+
+            if(liked){
 
             await updateDoc(
                 statRef,
                 {
-                    likes: increment(1)
+                    likes:
+                        increment(-1)
                 }
             );
 
             await updateDoc(
                 userRef,
                 {
-                    likes: arrayUnion(
-                        mangaId
-                    )
+                    likes:
+                        arrayRemove(mangaId)
                 }
             );
 
             likeBtn.textContent =
-                "💜 Đã thích";
+                "💜 Thích";
 
-            loadStats();
+        }
 
+        else{
+
+            await updateDoc(
+                statRef,
+                {
+                    likes:
+                        increment(1)
+                }
+            );
+
+            await updateDoc(
+                userRef,
+                {
+                    likes:
+                        arrayUnion(mangaId)
+                }
+            );
+
+            likeBtn.textContent =
+                "💔 Bỏ thích";
+
+        }
+
+        loadStats();
         }
     );
 
@@ -286,41 +320,78 @@ async function setupFollowButton(){
 
     if(followed){
 
-        followBtn.textContent =
-            "💖 Đã theo dõi";
+    followBtn.textContent =
+        "💔 Bỏ theo dõi";
 
-        followBtn.disabled = true;
+}else{
 
-        return;
-    }
+    followBtn.textContent =
+        "💖 Theo dõi";
 
+}
     followBtn.addEventListener(
-        "click",
-        async () => {
+    "click",
+    async()=>{
 
-            followBtn.disabled = true;
+        const snap =
+            await getDoc(userRef);
+
+        const data =
+            snap.data();
+
+        const followed =
+            data.follows?.includes(mangaId);
+
+        if(followed){
 
             await updateDoc(
                 statRef,
                 {
-                    follows: increment(1)
+                    follows:
+                        increment(-1)
                 }
             );
 
             await updateDoc(
                 userRef,
                 {
-                    follows: arrayUnion(
-                        mangaId
-                    )
+                    follows:
+                        arrayRemove(mangaId)
                 }
             );
 
             followBtn.textContent =
-                "💖 Đã theo dõi";
+                "💖 Theo dõi";
 
         }
-    );
+
+        else{
+
+            await updateDoc(
+                statRef,
+                {
+                    follows:
+                        increment(1)
+                }
+            );
+
+            await updateDoc(
+                userRef,
+                {
+                    follows:
+                        arrayUnion(mangaId)
+                }
+            );
+
+            followBtn.textContent =
+                "💔 Bỏ theo dõi";
+
+        }
+
+        loadStats();
+
+    }
+);
 
 }
 
