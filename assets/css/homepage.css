@@ -1177,34 +1177,36 @@ footer p {
     margin-top: 20px;;
 }
 
-.comment {
-    border-bottom: 1px solid #eee;
-    padding: 10px 0;
+.comment{
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.comment > div{
     display: flex;
+    align-items: center;
     gap: 10px;
 }
-.comment div {
-  width: 100vw;
-  justify-content: left;
-    display: flex;
-    flex-direction: row;
-}
-.comment h4 {
-    padding-left: 15px;
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-    align-self: center !important;
-}
-.comment-avatar {
+
+.comment-avatar{
     width: 40px;
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
-.comment p {
-    margin: 5px 0 0 0;
-    font-size: 13px;
+
+.comment h4{
+    margin: 0;
+    font-size: 15px;
+    color: #333;
+    font-weight: 600;
+}
+
+.comment p{
+    margin: 8px 0 0 50px;
+    font-size: 14px;
+    line-height: 1.5;
     color: #555;
-    display: block;
+    word-break: break-word;
 }
