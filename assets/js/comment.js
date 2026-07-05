@@ -164,10 +164,12 @@ document.getElementById(
 
 list.innerHTML="";
 
-snapshot.forEach(doc=>{
+snapshot.forEach(docSnap=>{
 
 const c=
-doc.data();
+docSnap.data();
+
+console.log(c);
 
 list.innerHTML+=`
 
