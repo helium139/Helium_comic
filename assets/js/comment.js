@@ -8,6 +8,8 @@ addDoc,
 
 doc,
 
+getDoc,
+
 getDocs,
 
 query,
@@ -79,6 +81,9 @@ async function sendComment(){
 
 const userData =
     userSnap.data();
+
+    console.log(userData);
+    console.log(userData.avatar);
 
 await addDoc(
 
