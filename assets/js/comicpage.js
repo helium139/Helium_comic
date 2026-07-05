@@ -468,7 +468,7 @@ const chapterContainer =
             </a>
 
             <span class="chapter-date">
-                ${chap.createAt}
+                ${chap.createAt.toLocaleDateString()}
             </span>
 
         </div>
