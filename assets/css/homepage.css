@@ -1177,8 +1177,7 @@ footer p {
     margin-top: 20px;;
 }
 
-.comment {
-  justify-self: center;
+.comment {;
     border-bottom: 1px solid #eee;
     padding: 10px 0;
     display: flex;
