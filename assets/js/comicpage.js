@@ -479,6 +479,9 @@ const chapterContainer =
 
 });
 
+document.getElementById("read-first-btn").href =
+    `chapter.html?id=${mangaId}&chap=${manga.chapters[0].id}`;
+
 });
 
 
