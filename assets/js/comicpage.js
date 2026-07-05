@@ -468,7 +468,7 @@ const chapterContainer =
             </a>
 
             <span class="chapter-date">
-                ${chap.createAt.toLocaleDateString()}
+                ${chapter.createAt.split("T")[0]}
             </span>
 
         </div>
@@ -480,7 +480,7 @@ const chapterContainer =
 });
 
 document.getElementById("read-first-btn").href =
-    `chapter.html?id=${mangaId}&chap=${manga.chap[0].id}`;
+    `chapter.html?id=${mangaId}&chap=${manga.chapters[0].id}`;
 
 });
 
