@@ -1178,14 +1178,22 @@ footer p {
 }
 
 .comment {
+  justify-self: center;
     border-bottom: 1px solid #eee;
     padding: 10px 0;
     display: flex;
     gap: 10px;
 }
 .comment div {
+  justify-content: center;
     display: flex;
     flex-direction: row;
+}
+.comment h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+    align-self: center;
 }
 .comment-avatar {
     width: 40px;

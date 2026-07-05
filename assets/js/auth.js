@@ -91,7 +91,7 @@ if(userSnap.exists()){
             
             `;
 
-            if(data.role === "admin"){
+            if(userData.role === "admin"){
 
     document.querySelector(
         ".navigation"
