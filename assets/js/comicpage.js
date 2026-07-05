@@ -402,13 +402,13 @@ async function setupFollowButton(){
     updateView();
     loadStats();
 
-    
+
     const manga =
         data[mangaId];
 
     const firstChapter = manga.chapters[0];
 
-document.getElementById("read-first").href =
+document.getElementById("read-first-btn").href =
 `chapter.html?id=${mangaId}&chap=${firstChapter.id}`;
 
     document.getElementById(
