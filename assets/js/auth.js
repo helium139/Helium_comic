@@ -45,27 +45,28 @@ onAuthStateChanged(
 const userSnap =
     await getDoc(userRef);
 
-const data = userSnap.data();
+let userData = {};
 
-const userData =
-    userSnap.data();
+if(userSnap.exists()){
 
+    userData = userSnap.data();
 
-if(!userSnap.exists()){
+}else{
 
-    await setDoc(
-        userRef,
-        {
-            name: user.displayName,
-            email: user.email,
-            avatar: user.photoURL || "assets/images/default-avatar.png",
-            createdAt: serverTimestamp(),
-            likes: [],
-            follows: [],
-            history: []
-        }
-    );
+    await setDoc(userRef,{
+        name: user.displayName,
+        email: user.email,
+        avatar: user.photoURL || "assets/images/default-avatar.png",
+        createdAt: serverTimestamp(),
+        likes: [],
+        follows: [],
+        history: []
+    });
 
+    userData = {
+        name: user.displayName,
+        avatar: user.photoURL
+    };
 }
             userBox.innerHTML = `
             

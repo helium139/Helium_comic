@@ -1172,3 +1172,14 @@ footer p {
 
     cursor:pointer;
 }
+
+.comments-list {
+    margin-top: 20px;;
+}
+
+.comment {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+    display: flex;
+    gap: 10px;
+}

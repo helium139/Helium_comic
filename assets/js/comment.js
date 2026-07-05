@@ -70,21 +70,21 @@ async function sendComment(){
 
     if(text==="") return;
 
-    const userSnap =
-    await getDoc(
-        doc(
-            db,
-            "users",
-            auth.currentUser.uid
-        )
-    );
+    const userRef = doc(
+    db,
+    "users",
+    auth.currentUser.uid
+);
+
+console.log("UID:", auth.currentUser.uid);
+console.log("PATH:", userRef.path);
+
+const userSnap = await getDoc(userRef);
+
+console.log(userSnap.data());
 
 const userData =
     userSnap.data();
-
-    console.log(auth.currentUser.uid);
-console.log(userSnap.exists());
-console.log(userSnap.data());
 
 await addDoc(
 
@@ -174,11 +174,10 @@ list.innerHTML+=`
 
 <div class="comment">
 
+<div>
 <img
 src="${c.avatar}"
 class="comment-avatar">
-
-<div>
 
 <h4>
 
@@ -186,13 +185,14 @@ ${c.name}
 
 </h4>
 
+</div>
+
 <p>
 
 ${c.content}
 
 </p>
 
-</div>
 
 </div>
 
