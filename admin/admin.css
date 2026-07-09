@@ -356,3 +356,14 @@ cursor:pointer;
     object-fit:cover;
     border-radius:8px;
 }
+.manga-item {
+    display:flex;
+    align-self:center;
+    text-align: center;
+    gap:12px;
+    padding:10px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.2s;
+    margin-bottom:10px;
+}
