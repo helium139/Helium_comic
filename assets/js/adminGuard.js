@@ -68,7 +68,7 @@ export function requireAdmin(){
                 );
 
                 location.href =
-                    "index.html";
+                    "../index.html";
 
             }
 
