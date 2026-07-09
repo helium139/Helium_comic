@@ -423,7 +423,6 @@ Thêm truyện mới
 (Chức năng sẽ làm ở bước tiếp)
 
 </p>
-
 `;
 
     }
