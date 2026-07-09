@@ -1,9 +1,11 @@
-import { requireAdmin }
+import {
+requireAdmin
+}
 from "../assets/js/adminGuard.js";
 
-requireAdmin();
+await requireAdmin();
 
-let mangas={};
+let mangas = {};
 
 fetch("../assets/data/data.json")
 
@@ -13,11 +15,11 @@ fetch("../assets/data/data.json")
 
     mangas=data;
 
-    loadMangas();
+    loadManga();
 
 });
 
-function loadMangas(){
+function loadManga(){
 
 const select=document.getElementById("mangaSelect");
 
@@ -45,116 +47,41 @@ ${manga.title}
 
 }
 
-const imageInput=
-
-document.getElementById("chapterImages");
-
-imageInput.onchange=()=>{
-
-document.getElementById("imageCount")
-
-.innerHTML=
-
-`${imageInput.files.length} ảnh`;
-
-generateJson();
-
-}
+document
+.getElementById("generateBtn")
+.onclick=generateJson;
 
 function generateJson(){
 
-const pages=
-
-imageInput.files.length;
-
-const number=
-
-parseInt(
-
-document.getElementById("chapterNumber").value
-
+const id=
+Number(
+document.getElementById("chapterId").value
 );
 
 const title=
-
 document.getElementById("chapterTitle").value;
 
-const folder=
-
-document.getElementById("folderName").value;
-
 const date=
-
 document.getElementById("chapterDate").value;
 
-const json={
+const folder=
+document.getElementById("chapterFolder").value;
 
-id:number,
+const pages=
+Number(
+document.getElementById("pageCount").value
+);
 
-title:title,
+const json=
 
-createAt:date+"T07:00:00Z",
+`{
+    "id":${id},
+    "title":"${title}",
+    "createAt":"${date}T07:00:00Z",
+    "folder":"${folder}",
+    "pages":${pages}
+},`;
 
-folder:
-
-`https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/${folder}`,
-
-pages:pages
-
-};
-
-document.getElementById("jsonPreview")
-
-.value=
-
-JSON.stringify(json,null,4);
+document.getElementById("jsonOutput").value=json;
 
 }
-
-document
-
-.querySelectorAll("input")
-
-.forEach(input=>{
-
-input.oninput=
-
-generateJson;
-
-});
-
-document.getElementById("copyBtn")
-
-.onclick=()=>{
-
-navigator.clipboard.writeText(
-
-document.getElementById("jsonPreview").value
-
-);
-
-alert("Đã copy.");
-
-};
-
-document.getElementById("downloadBtn")
-
-.onclick=()=>{
-
-const blob=new Blob(
-
-[document.getElementById("jsonPreview").value],
-
-{type:"application/json"}
-
-);
-
-const a=document.createElement("a");
-
-a.href=URL.createObjectURL(blob);
-
-a.download="chapter.json";
-
-a.click();
-
-};
