@@ -1,48 +1,70 @@
 <!DOCTYPE html>
+
 <html lang="vi">
 
 <head>
 
 <meta charset="UTF-8">
 
-<title>Helium Admin</title>
+<title>Helium CMS</title>
+<link rel="icon" type="image/png" href="assets/images/helium_logo.webp">
 
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet"
+href="admin.css">
+
+<link
+href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+rel="stylesheet">
 
 </head>
 
 <body>
 
-<h1>Helium Admin</h1>
+<div class="sidebar">
 
-<div class="layout">
+    <div class="logo">
+        <img src="../assets/images/helium_logo.webp">
+        <h2>Helium CMS</h2>
+    </div>
 
-    <aside class="sidebar">
+    <a href="index.html">
+        <i class='bx bx-home'></i>
+        Dashboard
+    </a>
 
-        <h2>Danh sách truyện</h2>
+    <a href="manga.html">
+        <i class='bx bx-book'></i>
+        Quản lý truyện
+    </a>
 
-        <div id="manga-list"></div>
+    <a href="chapter.html">
+        <i class='bx bx-file'></i>
+        Thêm Chapter
+    </a>
 
-        <button id="newMangaBtn">
-            + Thêm truyện
-        </button>
+    <a href="publish.html">
+        <i class='bx bx-upload'></i>
+        Publish
+    </a>
 
-    </aside>
-
-
-    <main class="editor">
-
-        <h2 id="editor-title">
-            Chọn một truyện
-        </h2>
-
-        <div id="editor"></div>
-
-    </main>
+    <a href="../index.html">
+        <i class='bx bx-world'></i>
+        Website
+    </a>
 
 </div>
 
-<script type="module" src="admin.js"></script>
+<div class="content">
+
+<h1>Danh sách truyện</h1>
+
+<div id="manga-list"></div>
+
+</div>
+
+<script type="module"
+src="dashboard.js">
+</script>
 
 </body>
 
