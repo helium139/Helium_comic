@@ -1,3 +1,11 @@
+import {
+    requireAdmin
+}
+from
+"../assets/js/adminGuard.js";
+
+requireAdmin();
+
 let mangas={};
 
 fetch("../assets/data/data.json")
