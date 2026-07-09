@@ -34,10 +34,12 @@ function renderList(){
         list.innerHTML += `
 
         <div
-            class="manga-item"
+            class="manga-item manga-row"
             data-id="${slug}">
 
             ${manga.title}
+            
+            <img class="manga-cover" src="${manga.cover}">
 
         </div>
 

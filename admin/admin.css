@@ -350,3 +350,9 @@ cursor:pointer;
     font-size:13px;
 
 }
+.manga.cover {
+    width:100px;
+    height:150px;
+    object-fit:cover;
+    border-radius:8px;
+}
