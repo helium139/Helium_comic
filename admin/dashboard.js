@@ -77,56 +77,43 @@ function openEditor(slug){
     ).innerHTML =
 
 `
-<label>Slug</label>
+<div class="card">
 
-<input
-id="slug"
-value="${slug}">
+<img src="${manga.cover}">
 
+<div class="card-body">
 
-<label>Tên truyện</label>
+<h2>${manga.title}</h2>
 
-<input
-id="title"
-value="${manga.title}">
+<p>${manga.original_title}</p>
 
+<p>${manga.author}</p>
 
-<label>Tác giả</label>
+<p>
 
-<input
-id="author"
-value="${manga.author}">
+${manga.chapters.length}
 
+chapters
 
-<label>Team</label>
+</p>
 
-<input
-id="team"
-value="${manga.team}">
+<p>
 
+${manga.status}
 
-<label>Cover</label>
+</p>
 
-<input
-id="cover"
-value="${manga.cover}">
+<div class="card-buttons">
 
+<button>Edit</button>
 
-<label>Mô tả</label>
+<button>Chapter</button>
 
-<textarea
-id="description">
+</div>
 
-${manga.description}
+</div>
 
-</textarea>
-
-
-<button id="saveBtn">
-
-Lưu thay đổi
-
-</button>
+</div>
 
 `;
 
