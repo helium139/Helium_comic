@@ -52,31 +52,35 @@ rel="stylesheet">
     </a>
 
 </div>
-<div class="content">
+<div class="main">
 
-<h1>Quản lý truyện</h1>
+    <div class="left-panel">
 
-<input
-type="text"
-id="search"
-placeholder="Tìm truyện...">
+        <input
+            id="search"
+            placeholder="Tìm truyện...">
 
-<button id="newBtn">
-+ Thêm truyện
-</button>
+        <button id="newBtn">
+            + Thêm truyện
+        </button>
 
-<hr>
+        <div id="mangaSidebar"></div>
 
-<div id="mangaEditor">
+    </div>
 
-Chọn một truyện ở danh sách bên trái
+    <div class="right-panel">
+
+        <div id="mangaEditor">
+
+            Chọn một truyện...
+
+        </div>
+
+    </div>
 
 </div>
 
-</div>
-<script type="module"
-src="manga.js">
-</script>
+<script type="module" src="manga.js"></script>
 
 </body>
 

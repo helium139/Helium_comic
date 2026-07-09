@@ -268,3 +268,85 @@ border-radius:10px;
 cursor:pointer;
 
 }
+.main{
+
+    flex:1;
+
+    display:flex;
+
+}
+
+.left-panel{
+
+    width:320px;
+
+    background:white;
+
+    border-right:1px solid #ddd;
+
+    padding:20px;
+
+    overflow:auto;
+
+}
+
+.right-panel{
+
+    flex:1;
+
+    padding:35px;
+
+    overflow:auto;
+
+}
+.manga-row{
+
+    display:flex;
+
+    gap:12px;
+
+    padding:10px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    margin-bottom:10px;
+
+}
+
+.manga-row:hover{
+
+    background:#eef2ff;
+
+}
+
+.manga-row img{
+
+    width:60px;
+
+    height:80px;
+
+    object-fit:cover;
+
+    border-radius:8px;
+
+}
+
+.manga-row h4{
+
+    margin:0;
+
+}
+
+.manga-row p{
+
+    margin-top:8px;
+
+    color:#666;
+
+    font-size:13px;
+
+}

@@ -4,7 +4,7 @@ import {
 from
 "../assets/js/adminGuard.js";
 
-requireAdmin();
+await requireAdmin();
 
 let mangas = {};
 

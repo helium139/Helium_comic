@@ -29,50 +29,75 @@ from
 const auth =
     getAuth(app);
 
-export function requireAdmin(){
+export async function requireAdmin(){
 
-    onAuthStateChanged(
-        auth,
-        async(user)=>{
+    return new Promise((resolve,reject)=>{
 
-            if(!user){
+        onAuthStateChanged(
 
-                location.href =
-                    "login.html";
+            auth,
 
-                return;
+            async(user)=>{
+
+                if(!user){
+
+                    location.href="../login.html";
+
+                    reject();
+
+                    return;
+
+                }
+
+                try{
+
+                    const snap=
+                    await getDoc(
+
+                        doc(
+                            db,
+                            "users",
+                            user.uid
+                        )
+
+                    );
+
+                    if(!snap.exists()){
+
+                        location.href="../index.html";
+
+                        reject();
+
+                        return;
+
+                    }
+
+                    const data=snap.data();
+
+                    if(data.role!=="admin"){
+
+                        location.href="../index.html";
+
+                        reject();
+
+                        return;
+
+                    }
+
+                    resolve(user);
+
+                }
+
+                catch(err){
+
+                    reject(err);
+
+                }
 
             }
 
-            const snap =
-                await getDoc(
+        );
 
-                    doc(
-                        db,
-                        "users",
-                        user.uid
-                    )
-
-                );
-
-            const data =
-                snap.data();
-
-            if(
-                data.role !==
-                "admin"
-            ){
-
-                alert(
-                    "Bạn không có quyền truy cập."
-                );
-
-                location.href =
-                    "../index.html";
-
-            }
-
-        }
-    );
+    });
 
 }
