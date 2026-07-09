@@ -6,66 +6,128 @@ from
 
 requireAdmin();
 
+let mangas = {};
+
 fetch("../assets/data/data.json")
 
 .then(r=>r.json())
 
 .then(data=>{
 
-const list=document.getElementById("manga-list");
+    mangas = data;
 
-Object.entries(data).forEach(([slug,manga])=>{
+    renderList();
 
-list.innerHTML+=`
+});
 
-<div class="manga-card">
+function renderList(){
 
-<img src="${manga.cover}">
+    const list =
+    document.getElementById("manga-list");
 
-<div class="manga-info">
+    list.innerHTML = "";
 
-<h3>${manga.title}</h3>
+    Object.entries(mangas)
 
-<p>${manga.author}</p>
+    .forEach(([slug,manga])=>{
 
-<p>
+        list.innerHTML += `
 
-${manga.chapters.length}
+        <div
+            class="manga-item"
+            data-id="${slug}">
 
-chapters
+            ${manga.title}
 
-</p>
+        </div>
 
-<div class="btn-group">
+        `;
 
-<button
+    });
 
-class="btn edit"
+    document
+    .querySelectorAll(".manga-item")
 
-onclick="location.href='manga.html?id=${slug}'">
+    .forEach(item=>{
 
-Sửa
+        item.onclick=()=>{
+
+            openEditor(
+                item.dataset.id
+            );
+
+        };
+
+    });
+
+}
+
+function openEditor(slug){
+
+    const manga =
+        mangas[slug];
+
+    document.getElementById(
+        "editor-title"
+    ).innerHTML =
+        manga.title;
+
+    document.getElementById(
+        "editor"
+    ).innerHTML =
+
+`
+<label>Slug</label>
+
+<input
+id="slug"
+value="${slug}">
+
+
+<label>Tên truyện</label>
+
+<input
+id="title"
+value="${manga.title}">
+
+
+<label>Tác giả</label>
+
+<input
+id="author"
+value="${manga.author}">
+
+
+<label>Team</label>
+
+<input
+id="team"
+value="${manga.team}">
+
+
+<label>Cover</label>
+
+<input
+id="cover"
+value="${manga.cover}">
+
+
+<label>Mô tả</label>
+
+<textarea
+id="description">
+
+${manga.description}
+
+</textarea>
+
+
+<button id="saveBtn">
+
+Lưu thay đổi
 
 </button>
-
-<button
-
-class="btn chapter"
-
-onclick="location.href='chapter.html?id=${slug}'">
-
-Chap
-
-</button>
-
-</div>
-
-</div>
-
-</div>
 
 `;
 
-});
-
-});
+}
