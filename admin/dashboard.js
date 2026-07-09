@@ -37,9 +37,10 @@ function renderList(){
             class="manga-item manga-row"
             data-id="${slug}">
 
+            <img class="manga-cover" src="${manga.cover}">
+
             ${manga.title}
             
-            <img class="manga-cover" src="${manga.cover}">
 
         </div>
 

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Upload Chapter</title>
+
+<link rel="stylesheet" href="admin.css">
+<img src="../assets/images/helium_logo.webp" alt="Helium Logo" class="logo">
+<link
+href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+<img src="../assets/images/helium_logo.webp">
+<h2>Helium CMS</h2>
+</div>
+
+<a href="index.html">Dashboard</a>
+
+<a href="manga.html">Quản lý truyện</a>
+
+<a href="chapter.html" class="active">
+Upload Chapter
+</a>
+
+<a href="publish.html">Publish</a>
+
+</div>
+
+<div class="content">
+
+<h1>Upload Chapter</h1>
+
+<div class="editor-card">
+
+<label>Truyện</label>
+
+<select id="mangaSelect"></select>
+
+<label>Chapter</label>
+
+<input id="chapterNumber">
+
+<label>Tên chapter</label>
+
+<input id="chapterTitle">
+
+<label>Ngày đăng</label>
+
+<input
+type="date"
+id="chapterDate">
+
+<label>Folder</label>
+
+<input id="folderName">
+
+<label>Ảnh chapter</label>
+
+<input
+type="file"
+multiple
+id="chapterImages">
+
+<div id="imageCount">
+Chưa chọn ảnh
+</div>
+
+<button id="uploadBtn">
+Upload Cloudflare
+</button>
+
+<hr>
+
+<h2>JSON</h2>
+
+<textarea
+id="jsonPreview"
+rows="14"></textarea>
+
+<div class="button-row">
+
+<button id="copyBtn">
+
+Copy JSON
+
+</button>
+
+<button id="downloadBtn">
+
+Xuất chapter.json
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script type="module" src="chapter.js"></script>
+
+</body>
+</html>
