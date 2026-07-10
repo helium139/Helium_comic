@@ -1,0 +1,47 @@
+<input type="file" id="f">
+
+<button id="u">
+Upload
+</button>
+
+<script>
+
+document.getElementById("u").onclick=async()=>{
+
+const file=
+
+document.getElementById("f")
+
+.files[0];
+
+const form=new FormData();
+
+form.append("file",file);
+
+form.append("folder","tro-tan/chap999");
+
+form.append("filename","1.webp");
+
+const res=await fetch(
+
+"https://helium-cms.mylengoctra06.workers.dev/upload",
+
+{
+
+method:"POST",
+
+body:form
+
+}
+
+);
+
+console.log(
+
+await res.json()
+
+);
+
+};
+
+</script>
