@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
 
 <meta charset="UTF-8">
 
-<title>Chapter Manager</title>
+<title>Thêm Chapter</title>
 
 <link rel="stylesheet" href="admin.css">
-<link rel="icon" type="image/png" href="../assets/images/helium_logo.webp">
-<link
-href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-rel="stylesheet">
+
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
 </head>
 
@@ -18,41 +17,43 @@ rel="stylesheet">
 
 <div class="sidebar">
 
-<div class="logo">
+    <div class="logo">
+        <img src="../assets/images/helium_logo.webp">
+        <h2>Helium CMS</h2>
+    </div>
 
-<img src="../assets/images/helium_logo.webp">
+    <a href="index.html">
+        <i class='bx bx-home'></i>
+        Dashboard
+    </a>
 
-<h2>Helium CMS</h2>
+    <a href="manga.html">
+        <i class='bx bx-book'></i>
+        Quản lý truyện
+    </a>
 
-</div>
+    <a href="chapter.html" class="active">
+        <i class='bx bx-file'></i>
+        Thêm Chapter
+    </a>
 
-<a href="index.html">
-<i class='bx bx-home'></i>
-Dashboard
-</a>
+    <a href="publish.html">
+        <i class='bx bx-upload'></i>
+        Publish
+    </a>
 
-<a href="manga.html">
-<i class='bx bx-book'></i>
-Quản lý truyện
-</a>
-
-<a class="active" href="chapter.html">
-<i class='bx bx-file'></i>
-Chapter
-</a>
-
-<a href="publish.html">
-<i class='bx bx-upload'></i>
-Publish
-</a>
+    <a href="../index.html">
+        <i class='bx bx-world'></i>
+        Website
+    </a>
 
 </div>
 
 <div class="content">
 
-<h1>Thêm Chapter</h1>
+<h1>Upload Chapter</h1>
 
-<div class="editor-card">
+<div class="card">
 
 <label>Truyện</label>
 
@@ -60,49 +61,55 @@ Publish
 
 <label>Số Chapter</label>
 
-<input id="chapterId" type="number">
+<input
+type="number"
+id="chapterNumber"
+placeholder="Ví dụ: 21">
 
 <label>Tiêu đề</label>
 
-<input id="chapterTitle">
+<input
+type="text"
+id="chapterTitle"
+placeholder="Chap 21">
 
 <label>Ngày phát hành</label>
 
 <input
-id="chapterDate"
-type="date">
+type="date"
+id="chapterDate">
 
-<label>Folder Cloudflare</label>
-
-<input
-id="chapterFolder"
-placeholder="https://pub....../tro-tan/chap15">
-
-<label>Số trang</label>
+<label>Chọn ảnh</label>
 
 <input
-id="pageCount"
-type="number">
+type="file"
+id="chapterFiles"
+multiple
+accept="image/*">
 
-<button id="generateBtn">
+<br><br>
 
-Sinh JSON
-
+<button id="uploadBtn">
+<i class='bx bx-cloud-upload'></i>
+Upload Chapter
 </button>
 
 </div>
 
-<h2>JSON</h2>
+<div class="card">
 
-<textarea
-id="jsonOutput"
-rows="18">
+<h2>Tiến trình</h2>
 
-</textarea>
+<div id="progress">
+Chưa upload...
+</div>
+
+</div>
 
 </div>
 
 <script type="module" src="chapter.js"></script>
 
 </body>
+
 </html>

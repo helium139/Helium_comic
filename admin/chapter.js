@@ -1,87 +1,402 @@
-import {
-requireAdmin
-}
+import { requireAdmin }
 from "../assets/js/adminGuard.js";
 
-await requireAdmin();
+import {
+    getMangas
+}
+from "./api/manga.js";
+
+import {
+    uploadImage
+}
+from "./api/upload.js";
+
+import {
+    publishChapter
+}
+from "./api/github.js";
+
+import {
+    buildChapter
+}
+from "./utils/builder.js";
+
+import {
+    log,
+    clearLog
+}
+from "./utils/logger.js";
+
+requireAdmin();
 
 let mangas = {};
 
-fetch("../assets/data/data.json")
+let selectedFiles = [];
 
-.then(r=>r.json())
+//================ DOM =================//
 
-.then(data=>{
+const mangaSelect =
+document.getElementById("mangaSelect");
 
-    mangas=data;
+const chapterNumber =
+document.getElementById("chapterNumber");
 
-    loadManga();
+const chapterTitle =
+document.getElementById("chapterTitle");
 
-});
+const chapterDate =
+document.getElementById("chapterDate");
 
-function loadManga(){
+const chapterFiles =
+document.getElementById("chapterFiles");
 
-const select=document.getElementById("mangaSelect");
+const uploadBtn =
+document.getElementById("uploadBtn");
 
-Object.entries(mangas)
+const progress =
+document.getElementById("progress");
 
-.sort((a,b)=>
+// preview sẽ thêm vào chapter.html
 
-a[1].title.localeCompare(b[1].title)
+const preview =
+document.createElement("div");
 
-)
+preview.id = "preview";
 
-.forEach(([slug,manga])=>{
+preview.className = "preview-grid";
 
-select.innerHTML+=`
+progress.parentNode.insertBefore(
+    preview,
+    progress
+);
 
-<option value="${slug}">
+//================ INIT =================//
 
-${manga.title}
+init();
 
-</option>
+async function init(){
 
-`;
+    mangas =
+        await getMangas();
 
-});
+    renderMangaList();
+
+    setToday();
 
 }
+function renderMangaList(){
 
-document
-.getElementById("generateBtn")
-.onclick=generateJson;
+    mangaSelect.innerHTML = "";
 
-function generateJson(){
+    Object.entries(mangas)
 
-const id=
-Number(
-document.getElementById("chapterId").value
+    .sort((a,b)=>
+
+        a[1].title.localeCompare(
+            b[1].title
+        )
+
+    )
+
+    .forEach(([slug,manga])=>{
+
+        mangaSelect.innerHTML +=
+
+        `
+        <option value="${slug}">
+            ${manga.title}
+        </option>
+        `;
+
+    });
+
+    updateNextChapter();
+
+}
+function updateNextChapter(){
+
+    const slug =
+        mangaSelect.value;
+
+    const manga =
+        mangas[slug];
+
+    const next =
+
+        manga.chapters.length + 1;
+
+    chapterNumber.value = next;
+
+    chapterTitle.value =
+        `Chap ${next}`;
+
+}
+function setToday(){
+
+    const today =
+        new Date();
+
+    chapterDate.value =
+
+        today
+        .toISOString()
+        .split("T")[0];
+
+}
+mangaSelect.onchange = ()=>{
+
+    updateNextChapter();
+
+};
+chapterFiles.onchange = ()=>{
+
+    selectedFiles =
+
+        Array.from(
+            chapterFiles.files
+        );
+
+    selectedFiles.sort(
+
+        (a,b)=>
+
+        a.name.localeCompare(
+            b.name,
+            undefined,
+            {
+                numeric:true
+            }
+        )
+
+    );
+
+    renderPreview();
+
+};
+function renderPreview(){
+
+    preview.innerHTML = "";
+
+    selectedFiles.forEach(
+
+        (file,index)=>{
+
+            const reader =
+                new FileReader();
+
+            reader.onload=e=>{
+
+                preview.innerHTML +=
+
+                `
+                <div class="thumb">
+
+                    <img
+                        src="${e.target.result}"
+                    >
+
+                    <span>
+
+                        ${index+1}
+
+                    </span>
+
+                </div>
+                `;
+
+            };
+
+            reader.readAsDataURL(file);
+
+        }
+
+    );
+
+}
+function setProgress(text){
+
+    progress.innerHTML = text;
+
+    log(text);
+
+}
+//==================== UPLOAD ====================//
+
+uploadBtn.onclick = async () => {
+
+    if(selectedFiles.length === 0){
+
+        alert("Chưa chọn ảnh.");
+
+        return;
+
+    }
+
+    clearLog();
+
+    uploadBtn.disabled = true;
+
+    uploadBtn.textContent = "Đang upload...";
+
+    try{
+
+        await uploadChapter();
+
+resetForm();
+
+alert(
+"Chapter đã được upload.\nGithub sẽ tự deploy khoảng 30-60 giây."
 );
 
-const title=
-document.getElementById("chapterTitle").value;
+    }
 
-const date=
-document.getElementById("chapterDate").value;
+    catch(err){
 
-const folder=
-document.getElementById("chapterFolder").value;
+        console.error(err);
 
-const pages=
-Number(
-document.getElementById("pageCount").value
-);
+        alert(err.message);
 
-const json=
+    }
 
-`{
-    "id":${id},
-    "title":"${title}",
-    "createAt":"${date}T07:00:00Z",
-    "folder":"${folder}",
-    "pages":${pages}
-},`;
+    uploadBtn.disabled = false;
 
-document.getElementById("jsonOutput").value=json;
+    uploadBtn.innerHTML = `
+        <i class='bx bx-cloud-upload'></i>
+        Upload Chapter
+    `;
+
+};
+
+async function uploadChapter(){
+
+    const slug =
+        mangaSelect.value;
+
+    const chapter =
+        Number(chapterNumber.value);
+
+    const title =
+        chapterTitle.value.trim();
+
+    const date =
+        chapterDate.value;
+
+    const folder =
+        `${slug}/chap${chapter}`;
+
+    const uploadedUrls = [];
+
+    setProgress("Bắt đầu upload...");
+
+    for(let i=0;i<selectedFiles.length;i++){
+
+        const file =
+            selectedFiles[i];
+
+        const extension =
+            file.name
+            .split(".")
+            .pop();
+
+        const filename =
+            `${i+1}.${extension}`;
+
+        setProgress(
+
+            `Uploading ${filename}
+             (${i+1}/${selectedFiles.length})`
+
+        );
+
+        const url =
+            await uploadImage(
+
+                file,
+
+                folder,
+
+                filename
+
+            );
+
+        uploadedUrls.push(url);
+
+    }
+
+    setProgress("Upload ảnh hoàn tất.");
+
+    await commitChapter(
+
+        slug,
+
+        folder,
+
+        title,
+
+        chapter,
+
+        date,
+
+        uploadedUrls.length
+
+    );
+
+}
+async function commitChapter(
+
+    slug,
+
+    folder,
+
+    title,
+
+    chapter,
+
+    date,
+
+    pages
+
+){
+
+    setProgress("Đang commit Github...");
+
+
+
+    const result =
+
+        await publishChapter({
+
+            manga:slug,
+
+            chapter:chapterObject
+
+        });
+
+    if(!result.success){
+
+        throw new Error(
+
+            result.message ||
+
+            "Commit Github thất bại."
+
+        );
+
+    }
+
+    setProgress("Commit thành công.");
+
+    setProgress("Github Pages đang deploy...");
+
+}
+function resetForm(){
+
+    selectedFiles = [];
+
+    preview.innerHTML = "";
+
+    chapterFiles.value = "";
+
+    updateNextChapter();
 
 }
