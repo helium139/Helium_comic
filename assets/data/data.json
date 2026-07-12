@@ -865,6 +865,13 @@
                 "createAt": "2026-07-12T19:23:14.394Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap4",
                 "pages": 4
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2026-07-12T19:25:08.090Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap5",
+                "pages": 1
             }
         ]
     }
