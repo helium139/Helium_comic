@@ -858,20 +858,6 @@
                 "createAt": "2026-10-06T7:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap3",
                 "pages": 31
-            },
-            {
-                "id": 4,
-                "title": "Chap 10",
-                "createAt": "2026-07-12T19:06:59.850Z",
-                "folder": "undefined/tro-tan/chap4",
-                "pages": 5
-            },
-            {
-                "id": 5,
-                "title": "Chap 1000",
-                "createAt": "2026-07-12T19:09:38.762Z",
-                "folder": "undefined/tro-tan/chap5",
-                "pages": 6
             }
         ]
     }
