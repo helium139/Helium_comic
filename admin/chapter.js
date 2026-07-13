@@ -469,15 +469,13 @@ const filename = `${i+1}.${extension}`;
 
         await uploadImage(
 
-            file,
+    file,
 
-            slug,
+    `${slug}/chap${chapter}`,
 
-            chapter,
+    filename
 
-            filename
-
-        );
+);
         log(
 
 `✔ ${filename}`

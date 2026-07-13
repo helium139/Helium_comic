@@ -1,430 +1,486 @@
-import {
-    requireAdmin
-}
-from "../assets/js/adminGuard.js";
+import { requireAdmin } from "../assets/js/adminGuard.js";
 
-await requireAdmin();
+import { getMangas } from "./api/manga.js";
+import { uploadImage } from "./api/upload.js";
+
+import {
+
+    newManga,
+
+    editManga,
+
+    deleteManga
+
+}
+
+from "./api/github.js";
+
+requireAdmin();
 
 let mangas = {};
+
 let currentSlug = null;
 
-// ================= LOAD DATA =================
+let coverFile = null;
 
-fetch("../assets/data/data.json")
-.then(res => res.json())
-.then(data=>{
+const mangaGrid =
+document.getElementById("mangaGrid");
 
-    mangas = data;
+const searchInput =
+document.getElementById("searchInput");
 
-    renderSidebar();
+const newBtn =
+document.getElementById("newMangaBtn");
 
-});
+const editor =
+document.getElementById("editor");
 
+const closeEditor =
+document.getElementById("closeEditor");
 
-// ================= SIDEBAR =================
+const saveBtn =
+document.getElementById("saveBtn");
 
-function renderSidebar(keyword=""){
+const deleteBtn =
+document.getElementById("deleteBtn");
 
-    const sidebar =
-        document.getElementById("mangaSidebar");
+const editorTitle =
+document.getElementById("editorTitle");
 
-    sidebar.innerHTML = "";
+const slug =
+document.getElementById("slug");
+
+const title =
+document.getElementById("title");
+
+const originalTitle =
+document.getElementById("originalTitle");
+
+const author =
+document.getElementById("author");
+
+const team =
+document.getElementById("team");
+
+const status =
+document.getElementById("status");
+
+const tags =
+document.getElementById("tags");
+
+const description =
+document.getElementById("description");
+
+const coverFileInput =
+document.getElementById("coverFile");
+
+const coverPreview =
+document.getElementById("coverPreview");
+
+init();
+
+async function init(){
+
+    mangas = await getMangas();
+
+    renderMangas();
+
+    bindEvents();
+
+}
+
+function bindEvents(){
+
+    searchInput.oninput=()=>{
+
+        renderMangas(
+
+            searchInput.value
+
+        );
+
+    };
+
+    newBtn.onclick=openNew;
+
+    closeEditor.onclick=closePanel;
+
+    saveBtn.onclick=saveCurrent;
+
+    deleteBtn.onclick=removeCurrent;
+
+    coverFileInput.onchange=e=>{
+
+        coverFile=
+
+        e.target.files[0];
+
+        renderCover();
+
+    };
+
+}
+
+function renderMangas(keyword=""){
+
+    mangaGrid.innerHTML="";
 
     Object.entries(mangas)
 
     .filter(([slug,manga])=>{
 
         return manga.title
-            .toLowerCase()
-            .includes(keyword.toLowerCase());
+
+        .toLowerCase()
+
+        .includes(
+
+            keyword.toLowerCase()
+
+        );
 
     })
 
     .sort((a,b)=>
 
-        a[1].title.localeCompare(b[1].title)
+        a[1].title.localeCompare(
+
+            b[1].title
+
+        )
 
     )
 
     .forEach(([slug,manga])=>{
 
-        sidebar.innerHTML += `
+        const card=
 
-        <div
-            class="manga-row"
-            data-id="${slug}">
+        document.createElement("div");
 
-            <img
-                src="${manga.cover}"
-                class="manga-cover">
+        card.className="manga-card";
 
-            <div class="manga-info">
+        card.innerHTML=`
 
-                <h4>
+        <img src="${manga.cover}">
 
-                    ${manga.title}
+        <div class="card-body">
 
-                </h4>
+            <h3>
 
-                <p>
+            ${manga.title}
 
-                    ${manga.chapters.length}
-                    Chapters
+            </h3>
 
-                </p>
+            <p>
 
-            </div>
+            ${manga.author}
+
+            </p>
+
+            <small>
+
+            ${manga.chapters.length}
+
+            Chapters
+
+            </small>
 
         </div>
 
         `;
 
+        card.onclick=()=>{
+
+            openEditor(
+
+                slug
+
+            );
+
+        };
+
+        mangaGrid.appendChild(card);
+
     });
 
 }
 
+function renderCover(){
 
-// ================= SEARCH =================
+    if(!coverFile){
 
-document
-.getElementById("search")
-.addEventListener(
-
-    "input",
-
-    function(){
-
-        renderSidebar(
-            this.value
-        );
+        return;
 
     }
 
-);
+    const reader=
 
+    new FileReader();
 
-// ================= CLICK =================
+    reader.onload=e=>{
 
-document.addEventListener(
+        coverPreview.innerHTML=`
 
-    "click",
+        <img
 
-    e=>{
+        src="${e.target.result}">
 
-        const row =
-            e.target.closest(".manga-row");
+        `;
 
-        if(!row) return;
+    };
 
-        openEditor(
-            row.dataset.id
-        );
+    reader.readAsDataURL(
 
-    }
+        coverFile
 
-);
-
-
-// ================= EDITOR =================
-
-function openEditor(slug){
-
-    currentSlug = slug;
-
-    const manga =
-        mangas[slug];
-
-    const editor =
-        document.getElementById(
-            "mangaEditor"
-        );
-
-    editor.innerHTML = `
-
-<h2>
-
-${manga.title}
-
-</h2>
-
-<div class="editor-grid">
-
-<div>
-
-<label>
-
-Cover
-
-</label>
-
-<input
-id="cover"
-value="${manga.cover}">
-
-</div>
-
-<div>
-
-<label>
-
-Slug
-
-</label>
-
-<input
-id="slug"
-value="${slug}">
-
-</div>
-
-<div>
-
-<label>
-
-Tên truyện
-
-</label>
-
-<input
-id="title"
-value="${manga.title}">
-
-</div>
-
-<div>
-
-<label>
-
-Tên gốc
-
-</label>
-
-<input
-id="original"
-value="${manga.original_title}">
-
-</div>
-
-<div>
-
-<label>
-
-Tác giả
-
-</label>
-
-<input
-id="author"
-value="${manga.author}">
-
-</div>
-
-<div>
-
-<label>
-
-Team
-
-</label>
-
-<input
-id="team"
-value="${manga.team}">
-
-</div>
-
-<div>
-
-<label>
-
-Status
-
-</label>
-
-<select id="status">
-
-<option
-${manga.status==="Ongoing"?"selected":""}>
-Ongoing
-</option>
-
-<option
-${manga.status==="Completed"?"selected":""}>
-Completed
-</option>
-
-</select>
-
-</div>
-
-<div>
-
-<label>
-
-Admin Pick
-
-</label>
-
-<input
-type="checkbox"
-id="pick"
-${manga.adminPick?"checked":""}>
-
-</div>
-
-<div>
-
-<label>
-
-Pick Order
-
-</label>
-
-<input
-type="number"
-id="pickOrder"
-value="${manga.pickOrder||0}">
-
-</div>
-
-<div style="grid-column:1/3">
-
-<label>
-
-Tags
-
-</label>
-
-<input
-id="tags"
-value="${manga.tags.join(", ")}">
-
-</div>
-
-<div style="grid-column:1/3">
-
-<label>
-
-Description
-
-</label>
-
-<textarea
-id="description"
-rows="8">
-
-${manga.description}
-
-</textarea>
-
-</div>
-
-</div>
-
-<hr>
-
-<h3>
-
-Chapter
-
-</h3>
-
-<div id="chapterList">
-
-${renderChapterTable(manga)}
-
-</div>
-
-<br>
-
-<button id="saveBtn">
-
-💾 Lưu
-
-</button>
-
-<button id="chapterBtn">
-
-➕ Add Chapter
-
-</button>
-
-`;
+    );
 
 }
 
+function openEditor(mangaSlug){
 
-// ================= CHAPTER =================
+    currentSlug = mangaSlug;
 
-function renderChapterTable(manga){
+    const manga = mangas[mangaSlug];
 
-    let html="";
+    editor.classList.remove("hidden");
 
-    manga.chapters.forEach(chap=>{
+    editorTitle.innerHTML = "Chỉnh sửa truyện";
 
-        html+=`
+    slug.value = mangaSlug;
 
-<div class="chapter-row">
+    slug.disabled = true;
 
-<div>
+    title.value = manga.title || "";
 
-${chap.title}
+    originalTitle.value = manga.original_title || "";
 
-</div>
+    author.value = manga.author || "";
 
-<div>
+    team.value = manga.team || "";
 
-${chap.createAt.split("T")[0]}
+    status.value = manga.status || "Ongoing";
 
-</div>
+    tags.value =
 
-<div>
+        (manga.tags || []).join(",");
 
-${chap.pages}
-Trang
+    description.value =
 
-</div>
+        manga.description || "";
 
-</div>
+    coverPreview.innerHTML =
 
-`;
+    `<img src="${manga.cover}">`;
 
-    });
+    coverFile = null;
 
-    return html;
+    adminPick.checked =
+
+manga.adminPick || false;
+
+pickOrder.value =
+
+manga.pickOrder || 999;
+
+    deleteBtn.style.display="block";
 
 }
 
+function openNew(){
 
-// ================= NEW =================
+    currentSlug = null;
 
-document
-.getElementById("newBtn")
-.addEventListener(
+    editor.classList.remove("hidden");
 
-    "click",
+    editorTitle.innerHTML="Thêm truyện";
 
-    ()=>{
+    slug.disabled=false;
 
-        document
-        .getElementById("mangaEditor")
-        .innerHTML=
+    slug.value="";
 
-`
+    title.value="";
 
-<h2>
+    originalTitle.value="";
 
-Thêm truyện mới
+    author.value="";
 
-</h2>
+    team.value="";
 
-<p>
+    status.value="Ongoing";
 
-(Chức năng sẽ làm ở bước tiếp)
+    tags.value="";
 
-</p>
-`;
+    description.value="";
+
+    coverPreview.innerHTML="";
+
+    coverFile=null;
+
+    coverFileInput.value="";
+
+    deleteBtn.style.display="none";
+
+}
+
+function closePanel(){
+
+    editor.classList.add("hidden");
+
+}
+
+async function saveCurrent(){
+
+    try{
+
+        saveBtn.disabled=true;
+
+        saveBtn.innerHTML="Đang lưu...";
+
+        let cover="";
+
+        if(currentSlug){
+
+            cover=
+
+            mangas[currentSlug].cover;
+
+        }
+
+        if(coverFile){
+
+            cover = await uploadImage(
+
+    coverFile,
+
+    slug.value,
+
+    "cover.webp"
+
+);
+
+        }
+
+        const manga={
+
+            slug:slug.value.trim(),
+
+            title:title.value.trim(),
+
+            original_title:
+
+                originalTitle.value.trim(),
+
+            author:author.value.trim(),
+
+            team:team.value.trim(),
+
+            status:status.value,
+
+            tags:
+
+                tags.value
+
+                .split(",")
+
+                .map(t=>t.trim())
+
+                .filter(Boolean),
+
+            description:
+
+                description.value.trim(),
+
+            cover:cover,
+
+            adminPick:
+
+        adminPick.checked,
+
+    pickOrder:
+
+        Number(pickOrder.value)
+
+        };
+
+        if(currentSlug){
+
+            await editManga(manga);
+
+        }
+
+        else{
+
+            await newManga(manga);
+
+        }
+
+        mangas = await getMangas();
+
+        renderMangas(
+
+            searchInput.value
+
+        );
+
+        closePanel();
+
+        alert("Đã lưu thành công.");
 
     }
 
-);
+    catch(err){
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+    saveBtn.disabled=false;
+
+    saveBtn.innerHTML="Lưu";
+
+}
+
+async function removeCurrent(){
+
+    if(!currentSlug) return;
+
+    const ok = confirm(
+
+        `Xóa ${currentSlug} ?`
+
+    );
+
+    if(!ok) return;
+
+    try{
+
+        await deleteManga(
+
+            currentSlug
+
+        );
+
+        mangas=
+
+        await getMangas();
+
+        renderMangas();
+
+        closePanel();
+
+        alert("Đã xóa.");
+
+    }
+
+    catch(err){
+
+        console.error(err);
+
+        alert(err.message);
+
+    }
+
+}

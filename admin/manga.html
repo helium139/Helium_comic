@@ -1,16 +1,22 @@
 <!DOCTYPE html>
-
 <html lang="vi">
 
 <head>
 
 <meta charset="UTF-8">
 
-<title>Helium CMS</title>
-<link rel="icon" type="image/png" href="../assets/images/helium_logo.webp">
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
 
-<link rel="stylesheet"
-href="admin.css">
+<title>Manga Manager</title>
+<link rel="icon"
+type="image/png"
+href="../assets/images/helium_logo.webp">
+
+<link
+rel="stylesheet"
+href="../assets/css/admin.css">
 
 <link
 href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
@@ -19,68 +25,310 @@ rel="stylesheet">
 </head>
 
 <body>
-<div class="sidebar">
 
-    <div class="logo">
-        <img src="../assets/images/helium_logo.webp">
+<div class="admin-layout">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
         <h2>Helium CMS</h2>
-    </div>
 
-    <a href="index.html">
-        <i class='bx bx-home'></i>
-        Dashboard
-    </a>
+        <nav>
 
-    <a href="manga.html">
-        <i class='bx bx-book'></i>
-        Quản lý truyện
-    </a>
+            <a href="dashboard.html">
+                Dashboard
+            </a>
 
-    <a href="chapter.html">
-        <i class='bx bx-file'></i>
-        Thêm Chapter
-    </a>
+            <a
+            class="active"
+            href="manga.html">
+                Manga
+            </a>
 
-    <a href="publish.html">
-        <i class='bx bx-upload'></i>
-        Publish
-    </a>
+            <a href="chapter.html">
+                Chapter
+            </a>
 
-    <a href="../index.html">
-        <i class='bx bx-world'></i>
-        Website
-    </a>
+            <a href="settings.html">
+                Settings
+            </a>
 
-</div>
-<div class="main">
+        </nav>
 
-    <div class="left-panel">
+    </aside>
 
-        <input
-            id="search"
-            placeholder="Tìm truyện...">
+    <!-- Main -->
 
-        <button id="newBtn">
-            + Thêm truyện
-        </button>
+    <main class="content">
 
-        <div id="mangaSidebar"></div>
+        <div class="page-header">
 
-    </div>
+            <h1>
 
-    <div class="right-panel">
+                Manga Manager
 
-        <div id="mangaEditor">
+            </h1>
 
-            Chọn một truyện...
+            <button
+            id="newMangaBtn"
+            class="primary">
+
+                <i class='bx bx-plus'></i>
+
+                Thêm truyện
+
+            </button>
 
         </div>
 
-    </div>
+        <!-- Search -->
+
+        <div class="search-box">
+
+            <input
+
+            id="searchInput"
+
+            type="text"
+
+            placeholder="Tìm truyện...">
+
+        </div>
+
+        <!-- Manga Grid -->
+
+        <div
+
+        id="mangaGrid"
+
+        class="manga-grid">
+
+        </div>
+
+    </main>
 
 </div>
 
-<script type="module" src="manga.js"></script>
+<!-- =======================
+        EDIT PANEL
+======================== -->
+
+<div
+id="editor"
+
+class="editor-panel hidden">
+
+<div class="editor-header">
+
+<h2 id="editorTitle">
+
+Thêm truyện
+
+</h2>
+
+<button id="closeEditor">
+
+<i class='bx bx-x'></i>
+
+</button>
+
+</div>
+
+<div class="editor-body">
+
+<label>
+
+Slug
+
+<input
+id="slug"
+type="text">
+
+</label>
+
+<label>
+
+Tên truyện
+
+<input
+id="title"
+type="text">
+
+</label>
+
+<label>
+
+Tên gốc
+
+<input
+id="originalTitle"
+type="text">
+
+</label>
+
+<label>
+
+Tác giả
+
+<input
+id="author"
+type="text">
+
+</label>
+
+<label>
+
+Nhóm dịch
+
+<input
+id="team"
+type="text">
+
+</label>
+
+<label>
+
+Trạng thái
+
+<select id="status">
+
+<option value="Ongoing">
+
+Ongoing
+
+</option>
+
+<option value="Completed">
+
+Completed
+
+</option>
+
+<option value="Hiatus">
+
+Hiatus
+
+</option>
+
+</select>
+
+</label>
+
+<label>
+
+Tags
+
+<input
+
+id="tags"
+
+placeholder="BL,Hài,Học đường">
+
+</label>
+
+<label>
+
+Mô tả
+
+<textarea
+
+id="description"
+
+rows="8">
+
+</textarea>
+
+</label>
+
+<hr>
+
+<h3>
+
+Ảnh bìa
+
+</h3>
+
+<div
+id="coverDrop"
+
+class="upload-box">
+
+<p>
+
+Kéo ảnh vào đây
+
+</p>
+
+<input
+
+id="coverFile"
+
+type="file"
+
+accept="image/*">
+
+</div>
+
+<div
+
+id="coverPreview"
+
+class="cover-preview">
+
+</div>
+
+<div class="editor-actions">
+
+<label class="checkbox">
+
+    <input
+    id="adminPick"
+    type="checkbox">
+
+    Admin's Pick
+
+</label>
+
+<label>
+
+Pick Order
+
+<input
+id="pickOrder"
+type="number"
+min="1"
+value="999">
+
+</label>
+
+<button
+id="saveBtn"
+class="primary">
+
+Lưu
+
+</button>
+
+<button
+id="deleteBtn"
+class="danger">
+
+Xóa truyện
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script
+type="module"
+src="manga.js">
+
+</script>
 
 </body>
 

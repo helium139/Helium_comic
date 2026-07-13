@@ -1,13 +1,20 @@
-const API =
-"https://helium-cms.mylengoctra06.workers.dev";
+const API = "https://helium-cms.mylengoctra06.workers.dev";
+
+/*
+    Upload bất kỳ file nào lên R2
+
+    Ví dụ:
+
+    uploadImage(file,"tro-tan","cover.webp")
+
+    uploadImage(file,"tro-tan/chap5","1.webp")
+*/
 
 export async function uploadImage(
 
     file,
 
-    manga,
-
-    chapter,
+    folder,
 
     filename
 
@@ -27,7 +34,7 @@ export async function uploadImage(
 
         "folder",
 
-        `${manga}/chap${chapter}`
+        folder
 
     );
 
@@ -39,11 +46,9 @@ export async function uploadImage(
 
     );
 
-    const res =
+    const res = await fetch(
 
-    await fetch(
-
-        API+"/upload",
+        `${API}/upload`,
 
         {
 
@@ -55,22 +60,20 @@ export async function uploadImage(
 
     );
 
-    const data =
+    const json = await res.json();
 
-    await res.json();
-
-    if(!data.success){
+    if(!json.success){
 
         throw new Error(
 
-            data.message ||
+            json.message ||
 
-            "Upload thất bại"
+            "Upload thất bại."
 
         );
 
     }
 
-    return data.url;
+    return json.url;
 
 }

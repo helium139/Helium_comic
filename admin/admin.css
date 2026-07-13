@@ -611,3 +611,335 @@ padding:20px;
 }
 
 }
+
+/* ===========================
+        MANGA GRID
+=========================== */
+
+.manga-grid{
+
+    display:grid;
+
+    grid-template-columns:
+
+    repeat(auto-fill,minmax(220px,1fr));
+
+    gap:22px;
+
+    margin-top:25px;
+
+}
+
+.manga-card{
+
+    background:#1f2937;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    box-shadow:
+
+    0 5px 20px rgba(0,0,0,.25);
+
+}
+
+.manga-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:
+
+    0 15px 35px rgba(0,0,0,.4);
+
+}
+
+.manga-card img{
+
+    width:100%;
+
+    aspect-ratio:2/3;
+
+    object-fit:cover;
+
+    display:block;
+
+}
+
+.card-body{
+
+    padding:15px;
+
+}
+
+.card-body h3{
+
+    font-size:18px;
+
+    margin-bottom:8px;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+.card-body p{
+
+    color:#94a3b8;
+
+    margin-bottom:8px;
+
+}
+
+.card-body small{
+
+    color:#64748b;
+
+}
+
+/* ===========================
+        SEARCH
+=========================== */
+
+.search-box{
+
+    margin-top:20px;
+
+    margin-bottom:25px;
+
+}
+
+.search-box input{
+
+    width:100%;
+
+    max-width:420px;
+
+}
+
+/* ===========================
+        PAGE HEADER
+=========================== */
+
+.page-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:20px;
+
+    margin-bottom:25px;
+
+}
+
+.page-header button{
+
+    min-width:170px;
+
+}
+
+/* ===========================
+        EDITOR
+=========================== */
+
+.editor-panel{
+
+    position:fixed;
+
+    right:0;
+
+    top:0;
+
+    width:480px;
+
+    height:100vh;
+
+    background:#0f172a;
+
+    border-left:1px solid #1e293b;
+
+    overflow:auto;
+
+    z-index:999;
+
+    transition:.3s;
+
+}
+
+.editor-panel.hidden{
+
+    transform:translateX(100%);
+
+}
+
+.editor-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px 25px;
+
+    border-bottom:1px solid #1e293b;
+
+}
+
+.editor-header h2{
+
+    font-size:24px;
+
+}
+
+.editor-header button{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    background:#ef4444;
+
+    color:white;
+
+    font-size:22px;
+
+}
+
+.editor-body{
+
+    padding:25px;
+
+}
+
+/* ===========================
+        COVER
+=========================== */
+
+.upload-box{
+
+    margin-top:15px;
+
+    border:2px dashed #3b82f6;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    padding:30px;
+
+    cursor:pointer;
+
+}
+
+.upload-box:hover{
+
+    background:#1e3a8a22;
+
+}
+
+.upload-box input{
+
+    margin-top:15px;
+
+}
+
+.cover-preview{
+
+    margin-top:20px;
+
+}
+
+.cover-preview img{
+
+    width:220px;
+
+    border-radius:12px;
+
+    box-shadow:
+
+    0 10px 30px rgba(0,0,0,.3);
+
+}
+
+/* ===========================
+        ACTIONS
+=========================== */
+
+.editor-actions{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:35px;
+
+}
+
+.editor-actions button{
+
+    flex:1;
+
+    padding:14px;
+
+    font-size:15px;
+
+}
+
+.primary{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+.primary:hover{
+
+    background:#1d4ed8;
+
+}
+
+.danger{
+
+    background:#dc2626;
+
+    color:white;
+
+}
+
+.danger:hover{
+
+    background:#b91c1c;
+
+}
+
+@media(max-width:900px){
+
+.editor-panel{
+
+width:100%;
+
+}
+
+.page-header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+}
