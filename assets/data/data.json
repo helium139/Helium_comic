@@ -351,6 +351,7 @@
         "team": "HeliumTG",
         "status": "Ongoing",
         "adminPick": true,
+        "pickOrder": 10,
         "tags": [
             "BL",
             "Đời Thường",
@@ -888,7 +889,7 @@
         ],
         "description": "\"Ngài thấy tiếc vì không còn món đồ chơi dễ sai khiến nữa sao?\"\n\nDami sinh ra trong một gia đình nghèo. Từ nhỏ đã bị thiến rồi bị bán vào cung, sống cuộc đời của một hoạn quan.\n\nMột ngày nọ, vì Hoàng đế lâm bệnh, Dami được chọn thay thế Hoàng đế đến đêm đầu tiên của một kỹ nữ tên Mok Yeong.\n\nSau lần gặp gỡ định mệnh ấy, Mok Yeong luôn lợi dụng Dami theo ý mình, đồng thời tuyệt đối không chịu buông tha cậu vì mục đích thăng tiến về mặt chính trị.\n\nĐúng lúc lễ cưới giữa Hoàng đế và Si Hyeon đang đến gần, Mok Yeong – người không muốn để Dami rời khỏi mình – đã bí mật kéo Dami vào phe đối lập với Si Hyeon và bắt đầu thực hiện kế hoạch...",
         "adminPick": true,
-        "pickOrder": 8,
+        "pickOrder": 9,
         "chapters": []
     }
 }
