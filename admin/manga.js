@@ -59,20 +59,6 @@ document.getElementById("originalTitle");
 const author =
 document.getElementById("author");
 
-const teams =
-await fetch("../assets/data/teams.json")
-.then(r=>r.json());
-
-teamSelect.innerHTML="";
-
-teams.forEach(team=>{
-
-    teamSelect.innerHTML+=`
-        <option>${team}</option>
-    `;
-
-});
-
 const status =
 document.getElementById("status");
 
@@ -90,6 +76,21 @@ document.getElementById("coverPreview");
 
 const teamSelect =
 document.getElementById("team");
+
+const teams =
+await fetch("../assets/data/teams.json")
+.then(r=>r.json());
+
+teamSelect.innerHTML="";
+
+teams.forEach(team=>{
+
+    teamSelect.innerHTML+=`
+        <option>${team}</option>
+    `;
+
+});
+
 
 init();
 
