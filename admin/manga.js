@@ -59,8 +59,19 @@ document.getElementById("originalTitle");
 const author =
 document.getElementById("author");
 
-const team =
-document.getElementById("team");
+const teams =
+await fetch("/assets/data/teams.json")
+.then(r=>r.json());
+
+teamSelect.innerHTML="";
+
+teams.forEach(team=>{
+
+    teamSelect.innerHTML+=`
+        <option>${team}</option>
+    `;
+
+});
 
 const status =
 document.getElementById("status");
@@ -76,6 +87,9 @@ document.getElementById("coverFile");
 
 const coverPreview =
 document.getElementById("coverPreview");
+
+const teamSelect =
+document.getElementById("team");
 
 init();
 
@@ -257,7 +271,7 @@ function openEditor(mangaSlug){
 
     author.value = manga.author || "";
 
-    team.value = manga.team || "";
+    team:teamSelect.value
 
     status.value = manga.status || "Ongoing";
 
