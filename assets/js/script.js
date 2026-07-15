@@ -33,7 +33,7 @@ function renderAdminPicks(data){
 .sort(([, a], [, b]) =>
     a.pickOrder - b.pickOrder
 )
-.slice(0, 8)
+.slice(0, 10)
 
     .forEach(([slug, manga]) => {
 
@@ -265,6 +265,22 @@ fetch("assets/data/data.json")
             - new Date(aLast.createAt);
 
     });
+
+    console.table(
+
+mangas.map(([slug,manga])=>({
+
+    slug,
+
+    title:manga.title,
+
+    latest:manga.chapters.at(-1)?.title,
+
+    time:manga.chapters.at(-1)?.createAt
+
+}))
+
+);
 
 
     renderComics();
