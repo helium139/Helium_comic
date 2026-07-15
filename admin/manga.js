@@ -60,7 +60,7 @@ const author =
 document.getElementById("author");
 
 const teams =
-await fetch("/assets/data/teams.json")
+await fetch("../assets/data/teams.json")
 .then(r=>r.json());
 
 teamSelect.innerHTML="";
