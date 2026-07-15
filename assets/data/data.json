@@ -5,26 +5,11 @@
         "original_title": "캐비넷 메이드",
         "author": "필구",
         "team": "HeliumTG",
-        "adminPick": true,
+        "adminPick": false,
         "pickOder": 1,
-        "status": "Ongoing",
-        "tags": [
-            "Hiện Đại",
-            "BL 18+",
-            "Campus",
-            "Chiếm Hữu",
-            "Yêu Đơn Phương",
-            "Niên Hạ Công",
-            "Cợt Nhả Chiếm Hữu Công",
-            "Mỹ Nhân Công",
-            "Niên Thượng Thụ",
-            "Nhút Nhát Thụ",
-            "Tự Ti Thụ",
-            "Quan Hệ Bí Mật",
-            "Tủ Đồ",
-            "Đồ Hầu Gái"
-        ],
-        "description": "[Niên hạ chiếm hữu công 'Ju Ui Yeong' X Niên thượng nhút nhát thụ 'Seo Yo Ham'].Trong lúc ở lại một mình thu dọn đồ đạc đến tận đêm muộn, 'Yo-ham' bỗng phát hiện ra một bộ đồ hầu gái. Không thể kìm nén ham muốn thầm kín, ngay khoảnh khắc anh trốn vào trong tủ đồ và bước qua ranh giới của mình...Thì qua khe cửa tủ, 'Ju Ui-yeong', người bấy lâu nay anh chỉ dám đứng từ xa nhìn ngắm, bỗng xuất hiện. Trớ trêu thay, anh lại bị chính cậu ta bắt quả tang vào khoảnh khắc bản thân muốn che giấu nhất. 'Tiền bối, hóa ra anh còn biến thái hơn cả tôi cơ à?'",
+        "status": "Completed",
+        "tags": [],
+        "description": "",
         "chapters": [
             {
                 "id": 0,
@@ -103,7 +88,8 @@
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap11",
                 "pages": 29
             }
-        ]
+        ],
+        "pickOrder": 999
     },
     "cai-the-loai-kim-chu-gi-the-nay": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/cover.webp",
