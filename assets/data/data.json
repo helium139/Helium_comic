@@ -494,7 +494,7 @@
         "team": "HeliumTG",
         "status": "Ongoing",
         "adminPick": true,
-        "pickOrder": 999,
+        "pickOrder": 0,
         "tags": [
             "Top Thích Làm Nhục",
             "Top Chiếm Hữu",
