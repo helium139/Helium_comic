@@ -272,7 +272,7 @@ function openEditor(mangaSlug){
 
     author.value = manga.author || "";
 
-    team:teamSelect.value
+    team.teamSelect.value
 
     status.value = manga.status || "Ongoing";
 
