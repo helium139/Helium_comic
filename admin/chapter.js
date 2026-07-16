@@ -256,72 +256,67 @@ function sortFiles(){
 =========================== */
 
 function renderPreview(){
-    if(selectedFiles.length===0){
-    updateFileInfo();
 
-    preview.innerHTML="";}
+    preview.innerHTML = "";
+
+    updateFileInfo();
 
     if(selectedFiles.length===0){
 
         preview.innerHTML=`
-
         <div class="empty-preview">
-
             Chưa chọn ảnh
-
         </div>
-
         `;
 
         return;
-
     }
 
     selectedFiles.forEach((file,index)=>{
+
+        const card=document.createElement("div");
+
+        card.className="thumb";
+
+        const img=document.createElement("img");
+
+        card.appendChild(img);
 
         const reader=new FileReader();
 
         reader.onload=e=>{
 
-            const card=document.createElement("div");
-
-            card.className="thumb";
-
-            card.innerHTML=`
-
-            <img src="${e.target.result}">
-
-            <div class="thumb-index">
-
-                ${index+1}
-
-            </div>
-
-            <div class="thumb-name">
-
-                ${file.name}
-
-            </div>
-
-            <button
-
-            class="remove-thumb"
-
-            data-index="${index}"
-
-            >
-
-            ✕
-
-            </button>
-
-            `;
-
-            preview.appendChild(card);
+            img.src=e.target.result;
 
         };
 
         reader.readAsDataURL(file);
+
+        card.innerHTML+=`
+
+        <div class="thumb-index">
+
+            ${index+1}
+
+        </div>
+
+        <div class="thumb-name">
+
+            ${file.name}
+
+        </div>
+
+        <button
+            class="remove-thumb"
+            data-index="${index}">
+
+            ✕
+
+        </button>
+
+        `;
+
+        preview.appendChild(card);
 
     });
 
@@ -331,31 +326,17 @@ function renderPreview(){
         REMOVE IMAGE
 =========================== */
 
-document.addEventListener("click",e=>{
+preview.addEventListener("click",e=>{
 
-    if(
+    const btn=e.target.closest(".remove-thumb");
 
-        e.target.classList.contains(
+    if(!btn) return;
 
-            "remove-thumb"
+    const index=Number(btn.dataset.index);
 
-        )
+    selectedFiles.splice(index,1);
 
-    ){
-
-        const index=
-
-        Number(
-
-            e.target.dataset.index
-
-        );
-
-        selectedFiles.splice(index,1);
-
-        renderPreview();
-
-    }
+    renderPreview();
 
 });
 
@@ -372,10 +353,7 @@ function setProgress(text){
 }
 function updateFileInfo(){
 
-    document.getElementById("fileCount").innerHTML =
-        selectedFiles.length;
-
-    const total =
+    const total=
 
         selectedFiles.reduce(
 
@@ -384,15 +362,18 @@ function updateFileInfo(){
             0
 
         );
-         fileCount.innerHTML=
 
-selectedFiles.length;
+    fileCount.textContent=
 
-    document.getElementById("fileSize").innerHTML =
-        (total/1024/1024).toFixed(2)+" MB";
+        selectedFiles.length;
+
+    fileSize.textContent=
+
+        (total/1024/1024).toFixed(2)
+
+        +" MB";
 
 }
-
 
 function setUploadPercent(current,total){
 
@@ -535,8 +516,6 @@ function resetForm(){
 
     chapterFiles.value="";
 
-    preview.innerHTML="";
-
     progress.innerHTML="";
 
     uploadLog.innerHTML="";
@@ -544,6 +523,8 @@ function resetForm(){
     updateNextChapter();
 
     updateFileInfo();
+
+    renderPreview();
 
 }
 
