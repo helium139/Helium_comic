@@ -224,31 +224,23 @@ function renderCover(){
 
     if(!coverFile){
 
+        coverPreview.innerHTML="";
+
         return;
 
     }
 
-    const reader=
-
-    new FileReader();
+    const reader=new FileReader();
 
     reader.onload=e=>{
 
-        coverPreview.innerHTML=`
+        coverPreview.innerHTML=
 
-        <img
-
-        src="${e.target.result}">
-
-        `;
+        `<img src="${e.target.result}">`;
 
     };
 
-    reader.readAsDataURL(
-
-        coverFile
-
-    );
+    reader.readAsDataURL(coverFile);
 
 }
 
@@ -258,9 +250,11 @@ function openEditor(mangaSlug){
 
     const manga = mangas[mangaSlug];
 
+    if(!manga) return;
+
     editor.classList.remove("hidden");
 
-    editorTitle.innerHTML = "Chỉnh sửa truyện";
+    editorTitle.textContent = "Chỉnh sửa truyện";
 
     slug.value = mangaSlug;
 
@@ -272,17 +266,19 @@ function openEditor(mangaSlug){
 
     author.value = manga.author || "";
 
-    team.teamSelect.value
+    teamSelect.value = manga.team || "HeliumTG";
 
     status.value = manga.status || "Ongoing";
 
-    tags.value =
+    description.value = manga.description || "";
 
-        (manga.tags || []).join(",");
+    adminPick.checked = manga.adminPick || false;
 
-    description.value =
+    pickOrder.value = manga.pickOrder || 999;
 
-        manga.description || "";
+    currentTags = [...(manga.tags || [])];
+
+    renderTags();
 
     coverPreview.innerHTML =
 
@@ -290,15 +286,7 @@ function openEditor(mangaSlug){
 
     coverFile = null;
 
-    adminPick.checked =
-
-manga.adminPick || false;
-
-pickOrder.value =
-
-manga.pickOrder || 999;
-
-    deleteBtn.style.display="block";
+    deleteBtn.style.display = "block";
 
 }
 
@@ -308,36 +296,41 @@ function openNew(){
 
     editor.classList.remove("hidden");
 
-    editorTitle.innerHTML="Thêm truyện";
+    editorTitle.textContent = "Thêm truyện";
 
-    slug.disabled=false;
+    slug.disabled = false;
 
-    slug.value="";
+    slug.value = "";
 
-    title.value="";
+    title.value = "";
 
-    originalTitle.value="";
+    originalTitle.value = "";
 
-    author.value="";
+    author.value = "";
 
-    team.value="";
+    teamSelect.value = teams[0] || "HeliumTG";
 
-    status.value="Ongoing";
+    status.value = "Ongoing";
 
-    tags.value="";
+    description.value = "";
 
-    description.value="";
+    currentTags = [];
 
-    coverPreview.innerHTML="";
+    renderTags();
 
-    coverFile=null;
+    adminPick.checked = false;
 
-    coverFileInput.value="";
+    pickOrder.value = 999;
 
-    deleteBtn.style.display="none";
+    coverPreview.innerHTML = "";
+
+    coverFile = null;
+
+    coverFileInput.value = "";
+
+    deleteBtn.style.display = "none";
 
 }
-
 function closePanel(){
 
     editor.classList.add("hidden");
@@ -345,6 +338,24 @@ function closePanel(){
 }
 
 async function saveCurrent(){
+
+    const mangaSlug = slug.value.trim();
+
+if(!mangaSlug){
+
+    alert("Slug không được để trống.");
+
+    return;
+
+}
+
+if(!title.value.trim()){
+
+    alert("Chưa nhập tên truyện.");
+
+    return;
+
+}
 
     try{
 
@@ -364,13 +375,15 @@ async function saveCurrent(){
 
         if(coverFile){
 
-            cover = await uploadImage(
+            const mangaSlug = slug.value.trim();
 
-    coverFile,
+cover = await uploadImage(
 
-    slug.value,
+coverFile,
 
-    "cover.webp"
+mangaSlug,
+
+"cover.webp"
 
 );
 
@@ -388,19 +401,11 @@ async function saveCurrent(){
 
             author:author.value.trim(),
 
-            team:team.value.trim(),
+            team: teamSelect.value,
 
             status:status.value,
 
-            tags:
-
-                tags.value
-
-                .split(",")
-
-                .map(t=>t.trim())
-
-                .filter(Boolean),
+            tags:[...currentTags],
 
             description:
 
@@ -509,8 +514,10 @@ function slugify(text){
         .replace(/^-|-$/g,"");
 
 }
-title.oninput = ()=>{
+title.oninput = () => {
+
+    if(currentSlug) return;
 
     slug.value = slugify(title.value);
 
-}
+};
