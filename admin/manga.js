@@ -99,6 +99,30 @@ teams.forEach(team=>{
 
 });
 
+const chapterList =
+document.getElementById("chapterList");
+
+const chapterModal =
+document.getElementById("chapterModal");
+
+const addChapterBtn =
+document.getElementById("addChapterBtn");
+
+const saveChapterBtn =
+document.getElementById("saveChapterBtn");
+
+const closeChapterBtn =
+document.getElementById("closeChapterBtn");
+
+const chapterId =
+document.getElementById("chapterId");
+
+const chapterName =
+document.getElementById("chapterName");
+
+const chapterCreateAt =
+document.getElementById("chapterCreateAt");
+
 
 init();
 
@@ -303,6 +327,8 @@ function openEditor(mangaSlug){
     coverFile = null;
 
     deleteBtn.style.display = "block";
+
+    renderChapterList();
 
 }
 
@@ -662,3 +688,219 @@ e=>{
     }
 
 });
+
+chapterList.onclick=e=>{
+
+    if(e.target.classList.contains("editChapter")){
+
+        openChapterEditor(
+
+            Number(
+
+                e.target.dataset.id
+
+            )
+
+        );
+
+    }
+
+    if(e.target.classList.contains("deleteChapter")){
+
+        deleteChapter(
+
+            Number(
+
+                e.target.dataset.id
+
+            )
+
+        );
+
+    }
+
+};
+
+let editingChapter=null;
+
+function openChapterEditor(id){
+
+    const manga=mangas[currentSlug];
+
+    editingChapter=
+
+    manga.chapters.find(
+
+        c=>c.id===id
+
+    );
+
+    chapterModal.classList.remove("hidden");
+
+    chapterId.value=
+
+        editingChapter.id;
+
+    chapterName.value=
+
+        editingChapter.title;
+
+    chapterCreateAt.value=
+
+        editingChapter.createAt
+
+        .slice(0,10);
+
+}
+
+saveChapterBtn.onclick=()=>{
+
+    editingChapter.id=
+
+        Number(
+
+            chapterId.value
+
+        );
+
+    editingChapter.title=
+
+        chapterName.value;
+
+    editingChapter.createAt=
+
+        new Date(
+
+            chapterCreateAt.value
+
+        ).toISOString();
+
+    chapterModal.classList.add("hidden");
+
+    renderChapterList();
+
+};
+
+function deleteChapter(id){
+
+    if(!confirm("Xóa chapter?"))
+
+        return;
+
+    mangas[currentSlug].chapters=
+
+    mangas[currentSlug].chapters.filter(
+
+        c=>c.id!==id
+
+    );
+
+    renderChapterList();
+
+}
+
+addChapterBtn.onclick=()=>{
+
+    editingChapter={
+
+        id:
+
+        mangas[currentSlug]
+
+        .chapters.length+1,
+
+        title:"",
+
+        createAt:
+
+        new Date()
+
+        .toISOString(),
+
+        folder:"",
+
+        pages:0
+
+    };
+
+    mangas[currentSlug]
+
+    .chapters.push(
+
+        editingChapter
+
+    );
+
+    openChapterEditor(
+
+        editingChapter.id
+
+    );
+
+};
+
+function renderChapterList(){
+
+    chapterList.innerHTML="";
+
+    if(!currentSlug) return;
+
+    const manga=mangas[currentSlug];
+
+    manga.chapters
+
+    .sort((a,b)=>a.id-b.id)
+
+    .forEach(ch=>{
+
+        chapterList.innerHTML+=`
+
+        <div class="chapter-row">
+
+            <div>
+
+                <b>
+
+                ${ch.title}
+
+                </b>
+
+                <small>
+
+                ${ch.createAt}
+
+                </small>
+
+            </div>
+
+            <div>
+
+                <button
+
+                class="editChapter"
+
+                data-id="${ch.id}">
+
+                ✏
+
+                </button>
+
+                <button
+
+                class="deleteChapter"
+
+                data-id="${ch.id}">
+
+                🗑
+
+                </button>
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
