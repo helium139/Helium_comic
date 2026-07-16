@@ -737,6 +737,8 @@ function openChapterEditor(id){
 
     chapterModal.classList.remove("hidden");
 
+    chapterModal.classList.add("show");
+
     chapterId.value=
 
         editingChapter.id;
@@ -750,6 +752,14 @@ function openChapterEditor(id){
         editingChapter.createAt
 
         .slice(0,10);
+
+}
+
+function closeChapterEditor(){
+
+    chapterModal.classList.add("hidden");
+
+    chapterModal.classList.remove("show");
 
 }
 
