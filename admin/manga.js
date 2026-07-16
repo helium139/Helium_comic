@@ -23,6 +23,14 @@ let currentSlug = null;
 
 let coverFile = null;
 
+let currentTags = [];
+
+const tagInput =
+document.getElementById("tagInput");
+
+const tagList =
+document.getElementById("tagList");
+
 const mangaGrid =
 document.getElementById("mangaGrid");
 
@@ -133,6 +141,14 @@ function bindEvents(){
         renderCover();
 
     };
+
+    tagInput.addEventListener(
+
+"keydown",
+
+handleTagInput
+
+);
 
 }
 
@@ -521,3 +537,128 @@ title.oninput = () => {
     slug.value = slugify(title.value);
 
 };
+
+function renderTags(){
+
+    tagList.innerHTML="";
+
+    currentTags.forEach((tag,index)=>{
+
+        const item=
+
+        document.createElement("span");
+
+        item.className="tag-item";
+
+        item.innerHTML=`
+
+            ${tag}
+
+            <button
+                data-index="${index}"
+                class="tag-remove"
+            >
+
+            ×
+
+            </button>
+
+        `;
+
+        tagList.appendChild(item);
+
+    });
+
+}
+
+function handleTagInput(e){
+
+    if(e.key==="Enter"){
+
+        e.preventDefault();
+
+        let value=
+
+        tagInput.value.trim();
+
+        if(value==="") return;
+
+        value=
+
+        value
+
+        .toLowerCase()
+
+        .replace(/\b\w/g,
+
+            c=>c.toUpperCase()
+
+        );
+
+        if(
+
+            !currentTags.includes(value)
+
+        ){
+
+            currentTags.push(value);
+
+        }
+
+        tagInput.value="";
+
+        renderTags();
+
+    }
+
+    if(
+
+        e.key==="Backspace"
+
+        &&
+
+        tagInput.value===""
+
+    ){
+
+        currentTags.pop();
+
+        renderTags();
+
+    }
+
+}
+
+document.addEventListener(
+
+"click",
+
+e=>{
+
+    if(
+
+        e.target.classList.contains(
+
+            "tag-remove"
+
+        )
+
+    ){
+
+        currentTags.splice(
+
+            Number(
+
+                e.target.dataset.index
+
+            ),
+
+            1
+
+        );
+
+        renderTags();
+
+    }
+
+});
