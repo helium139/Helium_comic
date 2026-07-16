@@ -509,8 +509,12 @@
         "status": "Ongoing",
         "adminPick": false,
         "pickOrder": 999,
-        "tags": [],
-        "description": "tét",
+        "tags": [
+            "Bl",
+            "NhâN Thú",
+            "18+"
+        ],
+        "description": "Một dinh thự phải trị, một người thương phải thuần. Sau cái chết dã man của gia đình mình, pháp sư Eyra trở thành địa chủ chỉ trong một đêm và phát hiện được mình có thể nhìn thấy chỉ số của những người mình gặp. Trong đó có Yanu, một kẻ đa tài mà kiên quyết, kéo anh khỏi số phận mới này…",
         "chapters": [
             {
                 "id": 1,
