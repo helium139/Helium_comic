@@ -588,9 +588,6 @@ const mangaSlug = document.getElementById("mangaSlug");
 const addImageBtn =
 document.getElementById("addImageBtn");
 
-const preview =
-document.getElementById("preview");0
-
 const imageCount =
 document.getElementById("imageCount");
 
