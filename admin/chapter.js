@@ -581,8 +581,6 @@ const pageTitle = document.getElementById("pageTitle");
 
 const createMode = document.getElementById("createMode");
 
-const editMode = document.getElementById("editMode");
-
 const mangaName = document.getElementById("mangaName");
 
 const mangaSlug = document.getElementById("mangaSlug");
