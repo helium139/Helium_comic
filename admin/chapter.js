@@ -427,6 +427,14 @@ function renderPreview(){
 
     initSortable();
 
+    console.log(images);
+
+    if(img.type==="remote"){
+
+    console.log(img.url);
+
+}
+
 }
 
 /* ===========================
