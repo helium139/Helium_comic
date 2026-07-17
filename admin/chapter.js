@@ -277,9 +277,9 @@ async function loadEditor(){
 
             type:"remote",
 
-            name:`${i}.webp`,
+            name:`${i}.jpg`,
 
-            url:`${chapter.folder}/${i}.webp`
+            url:`${chapter.folder}/${i}.jpg`
 
         });
 
@@ -426,14 +426,6 @@ function renderPreview(){
     updateStats();
 
     initSortable();
-
-    console.log(images);
-
-    if(img.type==="remote"){
-
-    console.log(img.url);
-
-}
 
 }
 
