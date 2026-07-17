@@ -50,9 +50,6 @@ document.getElementById("chapterDate");
 const chapterFiles =
 document.getElementById("chapterFiles");
 
-const folderPicker =
-document.getElementById("folderPicker");
-
 const uploadBtn =
 document.getElementById("uploadBtn");
 
@@ -184,22 +181,6 @@ function bindEvents(){
         renderPreview();
 
         chapterFiles.value="";
-
-    };
-
-    folderPicker.onchange=e=>{
-
-        selectedFiles.push(
-
-            ...Array.from(
-
-                e.target.files
-
-            )
-
-        );
-
-        renderPreview();
 
     };
 
@@ -823,8 +804,6 @@ function resetForm(){
     progress.innerHTML="";
 
     chapterFiles.value="";
-
-    folderPicker.value="";
 
     updateStats();
 
