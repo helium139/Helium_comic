@@ -442,6 +442,13 @@
                 "createAt": "2026-06-18T19:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap5",
                 "pages": 15
+            },
+            {
+                "id": 7,
+                "title": "Chap 6",
+                "createAt": "2026-07-17T21:04:38.839Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap7",
+                "pages": 6
             }
         ]
     },
