@@ -265,23 +265,31 @@ rows="8">
 
 <hr>
 
+<hr>
+
 <div class="chapter-section">
 
     <div class="chapter-header">
 
-        <h3>Danh sách Chapter</h3>
+        <h3>
+            Chapter
+        </h3>
 
         <button
             id="addChapterBtn"
-            class="primary small">
+            class="primary">
 
-            + Thêm Chapter
+            <i class='bx bx-plus'></i>
+
+            Upload Chapter
 
         </button>
 
     </div>
 
-    <div id="chapterList">
+    <div
+        id="chapterList"
+        class="chapter-list">
 
     </div>
 
@@ -367,69 +375,6 @@ Xóa truyện
 </div>
 
 </div>
-
-</div>
-
-<div id="chapterModal" class="modal hidden">
-
-    <div class="modal-box">
-
-        <h3 id="chapterModalTitle">
-
-            Edit Chapter
-
-        </h3>
-
-        <label>
-
-            Chapter
-
-            <input
-                id="chapterId"
-                type="number">
-
-        </label>
-
-        <label>
-
-            Tiêu đề
-
-            <input
-                id="chapterName"
-                type="text">
-
-        </label>
-
-        <label>
-
-            Ngày đăng
-
-            <input
-                id="chapterCreateAt"
-                type="date">
-
-        </label>
-
-        <div class="modal-actions">
-
-            <button
-                id="saveChapterBtn"
-                class="primary">
-
-                Lưu
-
-            </button>
-
-            <button
-                id="closeChapterBtn">
-
-                Hủy
-
-            </button>
-
-        </div>
-
-    </div>
 
 </div>
 

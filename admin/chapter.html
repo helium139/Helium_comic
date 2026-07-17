@@ -4,11 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Upload Chapter | Helium CMS</title>
-<link rel="icon"
-type="image/png"
-href="../assets/images/helium_logo.webp">
+<title>Chapter Editor | Helium CMS</title>
 
 <link rel="icon"
 type="image/png"
@@ -22,6 +20,9 @@ href="admin.css">
 href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
 rel="stylesheet">
 
+<!-- Drag & Drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
+
 </head>
 
 <body>
@@ -32,8 +33,7 @@ rel="stylesheet">
 
     <div class="logo">
 
-        <img
-        src="../assets/images/helium_logo.webp">
+        <img src="../assets/images/helium_logo.webp">
 
         <h2>Helium CMS</h2>
 
@@ -55,12 +55,11 @@ rel="stylesheet">
 
     </a>
 
-    <a class="active"
-    href="chapter.html">
+    <a class="active" href="chapter.html">
 
         <i class='bx bx-images'></i>
 
-        Upload Chapter
+        Chapter Editor
 
     </a>
 
@@ -78,15 +77,45 @@ rel="stylesheet">
 
 <div class="content">
 
-<h1>Upload Chapter</h1>
+<div class="page-header">
 
-<div class="upload-layout">
+<h1 id="pageTitle">
+
+Upload Chapter
+
+</h1>
+
+<div class="page-actions">
+
+<button
+id="backBtn"
+class="secondary-btn">
+
+<i class='bx bx-arrow-back'></i>
+
+Quay lại
+
+</button>
+
+</div>
+
+</div>
+
+<div class="chapter-layout">
 
 <!-- LEFT -->
 
 <div class="upload-card">
 
-<h2>Thông tin Chapter</h2>
+<h2>
+
+Thông tin Chapter
+
+</h2>
+
+<!-- Upload mode -->
+
+<div id="createMode">
 
 <label>Truyện</label>
 
@@ -99,112 +128,64 @@ type="number"
 id="chapterNumber"
 readonly>
 
+</div>
+
+<!-- Edit mode -->
+
+<div id="editMode" class="hidden">
+
+<label>Truyện</label>
+
+<input
+id="mangaName"
+readonly>
+
+<label>Slug</label>
+
+<input
+id="mangaSlug"
+readonly>
+
+</div>
+
 <label>Tiêu đề</label>
 
 <input
-type="text"
-id="chapterTitle">
+id="chapterTitle"
+type="text">
 
 <label>Ngày đăng</label>
 
 <input
-type="date"
-id="chapterDate">
+id="chapterDate"
+type="date">
 
-</div>
+<div class="chapter-stats">
 
-<!-- RIGHT -->
+<div>
 
-<div class="upload-card">
-
-<h2>Upload ảnh</h2>
-
-<div id="dropZone">
-    <input
-type="file"
-id="folderPicker"
-webkitdirectory
-hidden>
-
-<i class='bx bx-cloud-upload'></i>
-
-<p>
-
-Kéo ảnh vào đây
-
-</p>
-
-<p>
-
-hoặc
-
-</p>
-
-<label
-class="choose-btn">
-
-Chọn ảnh
-
-<input
-type="file"
-id="chapterFiles"
-multiple
-hidden>
-
-</label>
-
-</div>
-
-<div id="fileInfo">
-
-<p>
-
-Đã chọn:
-
-<span id="fileCount">
+<b id="imageCount">
 
 0
 
-</span>
+</b>
 
-ảnh
+<span>Ảnh</span>
 
-</p>
+</div>
 
-<p>
+<div>
 
-Dung lượng:
-
-<span id="fileSize">
+<b id="totalSize">
 
 0 MB
 
-</span>
+</b>
 
-</p>
-
-</div>
-
-<div id="progress">
-    <div class="progress-box">
-
-<div class="progress-bar">
-
-<div
-id="progressFill">
+<span>Dung lượng</span>
 
 </div>
 
-</div>
-
-<p
-id="progressText">
-
-0%
-
-</p>
-
-</div>
 </div>
 
 <div class="log-box">
@@ -215,27 +196,85 @@ Log
 
 </h3>
 
+<div id="uploadLog"></div>
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="upload-card">
+
+<div class="preview-header">
+
+<h2>
+
+Danh sách ảnh
+
+</h2>
+
+<div>
+
+<button
+id="addImageBtn"
+class="secondary-btn">
+
+<i class='bx bx-image-add'></i>
+
+Thêm ảnh
+
+</button>
+
+<input
+id="chapterFiles"
+type="file"
+multiple
+hidden>
+
+</div>
+
+</div>
+
 <div
-id="uploadLog">
+id="dropZone"
+class="drop-zone">
+
+<i class='bx bx-cloud-upload'></i>
+
+<p>
+
+Kéo ảnh vào đây hoặc bấm Thêm ảnh
+
+</p>
 
 </div>
 
-</div>
 <div
 id="preview"
 class="preview-grid">
 
+<div class="empty-preview">
+
+Chưa có ảnh
+
 </div>
 
+</div>
+
+<div id="progress">
+
+</div>
+
+<div class="editor-actions">
+
 <button
-
 id="uploadBtn"
-
 class="primary-btn">
 
-<i class='bx bx-upload'></i>
+<i class='bx bx-save'></i>
 
-Upload Chapter
+Lưu thay đổi
 
 </button>
 
@@ -245,10 +284,11 @@ Upload Chapter
 
 </div>
 
+</div>
+
 <script
 type="module"
-src="chapter.js">
-</script>
+src="chapter.js"></script>
 
 </body>
 

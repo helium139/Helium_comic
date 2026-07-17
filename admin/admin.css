@@ -1111,50 +1111,6 @@ transform:scale(1);
 
 }
 
-.modal.hidden {
-
-    display:none;
-
-}
-
-.chapter-editor{
-    position:fixed;
-    top:0;
-    right:0;
-    width:420px;
-    height:100vh;
-
-    background:#101827;
-
-    border-left:1px solid #293142;
-
-    overflow:auto;
-
-    transform:translateX(100%);
-
-    transition:.25s;
-
-    z-index:999;
-}
-
-.chapter-editor.show{
-
-    transform:translateX(0);
-
-}
-
-.modal-actions button{
-
-    flex:1;
-
-    padding:12px;
-
-    font-size:14px;
-
-    border-radius:10px;
-
-}
-
 .editChapter, .deleteChapter{
 
     background:#2563eb;
@@ -1164,5 +1120,101 @@ transform:scale(1);
     font-size: 14px;
 
     padding: 12px;
+
+}
+
+.chapter-list{
+
+display:flex;
+
+flex-direction:column;
+
+gap:12px;
+
+margin-top:18px;
+
+}
+
+.chapter-item{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:14px 18px;
+
+border-radius:12px;
+
+background:#1b2538;
+
+border:1px solid rgba(255,255,255,.05);
+
+transition:.2s;
+
+}
+
+.chapter-item:hover{
+
+border-color:#3d7dff;
+
+transform:translateY(-2px);
+
+}
+
+.chapter-left h4{
+
+margin:0;
+
+font-size:17px;
+
+}
+
+.chapter-left span{
+
+opacity:.6;
+
+font-size:13px;
+
+}
+
+.chapter-actions{
+
+display:flex;
+
+gap:10px;
+
+}
+
+.chapter-actions button{
+
+height:38px;
+
+padding:0 16px;
+
+border:none;
+
+border-radius:10px;
+
+cursor:pointer;
+
+font-weight:600;
+
+}
+
+.chapter-actions .edit{
+
+background:#3b82f6;
+
+color:white;
+
+}
+
+.chapter-actions .upload{
+
+background:#14b8a6;
+
+color:white;
 
 }

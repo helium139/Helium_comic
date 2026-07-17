@@ -102,26 +102,8 @@ teams.forEach(team=>{
 const chapterList =
 document.getElementById("chapterList");
 
-const chapterModal =
-document.getElementById("chapterModal");
-
 const addChapterBtn =
 document.getElementById("addChapterBtn");
-
-const saveChapterBtn =
-document.getElementById("saveChapterBtn");
-
-const closeChapterBtn =
-document.getElementById("closeChapterBtn");
-
-const chapterId =
-document.getElementById("chapterId");
-
-const chapterName =
-document.getElementById("chapterName");
-
-const chapterCreateAt =
-document.getElementById("chapterCreateAt");
 
 
 init();
@@ -455,6 +437,10 @@ mangaSlug,
 
             cover:cover,
 
+            chapters: currentSlug
+        ? mangas[currentSlug].chapters
+        : [],
+
             adminPick:
 
         adminPick.checked,
@@ -689,31 +675,26 @@ e=>{
 
 });
 
-chapterList.onclick=e=>{
+chapterList.onclick = e=>{
 
-    if(e.target.classList.contains("editChapter")){
+    const edit = e.target.closest(".editChapter");
 
-        openChapterEditor(
+    const del = e.target.closest(".deleteChapter");
 
-            Number(
+    if(edit){
 
-                e.target.dataset.id
+        const id = Number(edit.dataset.id);
 
-            )
-
-        );
+        location.href =
+`chapter.html?manga=${currentSlug}&chapter=${id}`;
 
     }
 
-    if(e.target.classList.contains("deleteChapter")){
+    if(del){
 
         deleteChapter(
 
-            Number(
-
-                e.target.dataset.id
-
-            )
+            Number(del.dataset.id)
 
         );
 
@@ -721,196 +702,79 @@ chapterList.onclick=e=>{
 
 };
 
-let editingChapter=null;
 
-function openChapterEditor(id){
-
-    const manga=mangas[currentSlug];
-
-    editingChapter=
-
-    manga.chapters.find(
-
-        c=>c.id===id
-
-    );
-
-    chapterModal.classList.remove("hidden");
-
-    chapterModal.classList.add("show");
-
-    chapterId.value=
-
-        editingChapter.id;
-
-    chapterName.value=
-
-        editingChapter.title;
-
-    chapterCreateAt.value=
-
-        editingChapter.createAt
-
-        .slice(0,10);
-
-}
-
-function closeChapterEditor(){
-
-    chapterModal.classList.add("hidden");
-
-    chapterModal.classList.remove("show");
-
-}
-
-saveChapterBtn.onclick=()=>{
-
-    editingChapter.id=
-
-        Number(
-
-            chapterId.value
-
-        );
-
-    editingChapter.title=
-
-        chapterName.value;
-
-    editingChapter.createAt=
-
-        new Date(
-
-            chapterCreateAt.value
-
-        ).toISOString();
-
-    chapterModal.classList.add("hidden");
-
-    renderChapterList();
-
-};
 
 function deleteChapter(id){
 
-    if(!confirm("Xóa chapter?"))
+    if(!confirm("Xóa chapter?")) return;
 
-        return;
-
-    mangas[currentSlug].chapters=
-
-    mangas[currentSlug].chapters.filter(
-
-        c=>c.id!==id
-
-    );
+    mangas[currentSlug].chapters =
+        mangas[currentSlug].chapters.filter(
+            c=>c.id!==id
+        );
 
     renderChapterList();
 
 }
 
-addChapterBtn.onclick=()=>{
-
-    editingChapter={
-
-        id:
-
-        mangas[currentSlug]
-
-        .chapters.length+1,
-
-        title:"",
-
-        createAt:
-
-        new Date()
-
-        .toISOString(),
-
-        folder:"",
-
-        pages:0
-
-    };
-
-    mangas[currentSlug]
-
-    .chapters.push(
-
-        editingChapter
-
-    );
-
-    openChapterEditor(
-
-        editingChapter.id
-
-    );
-
-};
-
 function renderChapterList(){
 
-    chapterList.innerHTML="";
+    chapterList.innerHTML = "";
 
     if(!currentSlug) return;
 
-    const manga=mangas[currentSlug];
+    const manga = mangas[currentSlug];
 
     manga.chapters
+        .sort((a,b)=>a.id-b.id)
+        .forEach(ch=>{
 
-    .sort((a,b)=>a.id-b.id)
+            chapterList.innerHTML += `
+            <div class="chapter-row">
 
-    .forEach(ch=>{
+                <div class="chapter-info">
 
-        chapterList.innerHTML+=`
+                    <b>${ch.title}</b>
 
-        <div class="chapter-row">
+                    <span>
 
-            <div>
+                        ${new Date(ch.createAt).toLocaleDateString("vi-VN")}
+                    </span>
 
-                <b>
+                </div>
 
-                ${ch.title}
+                <div class="chapter-actions">
 
-                </b>
+                    <button
+                        class="editChapter primary"
+                        data-id="${ch.id}">
 
-                <small>
+                        <i class='bx bx-edit'></i>
 
-                ${ch.createAt}
+                        Chỉnh sửa
 
-                </small>
+                    </button>
 
-            </div>
+                    <button
+                        class="deleteChapter danger"
+                        data-id="${ch.id}">
 
-            <div>
+                        <i class='bx bx-trash'></i>
 
-                <button
+                    </button>
 
-                class="editChapter"
-
-                data-id="${ch.id}">
-
-                ✏
-
-                </button>
-
-                <button
-
-                class="deleteChapter"
-
-                data-id="${ch.id}">
-
-                🗑
-
-                </button>
+                </div>
 
             </div>
+            `;
 
-        </div>
-
-        `;
-
-    });
+        });
 
 }
+
+addChapterBtn.onclick = ()=>{
+
+    location.href =
+`chapter.html?manga=${currentSlug}&new=1`;
+
+};

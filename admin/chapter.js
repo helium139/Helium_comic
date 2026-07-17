@@ -9,6 +9,8 @@ requireAdmin();
 let mangas = {};
 let selectedFiles = [];
 
+let editMode = false;
+let currentChapter = null;
 /* ===========================
             DOM
 =========================== */
@@ -55,9 +57,9 @@ async function init(){
 
     renderMangaList();
 
-    setToday();
-
     bindEvents();
+
+    await loadFromQuery();
 
 }
 
@@ -81,35 +83,29 @@ function bindEvents(){
 
     uploadBtn.onclick=async()=>{
 
-    if(selectedFiles.length===0){
-
-        alert("Chưa chọn ảnh.");
-
-        return;
-
-    }
-
     uploadBtn.disabled=true;
 
-    uploadBtn.innerHTML="Uploading...";
+    uploadBtn.innerHTML="Đang lưu...";
 
     try{
 
-        await uploadChapter();
+        if(mode==="new"){
 
-        resetForm();
+            await uploadChapter();
 
-        alert(
+        }
 
-"Upload thành công!\nGithub đang tự deploy website.\nKhoảng 30-60 giây sẽ cập nhật."
+        else{
 
-);
+            await saveChapter();
+
+        }
+
+        alert("Đã lưu.");
 
     }
 
     catch(err){
-
-        console.error(err);
 
         alert(err.message);
 
@@ -117,7 +113,7 @@ function bindEvents(){
 
     uploadBtn.disabled=false;
 
-    uploadBtn.innerHTML="Upload Chapter";
+    uploadBtn.innerHTML="Lưu thay đổi";
 
 };
 
@@ -278,17 +274,29 @@ function renderPreview(){
 
         card.className="thumb";
 
+        card.dataset.index=index;
+
         const img=document.createElement("img");
 
         card.appendChild(img);
 
-        const reader=new FileReader();
+        if(file.existing){
 
-        reader.onload=e=>{
+    img.src=file.url;
 
-            img.src=e.target.result;
+}else{
 
-        };
+    const reader=new FileReader();
+
+    reader.onload=e=>{
+
+        img.src=e.target.result;
+
+    };
+
+    reader.readAsDataURL(file);
+
+}
 
         reader.readAsDataURL(file);
 
@@ -435,6 +443,11 @@ async function uploadChapter(){
 
         const file = selectedFiles[i];
 
+    if(file.existing){
+
+        continue;
+
+    }
 
         const extension = file.name.split(".").pop().toLowerCase();
 
@@ -563,3 +576,541 @@ sortFiles();
 renderPreview();
 
 };
+
+const pageTitle = document.getElementById("pageTitle");
+
+const createMode = document.getElementById("createMode");
+
+const editMode = document.getElementById("editMode");
+
+const mangaName = document.getElementById("mangaName");
+
+const mangaSlug = document.getElementById("mangaSlug");
+
+const mangaSelect = document.getElementById("mangaSelect");
+
+const chapterNumber = document.getElementById("chapterNumber");
+
+const chapterTitle = document.getElementById("chapterTitle");
+
+const chapterDate = document.getElementById("chapterDate");
+
+const chapterFiles =
+document.getElementById("chapterFiles");
+
+const addImageBtn =
+document.getElementById("addImageBtn");
+
+const uploadBtn =
+document.getElementById("uploadBtn");
+
+const preview =
+document.getElementById("preview");
+
+const progress =
+document.getElementById("progress");
+
+const uploadLog =
+document.getElementById("uploadLog");
+
+const imageCount =
+document.getElementById("imageCount");
+
+const totalSize =
+document.getElementById("totalSize");
+
+const dropZone =
+document.getElementById("dropZone");
+
+const backBtn =
+document.getElementById("backBtn");
+
+init();
+
+async function init(){
+
+    mangas = await getMangas();
+
+    parseUrl();
+
+    renderMangaList();
+
+    bindEvents();
+
+    if(mode==="edit"){
+
+        loadEditor();
+
+    }else{
+
+        setToday();
+
+        updateNextChapter();
+
+    }
+
+}
+
+function parseUrl(){
+
+    const params = new URLSearchParams(location.search);
+
+    const slug = params.get("manga");
+
+    const chapter = Number(params.get("chapter"));
+
+    if(slug && chapter){
+
+        mode="edit";
+
+        currentManga=slug;
+
+        currentChapter=chapter;
+
+    }
+
+}
+
+function loadEditor(){
+
+    createMode.classList.add("hidden");
+
+    editMode.classList.remove("hidden");
+
+    pageTitle.innerHTML="Chapter Editor";
+
+    uploadBtn.innerHTML=
+
+    "<i class='bx bx-save'></i> Lưu thay đổi";
+
+    const manga = mangas[currentManga];
+
+    if(!manga) return;
+
+    mangaName.value=manga.title;
+
+    mangaSlug.value=currentManga;
+
+    const chapter=
+
+    manga.chapters.find(
+
+        c=>c.id===currentChapter
+
+    );
+
+    if(!chapter) return;
+
+    chapterTitle.value=
+
+    chapter.title;
+
+    chapterDate.value=
+
+    chapter.createAt.substring(0,10);
+
+    existingImages=[];
+
+    for(
+
+        let i=1;
+
+        i<=chapter.pages;
+
+        i++
+
+    ){
+
+        existingImages.push({
+
+            type:"remote",
+
+            name:`${i}.webp`,
+
+            url:
+
+            `${chapter.folder}/${i}.webp`
+
+        });
+
+    }
+
+    renderPreview();
+
+}
+
+function bindEvents(){
+
+    mangaSelect.onchange=updateNextChapter;
+
+    addImageBtn.onclick=()=>{
+
+        chapterFiles.click();
+
+    };
+
+    chapterFiles.onchange=e=>{
+
+        selectedFiles.push(
+
+    ...Array.from(
+
+        e.target.files
+
+    )
+
+);
+
+renderPreview();
+
+chapterFiles.value="";
+
+    };
+
+    backBtn.onclick=()=>{
+
+        history.back();
+
+    };
+
+    initDragDrop();
+
+}
+
+function renderPreview(){
+
+    preview.innerHTML="";
+
+    const images=[
+
+        ...existingImages,
+
+        ...selectedFiles
+
+    ];
+
+    if(images.length===0){
+
+        preview.innerHTML=
+
+        "<div class='empty-preview'>Chưa có ảnh</div>";
+
+        updateStats();
+
+        return;
+
+    }
+
+    images.forEach((img,index)=>{
+
+        const card=document.createElement("div");
+
+        card.className="thumb";
+
+        let src="";
+
+        if(img.type==="remote"){
+
+            src=img.url;
+
+        }
+
+        else{
+
+            src=URL.createObjectURL(img);
+
+        }
+
+        card.innerHTML=`
+
+        <img src="${src}">
+
+        <div class="thumb-index">
+
+            ${index+1}
+
+        </div>
+
+        <div class="thumb-name">
+
+            ${img.name}
+
+        </div>
+
+        <button
+
+        class="remove-thumb"
+
+        data-index="${index}">
+
+        ✕
+
+        </button>
+
+        `;
+
+        preview.appendChild(card);
+
+    });
+
+    updateStats();
+
+}
+
+new Sortable(preview,{
+
+    animation:150,
+
+    onEnd(e){
+
+        const item = selectedFiles.splice(e.oldIndex,1)[0];
+
+        selectedFiles.splice(e.newIndex,0,item);
+
+        renderPreview();
+
+    }
+
+});
+
+function updateStats(){
+
+    const total=
+
+    selectedFiles.reduce(
+
+        (sum,f)=>sum+f.size,
+
+        0
+
+    );
+
+    imageCount.innerHTML=
+
+    existingImages.length+
+
+    selectedFiles.length;
+
+    totalSize.innerHTML=
+
+    (total/1024/1024)
+
+    .toFixed(2)+" MB";
+
+}
+
+function initSortable(){
+
+    Sortable.create(preview,{
+
+        animation:150,
+
+        ghostClass:"dragging",
+
+        onEnd(){
+
+            const cards=[
+
+                ...preview.children
+
+            ];
+
+            const merged=[
+
+                ...existingImages,
+
+                ...selectedFiles
+
+            ];
+
+            const reordered=[];
+
+            cards.forEach(card=>{
+
+                reordered.push(
+
+                    merged[
+                        Number(
+
+                            card.dataset.index
+
+                        )
+                    ]
+
+                );
+
+            });
+
+            existingImages=
+                reordered.filter(
+                    i=>i.type==="remote"
+                );
+
+            selectedFiles=
+                reordered.filter(
+                    i=>!i.type
+                );
+
+            renderPreview();
+
+        }
+
+    });
+
+}
+
+preview.onclick=e=>{
+
+    const btn=
+
+    e.target.closest(".remove-thumb");
+
+    if(!btn) return;
+
+    const index=
+
+    Number(
+
+        btn.dataset.index
+
+    );
+
+    const totalRemote=
+
+    existingImages.length;
+
+    if(index<totalRemote){
+
+        existingImages.splice(index,1);
+
+    }
+
+    else{
+
+        selectedFiles.splice(
+
+            index-totalRemote,
+
+            1
+
+        );
+
+    }
+
+    renderPreview();
+
+};
+
+async function saveChapter(){
+
+    log("Đang upload...");
+
+    let page=
+
+    existingImages.length;
+
+    for(
+
+        const file of selectedFiles
+
+    ){
+
+        page++;
+
+        const ext=
+
+        file.name
+
+        .split(".")
+
+        .pop();
+
+        await uploadImage(
+
+            file,
+
+            `${currentManga}/chap${currentChapter}`,
+
+            `${page}.${ext}`
+
+        );
+
+    }
+
+    log("Đang commit...");
+
+    await updateChapter({
+
+    manga:slug,
+
+    chapterId:chapter,
+
+    title:chapterTitle.value,
+
+    pages:selectedFiles.length
+
+});
+
+    log("✔ Done");
+
+}
+
+async function loadFromQuery(){
+
+    const params = new URLSearchParams(location.search);
+
+    const slug = params.get("manga");
+    const chapter = Number(params.get("chapter"));
+
+    if(!slug || !chapter){
+
+        setToday();
+
+        return;
+
+    }
+
+    editMode = true;
+
+    mangaSelect.value = slug;
+
+    mangaSelect.disabled = true;
+
+    const manga = mangas[slug];
+
+    currentChapter = manga.chapters.find(c=>c.id===chapter);
+
+    if(!currentChapter) return;
+
+    chapterNumber.value = currentChapter.id;
+    chapterTitle.value = currentChapter.title;
+    chapterDate.value = currentChapter.createAt.slice(0,10);
+
+    uploadBtn.innerHTML =
+    "<i class='bx bx-save'></i> Save Chapter";
+
+    await loadChapterImages();
+
+}
+
+async function loadChapterImages(){
+
+    selectedFiles=[];
+
+    for(let i=1;i<=currentChapter.pages;i++){
+
+        selectedFiles.push({
+
+            name:`${i}.webp`,
+
+            url:`${currentChapter.folder}/${i}.webp`,
+
+            existing:true
+
+        });
+
+    }
+
+    renderPreview();
+
+}
