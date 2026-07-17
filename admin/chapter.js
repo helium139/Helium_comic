@@ -585,40 +585,17 @@ const mangaName = document.getElementById("mangaName");
 
 const mangaSlug = document.getElementById("mangaSlug");
 
-const mangaSelect = document.getElementById("mangaSelect");
-
-const chapterNumber = document.getElementById("chapterNumber");
-
-const chapterTitle = document.getElementById("chapterTitle");
-
-const chapterDate = document.getElementById("chapterDate");
-
-const chapterFiles =
-document.getElementById("chapterFiles");
-
 const addImageBtn =
 document.getElementById("addImageBtn");
 
-const uploadBtn =
-document.getElementById("uploadBtn");
-
 const preview =
-document.getElementById("preview");
-
-const progress =
-document.getElementById("progress");
-
-const uploadLog =
-document.getElementById("uploadLog");
+document.getElementById("preview");0
 
 const imageCount =
 document.getElementById("imageCount");
 
 const totalSize =
 document.getElementById("totalSize");
-
-const dropZone =
-document.getElementById("dropZone");
 
 const backBtn =
 document.getElementById("backBtn");
