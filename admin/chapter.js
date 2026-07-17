@@ -1,73 +1,229 @@
 import { requireAdmin } from "../assets/js/adminGuard.js";
 
 import { getMangas } from "./api/manga.js";
+
 import { uploadImage } from "./api/upload.js";
-import { publishChapter } from "./api/github.js";
+
+import {
+
+    publishChapter,
+
+    updateChapter
+
+} from "./api/github.js";
 
 requireAdmin();
 
+/* ===========================
+        STATE
+=========================== */
+
 let mangas = {};
+
 let selectedFiles = [];
 
-let editMode = false;
+let existingImages = [];
+
+let mode = "new";
+
+let currentManga = "";
+
 let currentChapter = null;
+
+
 /* ===========================
             DOM
 =========================== */
 
-const mangaSelect = document.getElementById("mangaSelect");
-const chapterNumber = document.getElementById("chapterNumber");
-const chapterTitle = document.getElementById("chapterTitle");
-const chapterDate = document.getElementById("chapterDate");
+const mangaSelect =
+document.getElementById("mangaSelect");
 
-const chapterFiles = document.getElementById("chapterFiles");
+const chapterNumber =
+document.getElementById("chapterNumber");
 
-const uploadBtn = document.getElementById("uploadBtn");
+const chapterTitle =
+document.getElementById("chapterTitle");
 
-const progress = document.getElementById("progress");
+const chapterDate =
+document.getElementById("chapterDate");
 
-const dropZone = document.getElementById("dropZone");
+const chapterFiles =
+document.getElementById("chapterFiles");
 
-/* preview */
+const folderPicker =
+document.getElementById("folderPicker");
 
-const preview = document.getElementById(
+const uploadBtn =
+document.getElementById("uploadBtn");
 
-"preview"
+const preview =
+document.getElementById("preview");
 
-);
+const dropZone =
+document.getElementById("dropZone");
+
+const progress =
+document.getElementById("progress");
+
+const uploadLog =
+document.getElementById("uploadLog");
+
 const fileCount =
 document.getElementById("fileCount");
 
 const fileSize =
 document.getElementById("fileSize");
-const uploadLog =
-document.getElementById("uploadLog");
-const folderPicker=
-document.getElementById("folderPicker");
 
-/* ===========================
-        EVENTS
-=========================== */
+const pageTitle =
+document.getElementById("pageTitle");
+
+const createMode =
+document.getElementById("createMode");
+
+const editMode =
+document.getElementById("editMode");
+
+const mangaName =
+document.getElementById("mangaName");
+
+const mangaSlug =
+document.getElementById("mangaSlug");
+
+const addImageBtn =
+document.getElementById("addImageBtn");
+
+const imageCount =
+document.getElementById("imageCount");
+
+const totalSize =
+document.getElementById("totalSize");
+
+const backBtn =
+document.getElementById("backBtn");
+
+init();
+
+async function init(){
+
+    mangas = await getMangas();
+
+    parseQuery();
+
+    renderMangaList();
+
+    bindEvents();
+
+    if(mode==="edit"){
+
+        loadChapter();
+
+    }
+
+    else{
+
+        setToday();
+
+        updateNextChapter();
+
+    }
+
+}
+
+function parseQuery(){
+
+    const params = new URLSearchParams(
+
+        location.search
+
+    );
+
+    const slug = params.get("manga");
+
+    const chapter = Number(
+
+        params.get("chapter")
+
+    );
+
+    if(slug && chapter){
+
+        mode = "edit";
+
+        currentManga = slug;
+
+        currentChapter = chapter;
+
+    }
+
+}
 
 function bindEvents(){
 
-    mangaSelect.onchange = updateNextChapter;
+    mangaSelect.onchange = ()=>{
+
+        if(mode==="new"){
+
+            updateNextChapter();
+
+        }
+
+    };
 
     chapterFiles.onchange = e=>{
 
-        selectedFiles = Array.from(e.target.files);
+        selectedFiles.push(
 
-        sortFiles();
+            ...Array.from(
+
+                e.target.files
+
+            )
+
+        );
+
+        renderPreview();
+
+        chapterFiles.value="";
+
+    };
+
+    folderPicker.onchange=e=>{
+
+        selectedFiles.push(
+
+            ...Array.from(
+
+                e.target.files
+
+            )
+
+        );
 
         renderPreview();
 
     };
 
-    uploadBtn.onclick=async()=>{
+    addImageBtn.onclick=()=>{
+
+        chapterFiles.click();
+
+    };
+
+    uploadBtn.onclick=save;
+
+    backBtn.onclick=()=>{
+
+        history.back();
+
+    };
+
+    initDragDrop();
+
+}
+
+async function save(){
 
     uploadBtn.disabled=true;
-
-    uploadBtn.innerHTML="Đang lưu...";
 
     try{
 
@@ -95,17 +251,7 @@ function bindEvents(){
 
     uploadBtn.disabled=false;
 
-    uploadBtn.innerHTML="Lưu thay đổi";
-
-};
-
-    initDragDrop();
-
 }
-
-/* ===========================
-      MANGA LIST
-=========================== */
 
 function renderMangaList(){
 
@@ -115,7 +261,11 @@ function renderMangaList(){
 
     .sort((a,b)=>
 
-        a[1].title.localeCompare(b[1].title)
+        a[1].title.localeCompare(
+
+            b[1].title
+
+        )
 
     )
 
@@ -124,52 +274,117 @@ function renderMangaList(){
         mangaSelect.innerHTML+=`
 
         <option value="${slug}">
+
             ${manga.title}
+
         </option>
 
         `;
 
     });
 
-    updateNextChapter();
+}
+
+async function loadChapter(){
+
+    createMode.classList.add("hidden");
+
+    editMode.classList.remove("hidden");
+
+    pageTitle.textContent = "Chapter Editor";
+
+    uploadBtn.innerHTML =
+    "<i class='bx bx-save'></i> Lưu thay đổi";
+
+    mangaSelect.value = currentManga;
+
+    mangaSelect.disabled = true;
+
+    const manga = mangas[currentManga];
+
+    if(!manga){
+
+        alert("Không tìm thấy truyện.");
+
+        return;
+
+    }
+
+    mangaName.value = manga.title;
+
+    mangaSlug.value = currentManga;
+
+    const chapter = manga.chapters.find(
+
+        c => c.id === currentChapter
+
+    );
+
+    if(!chapter){
+
+        alert("Không tìm thấy chapter.");
+
+        return;
+
+    }
+
+    currentChapter = chapter;
+
+    chapterNumber.value = chapter.id;
+
+    chapterTitle.value = chapter.title;
+
+    chapterDate.value =
+
+        chapter.createAt.substring(0,10);
+
+    existingImages = [];
+
+    for(let i=1;i<=chapter.pages;i++){
+
+        existingImages.push({
+
+            type:"remote",
+
+            name:`${i}.webp`,
+
+            url:`${chapter.folder}/${i}.webp`
+
+        });
+
+    }
+
+    renderPreview();
 
 }
 
 function updateNextChapter(){
 
-    const slug=mangaSelect.value;
-
-    const manga=mangas[slug];
+    const manga = mangas[mangaSelect.value];
 
     if(!manga) return;
 
-    const next=manga.chapters.length+1;
+    const next = manga.chapters.length + 1;
 
-    chapterNumber.value=next;
+    chapterNumber.value = next;
 
-    chapterTitle.value=`Chap ${next}`;
+    chapterTitle.value = `Chap ${next}`;
 
 }
 
 function setToday(){
 
-    chapterDate.value=
+    chapterDate.value =
 
-    new Date()
+        new Date()
 
-    .toISOString()
+        .toISOString()
 
-    .split("T")[0];
+        .split("T")[0];
 
 }
 
-/* ===========================
-        DRAG & DROP
-=========================== */
-
 function initDragDrop(){
-
-    if(!dropZone) return;
 
     dropZone.addEventListener("dragover",e=>{
 
@@ -191,9 +406,15 @@ function initDragDrop(){
 
         dropZone.classList.remove("dragging");
 
-        selectedFiles = Array.from(e.dataTransfer.files);
+        selectedFiles.push(
 
-        sortFiles();
+            ...Array.from(
+
+                e.dataTransfer.files
+
+            )
+
+        );
 
         renderPreview();
 
@@ -201,541 +422,49 @@ function initDragDrop(){
 
 }
 
-/* ===========================
-        FILE SORT
-=========================== */
+function updateStats(){
 
-function sortFiles(){
-
-    selectedFiles.sort((a,b)=>{
-
-        return a.name.localeCompare(
-
-            b.name,
-
-            undefined,
-
-            {
-
-                numeric:true,
-
-                sensitivity:"base"
-
-            }
-
-        );
-
-    });
-
-}
-
-/* ===========================
-        PREVIEW
-=========================== */
-
-function renderPreview(){
-
-    preview.innerHTML = "";
-
-    updateFileInfo();
-
-    if(selectedFiles.length===0){
-
-        preview.innerHTML=`
-        <div class="empty-preview">
-            Chưa chọn ảnh
-        </div>
-        `;
-
-        return;
-    }
-
-    selectedFiles.forEach((file,index)=>{
-
-        const card=document.createElement("div");
-
-        card.className="thumb";
-
-        card.dataset.index=index;
-
-        const img=document.createElement("img");
-
-        card.appendChild(img);
-
-        if(file.existing){
-
-    img.src=file.url;
-
-}else{
-
-    const reader=new FileReader();
-
-    reader.onload=e=>{
-
-        img.src=e.target.result;
-
-    };
-
-    reader.readAsDataURL(file);
-
-}
-
-        reader.readAsDataURL(file);
-
-        card.innerHTML+=`
-
-        <div class="thumb-index">
-
-            ${index+1}
-
-        </div>
-
-        <div class="thumb-name">
-
-            ${file.name}
-
-        </div>
-
-        <button
-            class="remove-thumb"
-            data-index="${index}">
-
-            ✕
-
-        </button>
-
-        `;
-
-        preview.appendChild(card);
-
-    });
-
-}
-
-/* ===========================
-        REMOVE IMAGE
-=========================== */
-
-preview.addEventListener("click",e=>{
-
-    const btn=e.target.closest(".remove-thumb");
-
-    if(!btn) return;
-
-    const index=Number(btn.dataset.index);
-
-    selectedFiles.splice(index,1);
-
-    renderPreview();
-
-});
-
-/* ===========================
-        PROGRESS
-=========================== */
-
-function setProgress(text){
-
-    progress.innerHTML = text;
-
-    log(text);
-
-}
-function updateFileInfo(){
-
-    const total=
+    const total =
 
         selectedFiles.reduce(
 
-            (sum,file)=>sum+file.size,
+            (sum,file)=>
+
+            sum+file.size,
 
             0
 
         );
 
-    fileCount.textContent=
+    const count =
+
+        existingImages.length+
 
         selectedFiles.length;
 
-    fileSize.textContent=
+    fileCount.textContent = count;
 
-        (total/1024/1024).toFixed(2)
+    imageCount.textContent = count;
+
+    fileSize.textContent =
+
+        (total/1024/1024)
+
+        .toFixed(2)
 
         +" MB";
 
-}
+    totalSize.textContent =
 
-function setUploadPercent(current,total){
-
-    const percent=
-
-    Math.floor(
-
-        current/total*100
-
-    );
-
-    progress.innerHTML=`
-
-    <div class="progress-bar">
-
-        <div
-
-        class="progress-fill"
-
-        style="width:${percent}%">
-
-        </div>
-
-    </div>
-
-    <p>
-
-    ${current}/${total}
-
-    (${percent}%)
-
-    </p>
-
-    `;
-
-}
-
-/* ===========================
-        UPLOAD CHAPTER
-=========================== */
-
-async function uploadChapter(){
-
-    const slug = mangaSelect.value;
-
-    const chapter = Number(chapterNumber.value);
-
-    const title = chapterTitle.value.trim();
-
-    if(title===""){
-
-        throw new Error("Chưa nhập tên chapter.");
-
-    }
-
-    setProgress("Bắt đầu upload...");
-
-    for(let i=0;i<selectedFiles.length;i++){
-
-        const file = selectedFiles[i];
-
-    if(file.existing){
-
-        continue;
-
-    }
-
-        const extension = file.name.split(".").pop().toLowerCase();
-
-const filename = `${i+1}.${extension}`;
-        setUploadPercent(
-
-            i,
-
-            selectedFiles.length
-
-        );
-       
-
-        await uploadImage(
-
-    file,
-
-    `${slug}/chap${chapter}`,
-
-    filename
-
-);
-        log(
-
-`✔ ${filename}`
-
-);
-    }
-
-    setUploadPercent(
-
-        selectedFiles.length,
-
-        selectedFiles.length
-
-    );
-
-    setProgress("Đang cập nhật data.json...");
-
-    const result =
-
-        await publishChapter({
-
-            manga:slug,
-
-            chapterNumber:chapter,
-
-            title:title,
-
-            imageCount:selectedFiles.length
-
-        });
-
-    if(!result.success){
-
-        throw new Error(
-
-            result.message ||
-
-            "Github Commit thất bại."
-
-        );
-
-    }
-    else log("✔ Github Commit");
-
-    setProgress("✔ Upload thành công");
-    log("✔ Github Pages Deploy");
-
-}
-
-/* ===========================
-        RESET
-=========================== */
-
-function resetForm(){
-
-    selectedFiles=[];
-
-    chapterFiles.value="";
-
-    progress.innerHTML="";
-
-    uploadLog.innerHTML="";
-
-    updateNextChapter();
-
-    updateFileInfo();
-
-    renderPreview();
-
-}
-
-function log(text){
-
-const div=
-
-document.createElement(
-
-"div"
-
-);
-
-div.innerHTML=text;
-
-uploadLog.appendChild(div);
-
-uploadLog.scrollTop=
-
-uploadLog.scrollHeight;
-
-}
-
-folderPicker.onchange=e=>{
-
-selectedFiles=
-
-Array.from(
-
-e.target.files
-
-);
-
-sortFiles();
-
-renderPreview();
-
-};
-
-const pageTitle = document.getElementById("pageTitle");
-
-const createMode = document.getElementById("createMode");
-
-const mangaName = document.getElementById("mangaName");
-
-const mangaSlug = document.getElementById("mangaSlug");
-
-const addImageBtn =
-document.getElementById("addImageBtn");
-
-const imageCount =
-document.getElementById("imageCount");
-
-const totalSize =
-document.getElementById("totalSize");
-
-const backBtn =
-document.getElementById("backBtn");
-
-init();
-
-async function init(){
-
-    mangas = await getMangas();
-
-    parseUrl();
-
-    renderMangaList();
-
-    bindEvents();
-
-    if(mode==="edit"){
-
-        loadEditor();
-
-    }else{
-
-        setToday();
-
-        updateNextChapter();
-
-    }
-
-}
-
-function parseUrl(){
-
-    const params = new URLSearchParams(location.search);
-
-    const slug = params.get("manga");
-
-    const chapter = Number(params.get("chapter"));
-
-    if(slug && chapter){
-
-        mode="edit";
-
-        currentManga=slug;
-
-        currentChapter=chapter;
-
-    }
-
-}
-
-function loadEditor(){
-
-    createMode.classList.add("hidden");
-
-    editMode.classList.remove("hidden");
-
-    pageTitle.innerHTML="Chapter Editor";
-
-    uploadBtn.innerHTML=
-
-    "<i class='bx bx-save'></i> Lưu thay đổi";
-
-    const manga = mangas[currentManga];
-
-    if(!manga) return;
-
-    mangaName.value=manga.title;
-
-    mangaSlug.value=currentManga;
-
-    const chapter=
-
-    manga.chapters.find(
-
-        c=>c.id===currentChapter
-
-    );
-
-    if(!chapter) return;
-
-    chapterTitle.value=
-
-    chapter.title;
-
-    chapterDate.value=
-
-    chapter.createAt.substring(0,10);
-
-    existingImages=[];
-
-    for(
-
-        let i=1;
-
-        i<=chapter.pages;
-
-        i++
-
-    ){
-
-        existingImages.push({
-
-            type:"remote",
-
-            name:`${i}.webp`,
-
-            url:
-
-            `${chapter.folder}/${i}.webp`
-
-        });
-
-    }
-
-    renderPreview();
-
-}
-
-function bindEvents(){
-
-    mangaSelect.onchange=updateNextChapter;
-
-    addImageBtn.onclick=()=>{
-
-        chapterFiles.click();
-
-    };
-
-    chapterFiles.onchange=e=>{
-
-        selectedFiles.push(
-
-    ...Array.from(
-
-        e.target.files
-
-    )
-
-);
-
-renderPreview();
-
-chapterFiles.value="";
-
-    };
-
-    backBtn.onclick=()=>{
-
-        history.back();
-
-    };
-
-    initDragDrop();
+        fileSize.textContent;
 
 }
 
 function renderPreview(){
 
-    preview.innerHTML="";
+    preview.innerHTML = "";
 
-    const images=[
+    const images = [
 
         ...existingImages,
 
@@ -745,9 +474,13 @@ function renderPreview(){
 
     if(images.length===0){
 
-        preview.innerHTML=
+        preview.innerHTML =
 
-        "<div class='empty-preview'>Chưa có ảnh</div>";
+        `<div class="empty-preview">
+
+            Chưa có ảnh
+
+        </div>`;
 
         updateStats();
 
@@ -757,185 +490,69 @@ function renderPreview(){
 
     images.forEach((img,index)=>{
 
-        const card=document.createElement("div");
+        const card = document.createElement("div");
 
-        card.className="thumb";
+        card.className = "thumb";
 
-        let src="";
+        card.dataset.index = index;
+
+        const image = document.createElement("img");
 
         if(img.type==="remote"){
 
-            src=img.url;
+            image.src = img.url;
 
         }
 
         else{
 
-            src=URL.createObjectURL(img);
+            image.src = URL.createObjectURL(img);
 
         }
 
-        card.innerHTML=`
+        const number = document.createElement("div");
 
-        <img src="${src}">
+        number.className = "thumb-index";
 
-        <div class="thumb-index">
+        number.textContent = index+1;
 
-            ${index+1}
+        const name = document.createElement("div");
 
-        </div>
+        name.className = "thumb-name";
 
-        <div class="thumb-name">
+        name.textContent = img.name;
 
-            ${img.name}
+        const remove = document.createElement("button");
 
-        </div>
+        preview.addEventListener("click",e=>{
 
-        <button
+    const btn =
 
-        class="remove-thumb"
+        e.target.closest(
 
-        data-index="${index}">
+            ".remove-thumb"
 
-        ✕
-
-        </button>
-
-        `;
-
-        preview.appendChild(card);
-
-    });
-
-    updateStats();
-
-}
-
-new Sortable(preview,{
-
-    animation:150,
-
-    onEnd(e){
-
-        const item = selectedFiles.splice(e.oldIndex,1)[0];
-
-        selectedFiles.splice(e.newIndex,0,item);
-
-        renderPreview();
-
-    }
-
-});
-
-function updateStats(){
-
-    const total=
-
-    selectedFiles.reduce(
-
-        (sum,f)=>sum+f.size,
-
-        0
-
-    );
-
-    imageCount.innerHTML=
-
-    existingImages.length+
-
-    selectedFiles.length;
-
-    totalSize.innerHTML=
-
-    (total/1024/1024)
-
-    .toFixed(2)+" MB";
-
-}
-
-function initSortable(){
-
-    Sortable.create(preview,{
-
-        animation:150,
-
-        ghostClass:"dragging",
-
-        onEnd(){
-
-            const cards=[
-
-                ...preview.children
-
-            ];
-
-            const merged=[
-
-                ...existingImages,
-
-                ...selectedFiles
-
-            ];
-
-            const reordered=[];
-
-            cards.forEach(card=>{
-
-                reordered.push(
-
-                    merged[
-                        Number(
-
-                            card.dataset.index
-
-                        )
-                    ]
-
-                );
-
-            });
-
-            existingImages=
-                reordered.filter(
-                    i=>i.type==="remote"
-                );
-
-            selectedFiles=
-                reordered.filter(
-                    i=>!i.type
-                );
-
-            renderPreview();
-
-        }
-
-    });
-
-}
-
-preview.onclick=e=>{
-
-    const btn=
-
-    e.target.closest(".remove-thumb");
+        );
 
     if(!btn) return;
 
-    const index=
+    const index =
 
-    Number(
+        Number(
 
-        btn.dataset.index
+            btn.dataset.index
 
-    );
+        );
 
-    const totalRemote=
+    if(index<existingImages.length){
 
-    existingImages.length;
+        existingImages.splice(
 
-    if(index<totalRemote){
+            index,
 
-        existingImages.splice(index,1);
+            1
+
+        );
 
     }
 
@@ -943,7 +560,7 @@ preview.onclick=e=>{
 
         selectedFiles.splice(
 
-            index-totalRemote,
+            index-existingImages.length,
 
             1
 
@@ -953,118 +570,278 @@ preview.onclick=e=>{
 
     renderPreview();
 
-};
+});
+
+        remove.dataset.index = index;
+
+        remove.innerHTML = "✕";
+
+        card.append(
+
+            image,
+
+            number,
+
+            name,
+
+            remove
+
+        );
+
+        preview.appendChild(card);
+
+    });
+
+    updateStats();
+
+    initSortable();
+
+}
+
+let sortable = null;
+
+function initSortable(){
+
+    if(sortable){
+
+        sortable.destroy();
+
+    }
+
+    sortable = Sortable.create(
+
+        preview,
+
+        {
+
+            animation:180,
+
+            ghostClass:"dragging",
+
+            onEnd(e){
+
+                const all = [
+
+                    ...existingImages,
+
+                    ...selectedFiles
+
+                ];
+
+                const moved =
+
+                    all.splice(
+
+                        e.oldIndex,
+
+                        1
+
+                    )[0];
+
+                all.splice(
+
+                    e.newIndex,
+
+                    0,
+
+                    moved
+
+                );
+
+                existingImages =
+
+                    all.filter(
+
+                        x=>x.type==="remote"
+
+                    );
+
+                selectedFiles =
+
+                    all.filter(
+
+                        x=>x.type!=="remote"
+
+                    );
+
+                renderPreview();
+
+            }
+
+        }
+
+    );
+
+}
 
 async function saveChapter(){
 
-    log("Đang upload...");
+    const slug = currentManga;
 
-    let page=
+    const chapterId = currentChapter.id;
 
-    existingImages.length;
+    const folder = `${slug}/chap${chapterId}`;
 
-    for(
+    log("Đang upload ảnh...");
 
-        const file of selectedFiles
+    let page = existingImages.length;
 
-    ){
+    for(const file of selectedFiles){
 
         page++;
 
-        const ext=
+        const ext =
 
-        file.name
+            file.name
 
-        .split(".")
+            .split(".")
 
-        .pop();
+            .pop()
+
+            .toLowerCase();
 
         await uploadImage(
 
             file,
 
-            `${currentManga}/chap${currentChapter}`,
+            folder,
 
             `${page}.${ext}`
 
         );
 
+        log(`✔ ${page}.${ext}`);
+
     }
 
-    log("Đang commit...");
+    log("Đang cập nhật data.json...");
 
     await updateChapter({
 
-    manga:slug,
+        manga: slug,
 
-    chapterId:chapter,
+        chapterId,
 
-    title:chapterTitle.value,
+        title: chapterTitle.value.trim(),
 
-    pages:selectedFiles.length
+        createAt: chapterDate.value,
 
-});
+        pages:
+
+            existingImages.length+
+
+            selectedFiles.length
+
+    });
+
+    progress.innerHTML =
+
+        "✔ Đã lưu thành công";
 
     log("✔ Done");
 
 }
 
-async function loadFromQuery(){
+async function uploadChapter(){
 
-    const params = new URLSearchParams(location.search);
+    const slug = mangaSelect.value;
 
-    const slug = params.get("manga");
-    const chapter = Number(params.get("chapter"));
+    const chapter = Number(
 
-    if(!slug || !chapter){
+        chapterNumber.value
 
-        setToday();
+    );
 
-        return;
+    const title =
+
+        chapterTitle.value.trim();
+
+    if(title===""){
+
+        throw new Error(
+
+            "Chưa nhập tiêu đề."
+
+        );
 
     }
 
-    editMode = true;
+    for(let i=0;i<selectedFiles.length;i++){
 
-    mangaSelect.value = slug;
+        const file = selectedFiles[i];
 
-    mangaSelect.disabled = true;
+        const ext =
 
-    const manga = mangas[slug];
+            file.name
 
-    currentChapter = manga.chapters.find(c=>c.id===chapter);
+            .split(".")
 
-    if(!currentChapter) return;
+            .pop()
 
-    chapterNumber.value = currentChapter.id;
-    chapterTitle.value = currentChapter.title;
-    chapterDate.value = currentChapter.createAt.slice(0,10);
+            .toLowerCase();
 
-    uploadBtn.innerHTML =
-    "<i class='bx bx-save'></i> Save Chapter";
+        await uploadImage(
 
-    await loadChapterImages();
+            file,
+
+            `${slug}/chap${chapter}`,
+
+            `${i+1}.${ext}`
+
+        );
+
+        log(`✔ ${i+1}.${ext}`);
+
+    }
+
+    await publishChapter({
+
+        manga:slug,
+
+        chapterNumber:chapter,
+
+        title,
+
+        imageCount:selectedFiles.length
+
+    });
+
+    progress.innerHTML="✔ Upload xong";
 
 }
 
-async function loadChapterImages(){
+function resetForm(){
 
     selectedFiles=[];
 
-    for(let i=1;i<=currentChapter.pages;i++){
+    existingImages=[];
 
-        selectedFiles.push({
+    preview.innerHTML="";
 
-            name:`${i}.webp`,
+    uploadLog.innerHTML="";
 
-            url:`${currentChapter.folder}/${i}.webp`,
+    progress.innerHTML="";
 
-            existing:true
+    chapterFiles.value="";
 
-        });
+    folderPicker.value="";
 
-    }
+    updateStats();
 
-    renderPreview();
+}
+
+function log(text){
+
+    const div=
+
+    document.createElement("div");
+
+    div.textContent=text;
+
+    uploadLog.appendChild(div);
+
+    uploadLog.scrollTop=
+
+    uploadLog.scrollHeight;
 
 }

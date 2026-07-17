@@ -1,14 +1,10 @@
 const API = "https://helium-cms.mylengoctra06.workers.dev";
 
-/* ===========================
-        NEW MANGA
-=========================== */
-
-export async function newManga(manga){
+async function post(path, body){
 
     const res = await fetch(
 
-        `${API}/new-manga`,
+        `${API}${path}`,
 
         {
 
@@ -20,13 +16,43 @@ export async function newManga(manga){
 
             },
 
-            body:JSON.stringify(manga)
+            body:JSON.stringify(body)
 
         }
 
     );
 
-    return await res.json();
+    const json = await res.json();
+
+    if(!json.success){
+
+        throw new Error(
+
+            json.message ||
+
+            "Request failed."
+
+        );
+
+    }
+
+    return json;
+
+}
+
+/* ===========================
+        NEW MANGA
+=========================== */
+
+export async function newManga(manga){
+
+    return post(
+
+        "/new-manga",
+
+        manga
+
+    );
 
 }
 
@@ -36,27 +62,13 @@ export async function newManga(manga){
 
 export async function editManga(manga){
 
-    const res = await fetch(
+    return post(
 
-        `${API}/edit-manga`,
+        "/edit-manga",
 
-        {
-
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify(manga)
-
-        }
+        manga
 
     );
-
-    return await res.json();
 
 }
 
@@ -66,31 +78,17 @@ export async function editManga(manga){
 
 export async function deleteManga(slug){
 
-    const res = await fetch(
+    return post(
 
-        `${API}/delete-manga`,
+        "/delete-manga",
 
         {
 
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify({
-
-                slug
-
-            })
+            slug
 
         }
 
     );
-
-    return await res.json();
 
 }
 
@@ -100,26 +98,71 @@ export async function deleteManga(slug){
 
 export async function publishChapter(data){
 
-    const res = await fetch(
+    return post(
 
-        `${API}/new-chapter`,
+        "/new-chapter",
+
+        data
+
+    );
+
+}
+
+/* ===========================
+        EDIT CHAPTER
+=========================== */
+
+export async function updateChapter(data){
+
+    return post(
+
+        "/edit-chapter",
+
+        data
+
+    );
+
+}
+
+/* ===========================
+        DELETE CHAPTER
+=========================== */
+
+export async function removeChapter(
+
+    manga,
+
+    chapterId
+
+){
+
+    return post(
+
+        "/delete-chapter",
 
         {
 
-            method:"POST",
+            manga,
 
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify(data)
+            chapterId
 
         }
 
     );
 
-    return await res.json();
+}
+/* ===========================
+        RENAME IMAGES
+=========================== */
+
+export async function renameImages(data){
+
+    return post(
+
+        "/rename-images",
+
+        data
+
+    );
 
 }
