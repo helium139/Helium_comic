@@ -46,24 +46,6 @@ const folderPicker=
 document.getElementById("folderPicker");
 
 /* ===========================
-        INIT
-=========================== */
-
-init();
-
-async function init(){
-
-    mangas = await getMangas();
-
-    renderMangaList();
-
-    bindEvents();
-
-    await loadFromQuery();
-
-}
-
-/* ===========================
         EVENTS
 =========================== */
 
