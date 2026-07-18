@@ -1171,6 +1171,14 @@
         "description": "[Cập nhật vào Chủ nhật hằng tuần / Đăng 5 chương rồi nghỉ định kỳ 1 tuần]\n\n\"Chắc trước giờ có khối thằng mê anh lắm nhỉ?\"\n\n\"Tôi cũng sợ mình sẽ trở thành một trong số đó đây.\"\n\nMin Seon Jae là một Omega từng sinh con trong mối quan hệ thực tế với một Alpha.\n\nNhững ngày tháng hạnh phúc chẳng kéo dài được bao lâu. Sau cái chết đột ngột của người bạn đời, Seon Jae phải sống cuộc đời nay đây mai đó, liên tục chuyển từ nơi này sang nơi khác.\n\nCuối cùng, anh chuyển đến một vùng quê xa xôi và gặp gỡ Choi Beom Jin, một Alpha hoàn toàn xa lạ.\n\nBeom Jin thô lỗ, bất cần và toát ra cảm giác nguy hiểm khiến Seon Jae vừa e ngại vừa sợ hãi.\n\nThế nhưng, vì đứa con của mình, anh lại không đủ can đảm để từ chối những yêu cầu ngày càng quá đáng của đối phương...\n\nMột câu chuyện tình vụng về giữa một tên du côn thô kệch và một người đàn ông lớn tuổi hơn mang đầy thương tổn trong lòng.\n\nVừa mới chuyển nhà, anh đã bị một gã đầu gấu đáng sợ để mắt tới.",
         "adminPick": true,
         "pickOrder": 1,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-18T19:32:54.295Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/chap1",
+                "pages": 21
+            }
+        ]
     }
 }
