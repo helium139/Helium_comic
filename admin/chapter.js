@@ -772,8 +772,6 @@ let nextIndex = existingImages.length + 1;
 
         uploadedCount++;
 
-        uploaded++;
-
     setUploadPercent(uploadedCount, total);
 
     }
