@@ -509,20 +509,6 @@ button:disabled{
         PROGRESS
 =========================== */
 
-.progress-wrapper{
-
-    margin-top:25px;
-
-    background:#1f2937;
-
-    border-radius:999px;
-
-    overflow:hidden;
-
-    border: #cbd5e1 1px solid;
-
-}
-
 .progress-bar{
 
     width:100%;
@@ -542,6 +528,9 @@ button:disabled{
     background:#3b82f6;
 
     transition:.25s;
+
+    border: #cbd5e1 1px solid;
+    border-radius: 5px;
 
 }
 
