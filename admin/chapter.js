@@ -906,29 +906,23 @@ addImageBtn.onclick = () => {
 
 function setUploadPercent(current,total){
 
-    const percent = Math.floor(current/total*100);
+    const percent = Math.round(current/total*100);
 
-    progress.innerHTML=`
+    progress.innerHTML = `
 
-        <div class="progress-box">
+        <div class="progress-bar">
 
-            <div class="progress-bar">
-
-                <div
-                    id="progressFill"
-                    style="width:${percent}%">
-
-                </div>
-
+            <div
+                class="progress-fill"
+                style="width:${percent}%">
             </div>
 
-            <p>
+        </div>
 
-                ${current}/${total}
+        <div>
 
-                (${percent}%)
-
-            </p>
+            ${current}/${total}
+            (${percent}%)
 
         </div>
 
