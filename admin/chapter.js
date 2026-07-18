@@ -792,13 +792,17 @@ let nextIndex = existingImages.length + 1;
 
     const folder = `${currentSlug}/chap${currentChapter}`;
 
-const order = images.map(x=>x.name);
-
 await renameImages({
 
     folder,
 
-    order
+    order: [
+
+        ...existingImages,
+
+        ...uploaded
+
+    ].map(img=>img.name)
 
 });
     progress.innerHTML = "Đang cập nhật chapter...";
