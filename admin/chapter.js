@@ -904,11 +904,21 @@ addImageBtn.onclick = () => {
     chapterFiles.click();
 };
 
-function setUploadPercent(current,total){
+function setUploadPercent(current, total){
 
-    const percent = Math.round(current/total*100);
+    const percent = total === 0
+        ? 0
+        : Math.round(current / total * 100);
 
     progress.innerHTML = `
+
+        <div class="progress-header">
+
+            <span>Đang upload...</span>
+
+            <span>${current}/${total} (${percent}%)</span>
+
+        </div>
 
         <div class="progress-bar">
 
@@ -916,13 +926,6 @@ function setUploadPercent(current,total){
                 class="progress-fill"
                 style="width:${percent}%">
             </div>
-
-        </div>
-
-        <div id="progressText">
-
-            ${current}/${total}
-            (${percent}%)
 
         </div>
 
