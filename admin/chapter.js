@@ -53,6 +53,7 @@ const fileCount = document.getElementById("fileCount");
 
 const fileSize = document.getElementById("fileSize");
 
+const addImageBtn = document.getElementById("addImageBtn");
 /* ===========================
         INIT
 =========================== */
@@ -667,6 +668,8 @@ async function uploadChapter(){
 
     for(let i=0;i<newImages.length;i++){
 
+        setUploadPercent(i,selectedFiles.length);
+
         const file = newImages[i];
 
         const ext = file.name
@@ -692,6 +695,11 @@ async function uploadChapter(){
             `✔ ${i+1}.${ext}`
 
         );
+
+        setUploadPercent(
+    selectedFiles.length,
+    selectedFiles.length
+);
 
     }
 
@@ -725,7 +733,9 @@ async function saveChapter(){
 
     log("Upload ảnh mới...");
 
-    let uploaded = [];
+    const total = selectedFiles.length;
+
+    let uploaded = 0;
 
     let nextIndex = existingImages.length + 1;
 
@@ -757,6 +767,10 @@ async function saveChapter(){
         log(`✔ ${filename}`);
 
         nextIndex++;
+
+        uploaded++;
+
+    setUploadPercent(uploaded,total);
 
     }
 
@@ -883,5 +897,41 @@ function sortImages(){
         }
 
     });
+
+}
+
+addImageBtn.onclick = () => {
+    chapterFiles.click();
+};
+
+function setUploadPercent(current,total){
+
+    const percent = Math.floor(current/total*100);
+
+    progress.innerHTML=`
+
+        <div class="progress-box">
+
+            <div class="progress-bar">
+
+                <div
+                    id="progressFill"
+                    style="width:${percent}%">
+
+                </div>
+
+            </div>
+
+            <p>
+
+                ${current}/${total}
+
+                (${percent}%)
+
+            </p>
+
+        </div>
+
+    `;
 
 }
