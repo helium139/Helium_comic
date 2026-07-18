@@ -735,9 +735,11 @@ async function saveChapter(){
 
     const total = newImages.length;
 
-    let uploaded = 0;
+let uploaded = [];
 
-    let nextIndex = existingImages.length + 1;
+let uploadedCount = 0;
+
+let nextIndex = existingImages.length + 1;
 
     for(const file of newImages){
 
@@ -768,9 +770,11 @@ async function saveChapter(){
 
         nextIndex++;
 
+        uploadedCount++;
+
         uploaded++;
 
-    setUploadPercent(uploaded,total);
+    setUploadPercent(uploadedCount, total);
 
     }
 
