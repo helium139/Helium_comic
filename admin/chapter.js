@@ -919,7 +919,7 @@ function setUploadPercent(current,total){
 
         </div>
 
-        <div>
+        <div id="progressText">
 
             ${current}/${total}
             (${percent}%)
