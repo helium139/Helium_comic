@@ -293,7 +293,7 @@
         "author": "해진",
         "team": "HeliumTG",
         "status": "Completed",
-        "adminPick": true,
+        "adminPick": false,
         "pickOrder": 4,
         "tags": [
             "BL",
