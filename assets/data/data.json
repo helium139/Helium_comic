@@ -1030,9 +1030,9 @@
             {
                 "id": 4,
                 "title": "Chap 4",
-                "createAt": "2026-07-12",
+                "createAt": "2026-07-12T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap4",
-                "pages": 15
+                "pages": 5
             },
             {
                 "id": 5,
