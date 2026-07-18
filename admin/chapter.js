@@ -790,8 +790,6 @@ let nextIndex = existingImages.length + 1;
 
     }));
 
-    const folder = `${currentSlug}/chap${currentChapter}`;
-
 await renameImages({
 
     folder,
