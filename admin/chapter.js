@@ -790,16 +790,17 @@ let nextIndex = existingImages.length + 1;
 
     }));
 
-    await renameImages({
+    const folder = `${currentSlug}/chap${currentChapter}`;
 
-        manga:currentSlug,
+const order = images.map(x=>x.name);
 
-        chapterId:currentChapter,
+await renameImages({
 
-        images
+    folder,
 
-    });
+    order
 
+});
     progress.innerHTML = "Đang cập nhật chapter...";
 
     await updateChapter({
