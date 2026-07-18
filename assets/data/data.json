@@ -567,6 +567,13 @@
                 "createAt": "2026-07-18T17:25:41.552Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap9",
                 "pages": 6
+            },
+            {
+                "id": 10,
+                "title": "Chap 9",
+                "createAt": "2026-07-18T17:28:40.088Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/chap10",
+                "pages": 17
             }
         ]
     },
