@@ -987,6 +987,13 @@
                 "createAt": "2026-07-18T19:20:34.614Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap7",
                 "pages": 30
+            },
+            {
+                "id": 8,
+                "title": "Chap 8",
+                "createAt": "2026-07-18T19:21:07.365Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap8",
+                "pages": 16
             }
         ]
     },
