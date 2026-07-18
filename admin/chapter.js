@@ -778,10 +778,7 @@ async function saveChapter(){
         ...uploaded
     ];
 
-    console.log({
-    folder,
-    images: images.map(i => i.name)
-});
+    
     await renameImages({
 
         folder,
