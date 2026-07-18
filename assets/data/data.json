@@ -1061,6 +1061,13 @@
                 "createAt": "2026-07-18T19:14:26.908Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap8",
                 "pages": 13
+            },
+            {
+                "id": 9,
+                "title": "Chap 9",
+                "createAt": "2026-07-18T19:15:28.229Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap9",
+                "pages": 35
             }
         ]
     },
