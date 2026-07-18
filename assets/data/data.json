@@ -105,7 +105,7 @@
         "author": "사탕&안나",
         "team": "HeliumTG",
         "status": "Ongoing",
-        "adminPick": true,
+        "adminPick": false,
         "pickOder": 2,
         "tags": [
             "BL",
@@ -181,7 +181,8 @@
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/chap9",
                 "pages": 32
             }
-        ]
+        ],
+        "pickOrder": 999
     },
     "co-on-khong-khi-ke-giet-nguoi-la-mot-idol": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/cover.webp",
