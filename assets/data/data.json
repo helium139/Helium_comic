@@ -973,6 +973,13 @@
                 "createAt": "2026-05-20T19:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap5",
                 "pages": 31
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-07-18T19:19:41.212Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap6",
+                "pages": 39
             }
         ]
     },
