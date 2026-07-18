@@ -537,6 +537,18 @@ button:disabled{
 
 }
 
+#progressText{
+
+    text-align:right;
+
+    font-size:14px;
+
+    color:#cbd5e1;
+
+    margin-top:10px;
+
+}
+
 /* ===========================
         LOG
 =========================== */
