@@ -668,7 +668,7 @@ async function uploadChapter(){
 
     for(let i=0;i<newImages.length;i++){
 
-        setUploadPercent(i,selectedFiles.length);
+        setUploadPercent(i,newImages.length);
 
         const file = newImages[i];
 
@@ -697,8 +697,8 @@ async function uploadChapter(){
         );
 
         setUploadPercent(
-    selectedFiles.length,
-    selectedFiles.length
+    i + 1,
+    newImages.length
 );
 
     }
@@ -733,7 +733,7 @@ async function saveChapter(){
 
     log("Upload ảnh mới...");
 
-    const total = selectedFiles.length;
+    const total = newImages.length;
 
     let uploaded = 0;
 
