@@ -730,18 +730,17 @@ async function saveChapter(){
     const folder = `${currentSlug}/chap${currentChapter}`;
 
     progress.innerHTML = "Đang upload ảnh mới...";
-
     log("Upload ảnh mới...");
+
+    const uploaded = [];
+
+    let nextIndex = existingImages.length + 1;
 
     const total = newImages.length;
 
-let uploaded = [];
+    for(let i=0;i<newImages.length;i++){
 
-let uploadedCount = 0;
-
-let nextIndex = existingImages.length + 1;
-
-    for(const file of newImages){
+        const file = newImages[i];
 
         const ext = file.name
             .split(".")
@@ -751,77 +750,68 @@ let nextIndex = existingImages.length + 1;
         const filename = `${nextIndex}.${ext}`;
 
         await uploadImage(
-
             file,
-
             folder,
-
             filename
-
         );
 
         uploaded.push({
-
-            name:filename
-
+            name: filename,
+            type: "remote",
+            url: `${mangas[currentSlug]
+                .chapters.find(c=>c.id===currentChapter)
+                .folder}/${filename}`
         });
-
-        log(`✔ ${filename}`);
 
         nextIndex++;
 
-        uploadedCount++;
+        log(`✔ ${filename}`);
 
-    setUploadPercent(uploadedCount, total);
+        setUploadPercent(i + 1, total);
 
     }
 
     progress.innerHTML = "Đang sắp xếp ảnh...";
 
     const images = [
-
         ...existingImages,
-
         ...uploaded
+    ];
 
-    ].map(img=>({
+    await renameImages({
 
-        name:img.name
+        folder,
 
-    }));
+        images: images.map(img=>img.name)
 
-await renameImages({
+    });
 
-    folder,
-
-    order: [
-
-        ...existingImages,
-
-        ...uploaded
-
-    ].map(img=>img.name)
-
-});
     progress.innerHTML = "Đang cập nhật chapter...";
 
     await updateChapter({
 
-        manga:currentSlug,
+        manga: currentSlug,
 
-        chapterId:currentChapter,
+        chapterId: currentChapter,
 
-        title:chapterTitle.value.trim(),
+        title: chapterTitle.value.trim(),
 
-        createAt:chapterDate.value,
+        createAt: new Date(chapterDate.value)
+            .toISOString(),
 
-        pages:images.length
+        pages: images.length
 
     });
 
+    existingImages = images;
+
+    newImages = [];
+
+    renderPreview();
+
     progress.innerHTML = "✔ Hoàn tất";
 
-    log("✔ Done");
+    log("✔ Chapter updated");
 
 }
 
