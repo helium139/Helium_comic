@@ -589,35 +589,19 @@ function handleTagInput(e){
 
         e.preventDefault();
 
-        let value=
-
-        tagInput.value.trim();
+        let value = tagInput.value.trim();
 
         if(value==="") return;
 
-        value=
+        value = titleCase(value);
 
-        value
-
-        .toLowerCase()
-
-        .replace(/\b\w/g,
-
-            c=>c.toUpperCase()
-
-        );
-
-        if(
-
-            !currentTags.includes(value)
-
-        ){
+        if(!currentTags.includes(value)){
 
             currentTags.push(value);
 
         }
 
-        tagInput.value="";
+        tagInput.value = "";
 
         renderTags();
 
@@ -625,9 +609,7 @@ function handleTagInput(e){
 
     if(
 
-        e.key==="Backspace"
-
-        &&
+        e.key==="Backspace" &&
 
         tagInput.value===""
 
@@ -638,6 +620,24 @@ function handleTagInput(e){
         renderTags();
 
     }
+
+}
+
+function titleCase(text){
+
+    return text
+        .trim()
+        .toLocaleLowerCase("vi-VN")
+        .split(/\s+/)
+        .map(word=>
+
+            word.substring(0,1)
+                .toLocaleUpperCase("vi-VN") +
+
+            word.substring(1)
+
+        )
+        .join(" ");
 
 }
 
