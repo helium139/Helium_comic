@@ -481,7 +481,7 @@
         "author": "도봉",
         "team": "HeliumTG",
         "status": "Completed",
-        "adminPick": true,
+        "adminPick": false,
         "pickOrder": 5,
         "tags": [
             "BL",
