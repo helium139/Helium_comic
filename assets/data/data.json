@@ -1439,6 +1439,14 @@
         "description": "Baek Chu Ho, người đã mất đi cả gia đình dưới tay Vong nhi chỉ vì lỡ dại trả lời tiếng gọi của linh hồn.\nVà Cha Joo Yul, con trai của Cha Sun Ho, người đàn ông đã cưu mang Baek Chu Ho bơ vơ ngày ấy.\n\nTuổi thơ ngắn ngủi bên nhau của hai đứa trẻ đã khép lại sau cái chết của Cha Sun Ho. Suốt nhiều năm dài đằng đẵng, Baek Chu Ho vẫn luôn sống trong nỗi dằn vặt và tội lỗi bén rễ sâu thẳm đối với Cha Joo Yul.\n\n\"Tân sinh viên hả? Cậu tên gì thế?\"\n\nCho đến khi gặp lại, anh mới bàng hoàng nhận ra đối phương đã hoàn toàn quên sạch ký ức về mình.\n\n...Nhưng liệu Cha Joo Yul có thật sự không nhớ gì về Baek Chu Ho?",
         "adminPick": true,
         "pickOrder": 5,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-19T19:50:50.975Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/chap1",
+                "pages": 31
+            }
+        ]
     }
 }
