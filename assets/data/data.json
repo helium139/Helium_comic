@@ -1338,6 +1338,13 @@
                 "createAt": "2026-07-19T19:34:43.304Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ly-thuyet-cong-luoc-trai-tan/chap9",
                 "pages": 21
+            },
+            {
+                "id": 10,
+                "title": "Chap 10",
+                "createAt": "2026-07-19T19:36:35.699Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ly-thuyet-cong-luoc-trai-tan/chap10",
+                "pages": 23
             }
         ]
     }
