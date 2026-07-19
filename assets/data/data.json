@@ -1374,5 +1374,29 @@
         "adminPick": true,
         "pickOrder": 2,
         "chapters": []
+    },
+    "bai-ca-cua-vung-at-chet": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bai-ca-cua-vung-at-chet/cover.webp",
+        "title": "Bài Ca Của Vùng Đất Chết",
+        "original_title": "황야의 노래",
+        "author": "Jaxx",
+        "team": "HeliumTG",
+        "status": "Hiatus",
+        "tags": [
+            "Công Nhỏ Tuổi Hơn",
+            "Công Lém Lỉnh",
+            "Công Mưu Mô",
+            "Thụ Dịu Dàng",
+            "Thụ Lớn Tuổi Hơn",
+            "Mỹ Nam Thụ",
+            "Thụ Mang Nhiều Tổn Thương",
+            "Cổ Trang",
+            "Quan Hệ Khế Ước",
+            "Quan Hệ Chủ Tớ"
+        ],
+        "description": "Gerard, trưởng nam của gia tộc Dunn, đã tham gia cuộc nội chiến Nam – Bắc để không phụ sự kỳ vọng của cha mình.\n\nThế nhưng, trong chiến tranh, toàn bộ người thân của anh đều thiệt mạng. Ngay cả đồng đội cũng bị quét sạch. Cú sốc quá lớn khiến Gerard hoàn toàn đánh mất ý chí sống.\n\nSau khi chiến tranh kết thúc, gia tộc suy sụp đến mức trắng tay. Thứ duy nhất còn lại cho anh chỉ là một nông trại nằm giữa vùng đất hoang vu xa xôi.\n\nTừng là vị anh hùng chiến tranh, từng là trưởng nam hoàn mỹ của gia tộc Dunn, Gerard quyết định sẽ khép lại cuộc đời mình tại nơi ấy.\n\nNhưng rồi anh gặp Ezra — một chàng cao bồi mang dòng máu lai bản địa, người đã phá hỏng hoàn toàn kế hoạch đó.\n\n\"Tôi à?\"\n\n\"Tôi là nô lệ của ngài mà, thưa chủ nhân.\"\n\nTự nhận mình là nô lệ, Ezra liên tục vượt qua mọi giới hạn và không ngừng khuấy động cảm xúc của Gerard.\n\nTrước thái độ ấy, trái tim tưởng chừng đã chết lặng của Gerard lại bắt đầu đập loạn nhịp.\n\n\"Tất cả là vì người đàn ông đó cứ liên tục khiến mình dao động.\"\n\nMột người đàn ông đã mất tất cả và chỉ muốn kết thúc cuộc đời.\n\nMột chàng cao bồi quyết tâm ngăn cản cả cái chết ấy, muốn giữ đối phương ở lại bên mình.\n\nGiữa vùng đất hoang tàn và cô độc, câu chuyện tình yêu đầy mong manh và nguy hiểm của hai người bắt đầu.",
+        "adminPick": false,
+        "pickOrder": 999,
+        "chapters": []
     }
 }
