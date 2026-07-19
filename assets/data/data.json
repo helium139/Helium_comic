@@ -1380,6 +1380,13 @@
                 "createAt": "2026-07-19T20:01:14.711Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ve-ep-cua-su-huy-diet/chap1",
                 "pages": 19
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2026-07-19T20:02:07.528Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ve-ep-cua-su-huy-diet/chap2",
+                "pages": 21
             }
         ]
     },
