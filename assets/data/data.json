@@ -1373,7 +1373,15 @@
         "description": "Vì việc kinh doanh của cha thất bại và mẹ phải trải qua một ca phẫu thuật lớn, Chang Hyun phải gánh trên vai khoản nợ lên tới 180 triệu won. Để kiếm tiền trả nợ, cậu lang bạt trong giới ăn chơi, làm đủ mọi công việc.\n\nTrong lúc tuyệt vọng, với tâm thế bấu víu vào cọng rơm cứu mạng cuối cùng, Chang Hyun tìm đến một người.\n\nĐó chính là Woo Ah Jun, mối nghiệt duyên từ thời trung học, đồng thời là đứa con ngoài giá thú của một gia tộc tài phiệt.\n\n\"Bò lên đây đi.\"\n\n\"Lên trên bàn.\"\n\nKhoảnh khắc tái ngộ, Ah Jun bộc lộ cảm xúc méo mó và đầy lệch lạc mà hắn luôn che giấu.\n\nĐổi lấy số tiền Chang Hyun cần, hắn yêu cầu cậu trở thành món đồ chỉ để sưởi ấm giường chiếu cho mình.\n\nChỉ trong chớp mắt, Chang Hyun rơi vào thân phận bị giam cầm và phụ thuộc vào Ah Jun.\n\nRồi cậu bị nhốt trong một căn biệt thự nằm trên Nakdo, hòn đảo biệt lập giữa biển khơi...",
         "adminPick": true,
         "pickOrder": 2,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-19T20:01:14.711Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ve-ep-cua-su-huy-diet/chap1",
+                "pages": 19
+            }
+        ]
     },
     "bai-ca-cua-vung-at-chet": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bai-ca-cua-vung-at-chet/cover.webp",
