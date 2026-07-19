@@ -1474,6 +1474,13 @@
                 "createAt": "2026-07-19T19:54:57.436Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/chap5",
                 "pages": 21
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-07-19T19:55:44.670Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/chap6",
+                "pages": 18
             }
         ]
     }
