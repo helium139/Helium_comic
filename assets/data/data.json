@@ -1213,6 +1213,13 @@
                 "createAt": "2026-07-19T19:18:00.729Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/chap6",
                 "pages": 27
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "createAt": "2026-07-19T19:18:44.552Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/chap7",
+                "pages": 9
             }
         ]
     }
