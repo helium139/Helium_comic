@@ -1398,5 +1398,39 @@
         "adminPick": false,
         "pickOrder": 999,
         "chapters": []
+    },
+    "chinh-la-toi": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/cover.webp",
+        "title": "Chính Là Tôi",
+        "original_title": "디스 이즈 미 (This is me)",
+        "author": "어셋&식목&공상",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+            "Bl",
+            "Bí Ẩn",
+            "Hiện Đại",
+            "Học Đường",
+            "Tình Đầu",
+            "Tái Ngộ",
+            "Top Chung Thủy",
+            "Top Có Trauma",
+            "Top Si Tình",
+            "Top Nhỏ Tuổi Hơn Bot",
+            "Top Ngầu",
+            "Top Ngoan Ngoãn",
+            "Top Mỹ Nam",
+            "Bot Tài Giỏi",
+            "Bot Dịu Dàng",
+            "Bot Xinh Đẹp",
+            "Bot Quyến Rũ",
+            "Bot Tài Phiệt",
+            "Bot Thu Hút",
+            "Cứu Rỗi"
+        ],
+        "description": "Baek Chu Ho, người đã mất đi cả gia đình dưới tay Vong nhi chỉ vì lỡ dại trả lời tiếng gọi của linh hồn.\nVà Cha Joo Yul, con trai của Cha Sun Ho, người đàn ông đã cưu mang Baek Chu Ho bơ vơ ngày ấy.\n\nTuổi thơ ngắn ngủi bên nhau của hai đứa trẻ đã khép lại sau cái chết của Cha Sun Ho. Suốt nhiều năm dài đằng đẵng, Baek Chu Ho vẫn luôn sống trong nỗi dằn vặt và tội lỗi bén rễ sâu thẳm đối với Cha Joo Yul.\n\n\"Tân sinh viên hả? Cậu tên gì thế?\"\n\nCho đến khi gặp lại, anh mới bàng hoàng nhận ra đối phương đã hoàn toàn quên sạch ký ức về mình.\n\n...Nhưng liệu Cha Joo Yul có thật sự không nhớ gì về Baek Chu Ho?",
+        "adminPick": true,
+        "pickOrder": 5,
+        "chapters": []
     }
 }
