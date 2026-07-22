@@ -1734,6 +1734,13 @@
                 "createAt": "2026-07-22T18:44:59.970Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoan-hwan/chap12",
                 "pages": 32
+            },
+            {
+                "id": 13,
+                "title": "Chap 13",
+                "createAt": "2026-07-22T18:46:49.401Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoan-hwan/chap13",
+                "pages": 32
             }
         ]
     }
