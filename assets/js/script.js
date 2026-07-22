@@ -393,7 +393,7 @@ document
 
     currentPage++;
 
-    renderHotComics();
+    renderHotComics(list, data);
 
     document
     .querySelector("#hot-comic-list")
