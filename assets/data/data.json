@@ -1882,6 +1882,13 @@
                 "createAt": "2026-07-22T19:19:22.289Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/huong-ve-phia-em-khi-rang-ong/chap3",
                 "pages": 36
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2026-07-22T19:20:38.469Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/huong-ve-phia-em-khi-rang-ong/chap4",
+                "pages": 15
             }
         ]
     }
