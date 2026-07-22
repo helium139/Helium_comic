@@ -421,6 +421,9 @@ document
     ).textContent =
         manga.title;
 
+    document.getElementById("comic-original-title").textContent =
+        manga.originalTitle;
+
     document.getElementById(
         "comic-cover"
     ).src =
