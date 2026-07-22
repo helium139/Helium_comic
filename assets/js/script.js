@@ -13,6 +13,7 @@ from
 
 
 let mangas = [];
+let mangaData = {};
 
 function renderAdminPicks(data){
 
@@ -254,6 +255,8 @@ fetch("assets/data/data.json")
   .then(res => res.json())
   .then(data => {
 
+    mangaData = data;
+
     renderAdminPicks(data);
 
     mangas = Object.entries(data);
@@ -378,7 +381,7 @@ document
 document.getElementById("viewMoreHot").onclick = () => {
 
     loadHotComics(
-        data
+        mangaData
     );
 
 };
