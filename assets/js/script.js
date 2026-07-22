@@ -135,7 +135,7 @@ function renderComics() {
     checkViewMore();
 }
 
-function renderHotComics(list, data) {
+function renderHotComics(list = [], data) {
 
     const container =
         document.getElementById(
