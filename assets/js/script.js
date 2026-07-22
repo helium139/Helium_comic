@@ -166,7 +166,7 @@ function renderHotComics(list = [], data = {}){
             <div class="comic-poster">
 
                 ${
-                    manga.status === "End"
+                    manga.status === "Completed"
                     ? `<span class="comic-end-badge">END</span>`
                     : ""
                 }
