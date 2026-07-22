@@ -1788,7 +1788,15 @@
         "description": "Vị thần mùa đông bị trừng phạt phải hóa thành con người vì tội lỗi của sự kiêu ngạo và tham lam.\nĐể có thể trở lại làm thần, cách duy nhất là anh ta phải ăn trái tim của người mình yêu.",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-22T18:59:14.170Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ong-quang/chap1",
+                "pages": 42
+            }
+        ]
     },
     "huong-ve-phia-em-khi-rang-ong": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/huong-ve-phia-em-khi-rang-ong/cover.webp",
