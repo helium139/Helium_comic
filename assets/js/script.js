@@ -375,34 +375,39 @@ document
     }
 );
 
-document
-.getElementById("viewMoreHot")
-.addEventListener(
-    "click",
-    () => {
+let hotList = [];
+let mangaData = {};
 
-        document
-.getElementById("viewMoreHot")
-.onclick=()=>{
+async function loadHotComics(data){
 
-    currentPage++;
+    mangaData = data;
 
-    renderHotComics(snapshot.docs, data);
+    const statsRef = collection(
+        db,
+        "mangaStats"
+    );
 
-    document
-    .querySelector("#hot-comic-list")
-    .scrollIntoView({
+    const q = query(
+        statsRef,
+        orderBy("views","desc")
+    );
 
-        behavior:"smooth",
+    const snapshot = await getDocs(q);
 
-        block:"end"
+    hotList = snapshot.docs;
 
-    });
+    renderHotComics(hotList, mangaData);
+
+}
+
+document.getElementById("viewMoreHot").onclick = () => {
+
+    renderHotComics(
+        hotList,
+        mangaData
+    );
 
 };
-
-    }
-);
 // ================= xử lý sort tim kiem ================= //
 function handleSearch(){
 
