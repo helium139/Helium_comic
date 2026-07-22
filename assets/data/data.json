@@ -1823,6 +1823,13 @@
                 "createAt": "2026-07-22T19:09:44.445Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ong-quang/chap5",
                 "pages": 33
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-07-22T19:14:31.420Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ong-quang/chap6",
+                "pages": 32
             }
         ]
     },
