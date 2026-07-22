@@ -422,7 +422,7 @@ document
         manga.title;
 
     document.getElementById("comic-original-title").textContent =
-        manga.originalTitle;
+        manga.original_title;
 
     document.getElementById(
         "comic-cover"
