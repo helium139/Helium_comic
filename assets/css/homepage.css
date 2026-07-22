@@ -1210,3 +1210,35 @@ footer p {
     color: #555;
     word-break: break-word;
 }
+
+.comic-poster{
+
+    position:relative;
+
+}
+
+.comic-end-badge{
+
+    position:absolute;
+
+    top:8px;
+
+    left:8px;
+
+    z-index:10;
+
+    background:#ff3b30;
+
+    color:#fff;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    padding:3px 8px;
+
+    border-radius:6px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.35);
+
+}

@@ -68,7 +68,10 @@ function renderAdminPicks(data){
 }
 
 let currentPage = 1;
-const perPage = 10;
+const perPage =
+window.innerWidth <= 768
+? 9
+: 12;
 
 function renderComics() {
 
@@ -94,34 +97,38 @@ function renderComics() {
 
 
         container.innerHTML += `
-        <a href="manga.html?id=${slug}" class="comic-item">
+<a href="manga.html?id=${slug}" class="comic-item">
 
-            <div class="comic-poster">
-                <img
-                    src="${manga.cover}"
-                    alt="${manga.title}"
-                    loading="lazy"
-                    decoding="async">
+    <div class="comic-poster">
 
-            </div>
+        ${
+            manga.status === "End"
+            ? `<span class="comic-end-badge">END</span>`
+            : ""
+        }
 
+        <img
+            src="${manga.cover}"
+            alt="${manga.title}"
+            loading="lazy"
+            decoding="async">
 
-            <div class="comic-info">
+    </div>
 
-                <h3 class="comic-name">
-                    ${manga.title}
-                </h3>
+    <div class="comic-info">
 
+        <h3 class="comic-name">
+            ${manga.title}
+        </h3>
 
-                <span class="comic-chapter">
-                    ${latestChap.title}
-                </span>
+        <span class="comic-chapter">
+            ${latestChap.title}
+        </span>
 
+    </div>
 
-            </div>
-
-        </a>
-        `;
+</a>
+`;
     });
 
 
@@ -162,13 +169,18 @@ function renderHotComics(list, data) {
 
             <div class="comic-poster">
 
-                <img 
-                    src="${manga.cover}"
-                    alt="${manga.title}"
-                    loading="lazy"
-                >
+    ${
+        manga.status==="End"
+        ? `<span class="comic-end-badge">END</span>`
+        : ""
+    }
 
-            </div>
+    <img
+        src="${manga.cover}"
+        alt="${manga.title}"
+        loading="lazy">
+
+</div>
 
 
             <div class="comic-info">
@@ -341,14 +353,59 @@ themeDarkBtn.addEventListener("click", () => setTheme("dark"));
 
 // ================= XỬ LÝ NÚT XEM THÊM ================= //
 document
-.querySelector(".view-more-button")
+.getElementById("viewMoreLastest")
 .addEventListener(
     "click",
     () => {
 
-        currentPage++;
+        document
+.getElementById("viewMoreLastest")
+.onclick=()=>{
 
-        renderComics();
+    currentPage++;
+
+    renderComics();
+
+    document
+    .querySelector("#comic-list")
+    .scrollIntoView({
+
+        behavior:"smooth",
+
+        block:"end"
+
+    });
+
+};
+
+    }
+);
+
+document
+.getElementById("viewMoreHot")
+.addEventListener(
+    "click",
+    () => {
+
+        document
+.getElementById("viewMoreHot")
+.onclick=()=>{
+
+    currentPage++;
+
+    renderHotComics();
+
+    document
+    .querySelector("#hot-comic-list")
+    .scrollIntoView({
+
+        behavior:"smooth",
+
+        block:"end"
+
+    });
+
+};
 
     }
 );
