@@ -135,73 +135,67 @@ function renderComics() {
     checkViewMore();
 }
 
-function renderHotComics(list = [], data) {
+function renderHotComics(list = [], data = {}){
 
     const container =
-        document.getElementById(
-            "hot-comic-list"
-        );
+        document.getElementById("hot-comic-list");
+
+    if(!container) return;
 
     container.innerHTML = "";
 
-    list.forEach(doc => {
+    list.forEach(doc=>{
 
         const id = doc.id;
 
-        const stats = doc.data();
-
         const manga = data[id];
 
-        // Nếu không có trong JSON thì bỏ qua
         if(!manga) return;
 
-
         const latestChap =
-            manga.chapters[
-                manga.chapters.length - 1
-            ];
-
+            manga.chapters?.length
+            ? manga.chapters[manga.chapters.length-1]
+            : { title:"Chưa có chapter" };
 
         container.innerHTML += `
-        
+
         <a href="manga.html?id=${id}"
            class="comic-item">
 
             <div class="comic-poster">
 
-    ${
-        manga.status==="End"
-        ? `<span class="comic-end-badge">END</span>`
-        : ""
-    }
+                ${
+                    manga.status === "End"
+                    ? `<span class="comic-end-badge">END</span>`
+                    : ""
+                }
 
-    <img
-        src="${manga.cover}"
-        alt="${manga.title}"
-        loading="lazy">
+                <img
+                    src="${manga.cover}"
+                    alt="${manga.title}"
+                    loading="lazy"
+                    decoding="async">
 
-</div>
-
+            </div>
 
             <div class="comic-info">
 
                 <h3 class="comic-name">
-                     ${manga.title}
+                    ${manga.title}
                 </h3>
-
 
                 <span class="comic-chapter">
                     ${latestChap.title}
                 </span>
 
-
-
             </div>
 
         </a>
-        
+
         `;
+
     });
+
 }
 
 async function loadHotComics(data) {
@@ -393,7 +387,7 @@ document
 
     currentPage++;
 
-    renderHotComics(list, data);
+    renderHotComics(snapshot.docs, data);
 
     document
     .querySelector("#hot-comic-list")
