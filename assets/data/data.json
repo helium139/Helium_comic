@@ -1819,6 +1819,14 @@
         "description": "Nơi ấy chỉ có những âm thanh hỗn tạp và sự tĩnh lặng lạnh lẽo đan xen\nChẳng thấy nổi chút nào hơi ấm trong phòng thí nghiệm đó. \n\n[BU-001, bắt đầu thí nghiệm.]\nThứ duy nhất Hoe-soo khao khát... chính là cái chết. \n“Giờ thì... tôi không còn muốn sống nữa…”\n\nBị những hành vi tàn nhẫn và những thí nghiệm cưỡng ép bủa vây, Hoe-soo — một Sentinel đã chai sạn đến mức không còn cảm nhận được đau đớn hay bất kỳ cảm xúc nào — Bỗng một ngày nọ, một người dẫn dắt tên Seung-hyun xuất hiện.\n\"Là cậu sao, người dẫn dắt của mình.\"\nKhác với những  người dẫn dắt bạo lực khác, Seung-hyun nâng niu và chăm sóc Hoe-soo như một sinh vật mỏng manh yếu ớt, và khi nhìn thấy Seung-hyun như vậy, Hoe-soo bắt đầu cảm nhận được những cảm xúc kỳ lạ mà trước đây chưa từng biết đến...\n\"Tôi sẽ ở bên cạnh, nên hãy cứ an tâm ngủ đi, Yeo-myung.\"\n \"...Hoe-soo... không phải Yeo-myung, là Hoe-soo. Do Hoe-soo.\"\nTrong cuộc đời vốn luôn là màu đen trắng của Hoe-soo, Khi Seung-hyun xuất hiện, từng chút một, màu sắc bắt đầu được tô điểm.\nTác phẩm <Hướng Về Phía Em Khi Rạng Đông> được đăng tải định kỳ vào ngày 1, 11, 21 hàng tháng.",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-22T19:01:41.135Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/huong-ve-phia-em-khi-rang-ong/chap1",
+                "pages": 87
+            }
+        ]
     }
 }
