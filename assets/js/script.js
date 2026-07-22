@@ -211,7 +211,7 @@ async function loadHotComics(data) {
         query(
             statsRef,
             orderBy("views", "desc"),
-            limit(8)
+            limit(12)
         );
 
 
@@ -375,36 +375,10 @@ document
     }
 );
 
-let hotList = [];
-let mangaData = {};
-
-async function loadHotComics(data){
-
-    mangaData = data;
-
-    const statsRef = collection(
-        db,
-        "mangaStats"
-    );
-
-    const q = query(
-        statsRef,
-        orderBy("views","desc")
-    );
-
-    const snapshot = await getDocs(q);
-
-    hotList = snapshot.docs;
-
-    renderHotComics(hotList, mangaData);
-
-}
-
 document.getElementById("viewMoreHot").onclick = () => {
 
-    renderHotComics(
-        hotList,
-        mangaData
+    loadHotComics(
+        data
     );
 
 };
