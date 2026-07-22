@@ -379,6 +379,7 @@ document
 );
 
 document.getElementById("viewMoreHot").onclick = () => {
+    currentPage++;
 
     loadHotComics(
         mangaData
