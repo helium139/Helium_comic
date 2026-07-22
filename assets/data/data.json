@@ -1764,5 +1764,30 @@
                 "pages": 29
             }
         ]
+    },
+    "ong-quang": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ong-quang/cover.webp",
+        "title": "Đông Quang",
+        "original_title": "동연",
+        "author": "판도",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+            "Bot Tươi Sáng",
+            "Bot Nghèo Khổ",
+            "Bot Kiên Cường",
+            "Top Bạo Lực",
+            "Hư Cấu",
+            "Top Máu Lạnh",
+            "Bot Thuần Khiết",
+            "Top Mỹ Nhân",
+            "Bot Mỹ Nhân",
+            "Bl",
+            "Fantasy"
+        ],
+        "description": "Vị thần mùa đông bị trừng phạt phải hóa thành con người vì tội lỗi của sự kiêu ngạo và tham lam.\nĐể có thể trở lại làm thần, cách duy nhất là anh ta phải ăn trái tim của người mình yêu.",
+        "adminPick": true,
+        "pickOrder": 999,
+        "chapters": []
     }
 }
