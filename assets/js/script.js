@@ -377,15 +377,6 @@ document
 
     }
 );
-
-document.getElementById("viewMoreHot").onclick = () => {
-    currentPage++;
-
-    loadHotComics(
-        mangaData
-    );
-
-};
 // ================= xử lý sort tim kiem ================= //
 function handleSearch(){
 
