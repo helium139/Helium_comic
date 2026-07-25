@@ -647,11 +647,6 @@ grid-template-columns:1fr;
 
 }
 
-.sidebar{
-
-display:none;
-
-}
 
 .content{
 
@@ -1256,7 +1251,7 @@ color:white;
 
         position:fixed;
         top:16px;
-        right:16px;
+        left:16px;
 
         width:48px;
         height:48px;
@@ -1292,6 +1287,7 @@ color:white;
     .sidebar.open{
 
         left:0;
+        display: block;
 
     }
 
