@@ -842,7 +842,7 @@ async function saveChapter(){
 
     log("✔ Chapter updated");
 
-    const link =
+     const link =
 `https://helium139.github.io/Helium_comic/chapter.html?id=${slug}&chap=${chapter}`;
 
 chapterLink.value = link;
@@ -866,6 +866,7 @@ const copyChapterLink = document.getElementById("copyChapterLink");
         copyChapterLink.textContent="Copy";
 
     },1500);
+    };
 
 }
 
