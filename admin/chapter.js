@@ -843,7 +843,7 @@ async function saveChapter(){
     log("✔ Chapter updated");
 
      const link =
-`https://helium139.github.io/Helium_comic/chapter.html?id=${slug}&chap=${chapter}`;
+`https://helium139.github.io/Helium_comic/chapter.html?id=${currentSlug}&chap=${currentChapter}`;
 
 chapterLink.value = link;
 
