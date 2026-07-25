@@ -554,7 +554,7 @@ body::before {
 .comics-grid {
   display: grid;
   /* Tự động chia cột: mỗi cột rộng tối thiểu 160px, tối đa xếp đều màn hình (khoảng 6 cột trên PC) */
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(6, minmax(160px, 1fr));
   gap: 25px 20px; /* Khoảng cách giữa các hàng là 25px, giữa các cột là 20px */
 }
 
