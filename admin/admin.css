@@ -1240,3 +1240,107 @@ background:#14b8a6;
 color:white;
 
 }
+/* ===========================
+        ADMIN MENU
+=========================== */
+.admin-menu-btn{
+
+    display:none;
+
+    position:fixed;
+
+    top:15px;
+
+    right:15px;
+
+    width:48px;
+
+    height:48px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    font-size:28px;
+
+    cursor:pointer;
+
+    z-index:1200;
+
+}
+.admin-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.5);
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transition:.3s;
+
+    z-index:999;
+
+}
+
+.admin-overlay.show{
+
+    opacity:1;
+
+    visibility:visible;
+
+}
+@media (max-width:768px){
+
+    .admin-menu-btn{
+
+        display:flex;
+
+        align-items:center;
+
+        justify-content:center;
+
+    }
+
+    .sidebar{
+
+        position:fixed;
+
+        top:0;
+
+        left:-270px;
+
+        width:260px;
+
+        height:100vh;
+
+        z-index:1000;
+
+        transition:.3s;
+
+    }
+
+    .sidebar.open{
+
+        left:0;
+
+    }
+
+    .content{
+
+        margin-left:0!important;
+
+        width:100%;
+
+        padding-top:70px;
+
+    }
+
+}
