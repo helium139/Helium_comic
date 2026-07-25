@@ -719,6 +719,34 @@ async function uploadChapter(){
 
     "✔ Upload hoàn tất";
 
+        const link =
+`https://helium139.github.io/Helium_comic/chapter.html?id=${currentSlug}&chap=${currentChapter}`;
+
+chapterLink.value = link;
+
+chapterLinkBox.classList.remove("hidden");
+
+const copyChapterLink = document.getElementById("copyChapterLink");
+
+    copyChapterLink.onclick=async()=>{
+
+    await navigator.clipboard.writeText(
+
+        chapterLink.value
+
+    );
+
+    copyChapterLink.textContent="Đã copy";
+
+    setTimeout(()=>{
+
+        copyChapterLink.textContent="Copy";
+
+    },1500);
+
+};
+    
+
 }
 
 /* ===========================
