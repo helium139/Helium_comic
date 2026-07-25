@@ -886,7 +886,7 @@ body::before {
   justify-content: center;
   margin-top: 15px;
 }
-nav a:active {
+nav a .active {
   background-color: #f291ec;
 }
 
