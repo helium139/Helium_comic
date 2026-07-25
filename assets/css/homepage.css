@@ -598,6 +598,11 @@ body::before {
   margin-top: 10px;
   width: 100%;
 }
+.comic-info p {
+  margin: 0;
+  padding: 0;
+  flex: 2;
+}
 
 /* Tên truyện */
 .comic-name {
