@@ -610,13 +610,15 @@ body::before {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  flex: 1; /* Giúp tên truyện chiếm hết chiều cao còn lại của khung chữ */
 }
 
 /* Số chương (Chương 9, Chương 26...) */
 .comic-chapter {
   font-size: 15px;
   color: #999; /* Màu xám nhạt hơn */
-  border-radius: 15px;
+  border-radius: 0px 0px 15px 15px;
+  padding: 10px;
 }
 .view-more-button {
   display: block;
