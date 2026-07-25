@@ -718,11 +718,13 @@ async function deleteChapter(id){
 
         await editManga({
 
-            slug: currentSlug,
+    slug: currentSlug,
 
-            ...manga
+    ...manga,
 
-        });
+    chapters: manga.chapters
+
+});
 
         renderChapterList();
 
