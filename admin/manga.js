@@ -704,77 +704,38 @@ chapterList.onclick = e=>{
 
 
 
-function deleteChapter(id){
+async function deleteChapter(id){
 
     if(!confirm("Xóa chapter?")) return;
 
-    mangas[currentSlug].chapters =
-        mangas[currentSlug].chapters.filter(
-            c=>c.id!==id
-        );
-
-    renderChapterList();
-
-}
-
-function renderChapterList(){
-
-    chapterList.innerHTML = "";
-
-    if(!currentSlug) return;
-
     const manga = mangas[currentSlug];
 
-    manga.chapters
-        .sort((a,b)=>a.id-b.id)
-        .forEach(ch=>{
+    manga.chapters = manga.chapters.filter(
+        c => c.id !== id
+    );
 
-            chapterList.innerHTML += `
-            <div class="chapter-row">
+    try{
 
-                <div class="chapter-info">
+        await editManga({
 
-                    <b>${ch.title}</b>
+            slug: currentSlug,
 
-                    <span>
-
-                        ${new Date(ch.createAt).toLocaleDateString("vi-VN")}
-                    </span>
-
-                </div>
-
-                <div class="chapter-actions">
-
-                    <button
-                        class="editChapter primary"
-                        data-id="${ch.id}">
-
-                        <i class='bx bx-edit'></i>
-
-                        Chỉnh sửa
-
-                    </button>
-
-                    <button
-                        class="deleteChapter danger"
-                        data-id="${ch.id}">
-
-                        <i class='bx bx-trash'></i>
-
-                    </button>
-
-                </div>
-
-            </div>
-            `;
+            ...manga
 
         });
 
+        renderChapterList();
+
+        alert("Đã xóa chapter.");
+
+    }
+
+    catch(err){
+
+        alert("Xóa chapter thất bại.");
+
+        console.error(err);
+
+    }
+
 }
-
-addChapterBtn.onclick = ()=>{
-
-    location.href =
-`chapter.html?manga=${currentSlug}&new=1`;
-
-};
