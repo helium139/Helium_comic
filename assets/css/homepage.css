@@ -1089,9 +1089,9 @@ footer p {
 }
 .continue-btn {
     position: relative;
-    bottom: 5px;
+    bottom: 0px;
     display: block;
-    margin: 20px auto;
+    margin: auto;
     padding: 10px 20px;
     background-color: #f291ec;
     color: white;
