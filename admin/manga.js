@@ -739,3 +739,65 @@ async function deleteChapter(id){
     }
 
 }
+
+function renderChapterList(){
+
+    chapterList.innerHTML = "";
+
+    if(!currentSlug) return;
+
+    const manga = mangas[currentSlug];
+
+    manga.chapters
+        .sort((a,b)=>a.id-b.id)
+        .forEach(ch=>{
+
+            chapterList.innerHTML += `
+            <div class="chapter-row">
+
+                <div class="chapter-info">
+
+                    <b>${ch.title}</b>
+
+                    <span>
+
+                        ${new Date(ch.createAt).toLocaleDateString("vi-VN")}
+                    </span>
+
+                </div>
+
+                <div class="chapter-actions">
+
+                    <button
+                        class="editChapter primary"
+                        data-id="${ch.id}">
+
+                        <i class='bx bx-edit'></i>
+
+                        Chỉnh sửa
+
+                    </button>
+
+                    <button
+                        class="deleteChapter danger"
+                        data-id="${ch.id}">
+
+                        <i class='bx bx-trash'></i>
+
+                    </button>
+
+                </div>
+
+            </div>
+            `;
+
+        });
+
+}
+
+addChapterBtn.onclick = ()=>{
+
+    location.href =
+`chapter.html?manga=${currentSlug}&new=1`;
+
+};
