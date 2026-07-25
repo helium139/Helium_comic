@@ -591,6 +591,9 @@ body::before {
 
 /* Phần chữ bên dưới ảnh */
 .comic-info {
+   display:flex;
+    flex-direction:column;
+    flex:1;
   text-align: center;
   margin-top: 10px;
   width: 100%;
@@ -1088,10 +1091,8 @@ footer p {
     margin: 5px 0;
 }
 .continue-btn {
-    position: relative;
-    bottom: 0px;
     display: block;
-    margin: auto;
+    margin-top: auto;
     padding: 10px 20px;
     background-color: #f291ec;
     color: white;
