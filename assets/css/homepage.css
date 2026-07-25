@@ -884,6 +884,9 @@ body::before {
   justify-content: center;
   margin-top: 15px;
 }
+nav a:active {
+  background-color: #f291ec;
+}
 
 .btn-nav {
   display: inline-block;
