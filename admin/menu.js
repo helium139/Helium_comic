@@ -1,34 +1,36 @@
-const menuBtn=document.getElementById("adminMenuBtn");
+const menuBtn = document.getElementById("menuToggleBtn");
 
-const sidebar=document.querySelector(".sidebar");
+const sidebar = document.querySelector(".sidebar");
+const overlay = document.getElementById("adminOverlay");
 
-const overlay=document.getElementById("adminOverlay");
+if(menuBtn){
 
-menuBtn.onclick=()=>{
+    menuBtn.onclick = () => {
 
-    sidebar.classList.add("open");
+        sidebar.classList.add("open");
+        overlay.classList.add("show");
 
-    overlay.classList.add("show");
+    };
 
-};
+}
 
-overlay.onclick=()=>{
+overlay.onclick = () => {
 
     sidebar.classList.remove("open");
-
     overlay.classList.remove("show");
 
 };
-// Close sidebar when clicking on a link
-document
-.querySelectorAll(".sidebar a")
-.forEach(link=>{
 
-    link.onclick=()=>{
+document.querySelectorAll(".sidebar a").forEach(link => {
 
-        sidebar.classList.remove("open");
+    link.onclick = () => {
 
-        overlay.classList.remove("show");
+        if(window.innerWidth <= 768){
+
+            sidebar.classList.remove("open");
+            overlay.classList.remove("show");
+
+        }
 
     };
 
