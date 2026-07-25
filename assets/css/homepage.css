@@ -616,7 +616,7 @@ body::before {
 .comic-chapter {
   font-size: 15px;
   color: #999; /* Màu xám nhạt hơn */
-  border-radius: 5px;
+  border-radius: 15px;
 }
 .view-more-button {
   display: block;
