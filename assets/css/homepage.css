@@ -83,7 +83,7 @@ body::before {
 }
 
 .swiper-button-next, .swiper-button-prev {
-  border-radius: 5px;
+  border-radius: 15px;
   padding: 5px;
 }
 
