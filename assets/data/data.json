@@ -1189,6 +1189,13 @@
                 "createAt": "2026-07-26T05:22:17.291Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/chap3",
                 "pages": 47
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2026-07-26T16:21:29.479Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/chap4",
+                "pages": 50
             }
         ]
     },
