@@ -2092,6 +2092,14 @@
         "description": "Enzo, người thừa kế của một gia tộc quyền lực đỉnh cao, và Angel, người từng là người giám hộ của cậu.\nSau vài năm xa cách, họ gặp lại nhau dưới tư cách là Esper và Guide. Lúc này, Enzo trở lại cùng một yêu cầu vô cùng vô lý dành cho Angel...\nTình cảm thời thơ ấu nay đã hóa thành sự chấp niệm không thể dứt bỏ. Đằng sau gương mặt độc đoán, hống hách ấy, rốt cuộc đang che giấu bí mật gì?",
         "adminPick": false,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-27T16:02:39.416Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/chap1",
+                "pages": 32
+            }
+        ]
     }
 }
