@@ -2073,5 +2073,25 @@
                 "pages": 33
             }
         ]
+    },
+    "name-me": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/cover.webp",
+        "title": "Name Me",
+        "original_title": "네임 미",
+        "author": "오터",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+            "Boylove",
+            "Yêu Hận",
+            "Bot Vô Tâm",
+            "Quan Hệ Hợp Đồng",
+            "Chăn Top",
+            "Top Xinh Đẹp"
+        ],
+        "description": "Enzo, người thừa kế của một gia tộc quyền lực đỉnh cao, và Angel, người từng là người giám hộ của cậu.\nSau vài năm xa cách, họ gặp lại nhau dưới tư cách là Esper và Guide. Lúc này, Enzo trở lại cùng một yêu cầu vô cùng vô lý dành cho Angel...\nTình cảm thời thơ ấu nay đã hóa thành sự chấp niệm không thể dứt bỏ. Đằng sau gương mặt độc đoán, hống hách ấy, rốt cuộc đang che giấu bí mật gì?",
+        "adminPick": false,
+        "pickOrder": 999,
+        "chapters": []
     }
 }
