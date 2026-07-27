@@ -267,15 +267,28 @@ body::before {
     font-size: 12px;
     padding: 6px;
   }
-  .navigation {
-    width: 100%;
-    border-radius: 10px;
-    overflow-x: auto;
-    justify-content: center;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-    scrollbar-width: none;
-  }
+  .navigation{
+
+    width:100%;
+
+    overflow-x:auto;
+
+    flex-wrap:nowrap;
+
+    justify-content:flex-start;
+
+    white-space:nowrap;
+
+    scrollbar-width:none;
+
+    -ms-overflow-style:none;
+
+}
+
+.navigation::-webkit-scrollbar{
+    display:none;
+}
+
   .navigation::-webkit-scrollbar {
     display: none;
   }
@@ -365,19 +378,30 @@ body::before {
     font-size: 2.5em;
     font-family: 'Mea Culpa';
 }
-.navigation {
-  position: relative;
-    margin: 0 auto 20px auto;
-    background-color: #f291ecb3;
-    padding: 10px;
-    display: flex;
-    width: 100%;
-    box-sizing: border-box;
-    justify-content: center;
-    gap: 20px;
-    max-width: 100%;
-    border-radius: 40px;
-    z-index: 2000;
+.navigation{
+    position:relative;
+
+    margin:0 auto 20px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:20px;
+
+    padding:10px;
+
+    width:100%;
+
+    max-width:100%;
+
+    box-sizing:border-box;
+
+    background:#f291ecb3;
+
+    border-radius:40px;
+
+    z-index:2000;
 }
 .navigation a {
     color: #6b325d;
