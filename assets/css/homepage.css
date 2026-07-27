@@ -371,7 +371,7 @@ body::before {
     background-color: #f291ecb3;
     padding: 10px;
     display: flex;
-    width: 100vw;
+    width: 100%;
     box-sizing: border-box;
     justify-content: center;
     gap: 20px;
