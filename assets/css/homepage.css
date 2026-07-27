@@ -320,7 +320,7 @@ body::before {
     border-radius: 10px;
   }
   .comic-detail-container {
-    width: 95%;
+    max-width: 95%;
     padding: 15px;
     margin: 10px auto;
   }
