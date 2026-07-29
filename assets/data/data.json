@@ -2237,6 +2237,14 @@
         "description": "Sau khi người bạn duy nhất thời thơ ấu là sơn thần bé nhỏ rời bỏ Kal, Kal bắt đầu săn giết tất cả những con huơu mà cậu bắt gặp.\nCậu tin vào truyền thuyết rằng nếu một loài sinh vật trong núi bị tuyệt diệt, sơn thần sẽ giáng thế để tái tạo loài đó.\nThế là năm này qua năm khác, Kal chỉ mải miết săn huơu với hy vọng được gặp lại sơn thần.\nNhưng thay vì vị thần mà cậu hằng tìm kiếm thì vào một ngày nọ, một người đàn ông tóc trắng với vẻ đẹp phi phàm xuất hiện và làm đảo lộn hoàn toàn cuộc đời Kal.\n\"500.\nĐó là số những đứa con của ta bị giết.\nVà cũng là số những đứa con ngươi sẽ sinh cho ta.\"",
         "adminPick": false,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-07-29T17:14:02.811Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/dear-hunting/chap1",
+                "pages": 26
+            }
+        ]
     }
 }
