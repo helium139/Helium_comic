@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://heliumcomic.com/sitemap.xml
+Sitemap: https://heliumtg.com/sitemap.xml
