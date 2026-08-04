@@ -23,6 +23,12 @@ const auth = getAuth(app);
 
 let currentUser = null;
 
+let likeBusy = false;
+let followBusy = false;
+
+let liked = false;
+let followed = false;
+
 
 onAuthStateChanged(
     auth,
@@ -141,257 +147,230 @@ async function loadStats() {
 
 }
 
-async function setupLikeButton() {
+async function setupLikeButton(){
 
-    const likeBtn =
-        document.getElementById(
-            "likeBtn"
-        );
+    const likeBtn = document.getElementById("likeBtn");
 
     if(!likeBtn) return;
 
-    // Chưa đăng nhập
     if(!currentUser){
 
-        likeBtn.addEventListener(
-            "click",
-            () => {
+        likeBtn.onclick = () => {
 
-                alert(
-                    "Vui lòng đăng nhập"
-                );
+            alert("Vui lòng đăng nhập");
 
-            }
-        );
+        };
 
         return;
     }
 
-    const userRef =
-        doc(
-            db,
-            "users",
-            currentUser.uid
-        );
+    const userRef = doc(db,"users",currentUser.uid);
 
-    const statRef =
-        doc(
-            db,
-            "mangaStats",
-            mangaId
-        );
+    const snap = await getDoc(userRef);
 
-    const userSnap =
-        await getDoc(userRef);
+    const userData = snap.data();
 
-    const userData =
-        userSnap.data();
+    liked = userData.likes?.includes(mangaId);
 
-    const liked =
-        userData.likes?.includes(
-            mangaId
-        );
+    updateLikeButton();
 
-    if(liked){
-
-    likeBtn.textContent =
-        "🤍 Bỏ thích";
-
-}else{
-
-    likeBtn.textContent =
-        "💜 Thích";
+    likeBtn.onclick = toggleLike;
 
 }
 
-    likeBtn.addEventListener(
-        "click",
-        async () => {
-        const snap =
-            await getDoc(userRef);
+function updateLikeButton(){
 
-        const data =
-            snap.data();
+    const likeBtn =
+        document.getElementById("likeBtn");
 
-        const liked =
-            data.likes?.includes(mangaId);
+    likeBtn.textContent =
+        liked
+        ? "🤍 Bỏ thích"
+        : "💜 Thích";
 
-            if(liked){
+}
 
-            await updateDoc(
-                statRef,
-                {
-                    likes:
-                        increment(-1)
-                }
-            );
+async function toggleLike(){
 
-            await updateDoc(
-                userRef,
-                {
-                    likes:
-                        arrayRemove(mangaId)
-                }
-            );
+    if(likeBusy) return;
 
-            likeBtn.textContent =
-                "💜 Thích";
+    likeBusy = true;
+
+    const likeBtn =
+        document.getElementById("likeBtn");
+
+    likeBtn.disabled = true;
+
+    try{
+
+        const userRef =
+            doc(db,"users",currentUser.uid);
+
+        const statRef =
+            doc(db,"mangaStats",mangaId);
+
+        if(liked){
+
+            await Promise.all([
+
+                updateDoc(statRef,{
+                    likes:increment(-1)
+                }),
+
+                updateDoc(userRef,{
+                    likes:arrayRemove(mangaId)
+                })
+
+            ]);
+
+            liked = false;
+
+        }else{
+
+            await Promise.all([
+
+                updateDoc(statRef,{
+                    likes:increment(1)
+                }),
+
+                updateDoc(userRef,{
+                    likes:arrayUnion(mangaId)
+                })
+
+            ]);
+
+            liked = true;
 
         }
 
-        else{
-
-            await updateDoc(
-                statRef,
-                {
-                    likes:
-                        increment(1)
-                }
-            );
-
-            await updateDoc(
-                userRef,
-                {
-                    likes:
-                        arrayUnion(mangaId)
-                }
-            );
-
-            likeBtn.textContent =
-                "💔 Bỏ thích";
-
-        }
+        updateLikeButton();
 
         loadStats();
-        }
-    );
+
+    }
+
+    finally{
+
+        likeBusy = false;
+
+        likeBtn.disabled = false;
+
+    }
 
 }
 
 async function setupFollowButton(){
 
-    const followBtn =
-        document.getElementById(
-            "followBtn"
-        );
+    const btn =
+        document.getElementById("followBtn");
 
-    if(!followBtn) return;
+    if(!btn) return;
 
     if(!currentUser){
 
-        followBtn.addEventListener(
-            "click",
-            () => {
+        btn.onclick = ()=>{
 
-                alert(
-                    "Vui lòng đăng nhập"
-                );
+            alert("Vui lòng đăng nhập");
 
-            }
-        );
+        };
 
         return;
+
     }
 
-    const userRef =
-        doc(
-            db,
-            "users",
-            currentUser.uid
-        );
+    const snap = await getDoc(
 
-    const statRef =
-        doc(
-            db,
-            "mangaStats",
-            mangaId
-        );
+        doc(db,"users",currentUser.uid)
 
-    const userSnap =
-        await getDoc(userRef);
+    );
 
-    const userData =
-        userSnap.data();
+    followed =
+        snap.data().follows?.includes(mangaId);
 
-    const followed =
-        userData.follows?.includes(
-            mangaId
-        );
+    updateFollowButton();
 
-    if(followed){
-
-    followBtn.textContent =
-        "💔 Bỏ theo dõi";
-
-}else{
-
-    followBtn.textContent =
-        "💖 Theo dõi";
+    btn.onclick = toggleFollow;
 
 }
-    followBtn.addEventListener(
-    "click",
-    async()=>{
 
-        const snap =
-            await getDoc(userRef);
+function updateFollowButton(){
 
-        const data =
-            snap.data();
+    const btn =
+        document.getElementById("followBtn");
 
-        const followed =
-            data.follows?.includes(mangaId);
+    btn.textContent =
+        followed
+        ? "💔 Bỏ theo dõi"
+        : "💖 Theo dõi";
+
+}
+
+async function toggleFollow(){
+
+    if(followBusy) return;
+
+    followBusy = true;
+
+    const btn =
+        document.getElementById("followBtn");
+
+    btn.disabled = true;
+
+    try{
+
+        const userRef =
+            doc(db,"users",currentUser.uid);
+
+        const statRef =
+            doc(db,"mangaStats",mangaId);
 
         if(followed){
 
-            await updateDoc(
-                statRef,
-                {
-                    follows:
-                        increment(-1)
-                }
-            );
+            await Promise.all([
 
-            await updateDoc(
-                userRef,
-                {
-                    follows:
-                        arrayRemove(mangaId)
-                }
-            );
+                updateDoc(statRef,{
+                    follows:increment(-1)
+                }),
 
-            followBtn.textContent =
-                "💖 Theo dõi";
+                updateDoc(userRef,{
+                    follows:arrayRemove(mangaId)
+                })
 
-        }
+            ]);
 
-        else{
+            followed = false;
 
-            await updateDoc(
-                statRef,
-                {
-                    follows:
-                        increment(1)
-                }
-            );
+        }else{
 
-            await updateDoc(
-                userRef,
-                {
-                    follows:
-                        arrayUnion(mangaId)
-                }
-            );
+            await Promise.all([
 
-            followBtn.textContent =
-                "💔 Bỏ theo dõi";
+                updateDoc(statRef,{
+                    follows:increment(1)
+                }),
+
+                updateDoc(userRef,{
+                    follows:arrayUnion(mangaId)
+                })
+
+            ]);
+
+            followed = true;
 
         }
+
+        updateFollowButton();
 
         loadStats();
 
     }
-);
+
+    finally{
+
+        followBusy = false;
+
+        btn.disabled = false;
+
+    }
 
 }
 

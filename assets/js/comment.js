@@ -1,92 +1,168 @@
-import { app, db }
-from "./firebase.js";
+import { app, db } from "./firebase.js";
+
 import{
-
-collection,
-
-addDoc,
-
-doc,
-
-getDoc,
-
-getDocs,
-
-query,
-
-orderBy,
-
-serverTimestamp
-
+    collection,
+    addDoc,
+    doc,
+    getDoc,
+    query,
+    orderBy,
+    serverTimestamp,
+    onSnapshot
 }
-
 from
-
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-
 import{
-
-getAuth
-
+    getAuth
 }
-
-
 from
-
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-const auth =
-getAuth(app);
+const auth = getAuth(app);
+
 const params =
-new URLSearchParams(
-window.location.search
-);
+new URLSearchParams(window.location.search);
+
+const mangaId = params.get("id");
+
+const input =
+document.getElementById("comment-input");
+
+const sendBtn =
+document.getElementById("send-comment");
+
+const list =
+document.getElementById("comments-list");
 
 
-const mangaId =
-params.get("id");
 
+// ==========================
+// GỬI COMMENT
+// ==========================
+
+// ==========================
+// SEND COMMENT
+// ==========================
+
+let sending = false;
 
 async function sendComment(){
 
+    if(sending) return;
+
     if(!auth.currentUser){
 
-        alert(
-            "Bạn cần đăng nhập."
-        );
+        alert("Bạn cần đăng nhập.");
 
         return;
 
     }
 
     const text =
-    document
-    .getElementById(
-        "comment-input"
-    )
-    .value
-    .trim();
+        input.value.trim();
 
-    if(text==="") return;
+    if(text === "") return;
 
-    const userRef = doc(
-    db,
-    "users",
-    auth.currentUser.uid
-);
+    sending = true;
 
-console.log("UID:", auth.currentUser.uid);
-console.log("PATH:", userRef.path);
+    sendBtn.disabled = true;
 
-const userSnap = await getDoc(userRef);
+    sendBtn.innerHTML = "⏳";
 
-console.log(userSnap.data());
+    try{
 
-const userData =
-    userSnap.data();
+        const userSnap =
+            await getDoc(
 
-await addDoc(
+                doc(
+                    db,
+                    "users",
+                    auth.currentUser.uid
+                )
+
+            );
+
+        if(!userSnap.exists()){
+
+            throw new Error(
+                "Không tìm thấy thông tin người dùng."
+            );
+
+        }
+
+        const user =
+            userSnap.data();
+
+        await addDoc(
+
+            collection(
+                db,
+                "comments",
+                mangaId,
+                "messages"
+            ),
+
+            {
+
+                uid:
+                    auth.currentUser.uid,
+
+                name:
+                    user.name,
+
+                avatar:
+                    user.avatar,
+
+                content:
+                    text,
+
+                createdAt:
+                    serverTimestamp(),
+
+                edited:
+                    false,
+
+                likes:
+                    []
+
+            }
+
+        );
+
+        input.value = "";
+
+        input.focus();
+
+    }
+
+    catch(err){
+
+        console.error(err);
+
+        alert("Gửi bình luận thất bại.");
+
+    }
+
+    finally{
+
+        sending = false;
+
+        sendBtn.disabled = false;
+
+        sendBtn.innerHTML = "🚀";
+
+    }
+
+}
+
+
+
+// ==========================
+// REALTIME COMMENT
+// ==========================
+
+const q = query(
 
     collection(
         db,
@@ -95,111 +171,93 @@ await addDoc(
         "messages"
     ),
 
-    {
-
-        uid:
-        auth.currentUser.uid,
-
-        name:
-        userData.name,
-
-        avatar:
-        userData.avatar,
-
-        content:
-        text,
-
-        createdAt:
-        serverTimestamp(),
-
-        edited:false,
-
-        likes:[]
-
-    }
+    orderBy(
+        "createdAt",
+        "desc"
+    )
 
 );
 
-    document
-    .getElementById(
-        "comment-input"
-    ).value="";
+onSnapshot(q,(snapshot)=>{
 
-    loadComments();
+    list.innerHTML = "";
 
-}
+    const fragment =
+        document.createDocumentFragment();
 
-document
-.getElementById(
-"send-comment"
-)
-.onclick=
-sendComment;
+    snapshot.forEach(docSnap=>{
 
-async function loadComments(){
+        const c =
+            docSnap.data();
 
-const q=
-query(
+        const div =
+            document.createElement("div");
 
-collection(
-db,
-"comments",
-mangaId,
-"messages"
-),
+        div.className =
+            "comment";
 
-orderBy(
-"createdAt",
-"desc"
-)
+        div.innerHTML = `
 
-);
+        <div class="comment-header">
 
-const snapshot=
-await getDocs(q);
+            <img
+                src="${c.avatar}"
+                class="comment-avatar">
 
-const list=
-document.getElementById(
-"comments-list"
-);
+            <h4>
 
-list.innerHTML="";
+                ${c.name}
 
-snapshot.forEach(docSnap=>{
+            </h4>
 
-const c=
-docSnap.data();
+        </div>
 
-list.innerHTML+=`
+        <p class="comment-content">
 
-<div class="comment">
+            ${c.content}
 
-<div>
-<img
-src="${c.avatar}"
-class="comment-avatar">
+        </p>
 
-<h4>
+        `;
 
-${c.name}
+        fragment.appendChild(div);
 
-</h4>
+    });
 
-</div>
-
-<p>
-
-${c.content}
-
-</p>
-
-
-</div>
-
-`;
+    list.appendChild(fragment);
 
 });
 
-}
 
-loadComments();
+
+// ==========================
+// EVENTS
+// ==========================
+
+sendBtn.addEventListener(
+    "click",
+    sendComment
+);
+
+input.addEventListener(
+    "keydown",
+    e=>{
+
+        if(
+            e.key === "Enter"
+            &&
+            !e.shiftKey
+        ){
+
+            e.preventDefault();
+
+            if(!sending){
+
+                sendComment();
+
+            }
+
+        }
+
+    }
+);
