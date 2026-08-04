@@ -720,7 +720,7 @@ async function uploadChapter(){
     "✔ Upload hoàn tất";
 
         const link =
-`https://heliumtg.com/chapter.html?id=${slug}&chap=${chapter}`;
+`https://heliumtg.com/chapter.html?id=${slug}`;
 
 chapterLink.value = link;
 
