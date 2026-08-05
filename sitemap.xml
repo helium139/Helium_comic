@@ -1,17 +1,176 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset 
-xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-<url>
-<loc>
-https://heliumtg.com/
-</loc>
-</url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-<url>
-<loc>
-https://heliumtg.com/manga.html?id=mot-ngay-ky-la
-</loc>
-</url>
+    <!-- Trang chủ -->
+    <url>
+        <loc>https://heliumtg.com/</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Danh sách truyện -->
+    <url>
+        <loc>https://heliumtg.com/manga.html</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Trang truyện -->
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=giac-mo-xui-xeo</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=toi-co-the-nhin-thay-thong-so-cua-cau</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=co-on-khong-khi-ke-giet-nguoi-la-mot-idol</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=mot-ngay-ky-la</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=nguoi-hau-trong-tu-kinh</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=cai-the-loai-kim-chu-gi-the-nay</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=ruoc-hoa-vao-than</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=ost-ngoai-ong-kinh</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=xich-ho</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=tro-tan</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=cach-thuc-yeu-uong</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=nhung-ieu-khong-the-cham-toi</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=ly-thuyet-cong-luoc-trai-tan</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=ve-ep-cua-su-huy-diet</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=bai-ca-cua-vung-at-chet</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=chinh-la-toi</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=hoan-hwan</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=ong-quang</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=huong-ve-phia-em-khi-rang-ong</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=name-me</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=bang-gia-tren-em-ice-on-me</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <url>
+        <loc>https://heliumtg.com/manga.html?id=dear-hunting</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
 
 </urlset>
