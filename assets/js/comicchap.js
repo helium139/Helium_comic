@@ -132,7 +132,7 @@ fetch("assets/data/data.json")
 
 "@type":"Article",
 
-"headline":`${manga.title} ${chap.title}`,
+"headline":`${manga.title} ${chapter.title}`,
 
 "author":{
 
