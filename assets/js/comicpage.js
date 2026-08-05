@@ -384,6 +384,10 @@ async function toggleFollow(){
     const manga =
         data[mangaId];
 
+    document.getElementById("page-title"
+    ).innerText =
+        `${manga.title} | Helium Team - Kho Truyện BL Nhà Helium`;
+
     function setMeta(name, content){
 
     let meta = document.querySelector(

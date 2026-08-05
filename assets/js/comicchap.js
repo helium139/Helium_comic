@@ -180,6 +180,8 @@ document.querySelector(
         </span>
     `;
 
+    document.getElementById("page-title").innerText = `${manga.title} - ${chapter.title} | Helium Team - Kho Truyện BL Nhà Helium`;
+
     // ===== BREADCRUMB =====
 
     document.getElementById(
