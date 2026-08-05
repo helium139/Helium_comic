@@ -126,6 +126,17 @@ fetch("assets/data/data.json")
     
     const manga = data[mangaId];
 
+document.querySelector(
+
+'link[rel="canonical"]'
+
+).href = location.href;
+
+
+    const chapter = manga.chapters.find(
+        c => c.id === chapterId
+    );
+
     const schema={
 
 "@context":"https://schema.org",
@@ -155,17 +166,6 @@ fetch("assets/data/data.json")
 }
 
 };
-
-document.querySelector(
-
-'link[rel="canonical"]'
-
-).href = location.href;
-
-
-    const chapter = manga.chapters.find(
-        c => c.id === chapterId
-    );
 
     // ===== TITLE =====
 
