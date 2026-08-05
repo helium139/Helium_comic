@@ -126,6 +126,42 @@ fetch("assets/data/data.json")
     
     const manga = data[mangaId];
 
+    const schema={
+
+"@context":"https://schema.org",
+
+"@type":"Article",
+
+"headline":`${manga.title} ${chap.title}`,
+
+"author":{
+
+"@type":"Organization",
+
+"name":"HeliumTG"
+
+},
+
+"image":location.origin+"/"+manga.cover,
+
+"url":location.href,
+
+"isPartOf":{
+
+"@type":"Book",
+
+"name":manga.title
+
+}
+
+};
+
+document.querySelector(
+
+'link[rel="canonical"]'
+
+).href = location.href;
+
 
     const chapter = manga.chapters.find(
         c => c.id === chapterId

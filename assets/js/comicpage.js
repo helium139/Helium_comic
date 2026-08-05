@@ -384,6 +384,160 @@ async function toggleFollow(){
     const manga =
         data[mangaId];
 
+    function setMeta(name, content){
+
+    let meta = document.querySelector(
+        `meta[name="${name}"]`
+    );
+
+    if(!meta){
+
+        meta = document.createElement("meta");
+
+        meta.setAttribute("name", name);
+
+        document.head.appendChild(meta);
+
+    }
+
+    meta.content = content;
+
+}
+
+setMeta(
+
+"description",
+
+`Đọc ${manga.title} bản dịch tiếng Việt tại HeliumTG. ${manga.description}`
+
+);
+
+setMeta(
+
+"title",
+
+`${manga.title} | Đọc Manhwa BL Tiếng Việt - HeliumTG`
+
+);
+
+function setProperty(property,content){
+
+    let meta=document.querySelector(
+
+        `meta[property="${property}"]`
+
+    );
+
+    if(!meta){
+
+        meta=document.createElement("meta");
+
+        meta.setAttribute(
+
+            "property",
+
+            property
+
+        );
+
+        document.head.appendChild(meta);
+
+    }
+
+    meta.content=content;
+
+}
+
+setProperty(
+
+"og:title",
+
+manga.title
+
+);
+
+setProperty(
+
+"og:description",
+
+manga.description
+
+);
+
+setProperty(
+
+"og:image",
+
+location.origin + "/" + manga.cover
+
+);
+
+setProperty(
+
+"og:type",
+
+"book"
+
+);
+
+setProperty(
+
+"og:url",
+
+location.href
+
+);
+
+const schema = {
+
+"@context":"https://schema.org",
+
+"@type":"Book",
+
+"name":manga.title,
+
+"author":{
+
+    "@type":"Person",
+
+    "name":manga.author
+
+},
+
+"description":manga.description,
+
+"image":location.origin+"/"+manga.cover,
+
+"url":location.href,
+
+"inLanguage":"vi",
+
+"genre":manga.tags,
+
+"publisher":{
+
+    "@type":"Organization",
+
+    "name":"HeliumTG"
+
+}
+
+};
+
+const script=document.createElement("script");
+
+script.type="application/ld+json";
+
+script.text=JSON.stringify(schema);
+
+document.head.appendChild(script);
+
+document.querySelector(
+
+'link[rel="canonical"]'
+
+).href = location.href;
+
     const firstChapter = manga.chapters[0];
 
 document
