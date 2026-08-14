@@ -2553,6 +2553,14 @@
         "description": "",
         "adminPick": false,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 0",
+                "createAt": "2026-08-14T17:04:46.448Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tuyen-tap-tu-y-cam-xuat-tinh/chap1",
+                "pages": 8
+            }
+        ]
     }
 }
