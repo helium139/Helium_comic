@@ -1094,9 +1094,9 @@
             {
                 "id": 3,
                 "title": "Chap 3",
-                "createAt": "2026-02-06T19:00:00Z",
+                "createAt": "2026-02-06T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap3",
-                "pages": 31
+                "pages": 44
             },
             {
                 "id": 4,
