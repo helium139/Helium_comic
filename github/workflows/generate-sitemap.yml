@@ -1,0 +1,194 @@
+name: Generate Sitemap
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+
+  generate-sitemap:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate sitemap
+        run: |
+
+          python3 <<'PY'
+
+          import json
+          from xml.sax.saxutils import escape
+
+          BASE_URL = "https://heliumtg.com"
+
+          DATA_FILE = "assets/data/data.json"
+
+          OUTPUT_FILE = "sitemap.xml"
+
+
+          # ==========================
+          # ĐỌC DATA.JSON
+          # ==========================
+
+          with open(
+              DATA_FILE,
+              "r",
+              encoding="utf-8"
+          ) as f:
+
+              data = json.load(f)
+
+
+          # ==========================
+          # DANH SÁCH URL
+          # ==========================
+
+          urls = []
+
+
+          # Trang chủ
+          urls.append(
+              BASE_URL + "/"
+          )
+
+
+          # Các trang cố định
+          urls.extend([
+
+              BASE_URL + "/index.html",
+
+              BASE_URL + "/follow.html",
+
+              BASE_URL + "/history.html",
+
+              BASE_URL + "/user.html"
+
+          ])
+
+
+          # ==========================
+          # TRUYỆN + CHAPTER
+          # ==========================
+
+          for slug, manga in data.items():
+
+              # Trang truyện
+
+              manga_url = (
+                  BASE_URL
+                  + "/manga.html?id="
+                  + slug
+              )
+
+              urls.append(manga_url)
+
+
+              # Các chapter
+
+              chapters = manga.get(
+                  "chapters",
+                  []
+              )
+
+
+              for chapter in chapters:
+
+                  chapter_id = chapter.get("id")
+
+                  if chapter_id is None:
+                      continue
+
+
+                  chapter_url = (
+                      BASE_URL
+                      + "/chapter.html?id="
+                      + slug
+                      + "&chap="
+                      + str(chapter_id)
+                  )
+
+                  urls.append(
+                      chapter_url
+                  )
+
+
+          # ==========================
+          # LOẠI URL TRÙNG
+          # ==========================
+
+          urls = list(
+              dict.fromkeys(urls)
+          )
+
+
+          # ==========================
+          # TẠO XML
+          # ==========================
+
+          xml = [
+              '<?xml version="1.0" encoding="UTF-8"?>',
+              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+          ]
+
+
+          for url in urls:
+
+              xml.append("  <url>")
+
+              xml.append(
+                  "    <loc>"
+                  + escape(url)
+                  + "</loc>"
+              )
+
+              xml.append("  </url>")
+
+
+          xml.append("</urlset>")
+
+
+          # ==========================
+          # GHI FILE
+          # ==========================
+
+          with open(
+              OUTPUT_FILE,
+              "w",
+              encoding="utf-8"
+          ) as f:
+
+              f.write(
+                  "\n".join(xml)
+              )
+
+
+          print(
+              f"Generated sitemap with {len(urls)} URLs"
+          )
+
+          PY
+
+
+      - name: Commit sitemap
+        run: |
+
+          git config user.name "github-actions"
+
+          git config user.email "github-actions@github.com"
+
+          git add sitemap.xml
+
+          git diff --cached --quiet || \
+            git commit -m "Auto update sitemap"
+
+          git push
