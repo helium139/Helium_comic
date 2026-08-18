@@ -478,6 +478,13 @@
                 "createAt": "2026-08-18T07:05:04.994Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap9",
                 "pages": 6
+            },
+            {
+                "id": 10,
+                "title": "Ngoại Truyện 1",
+                "createAt": "2026-08-18T07:05:33.300Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap10",
+                "pages": 20
             }
         ]
     },
