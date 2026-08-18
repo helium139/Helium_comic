@@ -2644,6 +2644,14 @@
         "description": "Jung Hyun bắt đầu liên tục mơ thấy những giấc mơ kỳ lạ, trong đó có sự xuất hiện của cậu bạn thuở nhỏ Sun Woo Jin.\nKhi những giấc mơ càng trở nên sống động, hiện thực của Jung Hyun cũng dần lệch khỏi quỹ đạo thông thường khi cậu liên tiếp gặp phải những điều xui xẻo vụn vặt.\nSau khi truy tìm nguyên nhân, cậu phát hiện chỉ có một cách duy nhất để lấy lại “vận may” đã đánh mất trong giấc mơ:\nBiến những điều xảy ra trong mơ thành hiện thực.\nĐể lấy lại vận may, Jung Hyun ngày càng đòi hỏi Ji Woo một mối quan hệ thân mật hơn.\nĐồng thời, cậu cũng bối rối trước sự thay đổi thái độ đột ngột của Jin – người đã thầm thích cậu từ lâu.\nKhi tình cảm dần hình thành, những hiểu lầm và lựa chọn không thể tránh khỏi đan xen vào nhau, mối quan hệ giữa hai người dần rẽ sang một hướng không ai ngờ tới.\nLiệu lựa chọn để thoát khỏi vận rủi ấy có thể dẫn họ đến tình yêu?\nChuyện tình học đường giữa hai người bạn thời thơ ấu, bắt đầu tại ranh giới giữa giấc mơ và hiện thực.",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-08-18T05:16:33.412Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/giac-mo-xui-xeo-unlucky-dream/chap1",
+                "pages": 52
+            }
+        ]
     }
 }
