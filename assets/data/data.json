@@ -386,7 +386,7 @@
         "author": "지하",
         "team": "HeliumTG",
         "status": "Completed",
-        "adminPick": false,
+        "adminPick": true,
         "pickOrder": 10,
         "tags": [
             "BL",
