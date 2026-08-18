@@ -2157,7 +2157,7 @@
             "Fantasy"
         ],
         "description": "Vị thần mùa đông bị trừng phạt phải hóa thành con người vì tội lỗi của sự kiêu ngạo và tham lam.\nĐể có thể trở lại làm thần, cách duy nhất là anh ta phải ăn trái tim của người mình yêu.",
-        "adminPick": true,
+        "adminPick": false,
         "pickOrder": 999,
         "chapters": [
             {
