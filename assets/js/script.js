@@ -97,7 +97,10 @@ function renderComics() {
             ];
 
 
-        container.innerHTML += `
+        const newChapter =
+    isNewChapter(manga);
+
+container.innerHTML += `
 <a href="manga.html?id=${slug}" class="comic-item">
 
     <div class="comic-poster">
@@ -105,6 +108,14 @@ function renderComics() {
         ${
             manga.status === "Completed"
             ? `<span class="comic-end-badge">END</span>`
+            : ""
+        }
+
+        ${
+            newChapter
+            ? `<span class="new-chapter-badge">
+                    MỚI
+               </span>`
             : ""
         }
 
@@ -549,4 +560,35 @@ function initSwiper(){
 
     });
 
+}
+
+function isNewChapter(manga) {
+
+    if (
+        !manga.chapters ||
+        manga.chapters.length === 0
+    ) {
+        return false;
+    }
+
+    const latestChapter =
+        manga.chapters[manga.chapters.length - 1];
+
+    if (!latestChapter.createAt) {
+        return false;
+    }
+
+    const chapterTime =
+        new Date(latestChapter.createAt).getTime();
+
+    const now =
+        Date.now();
+
+    const twentyFourHours =
+        24 * 60 * 60 * 1000;
+
+    return (
+        now - chapterTime >= 0 &&
+        now - chapterTime <= twentyFourHours
+    );
 }
