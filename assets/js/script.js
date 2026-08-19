@@ -173,7 +173,8 @@ function renderHotComics(list = [], data = {}){
     isNewChapter(manga);
 
 container.innerHTML += `
-<a href="manga.html?id=${slug}" class="comic-item">
+<a href="manga.html?id=${id}"
+           class="comic-item">
 
     <div class="comic-poster">
 
