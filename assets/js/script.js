@@ -169,42 +169,50 @@ function renderHotComics(list = [], data = {}){
             ? manga.chapters[manga.chapters.length-1]
             : { title:"Chưa có chapter" };
 
-        container.innerHTML += `
+        const newChapter =
+    isNewChapter(manga);
 
-        <a href="manga.html?id=${id}"
-           class="comic-item">
+container.innerHTML += `
+<a href="manga.html?id=${slug}" class="comic-item">
 
-            <div class="comic-poster">
+    <div class="comic-poster">
 
-                ${
-                    manga.status === "Completed"
-                    ? `<span class="comic-end-badge">END</span>`
-                    : ""
-                }
+        ${
+            manga.status === "Completed"
+            ? `<span class="comic-end-badge">END</span>`
+            : ""
+        }
 
-                <img
-                    src="${manga.cover}"
-                    alt="${manga.title}"
-                    loading="lazy"
-                    decoding="async">
+        ${
+            newChapter
+            ? `<span class="new-chapter-badge">
+                    MỚI
+               </span>`
+            : ""
+        }
 
-            </div>
+        <img
+            src="${manga.cover}"
+            alt="${manga.title}"
+            loading="lazy"
+            decoding="async">
 
-            <div class="comic-info">
+    </div>
 
-                <h3 class="comic-name">
-                    ${manga.title}
-                </h3>
+    <div class="comic-info">
 
-                <span class="comic-chapter">
-                    ${latestChap.title}
-                </span>
+        <h3 class="comic-name">
+            ${manga.title}
+        </h3>
 
-            </div>
+        <span class="comic-chapter">
+            ${latestChap.title}
+        </span>
 
-        </a>
+    </div>
 
-        `;
+</a>
+`;
 
     });
 
