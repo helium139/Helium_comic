@@ -1265,7 +1265,7 @@ footer p {
 
     top:8px;
 
-    left:8px;
+    left:10px;
 
     z-index:10;
 
@@ -1287,10 +1287,10 @@ footer p {
 
 .new-chapter-badge {
     position: absolute;
-    top: 10px;
+    top: 8px;
     right: 10px;
 
-    background: #ffd21f;
+    background: #ffda44;
     color: #222;
 
     padding: 5px 10px;
@@ -1301,7 +1301,7 @@ footer p {
 
     z-index: 10;
 
-    animation: newChapterBlink 1s infinite;
+    animation: newChapterBlink 1.5s infinite;
 }
 
 @keyframes newChapterBlink {
