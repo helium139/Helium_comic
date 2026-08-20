@@ -2746,6 +2746,14 @@
         "description": "Một phần của Tuyển Tập Tự Ý Cấm Xuất Tinh.",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-08-20T09:28:28.607Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-yeu-nhau-en-ngay-thu-100-thoi/chap1",
+                "pages": 21
+            }
+        ]
     }
 }
