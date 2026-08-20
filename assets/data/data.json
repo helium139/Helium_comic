@@ -2753,6 +2753,13 @@
                 "createAt": "2026-08-20T09:28:28.607Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-yeu-nhau-en-ngay-thu-100-thoi/chap1",
                 "pages": 21
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2026-08-20T09:28:57.200Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-yeu-nhau-en-ngay-thu-100-thoi/chap2",
+                "pages": 20
             }
         ]
     }
