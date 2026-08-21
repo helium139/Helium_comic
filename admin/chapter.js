@@ -187,8 +187,8 @@ function renderMangaList(){
     )
     
 
-    .forEach(([slug,manga,status])=>{
-        if (manga.status != "hiatus" && manga.status != "completed")
+    .forEach(([slug,manga])=>{
+        if (manga.status !== "hiatus" && manga.status !== "completed")
     {
 
         mangaSelect.innerHTML +=
