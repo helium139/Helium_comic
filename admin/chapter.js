@@ -172,8 +172,7 @@ function renderMangaList(){
 
     mangaSelect.innerHTML = "";
 
-    if (manga.status != "hiatus" && manga.status != "completed")
-    {
+    
 
     Object.entries(mangas)
 
@@ -188,7 +187,9 @@ function renderMangaList(){
     )
     
 
-    .forEach(([slug,manga])=>{
+    .forEach(([slug,manga,status])=>{
+        if (manga.status != "hiatus" && manga.status != "completed")
+    {
 
         mangaSelect.innerHTML +=
 
@@ -197,11 +198,12 @@ function renderMangaList(){
             ${manga.title}
 
         </option>`;
+        }
 
     });
 }
 
-}
+
 
 function updateNextChapter(){
 
