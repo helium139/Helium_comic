@@ -172,6 +172,9 @@ function renderMangaList(){
 
     mangaSelect.innerHTML = "";
 
+    if (manga.status != "hiatus" && manga.status != "completed")
+    {
+
     Object.entries(mangas)
 
     .sort((a,b)=>
@@ -183,6 +186,7 @@ function renderMangaList(){
         )
 
     )
+    
 
     .forEach(([slug,manga])=>{
 
@@ -195,6 +199,7 @@ function renderMangaList(){
         </option>`;
 
     });
+}
 
 }
 
