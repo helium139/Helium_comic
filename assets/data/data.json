@@ -2691,6 +2691,13 @@
                 "createAt": "2026-08-18T05:07:07.552Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tuyen-tap-tu-y-cam-xuat-tinh/chap3",
                 "pages": 20
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2026-08-23T18:03:57.953Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tuyen-tap-tu-y-cam-xuat-tinh/chap4",
+                "pages": 22
             }
         ]
     },
