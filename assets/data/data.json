@@ -2888,5 +2888,22 @@
                 "pages": 20
             }
         ]
+    },
+    "inh-menh-tro-treu": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/inh-menh-tro-treu/cover.webp",
+        "title": "Định Mệnh Trớ Trêu",
+        "original_title": "",
+        "author": "",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+            "Bl",
+            "18+",
+            "Truyện Ngắn"
+        ],
+        "description": "Một phần của tuyển tập tự ý cấm xuất tinh.",
+        "adminPick": true,
+        "pickOrder": 999,
+        "chapters": []
     }
 }
