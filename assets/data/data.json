@@ -2946,6 +2946,14 @@
         "description": "Một phần của tuyển tập tự ý cấm xuất tinh.",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-08-24T05:33:23.999Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/inh-menh-tro-treu/chap1",
+                "pages": 16
+            }
+        ]
     }
 }
