@@ -2967,6 +2967,13 @@
                 "createAt": "2026-08-24T05:33:45.094Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/inh-menh-tro-treu/chap2",
                 "pages": 19
+            },
+            {
+                "id": 3,
+                "title": "Chap 3",
+                "createAt": "2026-08-25T07:31:14.461Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/inh-menh-tro-treu/chap3",
+                "pages": 18
             }
         ]
     }
