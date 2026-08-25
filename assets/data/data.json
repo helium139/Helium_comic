@@ -2707,6 +2707,13 @@
                 "createAt": "2026-08-24T05:32:03.962Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/chap3",
                 "pages": 34
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2026-08-25T07:33:33.064Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/chap4",
+                "pages": 30
             }
         ]
     },
