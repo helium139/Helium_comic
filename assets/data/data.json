@@ -2678,6 +2678,13 @@
                 "createAt": "2026-08-18T09:43:15.949Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/dear-hunting/chap5",
                 "pages": 9
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-09-01T13:55:36.313Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/dear-hunting/chap6",
+                "pages": 25
             }
         ]
     },
