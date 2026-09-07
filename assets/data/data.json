@@ -3116,5 +3116,23 @@
                 "pages": 16
             }
         ]
+    },
+    "mien-at-hua": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mien-at-hua/cover.webp",
+        "title": "Miền Đất Hứa",
+        "original_title": "",
+        "author": "",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+            "Bl",
+            "18+",
+            "Truyện Ngắn",
+            "Tuyển Tập Tự Ý Cấm Xuất Tinh"
+        ],
+        "description": "",
+        "adminPick": true,
+        "pickOrder": 999,
+        "chapters": []
     }
 }
