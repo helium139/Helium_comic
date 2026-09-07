@@ -3133,6 +3133,14 @@
         "description": "",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-09-07T08:33:24.464Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mien-at-hua/chap1",
+                "pages": 18
+            }
+        ]
     }
 }
