@@ -114,7 +114,7 @@ container.innerHTML += `
         ${
             newChapter
             ? `<span class="new-chapter-badge">
-                    MỚI
+                    UP
                </span>`
             : ""
         }
@@ -187,7 +187,7 @@ container.innerHTML += `
         ${
             newChapter
             ? `<span class="new-chapter-badge">
-                    MỚI
+                    UP
                </span>`
             : ""
         }
