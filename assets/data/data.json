@@ -2840,6 +2840,13 @@
                 "createAt": "2026-09-08T05:48:23.256Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/chap5",
                 "pages": 28
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-09-14T05:02:17.442Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/chap6",
+                "pages": 33
             }
         ]
     },
