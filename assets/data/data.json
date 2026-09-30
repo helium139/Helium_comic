@@ -3213,7 +3213,7 @@
             "Truyện Ngắn"
         ],
         "description": "Một phần của Tuyển Tập Tự Ý Cấm Xuất Tinh.",
-        "adminPick": true,
+        "adminPick": false,
         "pickOrder": 999,
         "chapters": [
             {
