@@ -3479,8 +3479,8 @@
         "chapters": [
             {
                 "id": 1,
-                "title": "Chap 1",
-                "createAt": "2026-10-01T05:15:09.365Z",
+                "title": "Chap 0",
+                "createAt": "2026-10-01T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/melting-chocolate/chap1",
                 "pages": 10
             }
