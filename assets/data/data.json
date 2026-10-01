@@ -2759,7 +2759,7 @@
             "Công Thấp Hơn Thụ"
         ],
         "description": "Gyu Eon, người đang sống với tư cách là một đầu bếp sau khi giải nghệ sự nghiệp trượt băng nghệ thuật vì chấn thương.\n​Xuất hiện trước mặt anh là Eun Hyeong - cậu hậu bối từng bỏ đi sau khi để lại những lời nói như lời nguyền rủa đối với anh.\n​\"Anh ấy mà, dù có làm cái gì thì cũng thất bại thôi…\"\n​Dù cố gắng cảnh giác và đẩy Eun Hyeong - người đã để lại vết thương đau đớn cho mình ra xa, nhưng từ lúc nào ánh mắt của anh lại cứ liên tục bị cuốn về phía cậu ấy…",
-        "adminPick": false,
+        "adminPick": true,
         "pickOrder": 999,
         "chapters": [
             {
