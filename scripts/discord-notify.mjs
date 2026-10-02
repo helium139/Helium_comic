@@ -32,6 +32,7 @@ const newChapters = [];
 
 for (const [slug, manga] of Object.entries(currentData)) {
     const oldManga = previousData[slug];
+
     const oldChapters = oldManga?.chapters || [];
     const currentChapters = manga.chapters || [];
 
@@ -62,40 +63,53 @@ console.log(
 for (const item of newChapters) {
     const { slug, manga, chapter } = item;
 
-    const mangaUrl =`https://heliumtg.com/manga.html?id=${slug}`;
+    const mangaUrl =
+        `https://heliumtg.com/manga.html?id=${slug}`;
 
-    const chapterUrl =`https://heliumtg.com/chapter.html?id=${slug}&chap=${chapter.id}`;
+    const chapterUrl =
+        `https://heliumtg.com/chapter.html?id=${slug}&chap=${chapter.id}`;
 
     const embed = {
-        title: `🚀 ${manga.title}`,
-        url: mangaUrl,
+        title: `${manga.title} – ${chapter.title}`,
+        url: chapterUrl,
+
         description:
-            `✨ **[${manga.title}](${mangaUrl})** vừa có chương mới nha các vịu ơ!\n\n` +
-            `🔥 **[${chapter.title}](${chapterUrl})**\n\n` +
-            `📖 [Đọc ngay trên HeliumTG](${chapterUrl})`,
+            "Đọc chapter mới trên HeliumTG.",
+
         color: 0x5865F2,
+
         image: {
             url: manga.cover
         },
+
         footer: {
-            text: "HeliumTG"
+            text: "HeliumTG • Chapter mới"
         },
+
         timestamp: chapter.createAt
     };
 
     const payload = {
-        content: "@everyone",
+        content:
+            `@everyone\n\n` +
+            `✨ **[${manga.title}](${mangaUrl})** vừa có chương mới nha cả nhà ơi!\n\n` +
+            `💗 **[${chapter.title}](${chapterUrl})**\n\n` +
+            `🌸 Ghé website ủng hộ HeliumTG nhé!`,
+
         allowed_mentions: {
             parse: ["everyone"]
         },
+
         embeds: [embed]
     };
 
     const response = await fetch(webhook, {
         method: "POST",
+
         headers: {
             "Content-Type": "application/json"
         },
+
         body: JSON.stringify(payload)
     });
 
