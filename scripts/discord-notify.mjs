@@ -62,15 +62,17 @@ console.log(
 for (const item of newChapters) {
     const { slug, manga, chapter } = item;
 
-    const chapterUrl =
-    `https://heliumtg.com/chapter.html?id=${slug}&chap=${chapter.id}`;
+    const mangaUrl =`https://heliumtg.com/manga.html?id=${slug}`;
+
+    const chapterUrl =`https://heliumtg.com/chapter.html?id=${slug}&chap=${chapter.id}`;
 
     const embed = {
-        title: manga.title,
-        url: chapterUrl,
+        title: `🚀 ${manga.title}`,
+        url: mangaUrl,
         description:
-            `🚀 **${manga.title}** vừa có chương mới nha các vịu ơ!\n\n` +
-            `🔥 **${chapter.title}**`,
+            `✨ **[${manga.title}](${mangaUrl})** vừa có chương mới nha các vịu ơ!\n\n` +
+            `🔥 **[${chapter.title}](${chapterUrl})**\n\n` +
+            `📖 [Đọc ngay trên HeliumTG](${chapterUrl})`,
         color: 0x5865F2,
         image: {
             url: manga.cover
