@@ -3582,6 +3582,14 @@
         "description": "Trong một xã hội tương lai gần, nơi cuộc chiến giữa ma cà rồng và con người đã kết thúc.\nThế nhưng, gia tộc Hunter, vốn chuyên săn lùng ma cà rồng từ xa xưa, vẫn luôn khinh miệt loài sinh vật này.\n\nVane Hunt được gia tộc Hunter nhận nuôi vì sở hữu một thể chất đặc biệt.\nCả đời tận tụy làm việc vì gia tộc nhưng chưa bao giờ được xem là người nhà, nay cậu nhận được một nhiệm vụ mới.\n\nĐó là tiếp cận Theodor Basilesku, người sống sót duy nhất của gia tộc ma cà rồng quyền thế Basilesku.\n\nCha của Vane ra lệnh cho cậu phải bằng mọi giá đánh cắp bảo vật gia truyền mà Basilesku đang nắm giữ.\n\nDựa vào thể chất đặc biệt khiến cậu không bị nhiễm độc dù bị ma cà rồng hút máu, nói cách khác, lợi dụng chính cơ thể của cậu.",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-10-02T05:25:28.480Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/way-of-practice/chap1",
+                "pages": 57
+            }
+        ]
     }
 }
