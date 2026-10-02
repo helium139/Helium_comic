@@ -58,8 +58,36 @@ jobs:
       # GENERATE SITEMAP
       # ==========================
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install OG image dependency
+        run: python3 -m pip install -r scripts/requirements-og.txt
+
+      - name: Test OG image generator without network
+        run: python3 scripts/test-og-images.py
+
+      - name: Generate OG preview images
+        run: python3 scripts/generate-og-images.py
+
       - name: Generate clean routes and sitemap
         run: python3 scripts/build-clean-urls.py
+
+      - name: Upload generated OG images and pages for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: og-preview
+          include-hidden-files: true
+          path: |
+            assets/og/
+            manga/
+            assets/js/
+            assets/css/
+            assets/images/
+            assets/data/
+            sitemap.xml
 
 
       # ==========================
@@ -81,6 +109,7 @@ jobs:
       # ==========================
 
       - name: Commit generated files
+        if: github.event_name == 'push'
         run: |
 
           git config user.name "github-actions"
@@ -90,6 +119,7 @@ jobs:
           git add \
             assets/data/version.js \
             sitemap.xml \
+            assets/og \
             login follow history user manga \
             admin/manga admin/chapter
 
