@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
+<script type="module" src="/assets/js/routes.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -12,8 +13,8 @@ content="Đọc truyện BL, manhwa, manhua Việt hóa bởi Helium Team. Cập
 href="https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"
 crossorigin>
     <link rel = "stylesheet" href = "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
-    <link rel="icon" type="image/png" href="assets/images/helium_logo.webp">
-    <link href="assets/css/homepage.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/helium_logo.webp">
+    <link href="/assets/css/homepage.css" rel="stylesheet">
     <meta property="og:title"
 content="Helium Team - Kho Truyện BL Nhà Helium">
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -45,11 +46,11 @@ content="website">
   <body>
     <div id="darkOverlay"></div>
     <nav class="navigation">
-      <a href="index.html">Trang Chủ</a>
+      <a href="/">Trang Chủ</a>
       <a href="#">Truyện Hoàn Thành</a>
-      <a href="follow.html">Theo Dõi</a>
-      <a href="history.html">Lịch Sử Đọc</a>
-      <a href="user.html">Hồ Sơ</a>
+      <a href="/follow/">Theo Dõi</a>
+      <a href="/history/">Lịch Sử Đọc</a>
+      <a href="/user/">Hồ Sơ</a>
       <a href="#">Nhóm Dịch</a>
     </nav>
     <div class="chapter-page-container">
@@ -79,7 +80,7 @@ content="website">
 </div>
 <div class="chapter-toolbar" id="chapterToolbar">
   <div class="toolbar-left">
-    <a href="index.html" class="toolbar-item">
+    <a href="/" class="toolbar-item">
       <i class="bx bx-home-alt"></i> Trang chủ
     </a>
   </div>
@@ -163,6 +164,6 @@ content="website">
     lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; 
   }, false);
 </script>
-<script type="module" src="assets/js/comicchap.js"></script>
+<script type="module" src="/assets/js/comicchap.js"></script>
   </body>
 </html>

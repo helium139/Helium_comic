@@ -86,7 +86,7 @@ const teamSelect =
 document.getElementById("team");
 
 const teams =
-await fetch("../assets/data/teams.json")
+await fetch("/assets/data/teams.json")
 .then(r=>r.json());
 
 teamSelect.innerHTML="";
@@ -686,7 +686,7 @@ chapterList.onclick = e=>{
         const id = Number(edit.dataset.id);
 
         location.href =
-`chapter.html?manga=${currentSlug}&chapter=${id}`;
+`/admin/chapter/?manga=${currentSlug}&chapter=${id}`;
 
     }
 
@@ -800,6 +800,6 @@ function renderChapterList(){
 addChapterBtn.onclick = ()=>{
 
     location.href =
-`chapter.html?manga=${currentSlug}&new=1`;
+`/admin/chapter/?manga=${currentSlug}&new=1`;
 
 };

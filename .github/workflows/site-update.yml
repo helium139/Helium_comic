@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
 
       # ==========================
@@ -58,143 +58,8 @@ jobs:
       # GENERATE SITEMAP
       # ==========================
 
-      - name: Generate sitemap
-        run: |
-
-          python3 <<'PY'
-
-          import json
-          from xml.sax.saxutils import escape
-
-          BASE_URL = "https://heliumtg.com"
-
-          DATA_FILE = "assets/data/data.json"
-
-          OUTPUT_FILE = "sitemap.xml"
-
-
-          with open(
-              DATA_FILE,
-              "r",
-              encoding="utf-8"
-          ) as f:
-
-              data = json.load(f)
-
-
-          urls = []
-
-
-          # Homepage
-
-          urls.append(
-              BASE_URL + "/"
-          )
-
-
-          # Fixed pages
-
-          urls.extend([
-
-              BASE_URL + "/index.html",
-
-              BASE_URL + "/follow.html",
-
-              BASE_URL + "/history.html",
-
-              BASE_URL + "/user.html"
-
-          ])
-
-
-          # Manga + chapters
-
-          for slug, manga in data.items():
-
-              manga_url = (
-                  BASE_URL
-                  + "/manga.html?id="
-                  + slug
-              )
-
-              urls.append(manga_url)
-
-
-              chapters = manga.get(
-                  "chapters",
-                  []
-              )
-
-
-              for chapter in chapters:
-
-                  chapter_id = chapter.get("id")
-
-                  if chapter_id is None:
-                      continue
-
-
-                  chapter_url = (
-                      BASE_URL
-                      + "/chapter.html?id="
-                      + slug
-                      + "&chap="
-                      + str(chapter_id)
-                  )
-
-                  urls.append(chapter_url)
-
-
-          # Remove duplicates
-
-          urls = list(
-              dict.fromkeys(urls)
-          )
-
-
-          # XML
-
-          xml = [
-
-              '<?xml version="1.0" encoding="UTF-8"?>',
-
-              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-
-          ]
-
-
-          for url in urls:
-
-              xml.append("  <url>")
-
-              xml.append(
-                  "    <loc>"
-                  + escape(url)
-                  + "</loc>"
-              )
-
-              xml.append("  </url>")
-
-
-          xml.append("</urlset>")
-
-
-          with open(
-              OUTPUT_FILE,
-              "w",
-              encoding="utf-8"
-          ) as f:
-
-              f.write(
-                  "\n".join(xml)
-              )
-
-
-          print(
-              f"Generated sitemap with {len(urls)} URLs"
-          )
-
-          PY
+      - name: Generate clean routes and sitemap
+        run: python3 scripts/build-clean-urls.py
 
 
       # ==========================
@@ -205,6 +70,7 @@ jobs:
         if: github.event_name == 'push'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          PUSH_BEFORE: ${{ github.event.before }}
         run: |
 
           node scripts/discord-notify.mjs
@@ -223,7 +89,9 @@ jobs:
 
           git add \
             assets/data/version.js \
-            sitemap.xml
+            sitemap.xml \
+            login follow history user manga \
+            admin/manga admin/chapter
 
           git diff --cached --quiet || \
             git commit -m "Auto update generated files"

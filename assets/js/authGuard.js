@@ -19,7 +19,7 @@ export function requireLogin(){
             if(!user){
 
                 location.href =
-                    "login.html";
+                    "/login/";
 
             }
 

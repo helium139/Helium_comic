@@ -8,7 +8,7 @@ await requireAdmin();
 
 let mangas = {};
 
-fetch("../assets/data/data.json")
+fetch("/assets/data/data.json")
 
 .then(r=>r.json())
 

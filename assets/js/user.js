@@ -32,7 +32,7 @@ onAuthStateChanged(auth, async(user)=>{
     if(!user){
 
         location.href =
-            "login.html";
+            "/login/";
 
         return;
     }

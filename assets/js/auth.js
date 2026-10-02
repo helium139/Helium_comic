@@ -71,7 +71,7 @@ if(userSnap.exists()){
             userBox.innerHTML = `
             
             <div class="user-profile">
-            <a href="user.html" class="user-link">
+            <a href="/user/" class="user-link">
 
                 <img 
                     src="${userData.avatar || user.photoURL}"
@@ -97,7 +97,7 @@ if(userSnap.exists()){
         ".navigation"
     ).innerHTML +=
     `
-    <a href="admin/index.html">
+    <a href="/admin/">
         Admin
     </a>
     `;
@@ -123,7 +123,7 @@ if(userSnap.exists()){
 
             userBox.innerHTML = `
             
-            <a href="login.html">
+            <a href="/login/">
 
                 <i class="bx bx-user"></i>
 

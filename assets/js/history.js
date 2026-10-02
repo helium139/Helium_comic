@@ -1,3 +1,4 @@
+import { chapterUrl } from "./routes.js";
 import {
     requireLogin
 }
@@ -65,7 +66,7 @@ async function renderHistory(history){
 
     const res =
         await fetch(
-            "assets/data/data.json"
+            "/assets/data/data.json"
         );
 
     const data =
@@ -116,7 +117,7 @@ async function renderHistory(history){
             <a
                 class="continue-btn"
                 href="
-                chapter.html?id=${item.mangaId}&chap=${item.chapterId}
+                ${chapterUrl(item.mangaId, item.chapterId)}
                 "
             >
                 Tiếp tục đọc
@@ -137,7 +138,7 @@ onAuthStateChanged(
 
         if(!user){
 
-            location.href = "login.html";
+            location.href = "/login/";
             return;
 
         }

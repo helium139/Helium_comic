@@ -1,3 +1,4 @@
+import { chapterUrl } from "../assets/js/routes.js";
 import { requireAdmin } from "../assets/js/adminGuard.js";
 import { getMangas } from "./api/manga.js";
 import { uploadImage } from "./api/upload.js";
@@ -727,7 +728,7 @@ async function uploadChapter(){
     "✔ Upload hoàn tất";
 
         const link =
-`https://heliumtg.com/chapter.html?id=${slug}`;
+`https://heliumtg.com${chapterUrl(slug, chapter)}`;
 
 chapterLink.value = link;
 
@@ -850,7 +851,7 @@ async function saveChapter(){
     log("✔ Chapter updated");
 
      const link =
-`https://heliumtg.com/chapter.html?id=${currentSlug}&chap=${currentChapter}`;
+`https://heliumtg.com${chapterUrl(currentSlug, currentChapter)}`;
 
 chapterLink.value = link;
 

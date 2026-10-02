@@ -1,3 +1,4 @@
+import { mangaUrl } from "./routes.js";
 import {
     requireLogin
 }
@@ -32,7 +33,7 @@ onAuthStateChanged(
         if(!user){
 
             location.href =
-                "login.html";
+                "/login/";
 
             return;
         }
@@ -65,7 +66,7 @@ async function loadFollowedManga(
 
     const res =
         await fetch(
-            "assets/data/data.json"
+            "/assets/data/data.json"
         );
 
     const data =
@@ -88,7 +89,7 @@ async function loadFollowedManga(
         container.innerHTML += `
         
         <a
-            href="manga.html?id=${id}"
+            href="${mangaUrl(id)}"
             class="comic-item">
 
             <div class="comic-poster">

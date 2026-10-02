@@ -1,3 +1,4 @@
+import { chapterUrl, getRouteParams } from "./routes.js";
 import { app, db } from "./firebase.js";
 
 import {
@@ -48,9 +49,7 @@ onAuthStateChanged(
 
 
 const params =
-    new URLSearchParams(
-        window.location.search
-    );
+    getRouteParams();
 
 const mangaId =
     params.get("id");
@@ -374,7 +373,7 @@ async function toggleFollow(){
 
 }
 
-    fetch("assets/data/data.json")
+    fetch("/assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
@@ -549,7 +548,7 @@ document
 .onclick = () => {
 
     location.href =
-    `chapter.html?id=${mangaId}&chap=${firstChapter.id}`;
+    chapterUrl(mangaId, firstChapter.id);
 
 };
 
@@ -613,7 +612,7 @@ const chapterContainer =
         <div class="chapter-item">
 
             <a href="
-                chapter.html?id=${mangaId}&chap=${chap.id}">
+                ${chapterUrl(mangaId, chap.id)}">
                 ${chap.title}
             </a>
 
@@ -624,7 +623,7 @@ const chapterContainer =
         </div>
     `;
     console.log(
-    `chapter.html?id=${mangaId}&chap=${chap.id}`
+    chapterUrl(mangaId, chap.id)
 );
 
 });

@@ -1,24 +1,35 @@
 import fs from "fs";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
+import { mangaUrl as mangaPath, chapterUrl as chapterPath } from "../assets/js/route-urls.mjs";
 
 const webhook = process.env.DISCORD_WEBHOOK;
 
-if (!webhook) {
-    throw new Error("DISCORD_WEBHOOK is missing.");
+const dataPath = "assets/data/data.json";
+const pushBefore = process.env.PUSH_BEFORE;
+
+if (pushBefore && !/^[a-f0-9]{40}$/i.test(pushBefore)) {
+    throw new Error("PUSH_BEFORE must be a commit SHA.");
 }
 
-const dataPath = "assets/data/data.json";
+if (pushBefore === "0".repeat(40)) {
+    console.log("No previous push commit; skipping Discord notifications.");
+    process.exit(0);
+}
 
 function getJsonFromGit(ref) {
     try {
-        const content = execSync(
-            `git show ${ref}:${dataPath}`,
+        const content = execFileSync(
+            "git",
+            ["show", `${ref}:${dataPath}`],
             { encoding: "utf8" }
         );
 
         return JSON.parse(content);
-    } catch {
-        return {};
+    } catch (error) {
+        throw new Error(
+            `Cannot read previous catalogue at ${ref}; refusing to notify every chapter.`,
+            { cause: error }
+        );
     }
 }
 
@@ -26,7 +37,7 @@ const currentData = JSON.parse(
     fs.readFileSync(dataPath, "utf8")
 );
 
-const previousData = getJsonFromGit("HEAD^");
+const previousData = getJsonFromGit(pushBefore || "HEAD^");
 
 const newChapters = [];
 
@@ -56,6 +67,10 @@ if (newChapters.length === 0) {
     process.exit(0);
 }
 
+if (!webhook) {
+    throw new Error("DISCORD_WEBHOOK is missing.");
+}
+
 console.log(
     `Found ${newChapters.length} new chapter(s).`
 );
@@ -64,43 +79,22 @@ for (const item of newChapters) {
     const { slug, manga, chapter } = item;
 
     const mangaUrl =
-        `https://heliumtg.com/manga.html?id=${slug}`;
+        `https://heliumtg.com${mangaPath(slug)}`;
 
     const chapterUrl =
-        `https://heliumtg.com/chapter.html?id=${slug}&chap=${chapter.id}`;
-
-    const embed = {
-        title: `${manga.title} – ${chapter.title}`,
-        url: chapterUrl,
-
-        description:
-            "Đọc chapter mới trên HeliumTG.",
-
-        color: 0x5865F2,
-
-        image: {
-            url: manga.cover
-        },
-
-        footer: {
-            text: "HeliumTG • Chapter mới"
-        },
-
-        timestamp: chapter.createAt
-    };
+        `https://heliumtg.com${chapterPath(slug, chapter.id)}`;
 
     const payload = {
         content:
             `@everyone\n\n` +
-            `✨ **[${manga.title}](${mangaUrl})** vừa có chương mới nha cả nhà ơi!\n\n` +
+            `✨ **[${manga.title}](<${mangaUrl}>)** vừa có chương mới nha cả nhà ơi!\n\n` +
             `💗 **[${chapter.title}](${chapterUrl})**\n\n` +
-            `🌸 Ghé website ủng hộ HeliumTG nhé!`,
+            `🌸 Ghé website ủng hộ HeliumTG nhé!\n\n` +
+            chapterUrl,
 
         allowed_mentions: {
             parse: ["everyone"]
-        },
-
-        embeds: [embed]
+        }
     };
 
     const response = await fetch(webhook, {

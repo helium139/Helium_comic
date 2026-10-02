@@ -102,7 +102,7 @@ loginBtn.addEventListener(
             );
 
             window.location.href =
-                "index.html";
+                "/";
 
 
         } catch(error) {

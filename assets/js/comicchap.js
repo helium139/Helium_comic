@@ -1,3 +1,4 @@
+import { mangaUrl, chapterUrl, getRouteParams } from "./routes.js";
 import {
     doc,
     setDoc,
@@ -22,9 +23,7 @@ from
 const auth = getAuth(app);
 
 
-const params = new URLSearchParams(
-    window.location.search
-);
+const params = getRouteParams();
 
 const mangaId = params.get("id");
 const chapterId = parseInt(
@@ -119,7 +118,7 @@ onAuthStateChanged(auth, (user) => {
 
 });
 
-fetch("assets/data/data.json")
+fetch("/assets/data/data.json")
 .then(res => res.json())
 .then(data => {
 
@@ -187,13 +186,13 @@ document.querySelector(
     document.getElementById(
         "breadcrumb"
     ).innerHTML = `
-        <a href="index.html">
+        <a href="/">
             Trang Chủ
         </a>
 
         &gt;
 
-        <a href="manga.html?id=${mangaId}">
+        <a href="${mangaUrl(mangaId)}">
             ${manga.title}
         </a>
 
@@ -245,7 +244,7 @@ document.querySelector(
         document.getElementById(
             "prev-btn"
         ).href =
-        `chapter.html?id=${mangaId}&chap=${prev.id}`;
+        chapterUrl(mangaId, prev.id);
     }
 
     if(
@@ -261,7 +260,7 @@ document.querySelector(
         document.getElementById(
             "next-btn"
         ).href =
-        `chapter.html?id=${mangaId}&chap=${next.id}`;
+        chapterUrl(mangaId, next.id);
     }
     if(currentIndex > 0){
 
@@ -273,7 +272,7 @@ document.querySelector(
         document.getElementById(
             "toolbar-prev"
         ).href =
-        `chapter.html?id=${mangaId}&chap=${prev.id}`;
+        chapterUrl(mangaId, prev.id);
     }
 
     if(
@@ -289,7 +288,7 @@ document.querySelector(
         document.getElementById(
             "toolbar-next"
         ).href =
-        `chapter.html?id=${mangaId}&chap=${next.id}`;
+        chapterUrl(mangaId, next.id);
     }
 
     const select =
@@ -311,7 +310,7 @@ manga.chapters.forEach(chap => {
     function(){
 
         window.location.href =
-        `chapter.html?id=${mangaId}&chap=${this.value}`;
+        chapterUrl(mangaId, this.value);
 
     }
 );

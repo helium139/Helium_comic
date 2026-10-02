@@ -1,3 +1,4 @@
+import { mangaUrl } from "./routes.js";
 import { db } from "./firebase.js";
 console.log(db);
 
@@ -43,7 +44,7 @@ function renderAdminPicks(data){
         
         <div class="swiper-slide">
 
-            <a href="manga.html?id=${slug}">
+            <a href="${mangaUrl(slug)}">
 
                 <img
                     src="${manga.cover}"
@@ -101,7 +102,7 @@ function renderComics() {
     isNewChapter(manga);
 
 container.innerHTML += `
-<a href="manga.html?id=${slug}" class="comic-item">
+<a href="${mangaUrl(slug)}" class="comic-item">
 
     <div class="comic-poster">
 
@@ -173,7 +174,7 @@ function renderHotComics(list = [], data = {}){
     isNewChapter(manga);
 
 container.innerHTML += `
-<a href="manga.html?id=${id}"
+<a href="${mangaUrl(id)}"
            class="comic-item">
 
     <div class="comic-poster">
@@ -271,7 +272,7 @@ function checkViewMore(){
 
 }
 
-fetch("assets/data/data.json")
+fetch("/assets/data/data.json")
   .then(res => res.json())
   .then(data => {
 
@@ -474,7 +475,7 @@ function handleSearch(){
         resultBox.innerHTML +=
         `
         <a 
-        href="manga.html?id=${slug}" 
+        href="${mangaUrl(slug)}"
         class="search-item">
 
             <img 

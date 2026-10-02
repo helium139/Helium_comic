@@ -41,7 +41,7 @@ export async function requireAdmin(){
 
                 if(!user){
 
-                    location.href="../login.html";
+                    location.href="/login/";
 
                     reject();
 
@@ -64,7 +64,7 @@ export async function requireAdmin(){
 
                     if(!snap.exists()){
 
-                        location.href="../index.html";
+                        location.href="/";
 
                         reject();
 
@@ -76,7 +76,7 @@ export async function requireAdmin(){
 
                     if(data.role!=="admin"){
 
-                        location.href="../index.html";
+                        location.href="/";
 
                         reject();
 

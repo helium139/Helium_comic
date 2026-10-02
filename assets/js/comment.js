@@ -1,3 +1,4 @@
+import { getRouteParams } from "./routes.js";
 import { app, db } from "./firebase.js";
 
 import{
@@ -22,7 +23,7 @@ from
 const auth = getAuth(app);
 
 const params =
-new URLSearchParams(window.location.search);
+getRouteParams();
 
 const mangaId = params.get("id");
 
