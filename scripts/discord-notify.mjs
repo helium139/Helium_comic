@@ -87,7 +87,7 @@ for (const item of newChapters) {
     const payload = {
         content:
             `@everyone\n\n` +
-            `✨ **[${manga.title}](<${mangaUrl}>)** vừa có chương mới nha cả nhà ơi!\n\n` +
+            `✨ **[${manga.title}](<${mangaUrl}>)** vừa có chương mới nha các vịu ơ!\n\n` +
             `💗 **[${chapter.title}](${chapterUrl})**\n\n` +
             `🌸 Ghé website ủng hộ HeliumTG nhé!\n\n` +
             chapterUrl,
