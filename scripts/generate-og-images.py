@@ -1,4 +1,4 @@
-"""Compose one public 1200x630 OG image per comic, shared by its chapters."""
+"""Compose OG images with each cover at its original pixel dimensions."""
 
 import json
 import hashlib
@@ -13,24 +13,22 @@ from PIL import Image, ImageDraw, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = "https://heliumtg.com"
-SIZE = (1200, 630)
-TEAM_WIDTH = 456  # 38%; the cover gets the remaining 62%.
 
 
 def compose(logo, cover):
-    image = Image.new("RGB", SIZE)
+    width, height = cover.size
+    team_width = max(1, round(logo.width * height / logo.height))
+    image = Image.new("RGBA", (team_width + width, height))
     draw = ImageDraw.Draw(image)
     # A filled lavender gradient supports the transparent team logo.
-    for y in range(SIZE[1]):
-        mix = y / (SIZE[1] - 1)
+    for y in range(height):
+        mix = y / max(1, height - 1)
         color = tuple(round(top + (bottom - top) * mix) for top, bottom in zip((239, 219, 249), (176, 139, 205)))
-        draw.line((0, y, TEAM_WIDTH - 1, y), fill=color)
-    team = ImageOps.contain(logo.convert("RGBA"), (TEAM_WIDTH - 48, SIZE[1] - 80), Image.Resampling.LANCZOS)
-    image.paste(team, ((TEAM_WIDTH - team.width) // 2, (SIZE[1] - team.height) // 2), team)
-    # Fit preserves aspect ratio. Slightly favor the top of portrait covers.
-    panel = ImageOps.fit(cover.convert("RGBA"), (SIZE[0] - TEAM_WIDTH, SIZE[1]), Image.Resampling.LANCZOS, centering=(0.5, 0.3))
-    image.paste((38, 26, 51), (TEAM_WIDTH, 0, SIZE[0], SIZE[1]))
-    image.paste(panel, (TEAM_WIDTH, 0), panel)
+        draw.line((0, y, team_width - 1, y), fill=color + (255,))
+    team = logo.convert("RGBA").resize((team_width, height), Image.Resampling.LANCZOS)
+    image.alpha_composite(team, (0, 0))
+    # No mask or resampling: preserve even transparent cover pixels exactly.
+    image.paste(cover.convert("RGBA"), (team_width, 0))
     return image
 
 
@@ -62,7 +60,7 @@ def load_cover(value, cached=None):
     if cached and metadata["cover_sha256"] == cached.get("cover_sha256"):
         return None, metadata
     with Image.open(BytesIO(content)) as source:
-        return ImageOps.exif_transpose(source).convert("RGBA"), metadata
+        return source.convert("RGBA"), metadata
 
 
 def build():
@@ -90,21 +88,25 @@ def build():
     entries = {}
     generated = 0
     for slug, manga in data.items():
-        target = output / f"{slug}.jpg"
+        target = output / f"{slug}.png"
         cached = previous.get(slug)
         if not target.is_file() or not cached or hashlib.sha256(target.read_bytes()).hexdigest() != cached.get("image_sha256"):
             cached = None
         cover, metadata = load_cover(manga["cover"], cached)
         if cover is not None:
-            compose(logo, cover).save(target, "JPEG", quality=90, optimize=True)
+            result = compose(logo, cover)
+            result.save(target, "PNG", optimize=True)
+            metadata["cover_width"], metadata["cover_height"] = cover.size
             generated += 1
-            print(f"Generated assets/og/{slug}.jpg")
+            print(f"Generated assets/og/{slug}.png: cover {cover.width}x{cover.height}, output {result.width}x{result.height}")
         else:
-            print(f"Reused assets/og/{slug}.jpg")
+            print(f"Reused assets/og/{slug}.png")
+            metadata["cover_width"] = cached["cover_width"]
+            metadata["cover_height"] = cached["cover_height"]
         metadata["image_sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
         entries[slug] = metadata
     manifest_path.write_text(json.dumps({"renderer": renderer, "images": entries}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Generated {generated}, reused {len(data) - generated} OG images ({SIZE[0]}x{SIZE[1]}).")
+    print(f"Generated {generated}, reused {len(data) - generated} OG images at original cover height.")
 
 
 if __name__ == "__main__":

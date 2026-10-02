@@ -6,6 +6,7 @@ from html import escape as html_escape, unescape
 from pathlib import Path
 from urllib.parse import quote, urljoin, urlsplit
 from xml.sax.saxutils import escape
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = "https://heliumtg.com"
@@ -17,7 +18,7 @@ def url_segment(value):
     return quote(str(value), safe="-_.!~*'()")
 
 
-def page_metadata(template, manga, url, chapter=None, og_image=None):
+def page_metadata(template, manga, url, chapter=None, og_image=None, og_size=None):
     title = manga["title"]
     if chapter is not None:
         title += " – " + chapter["title"]
@@ -45,14 +46,17 @@ def page_metadata(template, manga, url, chapter=None, og_image=None):
         ("property", "og:description", description),
         ("property", "og:url", url),
         ("property", "og:image", preview),
-        ("property", "og:image:width", "1200"),
-        ("property", "og:image:height", "630"),
-        ("property", "og:image:type", "image/jpeg"),
         ("name", "twitter:card", "summary_large_image"),
         ("name", "twitter:title", title),
         ("name", "twitter:description", description),
         ("name", "twitter:image", preview),
     ]
+    if og_image and og_size:
+        fields.extend([
+            ("property", "og:image:width", str(og_size[0])),
+            ("property", "og:image:height", str(og_size[1])),
+            ("property", "og:image:type", "image/png"),
+        ])
     metadata.extend(f'<meta {attribute}="{key}" content="{html_escape(value, quote=True)}">' for attribute, key, value in fields)
     return template.replace('</head>', '\n'.join(metadata) + '\n  </head>', 1)
 
@@ -74,14 +78,16 @@ def build():
         if not slug or slug in (".", "..") or "/" in slug or "\\" in slug:
             raise ValueError(f"Unsafe manga slug: {slug!r}")
         route = f"manga/{slug}"
-        preview_file = ROOT / "assets/og" / f"{slug}.jpg"
+        preview_file = ROOT / "assets/og" / f"{slug}.png"
         if not preview_file.is_file():
             raise FileNotFoundError(f"Missing {preview_file}; run scripts/generate-og-images.py first.")
-        preview_url = f"{BASE_URL}/assets/og/{url_segment(slug)}.jpg"
+        preview_url = f"{BASE_URL}/assets/og/{url_segment(slug)}.png"
+        with Image.open(preview_file) as preview:
+            preview_size = preview.size
         routes[route] = "manga.html"
         manga_url = f"/manga/{url_segment(slug)}/"
         urls.append(manga_url)
-        metadata[route] = (manga, BASE_URL + manga_url, None, preview_url)
+        metadata[route] = (manga, BASE_URL + manga_url, None, preview_url, preview_size)
         for chapter in manga.get("chapters", []):
             chapter_id = chapter.get("id")
             if chapter_id is None:
@@ -93,7 +99,7 @@ def build():
             routes[chapter_route] = "chapter.html"
             chapter_url = f"{manga_url}chapter/{url_segment(segment)}/"
             urls.append(chapter_url)
-            metadata[chapter_route] = (manga, BASE_URL + chapter_url, chapter, preview_url)
+            metadata[chapter_route] = (manga, BASE_URL + chapter_url, chapter, preview_url, preview_size)
 
     expected = {ROOT / route / "index.html" for route in routes}
     # Remove only files created by this generator when catalogue routes disappear.
