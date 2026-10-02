@@ -3542,5 +3542,46 @@
                 "pages": 12
             }
         ]
+    },
+    "way-of-practice": {
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/way-of-practice/cover.webp",
+        "title": "Way Of Practice",
+        "original_title": "웨이 오브 프랙티스",
+        "author": "터그  - 봄툰",
+        "team": "HeliumTG",
+        "status": "Ongoing",
+        "tags": [
+            "Bl",
+            "Công Đẹp Trai",
+            "Công Tóc Dài",
+            "Công Ranh Mãnh",
+            "Công Áp Đảo",
+            "Công Đô Con",
+            "Công Mang Tổn Thương",
+            "Công Dịu Dàng",
+            "Công Khủng",
+            "Công Si Tình",
+            "Công Dùng Kính Ngữ",
+            "Thụ Đô Con",
+            "Thụ Chất Phát",
+            "Thụ Còn Trinh",
+            "Thụ Dùng Kính Ngữ",
+            "Thụ Mang Tổn Thương",
+            "Thụ Ngay Ngắn",
+            "Thụ Điềm Đạm",
+            "Thụ Dịu Dàng",
+            "Thụ Tận Tụy",
+            "Thụ Đẹp Trai",
+            "Thụ Tự Ti",
+            "Ma Cà Rồng",
+            "Thực Thể Siêu Nhiên",
+            "Giả Tưởng Hiện Đại",
+            "Chênh Lệch Tuổi Tác",
+            "Cứu Rỗi"
+        ],
+        "description": "Trong một xã hội tương lai gần, nơi cuộc chiến giữa ma cà rồng và con người đã kết thúc.\nThế nhưng, gia tộc Hunter, vốn chuyên săn lùng ma cà rồng từ xa xưa, vẫn luôn khinh miệt loài sinh vật này.\n\nVane Hunt được gia tộc Hunter nhận nuôi vì sở hữu một thể chất đặc biệt.\nCả đời tận tụy làm việc vì gia tộc nhưng chưa bao giờ được xem là người nhà, nay cậu nhận được một nhiệm vụ mới.\n\nĐó là tiếp cận Theodor Basilesku, người sống sót duy nhất của gia tộc ma cà rồng quyền thế Basilesku.\n\nCha của Vane ra lệnh cho cậu phải bằng mọi giá đánh cắp bảo vật gia truyền mà Basilesku đang nắm giữ.\n\nDựa vào thể chất đặc biệt khiến cậu không bị nhiễm độc dù bị ma cà rồng hút máu, nói cách khác, lợi dụng chính cơ thể của cậu.",
+        "adminPick": true,
+        "pickOrder": 999,
+        "chapters": []
     }
 }
