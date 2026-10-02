@@ -1,222 +1,284 @@
 {
-  "renderer": "2f2d1e643680e0c145c27f0184baa488ccd3efedf3bf7be458d15d6bee9cc314",
+  "renderer": "5cd62b01f5e62756e105d7b42bfa0e3920ea9f52b3a9efaf01d26af141980571",
   "images": {
     "nguoi-hau-trong-tu-kinh": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/cover.webp",
       "etag": "\"caab0218ee013abccffb1ec5dcfb7536\"",
       "last_modified": "Mon, 22 Jun 2026 09:20:21 GMT",
       "cover_sha256": "a96dd1a8415650c43c1e2b343932e5eb7d4cd544b5fd034274f2cf8c8b18f6d1",
-      "image_sha256": "f6556e473970f4be4b4cf328ad0e0adaf3a26eef5aae892cabed31989cca4b72"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "b9fa5f79c8a8ce6aece0c9bc85cde492e9e0eb6720cb0fc4087074cc999e0f62"
     },
     "cai-the-loai-kim-chu-gi-the-nay": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cai-the-loai-kim-chu-gi-the-nay/cover.webp",
       "etag": "\"7fb1ec737150e7883118a162853adbc6\"",
       "last_modified": "Mon, 22 Jun 2026 09:24:47 GMT",
       "cover_sha256": "ab21aea9513b41dd997cccee3cceb68ce601d996d72968a7a8578274b95da5e4",
-      "image_sha256": "627e632ad1b0b16c187c64bfee1cdbd48005a31752630854c15673c02d5c7dc1"
+      "cover_width": 1500,
+      "cover_height": 2000,
+      "image_sha256": "d1fd91d4305d86bac921a0addae3c540fe78209e7b210b2e100cce57625f49e5"
     },
     "co-on-khong-khi-ke-giet-nguoi-la-mot-idol": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/co-on-khong-khi-ke-giet-nguoi-la-mot-idol/cover.webp",
       "etag": "\"a8d849d2c7e68bc09434bded19811e57\"",
       "last_modified": "Mon, 13 Jul 2026 20:18:06 GMT",
       "cover_sha256": "fa1f183b230125bb4720df834e1eeee16d18b2bc69bf78ac916787082b9bf29b",
-      "image_sha256": "1a38db927f8cf6ae821273c5687c380ce81d9d3ac41933b16e1ba02c8fbbba14"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "e5b4fb77964740069d17e87acb60d7302f6f9bef8be4828876f22b12dfbd88c5"
     },
     "ruoc-hoa-vao-than": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ruoc-hoa-vao-than/cover.webp",
       "etag": "\"514fb4a50946d5fb3625ca1dfc4fdc48\"",
       "last_modified": "Mon, 13 Jul 2026 20:18:58 GMT",
       "cover_sha256": "2c672f7efac12fbbabc757e5d2d312bb4ee00cccc9d94cd3933823f29deab220",
-      "image_sha256": "e095d6687540a1f027b05cc4b6e4d98ebfa83276dc82bfbff33c45733f1f42cc"
+      "cover_width": 1316,
+      "cover_height": 1904,
+      "image_sha256": "532d16cda04c366405591e701b752fc1b3144d18de8c1fc715ff69115a5b8a79"
     },
     "mot-ngay-ky-la": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/cover.webp",
       "etag": "\"ee33639fdcee46a5defefa8478e6682b\"",
       "last_modified": "Mon, 22 Jun 2026 09:19:42 GMT",
       "cover_sha256": "652f81fb6a9fb946864b2f6a2390a01dd2b275396cb19ce95095df4f4981dec9",
-      "image_sha256": "cc8ec3048eef1e63ce1db7b54aef320fee79ff9b06c53565888d5883f1fc1da0"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "8b242aee3ed4468d107371cbab58aee59c2c2a6f97c91df22b6f90e8723cd729"
     },
     "ost-ngoai-ong-kinh": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ost-ngoai-ong-kinh/cover.webp",
       "etag": "\"672e0d87168846cddfe405f883f201b9\"",
       "last_modified": "Mon, 22 Jun 2026 09:20:58 GMT",
       "cover_sha256": "8736459c219495cac7fcd6cb9d0241fb195ff7ae7d3dda316a471b34777f0919",
-      "image_sha256": "601e08c385c394c023cafce75c5a3b3270b0ced4d78f0224e26a034aba894895"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "3ba06a2349efbac4bf1a2db9c7089d686d69f15e3942d76dd31d99b698182068"
     },
     "toi-co-the-nhin-thay-thong-so-cua-cau": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/cover.webp",
       "etag": "\"423d9f059352cebdcffe826f1ad72bef\"",
       "last_modified": "Wed, 15 Jul 2026 19:26:44 GMT",
       "cover_sha256": "0e87c3850d5d3ed9232635652fcfae5dbad7fcfa7f08bb48a15ded5beb2702c8",
-      "image_sha256": "91dfc2c582d4599ce25d0337c7dbd39f5dc60f428cb7d37a49919584aa46f70d"
+      "cover_width": 720,
+      "cover_height": 1035,
+      "image_sha256": "978fb77a7db0b6c6fb223267e3d4e6c07c3649b3d32b14a75400b66c9499eb32"
     },
     "xich-ho": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/cover.webp",
       "etag": "\"53dd6b819dea3c70834983cc7959cba4\"",
       "last_modified": "Mon, 22 Jun 2026 09:22:43 GMT",
       "cover_sha256": "466e3700ca24b272658b841401e6009340c8c134dfeb3e5626fa1b50322d88d2",
-      "image_sha256": "601d76a343b7940d8ce59163ed74e6307f7e24022df5a2990a5a93b556ec6109"
+      "cover_width": 315,
+      "cover_height": 415,
+      "image_sha256": "164b954c1ace2a6b88e94786aca7d19c621a92fb4794318d4f4fcb5c6830b217"
     },
     "tro-tan": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/cover.webp",
       "etag": "\"4941bf9da6895bf8b2e63fb34625d16f\"",
       "last_modified": "Mon, 22 Jun 2026 09:22:15 GMT",
       "cover_sha256": "b0df2a6957320ace60ac112099bd1a39452e778d4d13f84a76dd46f2b654c090",
-      "image_sha256": "640ee0fc7d1d3d019f494edbc8b2d73d913c950a085f718b7e561600eb96d1f8"
+      "cover_width": 1260,
+      "cover_height": 1660,
+      "image_sha256": "c218f9ed6b39ce66c2591cac5ae925e33d221b4aeb3bea599019adab0ae9b82c"
     },
     "cach-thuc-yeu-uong": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/cover.webp",
       "etag": "\"fa91ff7c52150ea3e1fe09a01f3cfc11\"",
       "last_modified": "Wed, 22 Jul 2026 18:13:15 GMT",
       "cover_sha256": "b213266e43a279c91d21c333ad3e4839b95008307100ba2c0a5dc6d963bed310",
-      "image_sha256": "1b6be0ab72fec19d4d0ad1bf3e46682e18485cc87d9b94e4a2f3aa59bd5dc0aa"
+      "cover_width": 1920,
+      "cover_height": 2668,
+      "image_sha256": "36313d1c2844e620c3e6ce12d3c0750c90e15942afae36dff145ee33bbe24d38"
     },
     "nhung-ieu-khong-the-cham-toi": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/cover.webp",
       "etag": "\"b3622a207215a2b59fa288765c0c908b\"",
       "last_modified": "Sat, 18 Jul 2026 19:31:34 GMT",
       "cover_sha256": "ad99575a5006e432a88f28f71382415fce66b432d6fe4700f03326806198c24c",
-      "image_sha256": "05339899f479782188760a5b43f851f9ec572cf54b93747a4bc59ead0653aae1"
+      "cover_width": 1043,
+      "cover_height": 1508,
+      "image_sha256": "6231a5e7175a5617a0fc46b2c88a4ac620fe38516e002143b56ad52cbb509cbf"
     },
     "ly-thuyet-cong-luoc-trai-tan": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ly-thuyet-cong-luoc-trai-tan/cover.webp",
       "etag": "\"e04605772522fca1b8af2b895031d598\"",
       "last_modified": "Sun, 19 Jul 2026 19:24:34 GMT",
       "cover_sha256": "763a451a1d1246d2506d5fab22f4d52e5f2a834dc66863ee54c405816fa0c31a",
-      "image_sha256": "d4eaee26c916fd69e7a713c835d8ffe84bf2dd1495003629d244188312252864"
+      "cover_width": 720,
+      "cover_height": 960,
+      "image_sha256": "f8e2dfce672119f92a570a92c94b13ada84fc3337a4138eafedaaf8aa1b3a2ba"
     },
     "ve-ep-cua-su-huy-diet": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ve-ep-cua-su-huy-diet/cover.webp",
       "etag": "\"beab520ad3ec58f1b7e36ce3e4158c0b\"",
       "last_modified": "Sun, 19 Jul 2026 19:43:34 GMT",
       "cover_sha256": "7d4889da696914d64e88536ead8f4138c09beb59b34e42d9a74065a115b863ad",
-      "image_sha256": "174871cf683d2b4332edeb7942d27c112dc5ed743528896cad8409f1dce18fd4"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "ae9796272cb328a2e8c5504d8fc41c8801fef23018ebd0541ed071a8ebb855c4"
     },
     "bai-ca-cua-vung-at-chet": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bai-ca-cua-vung-at-chet/cover.webp",
       "etag": "\"93a46ace98b2cdd1db9e1dc83d8c95ec\"",
       "last_modified": "Sun, 19 Jul 2026 19:45:29 GMT",
       "cover_sha256": "ffbd404662929c1b47d1fe644383d7b2021e64b2f9f571c4ed89921d7f51e891",
-      "image_sha256": "9c375169a18babdad4c4f1de3f312c926a476111a83f350e7cc70a2b8efd62a6"
+      "cover_width": 720,
+      "cover_height": 1035,
+      "image_sha256": "f6752362e7dfa39c89ddecec168a4d1b222634184ca20b6f3ab8143567b2bf74"
     },
     "chinh-la-toi": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/cover.webp",
       "etag": "\"7b6fea0686fd12f6cefba6bf98223595\"",
       "last_modified": "Sun, 19 Jul 2026 19:47:51 GMT",
       "cover_sha256": "0d3af2ac86adcc6a558abcdea101ffd19a3194061e4d636c5262789ee069019d",
-      "image_sha256": "3fa155869a87ba9024a408bbeb3c07e72f9e24beb54e705e8cb0f8136a3cf410"
+      "cover_width": 1536,
+      "cover_height": 1536,
+      "image_sha256": "8460de1f621dc23cd2fd7cf13179cd446509b58062c9780507852d1706976856"
     },
     "hoan-hwan": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoan-hwan/cover.webp",
       "etag": "\"032ebc6aaf51fd0f0bb66715b90e4858\"",
       "last_modified": "Wed, 22 Jul 2026 18:18:04 GMT",
       "cover_sha256": "26f356579f243f487135c42349a0c5e6eed7e69b5143950e5ce45025ff07e43c",
-      "image_sha256": "972cc82cec75022da1efbef356c4aa9474515cf3fe75ed92a48002b3c11bdc52"
+      "cover_width": 1920,
+      "cover_height": 2784,
+      "image_sha256": "d5ab3fdf123365f0a91e24fb04265c750c9e9bd39b768fa83b7891a91c38f41a"
     },
     "ong-quang": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ong-quang/cover.webp",
       "etag": "\"8d857b1ea0b24bee9c1ab881be01d44b\"",
       "last_modified": "Wed, 22 Jul 2026 18:55:44 GMT",
       "cover_sha256": "4f27ca4d64af78d1ab69681e0bd10413fc5d3d054ebf55f74aa96dd8d30b566d",
-      "image_sha256": "8e7a368308470625e86d50cdd936012b34227343e6391509d1b785ecdf07bddd"
+      "cover_width": 1680,
+      "cover_height": 2240,
+      "image_sha256": "f183df8609d110b49455dd7ce6277d94afa3249251d63d483298cdd339f4beb5"
     },
     "huong-ve-phia-em-khi-rang-ong": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/huong-ve-phia-em-khi-rang-ong/cover.webp",
       "etag": "\"02bb2938c59d4f3f52812ada3e92d050\"",
       "last_modified": "Wed, 22 Jul 2026 18:57:44 GMT",
       "cover_sha256": "d00edae6c62fc83395f82907248b9bec9dadf41939503e89cdc02e6c83fa9e88",
-      "image_sha256": "37e53636c4d85cd94a83de6646d628ceefeaa48194bcc345382d8b8aea397c58"
+      "cover_width": 1920,
+      "cover_height": 2784,
+      "image_sha256": "f52d19c67a43b445e2f2cc64e8ba9b6239cf650e52944712345e75356d8164fe"
     },
     "name-me": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/cover.webp",
       "etag": "\"aca5bb788376b773f6e70d58ac31d3b6\"",
       "last_modified": "Mon, 27 Jul 2026 15:56:17 GMT",
       "cover_sha256": "70531d81c71b0251c7c961aec8594e98d17ec6a72cb37beb12c4c4070508b853",
-      "image_sha256": "381278c4aceec874f516a20f9df810f96783413d867fae507ce6d4f3f707024e"
+      "cover_width": 578,
+      "cover_height": 770,
+      "image_sha256": "4dcac153aafab394ff249b1f0209df3ecb70e2d0633c65b78e653311a243fef7"
     },
     "bang-gia-tren-em-ice-on-me": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bang-gia-tren-em-ice-on-me/cover.webp",
       "etag": "\"cc16c0f1228905dd45f528ea4d7bdc3c\"",
       "last_modified": "Wed, 29 Jul 2026 16:57:57 GMT",
       "cover_sha256": "b104ee5347546db49a12f0ed53d38c485a7b72d658b3daa887ee78ec23edecb2",
-      "image_sha256": "99e5a3ff82b6f5fbc6e2869d0743112c6fb7825c31603b43c2a0fb13b7e96a24"
+      "cover_width": 512,
+      "cover_height": 768,
+      "image_sha256": "464635a6729333f210d1fb98fb5143051ed8e6ecc3cf9b6446e373be086025dc"
     },
     "dear-hunting": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/dear-hunting/cover.webp",
       "etag": "\"57bae007613cc4ff124ed07c013b6b9d\"",
       "last_modified": "Wed, 29 Jul 2026 17:12:32 GMT",
       "cover_sha256": "138c642db7016ad5d600512d9d8ce2ec1fdcc3c574d768344340790ae6059637",
-      "image_sha256": "00e56aac2a621c59cac3869eba1335fe62eed9c6a83e2617a53c512b11cb89b8"
+      "cover_width": 515,
+      "cover_height": 768,
+      "image_sha256": "f95a53f6a92e0fe9dc85e69ea1accd3730930bdbdfe95e864220c509c8c23916"
     },
     "hoc-vien-nhan-giong": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/cover.webp",
       "etag": "\"6c16942917fd8b75e651f5de45c30c4b\"",
       "last_modified": "Mon, 10 Aug 2026 21:22:26 GMT",
       "cover_sha256": "60c6deca001f8ed65dd10e8aeca4736c251fe69c77c89f214351cfcead38571f",
-      "image_sha256": "391c92ac388f99ba8d71c3e710c70ce3a4b6d067589e65a08a9cd148e9e56324"
+      "cover_width": 630,
+      "cover_height": 830,
+      "image_sha256": "8db2721debbd93025f77acf9663f24507e97980107b07a9ee37a9a65ab70cd80"
     },
     "tuyen-tap-tu-y-cam-xuat-tinh": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tuyen-tap-tu-y-cam-xuat-tinh/cover.webp",
       "etag": "\"df46db523b4995a9a3774bab7487cc05\"",
       "last_modified": "Fri, 14 Aug 2026 17:03:17 GMT",
       "cover_sha256": "0ad77b03cdaed631d6e71a02f87003afb802d36aa0d49e72f51e28d6c56474cd",
-      "image_sha256": "3a3c47dfaae8606e2dfb82019073efc9a7d2a738f93169a1f2505af957304bc4"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "462bcf7c302087b81c940b26eac5ee7c00f0abdb3dea5fb404d821ab37c32d5a"
     },
     "giac-mo-xui-xeo-unlucky-dream": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/giac-mo-xui-xeo-unlucky-dream/cover.webp",
       "etag": "\"26ee55d3c955ac8a121629c212515106\"",
       "last_modified": "Tue, 18 Aug 2026 05:14:41 GMT",
       "cover_sha256": "bb619cef94d76f6c011f190ec11f748d17c7204fb56be846fb2be08d748fc9ba",
-      "image_sha256": "f8a4c7563d2ac6b77f4f1d1a04e4e1de287a9d03a235d14cfa331de35a9413e1"
+      "cover_width": 960,
+      "cover_height": 1440,
+      "image_sha256": "b23020f16bf811b4b66b9d51791291d1408d6d2cb72f542d241ae53e47b7ecb2"
     },
     "chi-yeu-nhau-en-ngay-thu-100-thoi": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-yeu-nhau-en-ngay-thu-100-thoi/cover.webp",
       "etag": "\"d1e648717dc2d8d5f095e038dcab21db\"",
       "last_modified": "Thu, 20 Aug 2026 09:27:51 GMT",
       "cover_sha256": "ab20691b0088622ee8f9ed99647fa3aa1522ed7bea5dd556b2584ad775bfabbd",
-      "image_sha256": "9514f6864d83cf7e1e555afed808f6a4af8c82c3f219ac4b34345328dde1fd09"
+      "cover_width": 720,
+      "cover_height": 1073,
+      "image_sha256": "7480fee8a7a4e030c21e9183bc2ec4ecf3e9833a0b78d49a66d4a7f2df734c9b"
     },
     "inh-menh-tro-treu": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/inh-menh-tro-treu/cover.webp",
       "etag": "\"d8aebdd946ed42265184c5b43240adc6\"",
       "last_modified": "Mon, 24 Aug 2026 05:19:27 GMT",
       "cover_sha256": "4fefa490ee21a39d4a0c68b476c516f3f191592f1819dfe211715d02740d7ee8",
-      "image_sha256": "9284846d2509bd42d5baf7159bffadf81eb014b4ffdad79885e61a40c61a6bc7"
+      "cover_width": 1290,
+      "cover_height": 1053,
+      "image_sha256": "8a42271201a4c71fb42276afe0fbb2c3ad90d76802b5d489180410e35e6777df"
     },
     "mien-at-hua": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mien-at-hua/cover.webp",
       "etag": "\"b37417ae8276ccdf3c843cdbe784f5d0\"",
       "last_modified": "Mon, 07 Sep 2026 08:32:48 GMT",
       "cover_sha256": "26ce624da30097c69445833bb88bf4726cdea794edc884ed1fc9b718a6d8f494",
-      "image_sha256": "e0f50c4b9dbf031ca917ff58be73ff738ef9956c2c0ddbca748cd2254056ee7b"
+      "cover_width": 1028,
+      "cover_height": 910,
+      "image_sha256": "ce97967e8481027223005158bb94cdc20d0aa9497dbe00140efb12819ab80b25"
     },
     "black-swan": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/black-swan/cover.webp",
       "etag": "\"69356fe04ed52dc50f9ca0371e484ae8\"",
       "last_modified": "Wed, 30 Sep 2026 05:07:32 GMT",
       "cover_sha256": "85aea87539cb9935dff75fe666179aa2c96b5418a13afdb278e0d79071a3977c",
-      "image_sha256": "4a81869f55cc3d895d6bc7028c7541f84d08259afe2419b11a71a454f3f756be"
+      "cover_width": 480,
+      "cover_height": 696,
+      "image_sha256": "45730b40dab89aa93c9e52e25dc4533284ab718b96d468e12af37d2f9698de8f"
     },
     "melting-chocolate": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/melting-chocolate/cover.webp",
       "etag": "\"f8b3a7f704df57103c31de0a197c7ba1\"",
       "last_modified": "Thu, 01 Oct 2026 05:10:18 GMT",
       "cover_sha256": "39bd5333a121744b34305986b0752a273acf1a3baa6f884f4f0013067837875b",
-      "image_sha256": "31f7a4e4b7ab5f01f7f055c3b11e97529162eb8b0a9134ee3aa983f73584e5f5"
+      "cover_width": 480,
+      "cover_height": 679,
+      "image_sha256": "d012558dd16aec13becee28a94a0dad31386e6235660ececc3cc977eb3070176"
     },
     "love-me-animal": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/cover.webp",
       "etag": "\"96c1fbdd2ff45316715aeb19c804330c\"",
       "last_modified": "Thu, 01 Oct 2026 05:12:58 GMT",
       "cover_sha256": "6863c3f8aacf2dca234434b8bbf3760d52372e4df38bff5539f13db11d4d9def",
-      "image_sha256": "0dd5e3638a80d8dfbd44d01f6f2ddceb268b89ab694c89e0cb78ad6b69ceb481"
+      "cover_width": 2074,
+      "cover_height": 3032,
+      "image_sha256": "7c25c8d005f5a98e8edaba7f48e6a81b6a4cc96385ada4336babced43ebc63e9"
     },
     "way-of-practice": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/way-of-practice/cover.webp",
       "etag": "\"7421f98beb157f3e29357624369b931f\"",
       "last_modified": "Fri, 02 Oct 2026 05:24:53 GMT",
       "cover_sha256": "95cc5a417ce63f0560a39cc0b43b3efb5341710bc80f15aafdf9f216eb91ebfa",
-      "image_sha256": "fcc0cff5bde6cfb06b2d6318924b51f51ea78303a474c7ad465cfbfeed7d15f2"
+      "cover_width": 720,
+      "cover_height": 720,
+      "image_sha256": "f2fb9f665fdd622dbbc06aeb02ede58c28891e4d1505862910e4cd898d9e332a"
     }
   }
 }
