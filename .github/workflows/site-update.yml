@@ -131,10 +131,22 @@ jobs:
           mkdir -p /tmp/pages-site
           rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' ./ /tmp/pages-site/
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      # Use the Pages archive format, but replace the artifact on build reruns.
+      # upload-pages-artifact does not expose upload-artifact's overwrite input.
+      - name: Package Pages artifact
+        run: |
+          tar --dereference --hard-dereference \
+            --directory /tmp/pages-site \
+            -cvf "$RUNNER_TEMP/artifact.tar" .
+
+      - name: Upload the single Pages artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: /tmp/pages-site
+          name: github-pages
+          path: ${{ runner.temp }}/artifact.tar
+          retention-days: 1
+          if-no-files-found: error
+          overwrite: true
 
   deploy:
     needs: update
@@ -150,6 +162,8 @@ jobs:
       - name: Deploy GitHub Pages and wait for success
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages
 
   discord:
     needs: deploy
