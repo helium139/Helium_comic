@@ -1,4 +1,5 @@
 import fs from "fs";
+import { waitForChapter } from "./wait-for-chapter.mjs";
 import { execFileSync } from "child_process";
 import { mangaUrl as mangaPath, chapterUrl as chapterPath } from "../assets/js/route-urls.mjs";
 
@@ -83,6 +84,8 @@ for (const item of newChapters) {
 
     const chapterUrl =
         `https://heliumtg.com${chapterPath(slug, chapter.id)}`;
+
+    await waitForChapter(chapterUrl);
 
     const payload = {
         content:
