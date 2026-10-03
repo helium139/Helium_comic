@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: pages-release
+  cancel-in-progress: false
+
 jobs:
 
   update:
@@ -35,6 +39,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+
+      - name: Test chapter readiness without network or webhook
+        run: node --test scripts/test-chapter-readiness.mjs
 
 
       # ==========================
@@ -91,20 +99,6 @@ jobs:
 
 
       # ==========================
-      # DISCORD
-      # ==========================
-
-      - name: Send Discord notification
-        if: github.event_name == 'push'
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          PUSH_BEFORE: ${{ github.event.before }}
-        run: |
-
-          node scripts/discord-notify.mjs
-
-
-      # ==========================
       # COMMIT GENERATED FILES
       # ==========================
 
@@ -127,3 +121,62 @@ jobs:
             git commit -m "Auto update generated files"
 
           git push
+
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Stage public website
+        run: |
+          mkdir -p /tmp/pages-site
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' ./ /tmp/pages-site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/pages-site
+
+  deploy:
+    needs: update
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages and wait for success
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  discord:
+    needs: deploy
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout the triggering commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download generated chapter HTML
+        uses: actions/download-artifact@v4
+        with:
+          name: og-preview
+          path: .
+
+      - name: Wait for chapter and OG image, then notify Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: node scripts/discord-notify.mjs
