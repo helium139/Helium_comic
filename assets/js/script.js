@@ -594,11 +594,11 @@ function isNewChapter(manga) {
     const now =
         Date.now();
 
-    const twentyFourHours =
-        24 * 60 * 60 * 1000;
+    const fourtyEightHours =
+        24 * 60 * 60 * 1000 * 2; // 2 days in milliseconds
 
     return (
         now - chapterTime >= 0 &&
-        now - chapterTime <= twentyFourHours
+        now - chapterTime <= fourtyEightHours
     );
 }
