@@ -3596,6 +3596,13 @@
                 "createAt": "2026-10-01T05:14:45.523Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/chap1",
                 "pages": 12
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2026-10-06T04:58:36.474Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/chap2",
+                "pages": 11
             }
         ]
     },
