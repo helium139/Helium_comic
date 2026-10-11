@@ -3750,6 +3750,13 @@
                 "createAt": "2026-10-11T15:12:27.622Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/chap5",
                 "pages": 11
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-10-11T15:14:02.789Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/chap6",
+                "pages": 10
             }
         ]
     },
