@@ -3693,6 +3693,13 @@
                 "createAt": "2026-10-08T05:17:20.992Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/melting-chocolate/chap7",
                 "pages": 30
+            },
+            {
+                "id": 8,
+                "title": "Chap 7",
+                "createAt": "2026-10-12T14:36:20.577Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/melting-chocolate/chap8",
+                "pages": 29
             }
         ]
     },
