@@ -3605,6 +3605,13 @@
                 "createAt": "2026-10-09T18:05:24.452Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/black-swan/chap2",
                 "pages": 71
+            },
+            {
+                "id": 3,
+                "title": "Chap 3",
+                "createAt": "2026-10-12T13:45:19.665Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/black-swan/chap3",
+                "pages": 26
             }
         ]
     },
