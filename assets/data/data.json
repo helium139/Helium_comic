@@ -3609,9 +3609,9 @@
             {
                 "id": 3,
                 "title": "Chap 3",
-                "createAt": "2026-10-12T13:45:19.665Z",
+                "createAt": "2026-10-12T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/black-swan/chap3",
-                "pages": 26
+                "pages": 31
             }
         ]
     },
