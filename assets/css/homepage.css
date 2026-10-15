@@ -773,6 +773,10 @@ body::before {
 .btn-follow { background-color: #ff4757; }
 .btn-like { background-color: #a55eea; }
 
+#comic-description {
+    white-space: pre-wrap;
+}
+
 .comic-summary {
   font-size: 14px;
   line-height: 1.6;

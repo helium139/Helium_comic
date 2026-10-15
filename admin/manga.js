@@ -433,7 +433,7 @@ mangaSlug,
 
             description:
 
-                description.value.trim(),
+                description.value.replace(/\r\n?/g, "\n").trim(),
 
             cover:cover,
 
