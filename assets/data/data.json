@@ -4003,6 +4003,14 @@
         "description": "Nam chính sinh ra trong một gia tộc pháp sư trừ tà nổi tiếng. Sau tám năm xa cách, anh gặp lại mối tình đầu Song Hyeon tại lễ cưới của anh ấy, đồng thời tái ngộ Seong Hwa, người em họ của Song Hyeon.\nSeong Hwa đã thầm yêu nam chính suốt nhiều năm. Biết anh vẫn chưa thể buông bỏ Song Hyeon, cậu quyết định lợi dụng gương mặt có nhiều nét tương đồng với người ấy để lên giường cùng anh.\nHai người dần bị đối phương thu hút, tình cảm cũng theo đó mà nảy nở. Thế nhưng, nam chính lại che giấu Seong Hwa một lý do chí mạng khiến cậu tuyệt đối không được phép yêu mình...",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-10-17T14:17:46.942Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ngay-mai-khong-he-ton-tai/chap1",
+                "pages": 28
+            }
+        ]
     }
 }
