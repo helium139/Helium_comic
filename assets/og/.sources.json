@@ -279,6 +279,15 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "f2fb9f665fdd622dbbc06aeb02ede58c28891e4d1505862910e4cd898d9e332a"
+    },
+    "ngay-mai-khong-he-ton-tai": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ngay-mai-khong-he-ton-tai/cover.webp",
+      "etag": "\"09524357e2a39ad08fe2b2f42780ec6a\"",
+      "last_modified": "Sat, 17 Oct 2026 14:16:48 GMT",
+      "cover_sha256": "26819dac23bbc3e38bf07f529f98f14342c7d2131ea1e1eabfe57f2b52c97df8",
+      "cover_width": 720,
+      "cover_height": 720,
+      "image_sha256": "4c83f6c76aaf56763359787c958ecc3a820585216c82bbc38a52c73e91449874"
     }
   }
 }
