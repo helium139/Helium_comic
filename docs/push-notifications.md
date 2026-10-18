@@ -151,7 +151,8 @@ this Firebase project.
 1. Use iOS/iPadOS **16.4 or newer** with Home Screen web apps. Open
    `https://heliumtg.com` in Safari → Share → Add to Home Screen. If offered, leave
    **Open as Web App** enabled. The homepage links a minimal manifest with
-   `display: standalone`, plus the existing PNG as its touch icon.
+   `display: standalone`, the Hắc Âm Chi Các app name, and a dedicated 180px
+   Apple touch icon.
 2. Launch HeliumTG from its Home Screen icon, then log in **inside that app**;
    do not assume Safari tab authentication is shared. Tap the notification button
    and allow permission. An ordinary browser tab is not the push-test context.
@@ -186,3 +187,36 @@ Recommended data-only payload (all data values are strings):
   "webpush": { "headers": { "TTL": "86400" } }
 }
 ```
+
+## App icons and notification appearance
+
+Run `python3 scripts/generate-app-icons.py` (Pillow) to reproduce the PNG assets
+from the lossless existing `assets/favicon-32x32.png` logo, which is actually 312px.
+Home Screen exports are 180, 192 and 512 pixels, on opaque site-pink `#ffe1f7`.
+Aspect ratio and transparent source padding are preserved; the 512px export is
+upscaled from the available 312px source, so it cannot add missing fine detail.
+The separate 96px white-on-transparent orbital badge omits script lettering for
+small monochrome display. App icons have manifest purpose `any`, not `maskable`.
+The manifest and homepage theme-color use the site's yellow `#ffeb78`.
+
+For custom worker-rendered notifications send **data-only** FCM messages. Explicit
+`data.title` and `data.body` take priority. Otherwise send `data.mangaTitle` and
+`data.chapterTitle` to generate the title/body. `data.url` must be the clean chapter
+URL. Large-image selection prefers `data.image`, then `data.ogImage`, then
+`data.cover`, allowing only HTTPS site/R2 origins. An absent/unavailable image does
+not replace the title, body, icon or click target. The site icon is
+`/assets/icons/icon-192.png`; the badge is `/assets/icons/notification-badge.png`.
+No action buttons are required or supplied.
+
+If the sender includes a `notification` payload, FCM handles display before the
+custom renderer. Set equivalent `webpush.notification.icon`, `badge`, `image`,
+`title`, `body` and `data: { url }` on that server payload; alternatively use the
+recommended data-only format. The worker intentionally does not display a second
+notification just to restyle an automatic FCM notification. The backend is external
+to this workspace and has not been modified by this appearance change.
+
+Android Chrome may use the monochrome badge and large image; individual OS/browser
+layouts decide which fields appear. iOS Home Screen apps can use their installed
+app icon and omit the large image/badge. Validate title, body and clean-URL click
+behavior on both platforms without relying on action buttons or an image being
+visible. Re-add a Home Screen shortcut if it retains an old cached name/icon.

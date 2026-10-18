@@ -46,18 +46,27 @@ messaging.onBackgroundMessage(payload => {
     const data = payload.data || {};
     const target = chapterTarget(data.url);
     if (!target) return;
+    const mangaTitle = data.mangaTitle || "Truyện bạn theo dõi";
+    const chapterTitle = data.chapterTitle || "Chương mới";
+    const title = data.title || `${mangaTitle} có chương mới!`;
     const options = {
-        body: data.body || "Chương mới vừa được đăng trên HeliumTG.",
-        icon: "/assets/images/helium_logo.webp",
+        body: data.body || `${chapterTitle} vừa được đăng trên Hắc Âm Chi Các.`,
+        icon: "/assets/icons/icon-192.png",
+        badge: "/assets/icons/notification-badge.png",
         tag: data.eventId || target,
         data: { url: target }
     };
-    if (data.cover) {
+    // Prefer a chapter/manga OG image, then fall back to its cover.
+    for (const candidate of [data.image, data.ogImage, data.cover]) {
+        if (!candidate) continue;
         try {
-            const cover = new URL(data.cover, self.location.origin);
+            const cover = new URL(candidate, self.location.origin);
             if (cover.protocol === "https:" && [self.location.origin,
-                "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(cover.origin)) options.image = cover.href;
+                "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(cover.origin)) {
+                options.image = cover.href;
+                break;
+            }
         } catch { /* The site icon remains available. */ }
     }
-    return self.registration.showNotification(data.title || "HeliumTG có chương mới!", options);
+    return self.registration.showNotification(title, options);
 });
