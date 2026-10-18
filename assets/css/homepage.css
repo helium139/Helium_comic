@@ -307,7 +307,7 @@ body::before {
   }
   .comic-cover {
     width: 100%;
-    height: auto!important;
+    height: fit-content !important;
     flex: unset;
     overflow: visible!important;
   }
@@ -704,7 +704,7 @@ body::before {
 /* Phần ảnh bìa cố định chiều rộng trên PC */
 .comic-cover {
   flex: 0 0 400px!important;
-  height: auto;
+  height: fit-content !important;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -712,7 +712,7 @@ body::before {
 
 .comic-cover img {
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: cover;
 }
 
