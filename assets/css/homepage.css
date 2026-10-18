@@ -1321,3 +1321,18 @@ footer p {
     }
 
 }
+
+/* Read chapters stay clickable and keep the existing link hover color. */
+.chapter-item.chapter-read a,
+.chapter-item.chapter-read .chapter-date {
+    opacity: 0.55;
+}
+.chapter-item.chapter-read a:hover,
+.chapter-item.chapter-read a:focus-visible {
+    opacity: 1;
+}
+.reading-progress-status {
+    color: #888;
+    font-size: 13px;
+    grid-column: 1 / -1;
+}

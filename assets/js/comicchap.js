@@ -1,3 +1,4 @@
+import { markChapterRead, showProgressError } from "./reading-progress.js";
 import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { mangaUrl, chapterUrl, getRouteParams } from "./routes.js";
 import {
@@ -5,8 +6,7 @@ import {
     setDoc,
     getDoc,
     updateDoc,
-    increment,
-    serverTimestamp
+    increment
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -18,9 +18,7 @@ from "./firebase.js";
 const params = getRouteParams();
 
 const mangaId = params.get("id");
-const chapterId = parseInt(
-    params.get("chap")
-);
+const chapterId = params.get("chap");
 
 
 async function updateChapterView() {
@@ -73,40 +71,27 @@ async function updateChapterView() {
 }
 updateChapterView();
 
-async function saveHistory() {
-
-    console.log("saveHistory called");
-
-    if(!auth.currentUser) return;
-
-    const historyRef =
-        doc(
-            db,
-            "users",
-            auth.currentUser.uid,
-            "history",
-            mangaId
+// Resolve only after valid metadata and the first page image have loaded.
+let loadedChapter = null;
+let readingUser = null;
+const savedForUsers = new Set();
+async function saveProgress() {
+    const user = readingUser;
+    if (!user || !loadedChapter || savedForUsers.has(user.uid)) return;
+    savedForUsers.add(user.uid);
+    try {
+        await markChapterRead(user.uid, mangaId, loadedChapter.manga, chapterId);
+    } catch (error) {
+        savedForUsers.delete(user.uid);
+        if (readingUser === user) showProgressError(
+            document.getElementById("chapter-content"),
+            "Không thể lưu tiến độ đọc. Vui lòng tải lại trang để thử lại."
         );
-
-    await setDoc(
-        historyRef,
-        {
-            mangaId: mangaId,
-            chapterId: chapterId,
-            updatedAt: serverTimestamp()
-        }
-    );
-
-}
-
-onAuthStateChanged(auth, (user) => {
-
-    if(user){
-
-        saveHistory();
-
     }
-
+}
+onAuthStateChanged(auth, user => {
+    readingUser = user;
+    return saveProgress();
 });
 
 fetch("/assets/data/data.json")
@@ -115,6 +100,7 @@ fetch("/assets/data/data.json")
 
     
     const manga = data[mangaId];
+    if (!manga) throw new Error("Manga not found");
 
 document.querySelector(
 
@@ -124,8 +110,10 @@ document.querySelector(
 
 
     const chapter = manga.chapters.find(
-        c => c.id === chapterId
+        c => String(c.id) === chapterId
     );
+
+    if (!chapter || !chapter.pages || !chapter.folder) throw new Error("Chapter unavailable");
 
     const schema={
 
@@ -218,11 +206,19 @@ document.querySelector(
 }
 
 
+    const firstImage = reader.querySelector("img");
+    const chapterOpened = () => {
+        loadedChapter = { manga };
+        saveProgress();
+    };
+    if (firstImage?.complete && firstImage.naturalWidth > 0) chapterOpened();
+    else firstImage?.addEventListener("load", chapterOpened, { once: true });
+
     // ===== CHAP TRƯỚC / SAU =====
 
     const currentIndex =
         manga.chapters.findIndex(
-            c => c.id === chapterId
+            c => String(c.id) === chapterId
         );
 
     if(currentIndex > 0){
@@ -305,6 +301,8 @@ manga.chapters.forEach(chap => {
 
     }
 );
+}).catch(() => {
+    showProgressError(document.getElementById("chapter-content"), "Không thể tải chương truyện. Vui lòng tải lại trang.");
 });
 
 const scrollBtn =

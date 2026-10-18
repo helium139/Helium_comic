@@ -16,6 +16,33 @@ from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
+import { getReadingProgress, isChapterRead, showProgressError } from "./reading-progress.js";
+
+let chapterManga = null;
+let progressVersion = 0;
+async function refreshReadChapters() {
+    const version = ++progressVersion;
+    const user = currentUser;
+    const container = document.getElementById("chapters-list");
+    container.querySelectorAll(".chapter-read").forEach(item => item.classList.remove("chapter-read"));
+    container.querySelector(".reading-progress-status")?.remove();
+    if (!user || !chapterManga) return;
+    try {
+        const progress = await getReadingProgress(user.uid, mangaId);
+        if (version !== progressVersion || user !== currentUser) return;
+        container.querySelectorAll(".chapter-item").forEach((item, index) => {
+            item.classList.toggle("chapter-read", isChapterRead(chapterManga, chapterManga.chapters[index].id, progress));
+        });
+    } catch (error) {
+        if (version === progressVersion && user === currentUser) {
+            showProgressError(container, "Không thể tải tiến độ đọc. Vui lòng tải lại trang.");
+        }
+    }
+}
+window.addEventListener("pageshow", event => {
+    if (event.persisted) refreshReadChapters();
+});
+
 let currentUser = null;
 
 let likeBusy = false;
@@ -30,6 +57,7 @@ onAuthStateChanged(
     async (user) => {
 
         currentUser = user;
+        refreshReadChapters();
 
         if(user){
 
@@ -610,12 +638,15 @@ const chapterContainer =
 
         </div>
     `;
+
     console.log(
     chapterUrl(mangaId, chap.id)
 );
 
 });
 
+chapterManga = manga;
+refreshReadChapters();
 
 });
 

@@ -2,87 +2,68 @@ import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js
 import { mangaUrl } from "./routes.js";
 
 
-onAuthStateChanged(
-    auth,
-    async(user)=>{
+import { getReadingProgressMap, hasUnreadChapter, showProgressError } from "./reading-progress.js";
 
-        if(!user){
-
-            location.href =
-                "/login/";
-
-            return;
-        }
-
-
-        const userSnap =
-            await getUserSnapshot(user.uid);
-
-        const userData =
-            userSnap.data();
-
-        loadFollowedManga(
-            userData.follows || []
-        );
-
-    }
-);
-
-async function loadFollowedManga(
-    follows
-){
-
-    const res =
-        await fetch(
-            "/assets/data/data.json"
-        );
-
-    const data =
-        await res.json();
-
-    const container =
-        document.getElementById(
-            "follow-list"
-        );
-
-    container.innerHTML = "";
-
-    follows.forEach(id => {
-
-        const manga =
-            data[id];
-
-        if(!manga) return;
-
-        container.innerHTML += `
-        
-        <a
-            href="${mangaUrl(id)}"
-            class="comic-item">
-
-            <div class="comic-poster">
-
-                <img
-                    src="${manga.cover}"
-                    alt="${manga.title}">
-
-            </div>
-
-            <div class="comic-info">
-
-                <h3>
-                    ${manga.title}
-                </h3>
-
-            </div>
-
-        </a>
-        
-        `;
-
-    });
-
+const container = document.getElementById("follow-list");
+let currentUser = null;
+let loadVersion = 0;
+let catalogue;
+function getCatalogue() {
+    if (!catalogue) catalogue = fetch("/assets/data/data.json").then(res => {
+        if (!res.ok) throw new Error("Catalogue unavailable");
+        return res.json();
+    }).catch(error => { catalogue = null; throw error; });
+    return catalogue;
 }
+
+async function loadFollowedManga(user) {
+    const version = ++loadVersion;
+    container.innerHTML = "";
+    try {
+        const [profile, data, progressResult] = await Promise.all([
+            getUserSnapshot(user.uid),
+            getCatalogue(),
+            getReadingProgressMap(user.uid).then(value => ({ value }), error => ({ error }))
+        ]);
+        if (version !== loadVersion || currentUser !== user) return;
+        (profile.data()?.follows || []).forEach(id => {
+            const manga = data[id];
+            if (!manga) return;
+            const unread = progressResult.value && hasUnreadChapter(manga, progressResult.value.get(id));
+            container.insertAdjacentHTML("beforeend", `
+                <a href="${mangaUrl(id)}" class="comic-item">
+                    <div class="comic-poster">
+                        ${unread ? '<span class="new-chapter-badge">UP</span>' : ""}
+                        <img src="${manga.cover}" alt="${manga.title}">
+                    </div>
+                    <div class="comic-info"><h3>${manga.title}</h3></div>
+                </a>
+            `);
+        });
+        if (progressResult.error) showProgressError(container, "Không thể tải tiến độ đọc. Vui lòng tải lại trang.");
+    } catch (error) {
+        if (version === loadVersion && currentUser === user) {
+            showProgressError(container, "Không thể tải truyện theo dõi. Vui lòng tải lại trang.");
+        }
+    }
+}
+
+onAuthStateChanged(auth, user => {
+    currentUser = user;
+    if (!user) {
+        ++loadVersion;
+        container.innerHTML = "";
+        location.href = "/login/";
+        return;
+    }
+    return loadFollowedManga(user);
+});
+window.addEventListener("pageshow", event => {
+    if (event.persisted && currentUser) {
+        catalogue = null;
+        loadFollowedManga(currentUser);
+    }
+});
 
 const menuToggleBtn = document.getElementById("menuToggleBtn");
 const menuCloseBtn = document.getElementById("menuCloseBtn");
