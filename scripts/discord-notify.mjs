@@ -123,12 +123,22 @@ for (const item of newChapters) {
         `Sent Discord notification: ${manga.title} - ${chapter.title}`
     );
 
+    let cover = "";
+    if (typeof manga.cover === "string" && manga.cover.trim()) {
+        try {
+            const candidate = new URL(manga.cover, "https://heliumtg.com/");
+            if (candidate.protocol === "https:" && !candidate.username && !candidate.password &&
+                ["https://heliumtg.com", "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(candidate.origin)) {
+                cover = candidate.href;
+            }
+        } catch { /* Missing/invalid cover must not prevent chapter delivery. */ }
+    }
     pushPayloads.push({
         mangaSlug: slug,
         mangaTitle: manga.title,
         chapterTitle: chapter.title,
         url: chapterUrl,
-        cover: new URL(manga.cover, "https://heliumtg.com/").href
+        cover
     });
 }
 

@@ -182,7 +182,7 @@ Recommended data-only payload (all data values are strings):
     "title": "HeliumTG • Manga title có chương mới!",
     "body": "Chương 18 vừa được đăng trên HeliumTG.",
     "url": "https://heliumtg.com/manga/manga-slug/chapter/18/",
-    "cover": "https://heliumtg.com/assets/og/manga-slug.png"
+    "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/manga-slug/cover.jpg"
   },
   "webpush": { "headers": { "TTL": "86400" } }
 }
@@ -202,10 +202,11 @@ The manifest and homepage theme-color use the site's yellow `#ffeb78`.
 For custom worker-rendered notifications send **data-only** FCM messages. Explicit
 `data.title` and `data.body` take priority. Otherwise send `data.mangaTitle` and
 `data.chapterTitle` to generate the title/body. `data.url` must be the clean chapter
-URL. Large-image selection prefers `data.image`, then `data.ogImage`, then
-`data.cover`, allowing only HTTPS site/R2 origins. An absent/unavailable image does
+URL. The large image uses only `data.cover`, requiring an absolute HTTPS URL on the
+site or its existing R2 origin. Generic `data.image`/`data.ogImage` are ignored. An absent/unavailable image does
 not replace the title, body, icon or click target. The site icon is
-`/assets/icons/icon-192.png`; the badge is `/assets/icons/notification-badge.png`.
+`https://heliumtg.com/assets/icons/icon-192.png`; the badge is
+`https://heliumtg.com/assets/icons/notification-badge.png`.
 No action buttons are required or supplied.
 
 If the sender includes a `notification` payload, FCM handles display before the
@@ -220,3 +221,62 @@ layouts decide which fields appear. iOS Home Screen apps can use their installed
 app icon and omit the large image/badge. Validate title, body and clean-URL click
 behavior on both platforms without relying on action buttons or an image being
 visible. Re-add a Home Screen shortcut if it retains an old cached name/icon.
+
+## Cover change to apply separately in Cloud Shell
+
+The deployed v2 HTTPS `onRequest` sender `notifyNewChapter` in `us-central1` lives
+in `/home/lemy26239/Helium_comic/functions/index.js` in Google Cloud Shell, not in
+this workspace. No backend source was changed or deployed locally.
+
+Within its existing send loop, keep `batch` and all follower selection exactly as
+implemented. Normalize missing covers to `""`, validate nonempty covers as absolute
+public HTTPS URLs (no credentials, local/private hosts or generic OG substitution),
+then construct the message as follows. This is a patch to apply in Cloud Shell,
+not a new frontend send implementation:
+
+```js
+const title = mangaTitle + " có chương mới!";
+const body = chapterTitle + " vừa được đăng trên Hắc Âm Chi Các.";
+const message = {
+  tokens: batch, // Preserve the existing filtered recipient batch.
+  notification: {
+    title,
+    body,
+    ...(cover ? { imageUrl: cover } : {}),
+  },
+  data: {
+    mangaSlug,
+    mangaTitle,
+    chapterTitle,
+    url,
+    cover: cover || "",
+  },
+  webpush: {
+    notification: {
+      title,
+      body,
+      icon: "https://heliumtg.com/assets/icons/icon-192.png",
+      badge: "https://heliumtg.com/assets/icons/notification-badge.png",
+      ...(cover ? { image: cover } : {}),
+      data: { url },
+    },
+    fcmOptions: { link: url },
+  },
+};
+```
+
+Retain the existing send call, authentication, filtering and cleanup. Deploy only
+that function from the Cloud Shell source tree when ready. The local workflow
+already passes the manga cover, converts valid relative catalogue covers to an
+absolute site URL, and sends `cover: ""` when missing or invalid. It never selects
+a generic OG image. The frontend/worker accept the site's HTTPS origin and its
+existing R2 origin; add an explicit trusted origin if the catalogue moves CDN.
+Neither path fetches the cover just to check it, so the actual URL must be publicly
+accessible with an image response. A failed image load must not block text delivery.
+
+Foreground toasts also show `data.cover` when valid and remove failed images.
+Messages containing `notification` are still automatically displayed by FCM in
+background; the worker returns without showing a second copy. Test automatic and
+data-only messages separately on desktop/Android Chrome and an iOS Home Screen
+installation. Android/desktop may show the cover only when expanded; iOS may omit
+the large image entirely. Title, body and chapter navigation remain functional.

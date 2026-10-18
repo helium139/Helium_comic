@@ -53,6 +53,20 @@ function receiveMessage(payload) {
     link.href = url;
     // Text content prevents message content from becoming HTML.
     link.textContent = `${data.title || payload.notification?.title || "HeliumTG có chương mới!"} — ${data.body || payload.notification?.body || "Nhấn để đọc chương mới."}`;
+    if (data.cover) {
+        try {
+            const cover = new URL(data.cover);
+            if (cover.protocol === "https:" && !cover.username && !cover.password &&
+                [location.origin, "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(cover.origin)) {
+                const image = document.createElement("img");
+                image.className = "chapter-notification-cover";
+                image.alt = "";
+                image.src = cover.href;
+                image.addEventListener("error", () => image.remove(), { once: true });
+                link.prepend(image);
+            }
+        } catch { /* A cover is optional; retain the clickable text. */ }
+    }
     const close = document.createElement("button");
     close.type = "button";
     close.textContent = "×";

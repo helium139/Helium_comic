@@ -15,7 +15,7 @@ const target = `${origin}/manga/example/chapter/10.5/`;
 
 async function page({ missingApi, permission = 'default', account = { uid: 'u' }, key = 'test-public-key', subscribed = false, supported = true, failRegistration = false, registrationWait } = {}) {
     const handlers = {};
-    const counts = { prompts: 0, tokens: 0, registrations: 0, receivers: 0, revokes: 0, toasts: 0 };
+    const counts = { prompts: 0, tokens: 0, registrations: 0, receivers: 0, revokes: 0, toasts: 0, covers: 0 };
     const button = { addEventListener(type, callback) { handlers[type] = callback; } };
     const status = {};
     let authChanged;
@@ -55,7 +55,7 @@ async function page({ missingApi, permission = 'default', account = { uid: 'u' }
         document: {
             getElementById: id => id === 'notification-button' ? button : status,
             querySelector: () => null,
-            createElement: () => ({ setAttribute() {}, addEventListener() {}, append() {}, remove() {} }),
+            createElement: () => ({ setAttribute() {}, addEventListener() {}, append() {}, prepend() { counts.covers++; }, remove() {} }),
             body: { appendChild() { counts.toasts++; } }
         }
     };
@@ -156,11 +156,12 @@ test('logout waits for in-flight setup then revokes without claiming enabled', a
 
 test('foreground messages are deduplicated, restrict URLs, and stop displaying after logout', async () => {
     const p = await page({ permission: 'granted' });
-    const payload = { messageId: 'event-1', data: { url: target, title: '<img src=x>', body: 'new' } };
+    const payload = { messageId: 'event-1', data: { url: target, title: '<img src=x>', body: 'new', cover: `${origin}/cover.jpg` } };
     p.receive(payload);
     p.receive(payload);
     p.receive({ messageId: 'external', data: { url: 'https://evil.example/manga/x/chapter/1/' } });
     assert.equal(p.counts.toasts, 1);
+    assert.equal(p.counts.covers, 1);
     await p.changeAccount(null);
     p.receive({ ...payload, messageId: 'after-logout' });
     assert.equal(p.counts.toasts, 1);
@@ -308,8 +309,8 @@ test('background data messages display once; notification payloads rely on FCM a
     assert.equal(w.shown[0].options.data.url, target);
     assert.equal(w.shown[0].title, 'Manga');
     assert.equal(w.shown[0].options.body, 'Chapter 10.5');
-    assert.equal(w.shown[0].options.icon, '/assets/icons/icon-192.png');
-    assert.equal(w.shown[0].options.badge, '/assets/icons/notification-badge.png');
+    assert.equal(w.shown[0].options.icon, `${origin}/assets/icons/icon-192.png`);
+    assert.equal(w.shown[0].options.badge, `${origin}/assets/icons/notification-badge.png`);
     assert.equal(w.shown[0].options.actions, undefined);
     assert.equal(w.shown[0].options.image, undefined);
     await w.background({ notification: { title: 'Automatic' }, data: { url: target } });
@@ -317,16 +318,20 @@ test('background data messages display once; notification payloads rely on FCM a
     assert.equal(w.shown.length, 1);
 });
 
-test('background appearance uses manga/chapter defaults and allowed OG/cover images', async () => {
+test('background appearance prefers the manga cover and never substitutes OG images', async () => {
     const w = worker();
     const og = `${origin}/assets/og/example.png`;
     const cover = 'https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/example/cover.jpg';
     await w.background({ data: { url: target, mangaTitle: 'Example manga', chapterTitle: 'Chương 10.5', ogImage: og, cover } });
     assert.equal(w.shown[0].title, 'Example manga có chương mới!');
     assert.equal(w.shown[0].options.body, 'Chương 10.5 vừa được đăng trên Hắc Âm Chi Các.');
-    assert.equal(w.shown[0].options.image, og);
+    assert.equal(w.shown[0].options.image, cover);
     await w.background({ data: { url: target, image: 'https://untrusted.example/image.jpg', cover } });
     assert.equal(w.shown[1].options.image, cover);
+    for (const invalid of [undefined, '', '/cover.jpg', 'http://heliumtg.com/cover.jpg', 'https://localhost/cover.jpg', 'https://user:pass@heliumtg.com/cover.jpg']) {
+        await w.background({ data: { url: target, cover: invalid, image: og, ogImage: og } });
+        assert.equal(w.shown.at(-1).options.image, undefined);
+    }
 });
 
 test('notification click navigates and focuses a same-origin tab or opens a new one', async () => {

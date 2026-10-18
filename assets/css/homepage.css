@@ -1390,3 +1390,13 @@ footer p {
 @media (max-width: 480px) {
     .notification-button { font-size: 12px; padding: 9px 10px; }
 }
+
+.chapter-notification-cover {
+    float: left;
+    width: 56px;
+    height: 76px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin: 0 12px 4px 0;
+}
+.chapter-notification-toast a { display: flow-root; }

@@ -51,20 +51,19 @@ messaging.onBackgroundMessage(payload => {
     const title = data.title || `${mangaTitle} có chương mới!`;
     const options = {
         body: data.body || `${chapterTitle} vừa được đăng trên Hắc Âm Chi Các.`,
-        icon: "/assets/icons/icon-192.png",
-        badge: "/assets/icons/notification-badge.png",
+        icon: new URL("/assets/icons/icon-192.png", self.location.origin).href,
+        badge: new URL("/assets/icons/notification-badge.png", self.location.origin).href,
         tag: data.eventId || target,
         data: { url: target }
     };
-    // Prefer a chapter/manga OG image, then fall back to its cover.
-    for (const candidate of [data.image, data.ogImage, data.cover]) {
-        if (!candidate) continue;
+    // Only the current manga cover may be the large image. Missing/invalid covers
+    // leave a normal text notification; never substitute a generic OG image.
+    if (data.cover) {
         try {
-            const cover = new URL(candidate, self.location.origin);
-            if (cover.protocol === "https:" && [self.location.origin,
-                "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(cover.origin)) {
+            const cover = new URL(data.cover);
+            if (cover.protocol === "https:" && !cover.username && !cover.password &&
+                [self.location.origin, "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(cover.origin)) {
                 options.image = cover.href;
-                break;
             }
         } catch { /* The site icon remains available. */ }
     }
