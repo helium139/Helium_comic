@@ -2,7 +2,7 @@ import { app } from "./firebase.js";
 import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { PUBLIC_VAPID_KEY } from "./push-config.js";
 import { loadMessaging, existingPushWorker, ensurePushWorker, registrationReceipt,
-    registerDeviceToken, revokeBrowserPush } from "./push-registration.js";
+    registerDeviceToken, disableDeviceNotifications, revokeBrowserPush } from "./push-registration.js";
 
 const button = document.getElementById("notification-button");
 const status = document.getElementById("notification-status");
@@ -11,6 +11,7 @@ let authReady = false;
 let supported = false;
 let busy = false;
 let registered = false;
+let locallyDisabled = false;
 let receiverStarted = false;
 let version = 0;
 let signingOut = false;
@@ -37,7 +38,7 @@ function safeChapterUrl(value) {
     return null;
 }
 function receiveMessage(payload) {
-    if (signingOut || !user || Notification.permission !== "granted") return;
+    if (signingOut || locallyDisabled || !user || Notification.permission !== "granted") return;
     const data = payload.data || {};
     const url = safeChapterUrl(data.url || payload.fcmOptions?.link);
     if (!url || (data.uid && data.uid !== user.uid)) return;
@@ -137,6 +138,7 @@ async function synchronizeDevice(explicit) {
         await registerDeviceToken(account, token);
         if (requestVersion !== version || user?.uid !== account.uid) return;
         registered = true;
+        locallyDisabled = false;
         await startReceiver();
     } catch (error) {
         registered = false;
@@ -151,6 +153,27 @@ async function synchronizeDevice(explicit) {
         busy = false;
         if (requestVersion === version) render(errorMessage);
         else render();
+    }
+}
+
+async function disableNotifications() {
+    const account = user;
+    const requestVersion = version;
+    busy = true;
+    render("Đang tắt thông báo…");
+    let message = "";
+    try {
+        await disableDeviceNotifications(account);
+        if (requestVersion === version) {
+            registered = false;
+            locallyDisabled = true;
+            document.querySelector(".chapter-notification-toast")?.remove();
+        }
+    } catch {
+        message = "Chưa thể tắt thông báo. Vui lòng kiểm tra kết nối rồi thử lại.";
+    } finally {
+        busy = false;
+        render(requestVersion === version ? message : "");
     }
 }
 
@@ -172,6 +195,11 @@ button?.addEventListener("click", async () => {
     }
     if (Notification.permission === "denied") {
         render("Thông báo bị chặn. Hãy cho phép thông báo trong phần cài đặt trang web của trình duyệt, rồi tải lại trang.");
+        return;
+    }
+    if (registered) {
+        activeSetup = disableNotifications();
+        await activeSetup;
         return;
     }
     if (!PUBLIC_VAPID_KEY) {

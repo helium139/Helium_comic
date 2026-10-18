@@ -13,9 +13,9 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 const origin = 'https://heliumtg.com';
 const target = `${origin}/manga/example/chapter/10.5/`;
 
-async function page({ missingApi, permission = 'default', account = { uid: 'u' }, key = 'test-public-key', subscribed = false, supported = true, failRegistration = false, registrationWait } = {}) {
+async function page({ missingApi, permission = 'default', account = { uid: 'u' }, key = 'test-public-key', subscribed = false, supported = true, failRegistration = false, failDisable = false, registrationWait } = {}) {
     const handlers = {};
-    const counts = { prompts: 0, tokens: 0, registrations: 0, receivers: 0, revokes: 0, toasts: 0, covers: 0 };
+    const counts = { prompts: 0, tokens: 0, registrations: 0, receivers: 0, revokes: 0, toasts: 0, covers: 0, disables: 0 };
     const button = { addEventListener(type, callback) { handlers[type] = callback; } };
     const status = {};
     let authChanged;
@@ -49,6 +49,12 @@ async function page({ missingApi, permission = 'default', account = { uid: 'u' }
             counts.registrations++;
             if (registrationWait) await registrationWait;
             if (failRegistration) throw new Error('permission-denied');
+            subscribed = true;
+        },
+        disableDeviceNotifications: async () => {
+            counts.disables++;
+            if (failDisable) throw new Error('unavailable');
+            subscribed = false;
         },
         revokeBrowserPush: async () => { counts.revokes++; },
         window: { addEventListener(type, callback) { restore = callback; } },
@@ -83,6 +89,15 @@ test('default permission requests only on explicit click; repeat click avoids pe
     assert.match(p.button.textContent, /Đã bật/);
     await p.click();
     assert.equal(p.counts.prompts, 1);
+    assert.equal(p.counts.disables, 1);
+    assert.equal(p.button.textContent, '🔔 Nhận thông báo');
+    assert.equal(p.context.Notification.permission, 'granted');
+    p.restore();
+    await flush();
+    assert.equal(p.counts.registrations, 1);
+    await p.click();
+    assert.equal(p.counts.registrations, 2);
+    assert.match(p.button.textContent, /Đã bật/);
     assert.equal(p.counts.receivers, 1);
 });
 
@@ -200,6 +215,7 @@ test('backend registration uses the existing app, callable name and token-only p
         },
         httpsCallable(functions, name) {
             assert.equal(functions, 'functions');
+            if (name === 'unregisterPushToken') return async () => { assert.fail('unexpected unregister'); };
             assert.equal(name, 'registerPushToken');
             return async data => {
                 assert.deepEqual(Object.keys(data), ['token']);
@@ -238,6 +254,55 @@ test('callable failures never save a receipt and allow a later retry', async () 
     assert.equal(h.registrationReceipt(), null);
     await h.registerDeviceToken({ uid: 'u' }, 'token');
     assert.equal(h.registrationReceipt().uid, 'u');
+});
+
+test('disable binds the exact worker, unregisters before FCM deletion, and keeps browser permission', async () => {
+    const events = [];
+    const registration = { scope: `${origin}/firebase-cloud-messaging-push-scope/`, active: { scriptURL: `${origin}/firebase-messaging-sw.js` } };
+    const messaging = {};
+    const h = registrationContext({
+        PUBLIC_VAPID_KEY: 'test-public-key', Notification: { permission: 'granted' },
+        navigator: { serviceWorker: { getRegistrations: async () => [registration] } },
+        httpsCallable: (functions, name) => async data => {
+            assert.equal(name, 'unregisterPushToken');
+            assert.equal(data.token, 'current-token');
+            assert.deepEqual(Object.keys(data), ['token']);
+            events.push('unregister');
+            return { data: { success: true } };
+        }
+    });
+    h.loadMessaging = async () => ({
+        getMessaging: () => messaging,
+        getToken: async (instance, options) => {
+            assert.equal(instance, messaging);
+            assert.equal(options.serviceWorkerRegistration, registration);
+            assert.equal(options.vapidKey, 'test-public-key');
+            events.push('getToken');
+            return 'current-token';
+        },
+        deleteToken: async instance => { assert.equal(instance, messaging); events.push('deleteToken'); return true; }
+    });
+    h.localStorage.setItem('heliumtg_push_registration', JSON.stringify({ uid: 'u', id: 'a'.repeat(64) }));
+    await h.disableDeviceNotifications({ uid: 'u' });
+    assert.deepEqual(events, ['getToken', 'unregister', 'deleteToken']);
+    assert.equal(h.registrationReceipt(), null);
+    assert.equal(h.Notification.permission, 'granted');
+});
+
+test('unregister rejection does not delete the FCM token or clear the receipt', async () => {
+    const h = registrationContext({
+        PUBLIC_VAPID_KEY: 'test-public-key', Notification: { permission: 'granted' },
+        navigator: { serviceWorker: { getRegistrations: async () => [{ scope: `${origin}/firebase-cloud-messaging-push-scope/`, active: { scriptURL: `${origin}/firebase-messaging-sw.js` } }] } },
+        httpsCallable: () => async () => { throw new Error('unavailable'); }
+    });
+    h.loadMessaging = async () => ({ getMessaging: () => ({}), getToken: async () => 'token', deleteToken: async () => assert.fail('must not delete') });
+    h.localStorage.setItem('heliumtg_push_registration', JSON.stringify({uid:'u',id:'hint'}));
+    await assert.rejects(h.disableDeviceNotifications({ uid: 'u' }), /unavailable/);
+    assert.ok(h.registrationReceipt());
+    const p = await page({ permission: 'granted', subscribed: true, failDisable: true });
+    await p.click();
+    assert.match(p.status.textContent, /thử lại/);
+    assert.equal(p.button.disabled, false);
 });
 
 test('worker registration leaves unrelated root worker untouched and rejects exact-scope conflicts', async () => {

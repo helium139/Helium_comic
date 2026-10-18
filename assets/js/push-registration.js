@@ -1,13 +1,14 @@
 import { app } from "./firebase.js";
 import { auth } from "./firebase-session.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
-import { PUSH_WORKER_URL, PUSH_WORKER_SCOPE, PUSH_FUNCTIONS_REGION } from "./push-config.js";
+import { PUSH_WORKER_URL, PUSH_WORKER_SCOPE, PUSH_FUNCTIONS_REGION, PUBLIC_VAPID_KEY } from "./push-config.js";
 
 const RECEIPT_KEY = "heliumtg_push_registration";
 // Auth credentials are attached by the callable SDK. The server must derive UID
 // from request.auth, validate the token, and upsert it idempotently.
 const functions = getFunctions(app, PUSH_FUNCTIONS_REGION);
 export const registerPushToken = httpsCallable(functions, "registerPushToken");
+export const unregisterPushToken = httpsCallable(functions, "unregisterPushToken");
 const pendingRegistrations = new Map();
 let messagingSdk;
 export function loadMessaging() {
@@ -79,6 +80,25 @@ export async function registerDeviceToken(user, token) {
     // Do not keep raw tokens in localStorage or log them.
     localStorage.setItem(RECEIPT_KEY, JSON.stringify({ uid: user.uid, id }));
     return id;
+}
+
+export async function disableDeviceNotifications(user) {
+    if (auth.currentUser?.uid !== user.uid) throw new Error("push/auth-changed");
+    // getToken binds Messaging to this exact worker before deleteToken is called.
+    // Never let deleteToken select a default worker registration on a fresh page.
+    if (globalThis.Notification?.permission !== "granted") throw new Error("push/permission-required");
+    const registration = await existingPushWorker();
+    if (!registration) throw new Error("push/worker-unavailable");
+    const sdk = await loadMessaging();
+    const messaging = sdk.getMessaging(app);
+    const token = await sdk.getToken(messaging, {
+        vapidKey: PUBLIC_VAPID_KEY, serviceWorkerRegistration: registration
+    });
+    if (!token || auth.currentUser?.uid !== user.uid) throw new Error("push/auth-changed");
+    const result = await unregisterPushToken({ token });
+    if (result.data?.success === false || result.data?.ok === false) throw new Error("push/backend-rejected");
+    if (!await sdk.deleteToken(messaging)) throw new Error("push/delete-failed");
+    try { localStorage.removeItem(RECEIPT_KEY); } catch { /* Subscription is deleted. */ }
 }
 
 export async function revokeBrowserPush() {
