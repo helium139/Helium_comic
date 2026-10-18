@@ -1,3 +1,4 @@
+import "./notifications.js";
 import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 import { db } from "./firebase.js";
 
@@ -106,6 +107,13 @@ if(userSnap.exists()){
                 "click",
                 async () => {
 
+                    try {
+                        const { stopBrowserNotifications } = await import("./notifications.js");
+                        await stopBrowserNotifications();
+                    } catch {
+                        alert("Chưa thể tắt thông báo trên thiết bị này. Vui lòng thử đăng xuất lại.");
+                        return;
+                    }
                     await signOut(auth);
 
                     location.reload();

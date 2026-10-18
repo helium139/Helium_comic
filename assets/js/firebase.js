@@ -6,17 +6,9 @@ import {
 } from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-const firebaseConfig = {
-apiKey: "AIzaSyBAXG1_rRHKkn9jP4IIIMzTbZmttTuzr1g",
-authDomain: "helium-team-d7f80.firebaseapp.com",
-projectId: "helium-team-d7f80",
-storageBucket: "helium-team-d7f80.firebasestorage.app",
-messagingSenderId: "351410825333",
-appId: "1:351410825333:web:f02fc89a3ab18bf272703c",
-measurementId: "G-XWZSTJFVXB"
-};
+import "./firebase-config.js";
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(globalThis.HELIUM_FIREBASE_CONFIG);
 
 export const db = getFirestore(app);
 

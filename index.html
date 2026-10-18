@@ -145,7 +145,12 @@ content="website">
     </nav>
     <main>
     <div class="swiper mySwiper">
-      <h2>Admin's Picks!</h2>
+      <div class="admin-picks-heading">
+        <h2>Admin's Picks!</h2>
+        <button id="notification-button" class="notification-button" type="button"
+                aria-describedby="notification-status" disabled>🔔 Nhận thông báo</button>
+      </div>
+      <p id="notification-status" class="notification-status" role="status"></p>
   <div class="swiper-wrapper" id="admin-picks">
     
     </div>
@@ -227,5 +232,6 @@ content="website">
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script type="module" src="/assets/js/auth.js"></script>
 <script type="module" src="/assets/js/script.js"></script>
+<script type="module" src="/assets/js/notifications.js"></script>
 </body>
 </html>
