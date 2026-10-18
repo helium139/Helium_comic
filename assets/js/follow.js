@@ -1,29 +1,5 @@
+import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 import { mangaUrl } from "./routes.js";
-import {
-    requireLogin
-}
-from "./authGuard.js";
-
-requireLogin();
-import { app, db }
-from "./firebase.js";
-
-import {
-    getAuth,
-    onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-import {
-    doc,
-    getDoc
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-
-const auth = getAuth(app);
 
 
 onAuthStateChanged(
@@ -38,17 +14,9 @@ onAuthStateChanged(
             return;
         }
 
-        const userRef =
-            doc(
-                db,
-                "users",
-                user.uid
-            );
 
         const userSnap =
-            await getDoc(
-                userRef
-            );
+            await getUserSnapshot(user.uid);
 
         const userData =
             userSnap.data();

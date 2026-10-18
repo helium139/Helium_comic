@@ -1,17 +1,7 @@
-import { app, db }
+import { auth, onAuthStateChanged } from "./firebase-session.js";
+import { db }
 from "./firebase.js";
 
-import {
-
-getAuth,
-
-onAuthStateChanged
-
-}
-
-from
-
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
 
@@ -25,9 +15,6 @@ from
 
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-
-const auth =
-    getAuth(app);
 
 export async function requireAdmin(){
 

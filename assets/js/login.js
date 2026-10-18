@@ -1,8 +1,8 @@
-import { app, db } from "./firebase.js";
+import { auth } from "./firebase-session.js";
+import { db } from "./firebase.js";
 
 import {
-    getAuth,
-    GoogleAuthProvider,
+GoogleAuthProvider,
     signInWithPopup
 }
 from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
@@ -15,7 +15,7 @@ import {
 from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
-const auth = getAuth(app);
+
 
 const provider = new GoogleAuthProvider();
 
@@ -26,9 +26,15 @@ const loginBtn =
     );
 
 
+let signingIn = false;
+
 loginBtn.addEventListener(
     "click",
     async () => {
+
+        if (signingIn) return;
+        signingIn = true;
+        loginBtn.disabled = true;
 
         try {
 
@@ -41,12 +47,6 @@ loginBtn.addEventListener(
 
             const user =
                 result.user;
-
-
-            console.log(
-                "Đăng nhập thành công:",
-                user
-            );
 
 
             const userRef =
@@ -118,5 +118,9 @@ loginBtn.addEventListener(
 
         }
 
+        finally {
+            signingIn = false;
+            loginBtn.disabled = false;
+        }
     }
 );

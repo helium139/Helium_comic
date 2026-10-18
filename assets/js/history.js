@@ -1,19 +1,9 @@
+import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { chapterUrl } from "./routes.js";
-import {
-    requireLogin
-}
-from "./authGuard.js";
 
-requireLogin();
-import { app, db }
+import { db }
 from "./firebase.js";
 
-import {
-    getAuth,
-    onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
     collection,
@@ -21,10 +11,6 @@ import {
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-
-const auth = getAuth(app);
-
 
 
 async function loadHistory(user){

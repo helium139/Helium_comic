@@ -1,3 +1,4 @@
+import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { mangaUrl, chapterUrl, getRouteParams } from "./routes.js";
 import {
     doc,
@@ -10,17 +11,8 @@ import {
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-import { app, db }
+import { db }
 from "./firebase.js";
-
-import {
-    getAuth,
-    onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-const auth = getAuth(app);
 
 
 const params = getRouteParams();
@@ -29,7 +21,6 @@ const mangaId = params.get("id");
 const chapterId = parseInt(
     params.get("chap")
 );
-
 
 
 async function updateChapterView() {

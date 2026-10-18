@@ -1,8 +1,7 @@
-import { app, db } from "./firebase.js";
+import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
+import { db } from "./firebase.js";
 
 import {
-    getAuth,
-    onAuthStateChanged,
     signOut
 }
 from
@@ -11,21 +10,17 @@ from
 
 import {
     doc,
-    getDoc,
     setDoc,
     serverTimestamp
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-const auth = getAuth(app);
-
 
 const userBox =
     document.getElementById(
         "user-box"
     );
-
 
 
 onAuthStateChanged(
@@ -43,7 +38,7 @@ onAuthStateChanged(
 
 
 const userSnap =
-    await getDoc(userRef);
+    await getUserSnapshot(user.uid);
 
 let userData = {};
 

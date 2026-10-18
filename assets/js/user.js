@@ -1,14 +1,8 @@
-import {
-    requireLogin
-}
-from "./authGuard.js";
+import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 
-requireLogin();
-import { app, db } from "./firebase.js";
+import { db } from "./firebase.js";
 
 import {
-    getAuth,
-    onAuthStateChanged,
     updateProfile
 }
 from
@@ -16,16 +10,14 @@ from
 
 import {
     doc,
-    getDoc,
-    collection,
-    updateDoc,
-    getDocs
+    updateDoc
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 let currentUserRef = null;
-const auth = getAuth(app);
+let loadedProfile = null;
+
 
 onAuthStateChanged(auth, async(user)=>{
 
@@ -45,10 +37,11 @@ onAuthStateChanged(auth, async(user)=>{
     );
 
 const snap =
-    await getDoc(currentUserRef);
+    await getUserSnapshot(user.uid);
 
     const data =
         snap.data();
+    loadedProfile = data;
 
     document.getElementById(
         "user-avatar"
@@ -76,17 +69,6 @@ const snap =
         data.follows?.length || 0;
 
 
-    const historyRef =
-        collection(
-            db,
-            "users",
-            user.uid,
-            "history"
-        );
-
-    const historySnap =
-        await getDocs(historyRef);
-
 });
 
 document
@@ -101,7 +83,8 @@ document
             .value
             .trim();
 
-        if(!newName) return;
+        if(!newName || !auth.currentUser || !loadedProfile) return;
+        if (newName === loadedProfile.name && newName === auth.currentUser.displayName) return;
 
         await updateProfile(
             auth.currentUser,
@@ -135,6 +118,8 @@ document
             .getElementById("avatarUrl")
             .value;
 
+
+        if (!auth.currentUser || !loadedProfile || avatar === loadedProfile.avatar) return;
 
         await updateDoc(
     currentUserRef,

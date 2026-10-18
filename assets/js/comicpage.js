@@ -1,12 +1,7 @@
+import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 import { chapterUrl, getRouteParams } from "./routes.js";
-import { app, db } from "./firebase.js";
+import { db } from "./firebase.js";
 
-import {
-    getAuth,
-    onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 import {
     doc,
@@ -20,7 +15,6 @@ import {
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-const auth = getAuth(app);
 
 let currentUser = null;
 
@@ -39,8 +33,10 @@ onAuthStateChanged(
 
         if(user){
 
-            await setupLikeButton();
-            await setupFollowButton();
+            const profile = await getUserSnapshot(user.uid);
+            if (currentUser !== user) return;
+            await setupLikeButton(profile);
+            await setupFollowButton(profile);
 
         }
 
@@ -146,7 +142,7 @@ async function loadStats() {
 
 }
 
-async function setupLikeButton(){
+async function setupLikeButton(snap){
 
     const likeBtn = document.getElementById("likeBtn");
 
@@ -163,11 +159,8 @@ async function setupLikeButton(){
         return;
     }
 
-    const userRef = doc(db,"users",currentUser.uid);
 
-    const snap = await getDoc(userRef);
-
-    const userData = snap.data();
+    const userData = snap.data() || {};
 
     liked = userData.likes?.includes(mangaId);
 
@@ -258,7 +251,7 @@ async function toggleLike(){
 
 }
 
-async function setupFollowButton(){
+async function setupFollowButton(snap){
 
     const btn =
         document.getElementById("followBtn");
@@ -277,14 +270,9 @@ async function setupFollowButton(){
 
     }
 
-    const snap = await getDoc(
-
-        doc(db,"users",currentUser.uid)
-
-    );
 
     followed =
-        snap.data().follows?.includes(mangaId);
+        (snap.data() || {}).follows?.includes(mangaId);
 
     updateFollowButton();
 

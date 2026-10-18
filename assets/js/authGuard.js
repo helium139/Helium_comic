@@ -1,14 +1,5 @@
-import { app }
-from "./firebase.js";
+import { auth, onAuthStateChanged } from "./firebase-session.js";
 
-import {
-    getAuth,
-    onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-const auth = getAuth(app);
 
 export function requireLogin(){
 

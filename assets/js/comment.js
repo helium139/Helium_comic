@@ -1,5 +1,6 @@
+import { auth } from "./firebase-session.js";
 import { getRouteParams } from "./routes.js";
-import { app, db } from "./firebase.js";
+import { db } from "./firebase.js";
 
 import{
     collection,
@@ -14,13 +15,9 @@ import{
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-import{
-    getAuth
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-const auth = getAuth(app);
+
+
 
 const params =
 getRouteParams();
@@ -179,7 +176,10 @@ const q = query(
 
 );
 
-onSnapshot(q,(snapshot)=>{
+let unsubscribeComments = null;
+function startComments() {
+if (unsubscribeComments) return;
+unsubscribeComments = onSnapshot(q,(snapshot)=>{
 
     list.innerHTML = "";
 
@@ -227,6 +227,16 @@ onSnapshot(q,(snapshot)=>{
 
     list.appendChild(fragment);
 
+});
+}
+
+startComments();
+window.addEventListener("pagehide", () => {
+    unsubscribeComments?.();
+    unsubscribeComments = null;
+});
+window.addEventListener("pageshow", event => {
+    if (event.persisted) startComments();
 });
 
 
