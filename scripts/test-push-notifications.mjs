@@ -13,7 +13,7 @@ const flush = () => new Promise(resolve => setImmediate(resolve));
 const origin = 'https://heliumtg.com';
 const target = `${origin}/manga/example/chapter/10.5/`;
 
-async function page({ permission = 'default', account = { uid: 'u' }, key = 'test-public-key', subscribed = false, supported = true, failRegistration = false, registrationWait } = {}) {
+async function page({ missingApi, permission = 'default', account = { uid: 'u' }, key = 'test-public-key', subscribed = false, supported = true, failRegistration = false, registrationWait } = {}) {
     const handlers = {};
     const counts = { prompts: 0, tokens: 0, registrations: 0, receivers: 0, revokes: 0, toasts: 0 };
     const button = { addEventListener(type, callback) { handlers[type] = callback; } };
@@ -59,6 +59,9 @@ async function page({ permission = 'default', account = { uid: 'u' }, key = 'tes
             body: { appendChild() { counts.toasts++; } }
         }
     };
+    if (missingApi === "serviceWorker") delete context.navigator.serviceWorker;
+    if (missingApi === "PushManager") delete context.PushManager;
+    if (missingApi === "Notification") delete context.Notification;
     vm.createContext(context);
     vm.runInContext(notificationSource, context);
     await flush();
@@ -94,6 +97,24 @@ test('guest, denied, unsupported, and missing configuration never request permis
     const denied = await page({ permission: 'denied' });
     await denied.click();
     assert.match(denied.status.textContent, /cài đặt/);
+});
+
+test('each required browser API is checked before permission or token generation', async () => {
+    for (const missingApi of ['serviceWorker', 'PushManager', 'Notification']) {
+        const p = await page({ missingApi });
+        await p.click();
+        assert.equal(p.counts.prompts, 0);
+        assert.equal(p.counts.tokens, 0);
+        assert.equal(p.button.disabled, true);
+        assert.ok(p.status.textContent);
+    }
+});
+
+test('missing VAPID key explains the exact configuration error instead of preparation text', async () => {
+    const p = await page({ key: '' });
+    await p.click();
+    assert.match(p.status.textContent, /VAPID/);
+    assert.doesNotMatch(p.status.textContent, /chuẩn bị/);
 });
 
 test('granted permission alone is not enabled; existing device checks registration on reload and Back', async () => {
@@ -149,11 +170,13 @@ test('foreground messages are deduplicated, restrict URLs, and stop displaying a
 function registrationContext(overrides = {}) {
     const storage = new Map();
     const context = {
-        app: {}, db: {}, auth: { currentUser: { uid: 'u' } }, URL,
+        app: {}, auth: { currentUser: { uid: 'u' } }, URL,
+        PUSH_FUNCTIONS_REGION: 'us-central1',
+        getFunctions: app => app,
+        httpsCallable: () => async () => ({ data: { success: true } }),
         crypto: webcrypto, TextEncoder, Uint8Array, location: { origin },
         PUSH_WORKER_URL: '/firebase-messaging-sw.js', PUSH_WORKER_SCOPE: '/firebase-cloud-messaging-push-scope/',
         localStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) },
-        doc: (db, ...parts) => parts.join('/'), serverTimestamp: () => ({ toMillis: () => Date.now() }),
         navigator: { serviceWorker: { getRegistrations: async () => [] } },
         ...overrides
     };
@@ -162,23 +185,58 @@ function registrationContext(overrides = {}) {
     return context;
 }
 
-test('token hashing deduplicates writes, preserves per-user isolation, and rejects wrong auth', async () => {
-    const records = new Map();
-    let writes = 0;
-    const h = registrationContext({ runTransaction: async (db, callback) => callback({
-        get: async reference => ({ exists: () => records.has(reference), data: () => records.get(reference) }),
-        set(reference, data) { writes++; records.set(reference, data); }
-    }) });
-    const id = await h.registerDeviceToken({ uid: 'u' }, 'token');
+test('backend registration uses the existing app, callable name and token-only payload; concurrent calls share a request', async () => {
+    let calls = 0;
+    let finish;
+    const response = new Promise(resolve => { finish = resolve; });
+    const app = {};
+    const h = registrationContext({
+        app, PUSH_FUNCTIONS_REGION: 'us-central1',
+        getFunctions(existingApp, region) {
+            assert.equal(existingApp, app);
+            assert.equal(region, 'us-central1');
+            return 'functions';
+        },
+        httpsCallable(functions, name) {
+            assert.equal(functions, 'functions');
+            assert.equal(name, 'registerPushToken');
+            return async data => {
+                assert.deepEqual(Object.keys(data), ['token']);
+                assert.equal(data.token, 'token');
+                calls++;
+                return response;
+            };
+        }
+    });
+    const first = h.registerDeviceToken({ uid: 'u' }, 'token');
+    const second = h.registerDeviceToken({ uid: 'u' }, 'token');
+    // Wait until both independent digest operations have finished.
+    await new Promise(resolve => setTimeout(resolve, 20));
+    assert.equal(calls, 1);
+    assert.equal(h.registrationReceipt(), null);
+    finish({ data: { success: true } });
+    const [id, repeatedId] = await Promise.all([first, second]);
     assert.match(id, /^[a-f0-9]{64}$/);
-    await h.registerDeviceToken({ uid: 'u' }, 'token');
-    assert.equal(writes, 1);
-    await assert.rejects(h.registerDeviceToken({ uid: 'other' }, 'token'), /auth-changed/);
-    assert.ok(records.has(`users/u/pushTokens/${id}`));
+    assert.equal(id, repeatedId);
     assert.equal(JSON.stringify(h.registrationReceipt()).includes('"token"'), false);
-    h.auth.currentUser = { uid: 'other' };
-    await h.registerDeviceToken({ uid: 'other' }, 'different-token');
-    assert.equal(records.size, 2);
+    await assert.rejects(h.registerDeviceToken({ uid: 'other' }, 'token'), /auth-changed/);
+    assert.equal(calls, 1);
+});
+
+test('callable failures never save a receipt and allow a later retry', async () => {
+    let calls = 0;
+    const h = registrationContext({ httpsCallable: () => async () => {
+        calls++;
+        if (calls === 1) throw new Error('functions/unavailable');
+        if (calls === 2) return { data: { success: false } };
+        return { data: { success: true } };
+    } });
+    await assert.rejects(h.registerDeviceToken({ uid: 'u' }, 'token'), /unavailable/);
+    assert.equal(h.registrationReceipt(), null);
+    await assert.rejects(h.registerDeviceToken({ uid: 'u' }, 'token'), /backend-rejected/);
+    assert.equal(h.registrationReceipt(), null);
+    await h.registerDeviceToken({ uid: 'u' }, 'token');
+    assert.equal(h.registrationReceipt().uid, 'u');
 });
 
 test('worker registration leaves unrelated root worker untouched and rejects exact-scope conflicts', async () => {
@@ -202,22 +260,19 @@ test('worker registration leaves unrelated root worker untouched and rejects exa
     assert.equal(registrations, 1);
 });
 
-test('logout unsubscribes only the FCM device and removes its own document', async () => {
+test('logout unsubscribes only the FCM device and clears its local receipt', async () => {
     let unsubscribed = 0;
-    let removed;
     const registration = {
         scope: `${origin}/firebase-cloud-messaging-push-scope/`,
         active: { scriptURL: `${origin}/firebase-messaging-sw.js` },
         pushManager: { getSubscription: async () => ({ unsubscribe: async () => { unsubscribed++; return true; } }) }
     };
     const h = registrationContext({
-        navigator: { serviceWorker: { getRegistrations: async () => [registration] } },
-        deleteDoc: async reference => { removed = reference; }
+        navigator: { serviceWorker: { getRegistrations: async () => [registration] } }
     });
     h.localStorage.setItem('heliumtg_push_registration', JSON.stringify({ uid: 'u', id: 'a'.repeat(64) }));
     await h.revokeBrowserPush();
     assert.equal(unsubscribed, 1);
-    assert.equal(removed, `users/u/pushTokens/${'a'.repeat(64)}`);
     assert.equal(h.registrationReceipt(), null);
 });
 

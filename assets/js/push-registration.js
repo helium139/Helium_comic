@@ -1,10 +1,14 @@
-import { app, db } from "./firebase.js";
+import { app } from "./firebase.js";
 import { auth } from "./firebase-session.js";
-import { doc, runTransaction, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-import { PUSH_WORKER_URL, PUSH_WORKER_SCOPE } from "./push-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
+import { PUSH_WORKER_URL, PUSH_WORKER_SCOPE, PUSH_FUNCTIONS_REGION } from "./push-config.js";
 
 const RECEIPT_KEY = "heliumtg_push_registration";
-const REFRESH_MS = 30 * 24 * 60 * 60 * 1000;
+// Auth credentials are attached by the callable SDK. The server must derive UID
+// from request.auth, validate the token, and upsert it idempotently.
+const functions = getFunctions(app, PUSH_FUNCTIONS_REGION);
+export const registerPushToken = httpsCallable(functions, "registerPushToken");
+const pendingRegistrations = new Map();
 let messagingSdk;
 export function loadMessaging() {
     if (!messagingSdk) messagingSdk = import("https://www.gstatic.com/firebasejs/12.1.0/firebase-messaging.js")
@@ -59,15 +63,17 @@ export async function registerDeviceToken(user, token) {
     if (!token || token.length > 4096) throw new Error("push/invalid-token");
     if (auth.currentUser?.uid !== user.uid) throw new Error("push/auth-changed");
     const id = await tokenDocumentId(token);
-    const reference = doc(db, "users", user.uid, "pushTokens", id);
-    await runTransaction(db, async transaction => {
-        if (auth.currentUser?.uid !== user.uid) throw new Error("push/auth-changed");
-        const snapshot = await transaction.get(reference);
-        const previous = snapshot.exists() ? snapshot.data() : null;
-        if (previous?.token === token && previous.enabled === true &&
-            Date.now() - (previous.updatedAt?.toMillis() || 0) < REFRESH_MS) return;
-        transaction.set(reference, { token, enabled: true, updatedAt: serverTimestamp() });
-    });
+    if (auth.currentUser?.uid !== user.uid) throw new Error("push/auth-changed");
+    const requestKey = JSON.stringify([user.uid, id]);
+    if (!pendingRegistrations.has(requestKey)) {
+        const request = registerPushToken({ token }).then(result => {
+            if (result.data?.success === false || result.data?.ok === false) {
+                throw new Error("push/backend-rejected");
+            }
+        }).finally(() => pendingRegistrations.delete(requestKey));
+        pendingRegistrations.set(requestKey, request);
+    }
+    await pendingRegistrations.get(requestKey);
     if (auth.currentUser?.uid !== user.uid) throw new Error("push/auth-changed");
     // A local receipt is a hint for account changes, never proof of registration.
     // Do not keep raw tokens in localStorage or log them.
@@ -77,7 +83,6 @@ export async function registerDeviceToken(user, token) {
 
 export async function revokeBrowserPush() {
     const registration = await existingPushWorker();
-    const receipt = registrationReceipt();
     if (registration) {
         const subscription = await registration.pushManager.getSubscription();
         if (subscription && !await subscription.unsubscribe() && await registration.pushManager.getSubscription()) {
@@ -86,10 +91,6 @@ export async function revokeBrowserPush() {
         // Unsubscribe the exact registration. Calling FCM deleteToken from a fresh
         // page can select its default registration instead of our explicit scope.
         // getToken detects the absent subscription and refreshes on next opt-in.
-    }
-    if (receipt?.uid === auth.currentUser?.uid && /^[a-f0-9]{64}$/.test(receipt.id)) {
-        try { await deleteDoc(doc(db, "users", receipt.uid, "pushTokens", receipt.id)); }
-        catch { /* The browser subscription is already revoked. */ }
     }
     try { localStorage.removeItem(RECEIPT_KEY); } catch { /* Storage may be disabled. */ }
 }

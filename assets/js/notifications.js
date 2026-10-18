@@ -62,6 +62,22 @@ function receiveMessage(payload) {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 15000);
 }
+function browserSupportError() {
+    if (!globalThis.isSecureContext) return "Thông báo yêu cầu HTTPS hoặc localhost.";
+    if (!("serviceWorker" in navigator)) return "Trình duyệt chưa hỗ trợ Service Worker. Trên iPhone/iPad, hãy mở trang từ Màn hình chính.";
+    if (!("PushManager" in globalThis)) return "Trình duyệt chưa hỗ trợ Web Push. Trên iPhone/iPad, hãy thêm trang vào Màn hình chính rồi mở lại.";
+    if (!("Notification" in globalThis)) return "Trình duyệt chưa hỗ trợ Notification API. Trên iPhone/iPad, hãy mở trang từ Màn hình chính.";
+    return "";
+}
+function registrationError(error) {
+    const code = error.code || error.message;
+    if (code === "push/not-configured") return "Thiếu khóa VAPID công khai trong cấu hình Firebase. Vui lòng liên hệ quản trị viên.";
+    if (code === "functions/unauthenticated") return "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để bật thông báo.";
+    if (code === "functions/not-found") return "Không tìm thấy registerPushToken. Vui lòng kiểm tra vùng triển khai Cloud Functions.";
+    if (code === "functions/permission-denied") return "Máy chủ từ chối đăng ký thông báo cho tài khoản này. Vui lòng liên hệ quản trị viên.";
+    return "Chưa thể đăng ký thông báo. Vui lòng kiểm tra kết nối rồi thử lại.";
+}
+
 async function startReceiver() {
     if (receiverStarted || !PUBLIC_VAPID_KEY || !supported || !user || Notification.permission !== "granted") return;
     const sdk = await loadMessaging();
@@ -116,9 +132,7 @@ async function synchronizeDevice(explicit) {
                 errorMessage = "Chưa thể cập nhật đăng ký thông báo. Vui lòng kiểm tra cài đặt trang web rồi thử lại.";
             }
         }
-        errorMessage = errorMessage || (error.message === "push/not-configured" ?
-            "Tính năng thông báo đang được chuẩn bị. Vui lòng thử lại sau." :
-            "Chưa thể bật thông báo. Vui lòng thử lại hoặc kiểm tra cài đặt trình duyệt.");
+        errorMessage = errorMessage || registrationError(error);
     } finally {
         busy = false;
         if (requestVersion === version) render(errorMessage);
@@ -127,7 +141,17 @@ async function synchronizeDevice(explicit) {
 }
 
 button?.addEventListener("click", async () => {
-    if (!supported || busy || signingOut) return;
+    if (busy || signingOut) return;
+    const supportError = browserSupportError();
+    if (supportError) {
+        supported = false;
+        render(supportError);
+        return;
+    }
+    if (!supported) {
+        render("Firebase Messaging không được hỗ trợ trên trình duyệt này.");
+        return;
+    }
     if (!user) {
         render("Vui lòng đăng nhập để nhận thông báo cho truyện đang theo dõi.");
         return;
@@ -137,7 +161,7 @@ button?.addEventListener("click", async () => {
         return;
     }
     if (!PUBLIC_VAPID_KEY) {
-        render("Tính năng thông báo đang được chuẩn bị. Vui lòng thử lại sau.");
+        render(registrationError(new Error("push/not-configured")));
         return;
     }
     if (Notification.permission === "default") {
@@ -162,9 +186,9 @@ button?.addEventListener("click", async () => {
 });
 
 async function initialize() {
-    if (!globalThis.isSecureContext || !("Notification" in globalThis) ||
-        !("serviceWorker" in navigator) || !("PushManager" in globalThis)) {
-        render("Trình duyệt này chưa hỗ trợ thông báo. Hãy thử một trình duyệt có hỗ trợ Web Push.");
+    const supportError = browserSupportError();
+    if (supportError) {
+        render(supportError);
         return;
     }
     try { supported = await (await loadMessaging()).isSupported(); }
