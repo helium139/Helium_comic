@@ -41,6 +41,7 @@ const currentData = JSON.parse(
 const previousData = getJsonFromGit(pushBefore || "HEAD^");
 
 const newChapters = [];
+const pushPayloads = [];
 
 for (const [slug, manga] of Object.entries(currentData)) {
     const oldManga = previousData[slug];
@@ -121,4 +122,18 @@ for (const item of newChapters) {
     console.log(
         `Sent Discord notification: ${manga.title} - ${chapter.title}`
     );
+
+    pushPayloads.push({
+        mangaSlug: slug,
+        mangaTitle: manga.title,
+        chapterTitle: chapter.title,
+        url: chapterUrl,
+        cover: new URL(manga.cover, "https://heliumtg.com/").href
+    });
+}
+
+// Hand off only after every chapter has passed readiness and Discord delivery.
+// The file lives in RUNNER_TEMP, outside the deployed website.
+if (process.env.PUSH_PAYLOAD_FILE) {
+    fs.writeFileSync(process.env.PUSH_PAYLOAD_FILE, JSON.stringify(pushPayloads));
 }

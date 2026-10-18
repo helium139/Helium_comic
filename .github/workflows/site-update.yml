@@ -193,4 +193,30 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_PAYLOAD_FILE: ${{ runner.temp }}/chapter-push-${{ github.run_id }}-${{ github.run_attempt }}.json
         run: node scripts/discord-notify.mjs
+
+      - name: Notify Firebase push backend
+        shell: bash
+        env:
+          PUSH_FUNCTION_URL: ${{ secrets.PUSH_FUNCTION_URL }}
+          CHAPTER_NOTIFY_SECRET: ${{ secrets.CHAPTER_NOTIFY_SECRET }}
+          PUSH_PAYLOAD_FILE: ${{ runner.temp }}/chapter-push-${{ github.run_id }}-${{ github.run_attempt }}.json
+        run: |
+          if [ ! -f "$PUSH_PAYLOAD_FILE" ]; then
+            echo "No new chapters to notify."
+            exit 0
+          fi
+
+          : "${PUSH_FUNCTION_URL:?PUSH_FUNCTION_URL secret is required}"
+          : "${CHAPTER_NOTIFY_SECRET:?CHAPTER_NOTIFY_SECRET secret is required}"
+
+          jq -c '.[]' "$PUSH_PAYLOAD_FILE" | while IFS= read -r payload; do
+            curl --fail-with-body --silent --show-error \
+              --proto '=https' --connect-timeout 10 --max-time 60 \
+              --request POST \
+              --header 'Content-Type: application/json' \
+              --header "x-helium-secret: $CHAPTER_NOTIFY_SECRET" \
+              --data-binary "$payload" \
+              "$PUSH_FUNCTION_URL"
+          done
