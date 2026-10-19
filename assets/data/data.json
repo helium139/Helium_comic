@@ -4101,29 +4101,5 @@
                 "pages": 37
             }
         ]
-    },
-    "adgfg": {
-        "title": "ádgfg",
-        "original_title": "adgfd",
-        "author": "ádfh",
-        "status": "Ongoing",
-        "description": "adghfd",
-        "tags": [
-            "Adsf"
-        ],
-        "teamId": "testteam",
-        "team": "Test Team",
-        "adminPick": false,
-        "pickOrder": 999,
-        "chapters": [
-            {
-                "id": 1,
-                "title": "Chap 1",
-                "createAt": "2026-10-19T15:10:07.527Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/adgfg/chap1",
-                "pages": 1
-            }
-        ],
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/adgfg/cover-f6478696-7d18-4805-a269-8b40bc17cb94.webp"
     }
 }
