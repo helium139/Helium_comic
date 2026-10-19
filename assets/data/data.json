@@ -4130,7 +4130,15 @@
         "team": "HeliumTG",
         "adminPick": true,
         "pickOrder": 2,
-        "chapters": [],
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-10-19T15:28:48.378Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tay-em-trong-tay-anh-khong-che/chap1",
+                "pages": 31
+            }
+        ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tay-em-trong-tay-anh-khong-che/cover-6c539876-649e-4779-85ce-46faece3424a.webp"
     }
 }
