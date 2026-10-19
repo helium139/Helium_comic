@@ -241,55 +241,17 @@ service cloud.firestore {
     // COMMENTS
     // =====================================================
 
+    // Public sanitized reads and authenticated mutations go through callables.
+    // Direct reads would expose hidden text because rules cannot redact fields.
     match /comments/{mangaId}/messages/{commentId} {
-
-      /*
-       * Comment public.
-       */
-      allow read:
-        if true;
-
-
-      /*
-       * Phải đăng nhập.
-       *
-       * Quan trọng:
-       * uid trong document phải đúng với Firebase Auth UID.
-       *
-       * Không cho browser tạo comment thay tên UID người khác.
-       */
-      allow create:
-        if signedIn() &&
-           request.resource.data.uid ==
-             request.auth.uid;
-
-
-      /*
-       * Hiện tại giữ behavior cũ:
-       * chỉ author được sửa comment của mình.
-       *
-       * Đồng thời uid không được thay đổi.
-       */
-      allow update:
-        if signedIn() &&
-           request.auth.uid ==
-             resource.data.uid &&
-           request.resource.data.uid ==
-             resource.data.uid;
-
-
-      /*
-       * Author được xóa comment của mình.
-       *
-       * Admin moderation có thể được thêm Phase 4.
-       */
-      allow delete:
-        if signedIn() &&
-           request.auth.uid ==
-             resource.data.uid;
-
+      allow read, write: if false;
     }
-
+    match /commentModerationEvents/{document=**} {
+      allow read, write: if false;
+    }
+    match /commentSystem/{document=**} {
+      allow read, write: if false;
+    }
 
     // Authoritative views are Admin-SDK-only. Staff analytics use the
     // getChapterViewAnalytics callable, which enforces custom-claim team scope.

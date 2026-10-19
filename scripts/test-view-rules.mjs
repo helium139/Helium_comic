@@ -40,7 +40,8 @@ test('actual merged rules deny view collections and preserve existing site permi
         await assertFails(updateDoc(doc(user, 'users/u'), { teamId: 'heliumtg' }));
         await assertSucceeds(setDoc(doc(user, 'users/u/history/m'), { mangaId: 'm', chapterId: 0 }));
         await assertFails(setDoc(doc(user, 'users/u/pushTokens/t'), { token: 'private' }));
-        await assertSucceeds(setDoc(doc(user, 'comments/m/messages/c'), { uid: 'u', content: 'Still works' }));
+        // Phase 4 moves comment writes to authenticated callables.
+        await assertFails(setDoc(doc(user, 'comments/m/messages/c'), { uid: 'u', content: 'Use callable' }));
         await assertSucceeds(updateDoc(doc(user, 'mangaStats/m'), { likes: 1 }));
         await assertSucceeds(setDoc(doc(user, 'mangaStats/new'), { likes: 0, follows: 0 }));
         await assertFails(setDoc(doc(user, 'mangaStats/forged'), { views: 0, likes: 0, follows: 0 }));

@@ -57,7 +57,10 @@ jobs:
         run: npm --prefix functions run lint
 
       - name: Test trusted views and reader timing
-        run: node --test scripts/test-view-service.mjs scripts/test-chapter-views.mjs scripts/test-view-dashboard.mjs
+        run: node --test scripts/test-view-service.mjs scripts/test-chapter-views.mjs scripts/test-view-dashboard.mjs scripts/test-chapter-popularity.mjs
+
+      - name: Test threaded comment validation and UI
+        run: node --test scripts/test-comments.mjs scripts/test-firebase-session.mjs
 
       - name: Setup Java for Firestore emulator
         uses: actions/setup-java@v4
@@ -65,8 +68,8 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Test Firestore view rules and concurrent transactions
-        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs"
+      - name: Test Firestore view and comment rules and transactions
+        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs scripts/test-comment-firestore.mjs"
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs

@@ -1400,3 +1400,17 @@ footer p {
     margin: 0 12px 4px 0;
 }
 .chapter-notification-toast a { display: flow-root; }
+
+/* Threaded comments reuse the existing comment card and typography. */
+.comment-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.comment-action{background:transparent;color:inherit;border:1px solid #555;border-radius:6px;padding:6px 10px;cursor:pointer}
+.comment-action:disabled{opacity:.6;cursor:wait}
+.comment-replies{margin:12px 0 0 12px;border-left:2px solid #555;padding-left:12px}
+.comment-reply-form{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.comment-reply-form textarea{width:100%;min-height:70px;background:transparent;color:inherit;border:1px solid #555;border-radius:6px;padding:8px}
+.comment-content{white-space:pre-wrap;overflow-wrap:anywhere}
+.comment-header time,.comment-parent{font-size:.8rem;opacity:.7}
+@media(max-width:600px){.comment-replies{margin-left:4px;padding-left:8px}}
+
+.comment > .comment-replies{display:block}
+.comment > .comment-replies[hidden]{display:none}

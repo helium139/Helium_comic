@@ -860,3 +860,16 @@ const viewEndpoints = createViewEndpoints(db);
 exports.startChapterViewSession = viewEndpoints.startChapterViewSession;
 exports.recordChapterView = viewEndpoints.recordChapterView;
 exports.getChapterViewAnalytics = viewEndpoints.getChapterViewAnalytics;
+
+/* Threaded comments reuse the existing codebase and Admin SDK instance. */
+const {createCommentEndpoints} = require("./lib/comments/endpoints.js");
+const commentEndpoints = createCommentEndpoints(db);
+exports.createComment = commentEndpoints.createComment;
+exports.editComment = commentEndpoints.editComment;
+exports.deleteComment = commentEndpoints.deleteComment;
+exports.moderateComment = commentEndpoints.moderateComment;
+exports.listComments = commentEndpoints.listComments;
+
+/* Public popularity only; independent of valid-view accounting. */
+const {createPopularityEndpoint} = require("./lib/popularity/endpoint.js");
+exports.recordChapterPopularity = createPopularityEndpoint(db);

@@ -1,3 +1,4 @@
+import { recordChapterPopularity } from "./chapter-popularity.js";
 import { startChapterViews } from "./chapter-views.js";
 import { markChapterRead, showProgressError } from "./reading-progress.js";
 import { auth, onAuthStateChanged } from "./firebase-session.js";
@@ -148,6 +149,7 @@ document.querySelector(
         loadedChapter = { manga };
         saveProgress();
         startChapterViews({ mangaId, chapterId, manga, chapter, firstImage });
+        recordChapterPopularity({ mangaId, chapterId, firstImage });
     };
     if (firstImage?.complete && firstImage.naturalWidth > 0) chapterOpened();
     else firstImage?.addEventListener("load", chapterOpened, { once: true });

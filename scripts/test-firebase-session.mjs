@@ -55,29 +55,9 @@ test('shared auth dispatch and profile reads preserve freshness and retry after 
     }
 });
 
-test('comments retain only one live listener and restore after bfcache navigation', async () => {
-    const handlers = {};
-    let active = 0;
-    let registrations = 0;
-    const source = (await readFile(new URL('../assets/js/comment.js', import.meta.url), 'utf8'))
-        .replace(/^import[\s\S]*?from\s*"[^"]+";\s*/gm, '');
-    const element = { addEventListener() {} };
-    const context = {
-        auth: {}, db: {}, getRouteParams: () => new URLSearchParams('id=test'),
-        document: { getElementById: () => element },
-        collection() {}, query() {}, orderBy() {},
-        onSnapshot() { active++; registrations++; return () => { active--; }; },
-        window: { addEventListener(type, callback) { handlers[type] = callback; } }
-    };
-    vm.runInNewContext(source, context);
-    assert.equal(active, 1);
-    handlers.pageshow({ persisted: false });
-    assert.equal(registrations, 1);
-    handlers.pagehide();
-    handlers.pagehide();
-    assert.equal(active, 0);
-    handlers.pageshow({ persisted: true });
-    handlers.pageshow({ persisted: true });
-    assert.equal(active, 1);
-    assert.equal(registrations, 2);
+test('comments use bounded callables and refresh on auth/bfcache without realtime listeners', async () => {
+    const source = await readFile(new URL('../assets/js/comment.js', import.meta.url), 'utf8');
+    assert.doesNotMatch(source, /onSnapshot|firebase-firestore/);
+    assert.match(source, /onAuthStateChanged\(auth, \(\) => loadRoots\(true\)\)/);
+    assert.match(source, /event.persisted\) loadRoots\(true\)/);
 });
