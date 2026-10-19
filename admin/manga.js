@@ -1,3 +1,4 @@
+import { paginateMangas, renderPagination } from "./pagination.mjs";
 import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
 import { getTeams, resolveMangaTeam, getTeamById } from "../assets/js/teams.js";
 import { requireStaff } from "../assets/js/adminGuard.js";
@@ -22,6 +23,7 @@ from "./api/github.js";
 const currentStaff = await requireStaff();
 
 let mangas = {};
+let mangaPage = 1;
 
 let currentSlug = null;
 
@@ -129,6 +131,7 @@ async function init(){
 function bindEvents(){
 
     searchInput.oninput=()=>{
+        mangaPage = 1;
 
         renderMangas(
 
@@ -166,11 +169,11 @@ handleTagInput
 
 }
 
-function renderMangas(keyword=""){
+function renderMangas(keyword=searchInput.value){
 
-    mangaGrid.innerHTML="";
+    mangaGrid.replaceChildren();
 
-    Object.entries(mangas)
+    const filteredMangas = Object.entries(scopeMangas(currentStaff, mangas))
 
     .filter(([slug,manga])=>{
 
@@ -196,7 +199,15 @@ function renderMangas(keyword=""){
 
     )
 
-    .forEach(([slug,manga])=>{
+    ;
+    const pagination = paginateMangas(filteredMangas, mangaPage);
+    mangaPage = pagination.page;
+    document.getElementById("manga-pagination-summary").textContent = `Showing ${pagination.first}–${pagination.last} of ${pagination.total} manga`;
+    renderPagination(document.getElementById("manga-pagination"), pagination, page => {
+        mangaPage = page;
+        renderMangas(searchInput.value);
+    });
+    pagination.items.forEach(([slug,manga])=>{
 
         const card=
 

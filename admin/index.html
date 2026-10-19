@@ -48,6 +48,11 @@ rel="stylesheet">
         Thêm Chapter
     </a>
 
+    <a href="/admin/comments/">
+        <i class='bx bx-comment'></i>
+        Comments
+    </a>
+
     <a href="/">
         <i class='bx bx-world'></i>
         Website
@@ -82,7 +87,7 @@ rel="stylesheet">
             </article>
             <article class="stat-card">
                 <h2>Comments</h2>
-                <p class="dashboard-stat-value dashboard-unavailable">Available in Phase 4</p>
+                <p><a class="dashboard-edit-link" href="/admin/comments/">Manage comments</a></p>
                 <p>Chưa có bộ đếm tổng hợp theo nhóm</p>
             </article>
             <article class="stat-card">
@@ -121,6 +126,7 @@ rel="stylesheet">
                     <tbody id="manga-list"></tbody>
                 </table>
             </div>
+            <nav id="manga-pagination" class="admin-pagination" aria-label="Manga pages"></nav>
             <p id="dashboard-empty" class="dashboard-empty" hidden>Chưa có truyện trong phạm vi này.</p>
         </section>
     </div>

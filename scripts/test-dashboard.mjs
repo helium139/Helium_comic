@@ -1,3 +1,4 @@
+import { paginateMangas, renderPagination } from '../admin/pagination.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -98,16 +99,17 @@ function dom() {
     return { get, document: { getElementById: get, createElement: element } };
 }
 
-async function dashboard(staff, { failFetch = false, deny = false } = {}) {
+async function dashboard(staff, { failFetch = false, deny = false, data = catalogue } = {}) {
     const d = dom(), requests = [], errors = [];
     let guarded = false;
     const context = { document: d.document,
         requireStaff: async () => { if (deny) throw new Error('Staff access required'); guarded = true; return staff; },
         getTeams: async () => { assert.equal(guarded, true); requests.push('teams'); return teams; },
-        fetch: async url => { assert.equal(guarded, true); requests.push(url); return { ok: !failFetch, json: async () => catalogue }; },
+        fetch: async url => { assert.equal(guarded, true); requests.push(url); return { ok: !failFetch, json: async () => data }; },
         scopeMangas: staffHelpers.scopeMangas, assertCanManageManga: staffHelpers.assertCanManageManga,
         showStaffAccessError: error => errors.push(error),
         createDashboardAnalytics: () => ({ update() {} }),
+        paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, d.document),
         getDashboardScope,
         buildDashboardModel: (...args) => buildDashboardModel(...args, now)
     };
@@ -171,7 +173,26 @@ test('guard/fetch failures do not display misleading zero counts; placeholders d
     const markup = await read('admin/index.html');
     assert.match(markup, /id="total-valid-views"/);
     assert.match(markup, /id="monthly-valid-views"/);
-    assert.match(markup, /Available in Phase 4/);
+    assert.match(markup, /Manage comments/);
     const source = await read('admin/dashboard.js');
     assert.doesNotMatch(source, /firebase-firestore|mangaStats|onSnapshot|getDocs|getCountFromServer|increment\(/);
+});
+
+
+test('dashboard paginates scoped catalogue; team changes reset to first page', async () => {
+    const data = Object.fromEntries(Array.from({length:33}, (_,i) => [`m${i}`, {title:`Manga ${String(i).padStart(2,'0')}`,teamId:i<23?'heliumtg':'testteam',chapters:[]}]));
+    const d = await dashboard(admin,{data});
+    assert.equal(d.get('manga-list').children.length,10);
+    d.get('manga-pagination').children.at(-1).events.click();
+    assert.match(d.get('manga-results').textContent,/Showing 11–20 of 33/);
+    const team=d.get('dashboard-team');team.value='testteam';team.events.change();
+    assert.match(d.get('manga-results').textContent,/Showing 1–10 of 10/);
+    assert.equal(d.get('manga-pagination').children[0].disabled,true);
+    assert.equal(d.get('manga-pagination').children.at(-1).disabled,true);
+    const own=await dashboard(leader,{data});
+    own.get('manga-pagination').children.at(-1).events.click();
+    own.get('manga-pagination').children.at(-1).events.click();
+    assert.equal(own.get('manga-list').children.length,3);
+    assert.match(own.get('manga-results').textContent,/Showing 21–23 of 23/);
+    assert.ok(own.get('manga-list').children.every(row=>row.children[1].textContent==='HeliumTG'));
 });

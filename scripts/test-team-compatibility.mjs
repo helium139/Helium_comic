@@ -1,3 +1,4 @@
+import { paginateMangas, renderPagination } from '../admin/pagination.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -73,13 +74,14 @@ test('manga editor handles legacy Worker data and saves both stable ID and legac
     const el = id => {
         if (!elements.has(id)) elements.set(id, {
             value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} },
-            replaceChildren() {}, appendChild() {}, addEventListener() {}
+            replaceChildren() {}, appendChild() {}, addEventListener() {}, setAttribute() {}
         });
         return elements.get(id);
     };
     let saved;
     const catalogue = { sample: { title: 'Sample', team: 'Renamed Team', cover: 'cover', chapters: [], tags: [] } };
     const context = {
+        paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ uid: 'a', role: 'admin' }),
         URLSearchParams, location: { search: '' },
         scopeMangas: staff.scopeMangas, assertCanManageManga: staff.assertCanManageManga,
@@ -106,13 +108,14 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
     const el = id => {
         if (!elements.has(id)) elements.set(id, {
             value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} },
-            replaceChildren() {}, appendChild() {}, addEventListener() {}
+            replaceChildren() {}, appendChild() {}, addEventListener() {}, setAttribute() {}
         });
         return elements.get(id);
     };
     const calls = [];
     const catalogue = { sample: { title: 'Sample', teamId: 'heliumtg', cover: 'old-cover', chapters: [{ id: 0, title: 'Prologue', createAt: '2026-01-01' }], tags: [] } };
     const context = {
+        paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ uid: 'a', role: 'admin' }),
         URLSearchParams, location: { search: '' },
         scopeMangas: staff.scopeMangas, assertCanManageManga: staff.assertCanManageManga,
@@ -156,6 +159,7 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
 test('chapter editor recognizes chapter zero in a direct edit URL', async () => {
     const source = stripImports(await read('admin/chapter.js')).replace('\nawait init().catch(showStaffAccessError);', '\n');
     const context = {
+        paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ role: 'admin' }),
         URLSearchParams, location: { search: '?manga=own&chapter=0' },
         document: { getElementById: () => ({ addEventListener() {} }) }

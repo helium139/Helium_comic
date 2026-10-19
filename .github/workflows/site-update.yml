@@ -48,7 +48,7 @@ jobs:
         run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs scripts/test-staff-access.mjs
 
       - name: Test scoped dashboard statistics
-        run: node --test scripts/test-dashboard.mjs
+        run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
 
       - name: Install Functions verification dependencies
         run: npm ci --prefix functions --ignore-scripts --no-audit --no-fund

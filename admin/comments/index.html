@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comments · Helium CMS</title><link rel="icon" href="/assets/images/helium_logo.webp"><link rel="stylesheet" href="/admin/admin.css">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"></head><body>
+<button id="menuToggleBtn" class="menu-toggle-btn">
+  <i class="bx bx-menu"></i>
+</button>
+
+<div id="adminOverlay" class="admin-overlay"></div>
+<div class="sidebar">
+
+    <div class="logo">
+        <img src="/assets/images/helium_logo.webp">
+        <h2>Helium CMS</h2>
+    </div>
+
+    <a href="/admin/">
+        <i class='bx bx-home'></i>
+        Dashboard
+    </a>
+
+    <a href="/admin/manga/">
+        <i class='bx bx-book'></i>
+        Quản lý truyện
+    </a>
+
+    <a href="/admin/chapter/">
+        <i class='bx bx-file'></i>
+        Thêm Chapter
+    </a>
+
+    <a href="/admin/comments/" class="active">
+        <i class='bx bx-comment'></i>
+        Comments
+    </a>
+
+    <a href="/">
+        <i class='bx bx-world'></i>
+        Website
+    </a>
+
+</div>
+
+<main class="content dashboard-page">
+<header class="dashboard-header"><div><p class="dashboard-eyebrow">Helium CMS</p><h1>Comments</h1><p id="comments-scope" class="dashboard-muted">Đang xác thực quyền truy cập…</p></div></header>
+<section id="comments-content" class="dashboard-manga-section" hidden>
+<div class="admin-comment-filters">
+<label id="comments-team-field" hidden>Team <select id="comments-team"></select></label>
+<label>Manga <select id="comments-manga"></select></label>
+<label>Status <select id="comments-state"><option value="all">All statuses</option><option value="visible">Visible</option><option value="hidden">Hidden</option><option value="deleted">Deleted</option></select></label>
+</div>
+<p id="comments-status" class="dashboard-muted" role="status" aria-live="polite"></p>
+<div id="comments-list"></div><button id="comments-more" type="button" hidden>Load more comments</button>
+</section></main><script type="module" src="/admin/comments.js"></script><script src="/admin/menu.js"></script></body></html>

@@ -1425,3 +1425,18 @@ color:white;
 #view-analytics-tree li { padding: 7px 0; }
 #view-analytics-tree button, #view-analytics-expand { color: #bfdbfe; background: #1e3a5f; padding: 8px 12px; border-radius: 8px; text-align: left; }
 #view-analytics-period { color: #f8fafc; background: #1f2937; padding: 8px; border: 1px solid #475569; border-radius: 8px; }
+
+.admin-pagination{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0}
+.admin-pagination button,.admin-comment button{background:#1e3a5f;color:#bfdbfe;border-radius:6px;padding:8px 12px;cursor:pointer}
+.admin-pagination button[aria-current="page"]{background:#2563eb;color:white}
+.admin-pagination button:disabled,.admin-comment button:disabled{opacity:.45;cursor:default}
+.admin-comment-filters{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:18px}
+.admin-comment-filters label{display:flex;align-items:center;gap:8px}
+.admin-comment-filters select{background:#1f2937;color:#f8fafc;padding:8px;border:1px solid #475569;border-radius:6px;max-width:100%}
+.admin-comment{border-top:1px solid #334155;padding:18px 0;overflow-wrap:anywhere}
+.admin-comment h3{font-size:16px;margin-bottom:8px}.admin-comment p{margin:8px 0}
+.admin-comment-text{white-space:pre-wrap}.admin-comment-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.admin-comment-replies{margin:12px 0 0 16px;border-left:2px solid #475569;padding-left:16px}
+#comments-more{background:#1e3a5f;color:#bfdbfe;border-radius:6px;padding:10px 14px;margin-top:12px}
+@media(max-width:600px){.admin-comment-filters label{width:100%}.admin-comment-filters select{flex:1;min-width:0}.admin-comment-replies{margin-left:4px;padding-left:8px}}
+#comments-team-field[hidden],#comments-content[hidden],#comments-more[hidden]{display:none}

@@ -1,3 +1,4 @@
+import { paginateMangas, renderPagination } from "./pagination.mjs";
 import { createDashboardAnalytics } from "./view-analytics.js";
 import { requireStaff } from "../assets/js/adminGuard.js";
 import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
@@ -20,6 +21,7 @@ try {
     const analytics = createDashboardAnalytics({ staff: currentStaff, teams, catalogue });
     const filter = document.getElementById("dashboard-team");
     const isAdmin = currentStaff.role === "admin";
+    let mangaPage = 1;
     let scope = getDashboardScope(currentStaff, "all", teams);
     document.getElementById("dashboard-title").textContent = isAdmin ? "Admin Dashboard" : "Team Dashboard";
 
@@ -37,6 +39,7 @@ try {
         filter.addEventListener("change", () => {
             try {
                 scope = getDashboardScope(currentStaff, filter.value, teams);
+                mangaPage = 1;
                 render();
             } catch (error) { showStaffAccessError(error); }
         });
@@ -49,21 +52,24 @@ try {
         return element;
     }
 
-    function render() {
+    function render(updateAnalytics = true) {
         const model = buildDashboardModel(currentStaff, accessibleMangas, teams, scope);
-        analytics.update(model.scope);
+        if (updateAnalytics) analytics.update(model.scope);
         document.getElementById("dashboard-scope").textContent = `Team: ${model.scopeName}`;
         document.getElementById("total-manga").textContent = String(model.mangaCount);
         document.getElementById("monthly-chapters").textContent = String(model.monthlyChapters);
         document.getElementById("dashboard-month").textContent = `${model.month.key} · UTC · catalogue createAt`;
-        document.getElementById("manga-results").textContent = `${model.mangaCount} truyện · ${model.scopeName}`;
+        const pagination = paginateMangas(model.mangas, mangaPage);
+        mangaPage = pagination.page;
+        document.getElementById("manga-results").textContent = `Showing ${pagination.first}–${pagination.last} of ${pagination.total} manga · ${model.scopeName}`;
+        renderPagination(document.getElementById("manga-pagination"), pagination, page => { mangaPage = page; render(false); });
         const warning = document.getElementById("dashboard-date-warning");
         warning.hidden = !model.invalidDates;
         warning.textContent = model.invalidDates
             ? `${model.invalidDates} chương thiếu hoặc có ngày không hợp lệ; không tính vào số chương tháng.` : "";
         const list = document.getElementById("manga-list");
         list.replaceChildren();
-        for (const item of model.mangas) {
+        for (const item of pagination.items) {
             assertCanManageManga(currentStaff, item.manga);
             const row = document.createElement("tr");
             const title = document.createElement("td");

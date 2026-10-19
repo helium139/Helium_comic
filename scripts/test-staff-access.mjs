@@ -1,3 +1,4 @@
+import { paginateMangas, renderPagination } from '../admin/pagination.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -36,12 +37,12 @@ function dom() {
     function node(tag = 'div') {
         const classes = new Set();
         return {
-            tag, value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, children: [],
+            tag, events: {}, value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, children: [],
             classList: { add: value => classes.add(value), remove: value => classes.delete(value), contains: value => classes.has(value) },
             append(...children) { for (const child of children) this.appendChild(child); },
             appendChild(child) { child.parent = this; this.children.push(child); if (child.id) nodes.set(child.id, child); },
             replaceChildren(...children) { this.children = []; this.append(...children); },
-            addEventListener() {}, setAttribute(key, value) { this[key] = value; },
+            addEventListener(type, callback) { this.events[type] = callback; }, setAttribute(key, value) { this[key] = value; },
             remove() { nodes.delete(this.id); if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
         };
     }
@@ -141,11 +142,12 @@ test('guard accepts both staff roles and denies users/guests/stale tokens before
 
 // Dashboard scope/card/table integration is covered by test-dashboard.mjs.
 
-async function editor(file, staff, search) {
+async function editor(file, staff, search, fixtureData = fixtures) {
     const d = dom(), errors = [], calls = [];
-    const catalogue = structuredClone(fixtures);
+    const catalogue = structuredClone(fixtureData);
     let guarded = false;
     const context = { ...d, URLSearchParams, location: { search },
+        paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, d.document),
         requireStaff: async () => { guarded = true; return staff; },
         getMangas: async () => { assert.equal(guarded, true); return catalogue; },
         scopeMangas: helpers.scopeMangas, assertCanManageManga: helpers.assertCanManageManga,
@@ -256,4 +258,22 @@ test('public auth module wires claim-consistent navigation for admins, leaders a
     context.auth.currentUser = null;
     await callback(null);
     assert.equal(d.nodes.has('staff-nav-link'), false);
+});
+
+
+test('manga manager pagination keeps search and leader scope, then resets on search input', async () => {
+    const data = Object.fromEntries(Array.from({length:33},(_,i)=>[`m${i}`, {title:`Manga ${String(i).padStart(2,'0')}`,teamId:i<23?'heliumtg':'other-team',chapters:[],tags:[]}]));
+    const d = await editor('admin/manga.js',leader,'',data);
+    assert.equal(d.errors.length,0);assert.equal(d.get('mangaGrid').children.length,10);
+    d.get('manga-pagination').children.at(-1).events.click();
+    assert.match(d.get('manga-pagination-summary').textContent,/Showing 11–20 of 23/);
+    d.get('manga-pagination').children.at(-1).events.click();
+    assert.equal(d.get('mangaGrid').children.length,3);assert.equal(d.get('manga-pagination').children.at(-1).disabled,true);
+    d.get('searchInput').value='Manga 00';d.get('searchInput').oninput();
+    assert.equal(d.get('mangaGrid').children.length,1);assert.match(d.get('manga-pagination-summary').textContent,/Showing 1–1 of 1/);
+    assert.equal(d.get('manga-pagination').children[0].disabled,true);
+    d.get('searchInput').value='';d.get('searchInput').oninput();
+    assert.equal(d.get('mangaGrid').children.length,10);assert.match(d.get('manga-pagination-summary').textContent,/Showing 1–10 of 23/);
+    const all=await editor('admin/manga.js',admin,'',data);
+    assert.match(all.get('manga-pagination-summary').textContent,/Showing 1–10 of 33/);
 });
