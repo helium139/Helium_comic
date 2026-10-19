@@ -4101,19 +4101,5 @@
                 "pages": 37
             }
         ]
-    },
-    "s-fs": {
-        "title": "sđfs",
-        "original_title": "sádg",
-        "author": "ádg",
-        "status": "Ongoing",
-        "description": "",
-        "tags": [],
-        "teamId": "testteam",
-        "team": "Test Team",
-        "adminPick": false,
-        "pickOrder": 999,
-        "chapters": [],
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/s-fs/cover-a366e6a4-e3f0-4009-a216-75127a84a7b2.webp"
     }
 }
