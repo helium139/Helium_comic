@@ -4045,6 +4045,14 @@
         "description": "Trong giờ lễ Misa thiêng liêng, Ye Nok đã yêu Mattia ngay từ cái nhìn đầu tiên khi nghe cậu cất tiếng hát thánh ca.\nThế nhưng, đằng sau gương mặt xinh đẹp của Mattia là những lời đồn không ngớt gọi cậu là “đồ lăng loàn”, mà bản thân Mattia cũng chẳng hề che giấu hay phủ nhận điều đó.\nKể từ đó, Ye Nok được giao nhiệm vụ quản lý riêng Mattia, người đã bị gán mác học sinh cá biệt. Qua những buổi học phụ đạo chỉ có hai người mỗi ngày, Ye Nok dần trở nên thân thiết với cậu.\nNhưng rồi một ngày nọ, Mattia đột nhiên biến mất, khiến Ye Nok nghĩ rằng mối duyên giữa hai người đã chấm dứt.\nCho đến vài năm sau, khi Mattia trở về với thân phận tình nhân của cô mình...",
         "adminPick": true,
         "pickOrder": 999,
-        "chapters": []
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-10-19T07:21:58.620Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/oleander-on-the-moon/chap1",
+                "pages": 37
+            }
+        ]
     }
 }
