@@ -155,7 +155,7 @@ Use Node **24**, matching the existing Functions runtime, and Java 21 for emulat
 npm ci --prefix functions
 npm --prefix functions run lint
 node --test scripts/test-view-service.mjs scripts/test-chapter-views.mjs scripts/test-view-dashboard.mjs
-npx firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firestore/emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs"
+npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs"
 ```
 
 The emulator uses demo projects only. Rule tests verify all roles cannot directly
@@ -232,7 +232,7 @@ costs, and abuse signals before enabling any payment calculations.
 
 - Existing Functions: `functions/index.js`, `functions/package.json`, `functions/package-lock.json`.
 - New backend modules: `functions/lib/views/{policy.mjs,catalogue.mjs,view-service.mjs,endpoints.js,activate.mjs,.eslintrc.cjs}`.
-- Rules/config: `firestore.rules`, `firestore.indexes.json`, new `firestore/emulator.json`. Production `firebase.json` remains unchanged.
+- Rules/config: `firestore.rules`, `firestore.indexes.json`, new `firebase.emulator.json`. Production `firebase.json` remains unchanged.
 - Reader: `assets/js/comicpage.js`, `assets/js/comicchap.js`; new `assets/js/{chapter-views.js,active-view-session.mjs,view-callables.js,view-config.js}`.
 - Dashboard: `admin/{index.html,dashboard.js,admin.css}`; new `admin/view-analytics.js`, `admin/api/view-analytics.js`.
 - Verification: new `scripts/{test-view-service.mjs,test-chapter-views.mjs,test-view-dashboard.mjs,test-view-rules.mjs,test-view-firestore.mjs}`; updated `scripts/{test-dashboard.mjs,test-reading-progress.mjs}`.

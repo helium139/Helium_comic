@@ -66,7 +66,7 @@ jobs:
           java-version: '21'
 
       - name: Test Firestore view rules and concurrent transactions
-        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firestore/emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs"
+        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs"
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs
@@ -159,7 +159,7 @@ jobs:
       - name: Stage public website
         run: |
           mkdir -p /tmp/pages-site
-          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' --exclude='worker/' --exclude='functions/' --exclude='firestore/' --exclude='firebase.json' --exclude='firestore.rules' --exclude='firestore.indexes.json' --exclude='node_modules/' ./ /tmp/pages-site/
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' --exclude='worker/' --exclude='functions/' --exclude='firestore/' --exclude='firebase.json' --exclude='firebase.emulator.json' --exclude='firestore.rules' --exclude='firestore.indexes.json' --exclude='node_modules/' ./ /tmp/pages-site/
 
       # Use the Pages archive format, but replace the artifact on build reruns.
       # upload-pages-artifact does not expose upload-artifact's overwrite input.
