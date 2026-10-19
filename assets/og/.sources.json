@@ -288,6 +288,15 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "4c83f6c76aaf56763359787c958ecc3a820585216c82bbc38a52c73e91449874"
+    },
+    "oleander-on-the-moon": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/oleander-on-the-moon/cover.webp",
+      "etag": "\"75424fbd540ed849c15f17a8c52c0913\"",
+      "last_modified": "Mon, 19 Oct 2026 07:21:30 GMT",
+      "cover_sha256": "d8cc79a915c0e2f51e9cf50af848901d2c463e250a5e158207877187a6d80874",
+      "cover_width": 840,
+      "cover_height": 1120,
+      "image_sha256": "12939ff8cb085f47490077e05ccf211aa503d9d38de7cfbf8ddd854703459d31"
     }
   }
 }
