@@ -47,6 +47,9 @@ jobs:
       - name: Test CMS authorization without production requests
         run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs scripts/test-staff-access.mjs
 
+      - name: Test scoped dashboard statistics
+        run: node --test scripts/test-dashboard.mjs
+
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs
 

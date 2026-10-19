@@ -6,6 +6,7 @@
 <script type="module" src="/assets/js/routes.js"></script>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Helium CMS</title>
 <link rel="icon" type="image/png" href="/assets/images/helium_logo.webp">
@@ -54,13 +55,66 @@ rel="stylesheet">
 
 </div>
 
-<div class="content">
+<main class="content dashboard-page" aria-busy="false" id="dashboard">
+    <header class="dashboard-header">
+        <div>
+            <p class="dashboard-eyebrow">Helium CMS</p>
+            <h1 id="dashboard-title">Admin Dashboard</h1>
+            <p id="dashboard-scope" class="dashboard-muted">Đang xác thực quyền truy cập…</p>
+        </div>
+        <div id="team-filter-container" class="dashboard-filter" hidden>
+            <label for="dashboard-team">Team</label>
+            <select id="dashboard-team" disabled></select>
+        </div>
+    </header>
 
-<h1>Danh sách truyện</h1>
+    <div id="dashboard-content" hidden>
+        <section class="dashboard-grid" aria-label="Dashboard statistics">
+            <article class="stat-card">
+                <h2>Total Manga</h2>
+                <p class="dashboard-stat-value" id="total-manga">—</p>
+                <p>Truyện trong phạm vi hiện tại</p>
+            </article>
+            <article class="stat-card">
+                <h2>Chapters This Month</h2>
+                <p class="dashboard-stat-value" id="monthly-chapters">—</p>
+                <p id="dashboard-month">Tháng theo UTC</p>
+            </article>
+            <article class="stat-card">
+                <h2>Comments</h2>
+                <p class="dashboard-stat-value dashboard-unavailable">Available in Phase 4</p>
+                <p>Chưa có bộ đếm tổng hợp theo nhóm</p>
+            </article>
+            <article class="stat-card">
+                <h2>Total Views</h2>
+                <p class="dashboard-stat-value dashboard-unavailable">Not active yet</p>
+                <p>Lượt xem hợp lệ sẽ có từ Phase 3</p>
+            </article>
+            <article class="stat-card">
+                <h2>Views This Month</h2>
+                <p class="dashboard-stat-value dashboard-unavailable">Not active yet</p>
+                <p>Không sử dụng lượt xem cũ để tính thanh toán</p>
+            </article>
+        </section>
 
-<div id="manga-list"></div>
-
-</div>
+        <section class="dashboard-manga-section" aria-labelledby="manga-heading">
+            <div class="dashboard-section-header">
+                <h2 id="manga-heading">Manga</h2>
+                <p class="dashboard-muted" id="manga-results" role="status" aria-live="polite"></p>
+            </div>
+            <p class="dashboard-source-note">Số chương tháng tạm tính từ createAt trong catalogue, theo UTC. firstPublishedAt sẽ thay thế sau.</p>
+            <p id="dashboard-date-warning" class="dashboard-date-warning" role="status" hidden></p>
+            <div class="dashboard-table-scroll" tabindex="0" role="region" aria-label="Danh sách truyện">
+                <table class="dashboard-manga-table">
+                    <caption class="dashboard-sr-only">Truyện thuộc phạm vi quản trị hiện tại</caption>
+                    <thead><tr><th scope="col">Title</th><th scope="col">Team</th><th scope="col">Chapters</th><th scope="col">Status</th><th scope="col">Last Update (UTC)</th><th scope="col">Action</th></tr></thead>
+                    <tbody id="manga-list"></tbody>
+                </table>
+            </div>
+            <p id="dashboard-empty" class="dashboard-empty" hidden>Chưa có truyện trong phạm vi này.</p>
+        </section>
+    </div>
+</main>
 
 <script type="module"
 src="/admin/dashboard.js">

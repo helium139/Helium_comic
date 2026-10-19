@@ -139,23 +139,7 @@ test('guard accepts both staff roles and denies users/guests/stale tokens before
     }
 });
 
-test('dashboard scopes rows and management links to exact stable team ownership', async () => {
-    for (const staff of [admin, leader]) {
-        const d = dom();
-        let guarded = false;
-        const context = { ...d, URLSearchParams,
-            requireStaff: async () => { guarded = true; return staff; },
-            ...Object.fromEntries(['scopeMangas', 'assertCanManageManga', 'showStaffAccessError'].map(name => [name, helpers[name]])),
-            fetch: async () => { assert.equal(guarded, true); return { ok: true, json: async () => fixtures }; }
-        };
-        vm.createContext(context);
-        await vm.runInContext('(async () => {' + strip(await read('admin/dashboard.js')) + '})()', context);
-        const rows = d.get('manga-list').children;
-        assert.equal(rows.length, staff.role === 'admin' ? 3 : 1);
-        assert.equal(rows[0].href, '/admin/manga/?manga=own');
-        if (staff.role === 'team_leader') assert.deepEqual(rows.map(row => row.children[1].textContent), ['Own manga']);
-    }
-});
+// Dashboard scope/card/table integration is covered by test-dashboard.mjs.
 
 async function editor(file, staff, search) {
     const d = dom(), errors = [], calls = [];
