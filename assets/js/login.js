@@ -1,3 +1,4 @@
+import { createDefaultProfile } from "./user-profile.js";
 import { auth } from "./firebase-session.js";
 import { db } from "./firebase.js";
 
@@ -66,26 +67,7 @@ loginBtn.addEventListener(
 
                 await setDoc(
                     userRef,
-                    {
-                        name:
-                            user.displayName,
-
-                        email:
-                            user.email,
-
-                        avatar:
-                            user.photoURL,
-
-                        createdAt: new Date(),
-
-                        role: "user",
-
-                        likes: [],
-
-                        follows: [],
-
-                        history: []
-                    },
+                    createDefaultProfile(user),
                     {
                         merge: true
                     }

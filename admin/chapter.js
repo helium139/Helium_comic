@@ -8,7 +8,7 @@ import {
     renameImages
 } from "./api/github.js";
 
-requireAdmin();
+await requireAdmin();
 
 /* ===========================
         STATE
@@ -99,7 +99,7 @@ function parseQuery(){
 
     const chapter = Number(params.get("chapter"));
 
-    if(slug && chapter){
+    if(slug && params.has("chapter") && Number.isFinite(chapter)){
 
         mode = "edit";
 

@@ -1,0 +1,314 @@
+import { verifyFirebaseToken } from "./firebase-auth.js";
+import {
+    HttpError, fail, safeSlug, chapterNumber, pageCount, validateRegistry,
+    activeTeam, authorizeManga, imageName, uploadFolder, metadata, editorial
+} from "./cms-authorization.js";
+
+const MUTATIONS = new Set([
+    "/new-manga", "/edit-manga", "/delete-manga", "/new-chapter",
+    "/edit-chapter", "/delete-chapter", "/upload", "/rename-images"
+]);
+const PUBLIC = new Set(["/mangas", "/status"]);
+const ORIGINS = new Set([
+    "https://heliumtg.com", "https://www.heliumtg.com",
+    "http://localhost:8000", "http://127.0.0.1:8000"
+]);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
+const STAGING_TTL = 24 * 60 * 60 * 1000;
+
+// Dependency injection is code-level only; request/env data cannot replace verification.
+export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
+    log = (details) => console.error("CMS operation failed", details) } = {}) {
+
+    async function githubRequest(env, path, method = "GET", body) {
+        const response = await fetchImpl(`https://api.github.com${path}`, {
+            method,
+            headers: {
+                Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+                Accept: "application/vnd.github+json", "User-Agent": "HeliumCMS",
+                "X-GitHub-Api-Version": "2022-11-28"
+            },
+            body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        if (!response.ok) {
+            // Never include upstream response bodies, headers or credentials in errors/logs.
+            log({ service: "github", method, status: response.status });
+            fail(response.status === 409 ? 409 : 502,
+                response.status === 409 ? "Catalogue changed; reload before retrying" : "Publishing service unavailable");
+        }
+        return response.json();
+    }
+
+    function repoPath(env, filename) {
+        return `/repos/${encodeURIComponent(env.GITHUB_OWNER)}/${encodeURIComponent(env.GITHUB_REPO)}` +
+            `/contents/assets/data/${filename}`;
+    }
+
+    async function getFile(env, filename) {
+        const file = await githubRequest(env, `${repoPath(env, filename)}?ref=${encodeURIComponent(env.GITHUB_BRANCH)}`);
+        const bytes = Uint8Array.from(atob(file.content.replace(/\s/g, "")), char => char.charCodeAt(0));
+        return { sha: file.sha, data: JSON.parse(new TextDecoder().decode(bytes)) };
+    }
+
+    async function saveData(env, data, sha, message) {
+        const bytes = new TextEncoder().encode(JSON.stringify(data, null, 4));
+        let binary = "";
+        for (const byte of bytes) binary += String.fromCharCode(byte);
+        await githubRequest(env, repoPath(env, "data.json"), "PUT", {
+            message, content: btoa(binary), sha, branch: env.GITHUB_BRANCH
+        });
+    }
+
+    async function readBody(request) {
+        let body;
+        try { body = await request.json(); } catch { fail(400, "Invalid JSON request"); }
+        if (!body || typeof body !== "object" || Array.isArray(body)) fail(400, "Invalid request");
+        return body;
+    }
+
+    async function authenticate(request) {
+        const match = /^Bearer ([^\s]+)$/i.exec(request.headers.get("Authorization") || "");
+        if (!match || match[1].length > 16384) fail(401, "Authentication required");
+        let actor;
+        try { actor = await verifyToken(match[1]); } catch { fail(401, "Invalid authentication token"); }
+        if (!["admin", "team_leader"].includes(actor.role)) fail(403, "Permission denied");
+        return actor;
+    }
+
+    function publicBase(env) {
+        const value = env.R2_PUBLIC_URL.replace(/\/+$/, "");
+        if (new URL(value).protocol !== "https:") throw new Error("Invalid R2 public URL configuration");
+        return value;
+    }
+
+    async function stagedKey(actor, ref) {
+        if (typeof ref !== "string" || !UUID.test(ref)) fail(400, "Invalid staging reference");
+        const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(actor.uid));
+        const owner = Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, "0")).join("");
+        return `staging/manga-covers/${owner}/${ref}`;
+    }
+
+    function validateFile(file) {
+        if (!file || typeof file.stream !== "function" || !file.size || file.size > 32 * 1024 * 1024 ||
+            !IMAGE_TYPES.has(file.type)) fail(400, "Invalid image upload");
+    }
+
+    async function upload(request, env, actor, data, teams) {
+        let form;
+        try { form = await request.formData(); } catch { fail(400, "Invalid upload request"); }
+        const file = form.get("file");
+        validateFile(file);
+        if (form.get("kind") === "new-manga-cover") {
+            if (["folder", "filename", "key", "destination", "manga"].some(key => form.has(key))) {
+                fail(400, "Invalid upload path");
+            }
+            const ref = crypto.randomUUID();
+            const key = await stagedKey(actor, ref);
+            await env.BUCKET.put(key, file.stream(), {
+                httpMetadata: { contentType: file.type },
+                customMetadata: { owner: actor.uid, createdAt: String(Date.now()) }
+            });
+            return { success: true, stagingRef: ref };
+        }
+        if (form.has("kind") || form.has("key") || form.has("destination")) fail(400, "Invalid upload path");
+        const { slug, folder, chapterId } = uploadFolder(form.get("folder"));
+        authorizeManga(actor, data, slug, teams);
+        const filename = form.get("filename");
+        if (chapterId === null) {
+            if (filename !== "cover.webp") fail(400, "Invalid upload path");
+        } else imageName(filename);
+        const key = `${folder}/${filename}`;
+        await env.BUCKET.put(key, file.stream(), { httpMetadata: { contentType: file.type } });
+        return { success: true, key, url: `${publicBase(env)}/${key}` };
+    }
+
+    async function newManga(body, env, actor, result, teams) {
+        const slug = safeSlug(body.slug);
+        if (Object.hasOwn(result.data, slug)) fail(409, "Manga already exists");
+        const team = activeTeam(teams, actor.role === "admin" ? body.teamId : actor.teamId);
+        const manga = {
+            ...metadata(body), teamId: team.id, team: team.name,
+            ...(actor.role === "admin" ? editorial(body) : { adminPick: false, pickOrder: 999 }),
+            chapters: []
+        };
+        // New covers must be caller-owned staged objects, never arbitrary URLs/keys.
+        if (body.cover) fail(400, "New manga cover requires staging");
+        let stageKey, finalKey;
+        if (body.coverStagingRef !== undefined) {
+            stageKey = await stagedKey(actor, body.coverStagingRef);
+            const stage = await env.BUCKET.get(stageKey);
+            const createdAt = Number(stage?.customMetadata?.createdAt);
+            if (!stage || stage.customMetadata?.owner !== actor.uid || !Number.isFinite(createdAt) ||
+                createdAt > Date.now() || Date.now() - createdAt > STAGING_TTL) {
+                fail(403, "Staged cover unavailable or expired");
+            }
+            // Unique filename prevents a losing concurrent create from overwriting a winner's cover.
+            finalKey = `${slug}/cover-${body.coverStagingRef}.webp`;
+            manga.cover = `${publicBase(env)}/${finalKey}`;
+            await env.BUCKET.put(finalKey, stage.body, { httpMetadata: stage.httpMetadata });
+        } else manga.cover = "";
+        result.data[slug] = manga;
+        // A failed response can be ambiguous: retain the unique final object in case GitHub committed.
+        // Staging and any orphaned final cover can be reconciled by the documented cleanup job.
+        await saveData(env, result.data, result.sha, `Create manga ${slug}`);
+        if (stageKey) {
+            try { await env.BUCKET.delete(stageKey); }
+            catch { log({ service: "r2", operation: "staging-cleanup", outcome: "retry-required" }); }
+        }
+        return { success: true, cover: manga.cover };
+    }
+
+    function editedCover(body, existing, slug, env) {
+        if (body.coverStagingRef !== undefined) fail(400, "Staging is only supported for new manga covers");
+        if (body.cover === undefined || body.cover === existing.cover) return existing.cover;
+        const allowed = `${publicBase(env)}/${slug}/cover.webp`;
+        if (body.cover !== allowed) fail(400, "Invalid cover path");
+        return allowed;
+    }
+
+    async function renameImages(body, env, actor, data, teams) {
+        const { slug, folder, chapterId } = uploadFolder(body.folder);
+        authorizeManga(actor, data, slug, teams);
+        if (chapterId === null || !Array.isArray(body.images) || !body.images.length ||
+            body.images.length > 10000 || new Set(body.images).size !== body.images.length ||
+            Object.keys(body).some(key => !["folder", "images"].includes(key))) fail(400, "Invalid rename request");
+        // Validate the entire plan before touching R2. Neither sources nor destinations are paths from the client.
+        const plan = body.images.map((name, index) => {
+            imageName(name);
+            const ext = name.split(".").pop();
+            const destination = imageName(`${index + 1}.${ext}`);
+            return { source: `${folder}/${name}`, destination: `${folder}/${destination}`, ext };
+        });
+        for (const item of plan) {
+            if (!await env.BUCKET.head(item.source)) fail(404, "Chapter image not found");
+        }
+        const operation = crypto.randomUUID();
+        for (const [index, item] of plan.entries()) {
+            item.temp = `${folder}/tmp-${operation}-${index}.${item.ext}`;
+            const object = await env.BUCKET.get(item.source);
+            if (!object) fail(409, "Chapter images changed; reload before retrying");
+            await env.BUCKET.put(item.temp, object.body, { httpMetadata: object.httpMetadata });
+        }
+        // Keep originals until all temporary copies exist.
+        for (const item of plan) await env.BUCKET.delete(item.source);
+        for (const item of plan) {
+            const object = await env.BUCKET.get(item.temp);
+            if (!object) throw new Error("Missing rename temporary object");
+            await env.BUCKET.put(item.destination, object.body, { httpMetadata: object.httpMetadata });
+        }
+        for (const item of plan) await env.BUCKET.delete(item.temp);
+        return { success: true };
+    }
+
+    async function mutate(path, request, env, actor) {
+        // Read the authoritative GitHub branch, not a browser snapshot/static CDN cache.
+        const result = await getFile(env, "data.json");
+        const teams = validateRegistry((await getFile(env, "teams.json")).data);
+        if (actor.role === "team_leader") activeTeam(teams, actor.teamId);
+        if (path === "/upload") return upload(request, env, actor, result.data, teams);
+        const body = await readBody(request);
+        if (path === "/new-manga") return newManga(body, env, actor, result, teams);
+        if (path === "/rename-images") return renameImages(body, env, actor, result.data, teams);
+        const slug = safeSlug(path.endsWith("manga") ? body.slug : body.manga);
+        const manga = authorizeManga(actor, result.data, slug, teams);
+        let response = { success: true };
+        let message;
+        switch (path) {
+            case "/edit-manga": {
+                const team = actor.role === "admin" && body.teamId !== undefined && body.teamId !== manga.teamId
+                    ? activeTeam(teams, body.teamId)
+                    : teams.find(team => team.id === manga.teamId);
+                Object.assign(manga, metadata(body), {
+                    cover: editedCover(body, manga, slug, env), teamId: team.id, team: team.name,
+                    ...(actor.role === "admin" ? editorial(body) : {})
+                });
+                // chapters and unknown/global fields remain authoritative for every caller.
+                message = `Edit manga ${slug}`;
+                break;
+            }
+            case "/delete-manga":
+                delete result.data[slug];
+                message = `Delete manga ${slug}`;
+                break;
+            case "/new-chapter": {
+                const id = chapterNumber(body.chapterNumber);
+                if (manga.chapters.some(chapter => Number(chapter.id) === id)) fail(409, "Chapter already exists");
+                if (typeof body.title !== "string" || !body.title.trim()) fail(400, "Invalid chapter title");
+                const chapter = {
+                    id, title: body.title, createAt: new Date().toISOString(),
+                    folder: `${publicBase(env)}/${slug}/chap${id}`, pages: pageCount(body.imageCount)
+                };
+                manga.chapters.push(chapter);
+                manga.chapters.sort((a, b) => a.id - b.id);
+                response.chapter = chapter;
+                message = `Add ${slug} chapter ${id}`;
+                break;
+            }
+            case "/edit-chapter": {
+                const id = chapterNumber(body.chapterId);
+                const chapter = manga.chapters.find(chapter => Number(chapter.id) === id);
+                if (!chapter) fail(404, "Chapter not found");
+                if (typeof body.title !== "string" || !body.title.trim() ||
+                    typeof body.createAt !== "string" || !Number.isFinite(Date.parse(body.createAt))) fail(400, "Invalid chapter metadata");
+                Object.assign(chapter, { title: body.title, createAt: body.createAt, pages: pageCount(body.pages) });
+                response.chapter = chapter;
+                message = `Edit ${slug} chapter ${id}`;
+                break;
+            }
+            case "/delete-chapter": {
+                const id = chapterNumber(body.chapterId);
+                if (!manga.chapters.some(chapter => Number(chapter.id) === id)) fail(404, "Chapter not found");
+                manga.chapters = manga.chapters.filter(chapter => Number(chapter.id) !== id);
+                manga.chapters.sort((a, b) => a.id - b.id);
+                message = `Delete ${slug} chapter ${id}`;
+                break;
+            }
+        }
+        await saveData(env, result.data, result.sha, message);
+        return response;
+    }
+
+    return {
+        async fetch(request, env) {
+            const path = new URL(request.url).pathname;
+            const isPublic = PUBLIC.has(path);
+            const origin = request.headers.get("Origin");
+            const headers = { "Content-Type": "application/json", "Vary": "Origin" };
+            if (isPublic) headers["Access-Control-Allow-Origin"] = "*";
+            else if (ORIGINS.has(origin)) headers["Access-Control-Allow-Origin"] = origin;
+            const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers });
+            try {
+                if (!isPublic && !MUTATIONS.has(path)) return json({ success: false, error: "API not found" }, 404);
+                if (request.method === "OPTIONS") {
+                    if (!isPublic && !ORIGINS.has(origin)) fail(403, "Origin not allowed");
+                    const method = request.headers.get("Access-Control-Request-Method");
+                    if (!isPublic && method && method !== "POST") fail(405, "Method not allowed");
+                    const requestedHeaders = (request.headers.get("Access-Control-Request-Headers") || "")
+                        .split(",").map(header => header.trim().toLowerCase()).filter(Boolean);
+                    if (requestedHeaders.some(header => !["authorization", "content-type"].includes(header))) fail(403, "Header not allowed");
+                    return new Response(null, { status: 204, headers: {
+                        ...headers, "Access-Control-Allow-Methods": isPublic ? "GET,OPTIONS" : "POST,OPTIONS",
+                        "Access-Control-Allow-Headers": "Authorization,Content-Type", "Access-Control-Max-Age": "600"
+                    } });
+                }
+                if (path === "/status") return json({ success: true, message: "Helium CMS Online" });
+                if (path === "/mangas") return json((await getFile(env, "data.json")).data);
+                if (request.method !== "POST") {
+                    headers.Allow = "POST, OPTIONS";
+                    fail(405, "Method not allowed");
+                }
+                const actor = await authenticate(request);
+                if (origin && !ORIGINS.has(origin)) fail(403, "Origin not allowed");
+                return json(await mutate(path, request, env, actor));
+            } catch (error) {
+                if (error instanceof HttpError) return json({ success: false, error: error.message, message: error.message }, error.status);
+                // No raw messages/stack traces, request bodies, tokens or env values in logs/responses.
+                log({ route: path, operation: "request", errorType: error?.name || "Error" });
+                return json({ success: false, error: "CMS operation failed", message: "CMS operation failed" }, 500);
+            }
+        }
+    };
+}
+
+export default createWorker();

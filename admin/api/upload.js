@@ -1,4 +1,4 @@
-const API = "https://helium-cms.mylengoctra06.workers.dev";
+import { authenticatedFetch } from "./authenticated-fetch.js";
 
 /*
     Upload bất kỳ file nào lên R2
@@ -46,9 +46,9 @@ export async function uploadImage(
 
     );
 
-    const res = await fetch(
+    const res = await authenticatedFetch(
 
-        `${API}/upload`,
+        "/upload",
 
         {
 
@@ -76,4 +76,16 @@ export async function uploadImage(
 
     return json.url;
 
+}
+// New manga do not yet have an authorized R2 prefix. Only the Worker chooses a staging key.
+export async function stageMangaCover(file) {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("kind", "new-manga-cover");
+    const response = await authenticatedFetch("/upload", { method: "POST", body: form });
+    const json = await response.json();
+    if (!json.success || typeof json.stagingRef !== "string") {
+        throw new Error(json.message || "Không thể tải ảnh bìa tạm thời.");
+    }
+    return json.stagingRef;
 }

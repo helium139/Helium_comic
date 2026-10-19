@@ -41,6 +41,15 @@ jobs:
           node-version: 20
 
 
+      - name: Install CMS verification dependency
+        run: npm ci --prefix worker --ignore-scripts --no-audit --no-fund
+
+      - name: Test CMS authorization without production requests
+        run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs
+
+      - name: Validate team ownership
+        run: node scripts/validate-catalogue.mjs
+
       - name: Test chapter readiness without network or webhook
         run: node --test scripts/test-chapter-readiness.mjs
 
@@ -129,7 +138,7 @@ jobs:
       - name: Stage public website
         run: |
           mkdir -p /tmp/pages-site
-          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' ./ /tmp/pages-site/
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' --exclude='worker/' --exclude='node_modules/' ./ /tmp/pages-site/
 
       # Use the Pages archive format, but replace the artifact on build reruns.
       # upload-pages-artifact does not expose upload-artifact's overwrite input.

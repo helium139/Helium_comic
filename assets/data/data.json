@@ -5,6 +5,7 @@
         "original_title": "캐비넷 메이드",
         "author": "필구",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "adminPick": false,
         "pickOder": 1,
         "status": "Completed",
@@ -104,6 +105,7 @@
         "original_title": "이딴 게 스폰서",
         "author": "사탕&안나",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "adminPick": false,
         "pickOder": 2,
@@ -190,6 +192,7 @@
         "original_title": "살인마가 아이돌을 해도 되나요?",
         "author": "đang cập nhật (thật ra là lười tìm)",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "adminPick": false,
         "pickOrder": 3,
@@ -292,6 +295,7 @@
         "original_title": "자취지화",
         "author": "해진",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "adminPick": false,
         "pickOrder": 4,
@@ -385,6 +389,7 @@
         "original_title": "이상한 하루",
         "author": "지하",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "adminPick": true,
         "pickOrder": 10,
@@ -501,6 +506,7 @@
         "original_title": "카메라 밖 OST",
         "author": "도봉",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "adminPick": false,
         "pickOrder": 5,
@@ -640,6 +646,7 @@
         "original_title": "I Can See Your Stat!",
         "author": "CarpeXD",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "adminPick": false,
         "pickOrder": 999,
@@ -1008,6 +1015,7 @@
         "original_title": "더 리쉬드",
         "author": "뿌너&챠피",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "adminPick": true,
         "pickOrder": 7,
@@ -1158,6 +1166,7 @@
         "original_title": "담뱃재",
         "author": "원리드&신이날&차풀",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "adminPick": true,
         "pickOrder": 8,
@@ -1330,6 +1339,7 @@
         "original_title": "메소드 로맨스",
         "author": "키다리스튜디오",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Top Thích Làm Nhục",
@@ -1450,6 +1460,7 @@
         "original_title": "할 수 없는 것들",
         "author": "아침 & 금자두",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Công Áp Đảo",
@@ -1649,6 +1660,7 @@
         "original_title": "동정학개론",
         "author": "스피노프 / 스튜디오 우라노스",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "tags": [
             "Omegaverse",
@@ -1746,6 +1758,7 @@
         "original_title": "우아한 파괴",
         "author": "츄랭 / 낭가, (원작)당밀",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Bl",
@@ -1970,6 +1983,7 @@
         "original_title": "황야의 노래",
         "author": "Jaxx",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Hiatus",
         "tags": [
             "Công Nhỏ Tuổi Hơn",
@@ -2002,6 +2016,7 @@
         "original_title": "디스 이즈 미 (This is me)",
         "author": "어셋&식목&공상",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Bl",
@@ -2198,6 +2213,7 @@
         "original_title": "환(宦)",
         "author": "일월",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Công Cường Thế",
@@ -2548,6 +2564,7 @@
         "original_title": "동연",
         "author": "판도",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Hiatus",
         "tags": [
             "Bot Tươi Sáng",
@@ -2658,6 +2675,7 @@
         "original_title": "동틀 무렵 너에게",
         "author": "개화",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Hiatus",
         "tags": [
             "Công Trai Thẳng",
@@ -2787,6 +2805,7 @@
         "original_title": "네임 미",
         "author": "오터",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Boylove",
@@ -2892,6 +2911,7 @@
         "original_title": "아이스 온 미(Ice on me)",
         "author": "얌차",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "#bl",
@@ -3036,6 +3056,7 @@
         "original_title": "디어 헌팅",
         "author": "구이사",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "tags": [
             "Nghiêm Túc",
@@ -3121,6 +3142,7 @@
         "original_title": "Breeding Campus",
         "author": "밤밤맨",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Ngược",
@@ -3199,6 +3221,7 @@
         "original_title": "[성비단] 무단사정금지",
         "author": "마규식, 피상구, 진월, 테리야끼, 오프카, 뚱개",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "19+",
@@ -3330,6 +3353,7 @@
         "original_title": "언럭키 드림 (Unlucky Dream)",
         "author": "Bapdo (밥도), Yeon (연), Daerangsa (대랑사), Yelma (옐마)",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Công Lạnh Nhạt",
@@ -3458,6 +3482,7 @@
         "original_title": "",
         "author": "",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "tags": [
             "Bl",
@@ -3525,6 +3550,7 @@
         "original_title": "",
         "author": "",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "tags": [
             "Bl",
@@ -3578,6 +3604,7 @@
         "original_title": "",
         "author": "",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Completed",
         "tags": [
             "Bl",
@@ -3618,6 +3645,7 @@
         "original_title": "블랙 스완",
         "author": "사회숙제",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Thụ Lớn Tuổi Hơn Công",
@@ -3705,6 +3733,7 @@
         "original_title": "멜팅 초콜릿",
         "author": "CATCH",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Công Tài Phiệt",
@@ -3835,6 +3864,7 @@
         "original_title": "러브 미, 애니멀",
         "author": "용덩",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Bạn Thân Đồng Trang Lứa",
@@ -3927,6 +3957,7 @@
         "original_title": "웨이 오브 프랙티스",
         "author": "터그  - 봄툰",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Bl",
@@ -4004,6 +4035,7 @@
         "original_title": "내일은 없다",
         "author": "밀밀&짜잔",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Bl",
@@ -4040,6 +4072,7 @@
         "original_title": "올리앤더 온 더 문",
         "author": "금기&이선의",
         "team": "HeliumTG",
+        "teamId": "heliumtg",
         "status": "Ongoing",
         "tags": [
             "Bl",

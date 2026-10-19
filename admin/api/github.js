@@ -1,10 +1,10 @@
-const API = "https://helium-cms.mylengoctra06.workers.dev";
+import { authenticatedFetch } from "./authenticated-fetch.js";
 
 async function post(path, body){
 
-    const res = await fetch(
+    const res = await authenticatedFetch(
 
-        `${API}${path}`,
+        path,
 
         {
 

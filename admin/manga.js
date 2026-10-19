@@ -1,7 +1,8 @@
+import { getTeams, resolveMangaTeam, getTeamById } from "../assets/js/teams.js";
 import { requireAdmin } from "../assets/js/adminGuard.js";
 
 import { getMangas } from "./api/manga.js";
-import { uploadImage } from "./api/upload.js";
+import { uploadImage, stageMangaCover } from "./api/upload.js";
 
 import {
 
@@ -9,13 +10,15 @@ import {
 
     editManga,
 
-    deleteManga
+    deleteManga,
+
+    removeChapter
 
 }
 
 from "./api/github.js";
 
-requireAdmin();
+await requireAdmin();
 
 let mangas = {};
 
@@ -85,19 +88,14 @@ document.getElementById("coverPreview");
 const teamSelect =
 document.getElementById("team");
 
-const teams =
-await fetch("/assets/data/teams.json")
-.then(r=>r.json());
-
-teamSelect.innerHTML="";
-
-teams.forEach(team=>{
-
-    teamSelect.innerHTML+=`
-        <option>${team}</option>
-    `;
-
-});
+const teams = await getTeams();
+teamSelect.replaceChildren();
+for (const team of teams) {
+    const option = document.createElement("option");
+    option.value = team.id;
+    option.textContent = team.name;
+    teamSelect.appendChild(option);
+}
 
 const chapterList =
 document.getElementById("chapterList");
@@ -106,11 +104,15 @@ const addChapterBtn =
 document.getElementById("addChapterBtn");
 
 
-init();
+init().catch(error => {
+    console.error("Manga ownership validation failed", error);
+    alert(error.message);
+});
 
 async function init(){
 
     mangas = await getMangas();
+    for (const manga of Object.values(mangas)) resolveMangaTeam(manga, teams);
 
     renderMangas();
 
@@ -288,7 +290,7 @@ function openEditor(mangaSlug){
 
     author.value = manga.author || "";
 
-    teamSelect.value = manga.team || "HeliumTG";
+    teamSelect.value = resolveMangaTeam(manga, teams).id;
 
     status.value = manga.status || "Ongoing";
 
@@ -332,7 +334,7 @@ function openNew(){
 
     author.value = "";
 
-    teamSelect.value = teams[0] || "HeliumTG";
+    teamSelect.value = teams.find(team => team.active)?.id || "";
 
     status.value = "Ongoing";
 
@@ -387,7 +389,13 @@ if(!title.value.trim()){
 
         saveBtn.innerHTML="Đang lưu...";
 
+        const selectedTeam = await getTeamById(teamSelect.value, teams);
+        if (!selectedTeam.active && (!currentSlug ||
+            resolveMangaTeam(mangas[currentSlug], teams).id !== selectedTeam.id)) {
+            throw new Error("Cannot assign manga to an inactive team");
+        }
         let cover="";
+        let coverStagingRef;
 
         if(currentSlug){
 
@@ -401,15 +409,11 @@ if(!title.value.trim()){
 
             const mangaSlug = slug.value.trim();
 
-cover = await uploadImage(
-
-coverFile,
-
-mangaSlug,
-
-"cover.webp"
-
-);
+            if (currentSlug) {
+                cover = await uploadImage(coverFile, mangaSlug, "cover.webp");
+            } else {
+                coverStagingRef = await stageMangaCover(coverFile);
+            }
 
         }
 
@@ -425,7 +429,9 @@ mangaSlug,
 
             author:author.value.trim(),
 
-            team: teamSelect.value,
+            teamId: selectedTeam.id,
+
+            team: selectedTeam.name,
 
             status:status.value,
 
@@ -436,6 +442,8 @@ mangaSlug,
                 description.value.replace(/\r\n?/g, "\n").trim(),
 
             cover:cover,
+
+            ...(coverStagingRef ? { coverStagingRef } : {}),
 
             chapters: currentSlug
         ? mangas[currentSlug].chapters
@@ -464,6 +472,7 @@ mangaSlug,
         }
 
         mangas = await getMangas();
+        for (const manga of Object.values(mangas)) resolveMangaTeam(manga, teams);
 
         renderMangas(
 
@@ -710,21 +719,10 @@ async function deleteChapter(id){
 
     const manga = mangas[currentSlug];
 
-    manga.chapters = manga.chapters.filter(
-        c => c.id !== id
-    );
-
     try{
 
-        await editManga({
-
-    slug: currentSlug,
-
-    ...manga,
-
-    chapters: manga.chapters
-
-});
+        await removeChapter(currentSlug, id);
+        manga.chapters = manga.chapters.filter(c => Number(c.id) !== id);
 
         renderChapterList();
 

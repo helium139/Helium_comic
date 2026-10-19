@@ -1,3 +1,4 @@
+import { createDefaultProfile } from "./user-profile.js";
 import "./notifications.js";
 import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 import { db } from "./firebase.js";
@@ -11,8 +12,7 @@ from
 
 import {
     doc,
-    setDoc,
-    serverTimestamp
+    setDoc
 }
 from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -49,20 +49,8 @@ if(userSnap.exists()){
 
 }else{
 
-    await setDoc(userRef,{
-        name: user.displayName,
-        email: user.email,
-        avatar: user.photoURL || "assets/images/default-avatar.png",
-        createdAt: serverTimestamp(),
-        likes: [],
-        follows: [],
-        history: []
-    });
-
-    userData = {
-        name: user.displayName,
-        avatar: user.photoURL
-    };
+    userData = createDefaultProfile(user);
+    await setDoc(userRef, userData);
 }
             userBox.innerHTML = `
             

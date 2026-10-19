@@ -1,0 +1,11 @@
+{
+  "name": "helium-cms-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test ../scripts/test-worker-authorization.mjs"
+  },
+  "dependencies": {
+    "jose": "^6.2.12"
+  }
+}

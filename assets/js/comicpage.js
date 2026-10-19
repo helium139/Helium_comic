@@ -1,3 +1,4 @@
+import { getTeamDisplayName } from "./teams.js";
 import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 import { chapterUrl, getRouteParams } from "./routes.js";
 import { db } from "./firebase.js";
@@ -586,10 +587,18 @@ document
     ).textContent =
         manga.author;
 
-    document.getElementById(
-        "comic-team"
-    ).textContent =
-        manga.team;
+    const teamLabel = document.getElementById("comic-team");
+    if (Object.hasOwn(manga, "teamId")) {
+        teamLabel.textContent = "…";
+        getTeamDisplayName(manga.teamId).then(name => {
+            teamLabel.textContent = name;
+        }).catch(error => {
+            teamLabel.textContent = "Không thể tải thông tin nhóm";
+            console.error("Team ownership lookup failed", error);
+        });
+    } else {
+        teamLabel.textContent = manga.team;
+    }
 
     document.getElementById(
         "comic-status"

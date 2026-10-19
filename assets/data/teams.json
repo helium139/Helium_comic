@@ -1,3 +1,14 @@
 [
-    "HeliumTG"
+  {
+    "id": "heliumtg",
+    "name": "HeliumTG",
+    "slug": "heliumtg",
+    "active": true
+  },
+  {
+    "id": "testteam",
+    "name": "Test Team",
+    "slug": "testteam",
+    "active": true
+  }
 ]
