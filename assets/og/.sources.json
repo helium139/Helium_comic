@@ -297,15 +297,6 @@
       "cover_width": 840,
       "cover_height": 1120,
       "image_sha256": "12939ff8cb085f47490077e05ccf211aa503d9d38de7cfbf8ddd854703459d31"
-    },
-    "adgfg": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/adgfg/cover-f6478696-7d18-4805-a269-8b40bc17cb94.webp",
-      "etag": "\"ee926faff89ecc9e1a8c888f22e8f259\"",
-      "last_modified": "Mon, 19 Oct 2026 15:07:55 GMT",
-      "cover_sha256": "67b4460e539de05e62723a6e6b9b6dc1b40e0cf1a2fa1a9e8230732c8bef8b5b",
-      "cover_width": 1120,
-      "cover_height": 1680,
-      "image_sha256": "d4fe245d632b6325bc7d368d25a4ff77c5b4be94c7ef6f0c3b38ae61ad1c2bd5"
     }
   }
 }
