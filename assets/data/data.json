@@ -391,7 +391,7 @@
         "team": "HeliumTG",
         "teamId": "heliumtg",
         "status": "Completed",
-        "adminPick": true,
+        "adminPick": false,
         "pickOrder": 10,
         "tags": [
             "BL",
