@@ -7,6 +7,7 @@ const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const stripImports = source => source.replace(/^import[\s\S]*?from\s*"[^"]+";\s*/gm, '');
 const esm = source => import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 const teams = await esm(await read('assets/js/teams.js'));
+const staff = await esm(stripImports(await read('assets/js/staff-access.js')));
 const registry = teams.normalizeTeams([{ id: 'heliumtg', name: 'Renamed Team', slug: 'heliumtg', active: true }]);
 
 test('legacy and object metadata normalize; IDs survive display-name changes', async () => {
@@ -61,44 +62,10 @@ test('default profiles cannot inherit supplied roles/team IDs and use server tim
         name: 'Reader', email: 'r@example.test', avatar: '/assets/images/helium_logo.webp',
         createdAt: 'SERVER_TIMESTAMP', role: 'user', likes: [], follows: [], history: []
     });
-    assert.deepEqual(profile.resolveStaffContext('a', { role: 'admin' }), { uid: 'a', role: 'admin', teamId: null });
-    assert.equal(profile.resolveStaffContext('t', { role: 'team_leader', teamId: 'heliumtg' }).teamId, 'heliumtg');
-    assert.throws(() => profile.resolveStaffContext('t', { role: 'team_leader' }), /no assigned team/);
+    assert.deepEqual(profile.resolveStaffContext('a', { role: 'admin' }, { role: 'admin' }), { uid: 'a', role: 'admin', teamId: null });
+    assert.equal(profile.resolveStaffContext('t', { role: 'team_leader', teamId: 'heliumtg' }, { role: 'team_leader', teamId: 'heliumtg' }).teamId, 'heliumtg');
+    assert.throws(() => profile.resolveStaffContext('t', { role: 'team_leader' }, { role: 'team_leader' }), /teamId/);
     assert.throws(() => profile.resolveStaffContext('u', {}), /Staff access/);
-});
-
-async function guard(profile, user = { uid: 'u' }) {
-    const profileSource = stripImports(await read('assets/js/user-profile.js'));
-    const helpers = await esm('const serverTimestamp = () => null;\n' + profileSource);
-    let changed;
-    const context = {
-        auth: { currentUser: user }, db: {}, location: {},
-        onAuthStateChanged(auth, callback) { changed = callback; queueMicrotask(() => callback(user)); },
-        doc() {}, getDoc: async () => ({ data: () => profile }),
-        resolveStaffContext: helpers.resolveStaffContext,
-        getTeamById: id => teams.getTeamById(id, registry)
-    };
-    const source = stripImports(await read('assets/js/adminGuard.js')).replace(/export /g, '');
-    vm.runInNewContext(source, context);
-    return { context, change: (profileValue, account = user) => {
-        context.getDoc = async () => ({ data: () => profileValue });
-        context.auth.currentUser = account;
-        return changed(account);
-    } };
-}
-
-test('staff context recognizes leaders but existing management routes reject them; revocation still redirects', async () => {
-    const leader = await guard({ role: 'team_leader', teamId: 'heliumtg' });
-    assert.equal((await leader.context.requireStaff()).role, 'team_leader');
-    await assert.rejects(leader.context.requireAdmin(), /disabled until Phase 1B/);
-    assert.equal(leader.context.location.href, '/');
-    const admin = await guard({ role: 'admin' });
-    assert.equal((await admin.context.requireAdmin()).uid, 'u');
-    await admin.change({ role: 'team_leader', teamId: 'heliumtg' });
-    assert.equal(admin.context.location.href, '/');
-    const guest = await guard(null, null);
-    await assert.rejects(guest.context.requireAdmin(), /Login required/);
-    assert.equal(guest.context.location.href, '/login/');
 });
 
 test('manga editor handles legacy Worker data and saves both stable ID and legacy display name', async () => {
@@ -113,7 +80,10 @@ test('manga editor handles legacy Worker data and saves both stable ID and legac
     let saved;
     const catalogue = { sample: { title: 'Sample', team: 'Renamed Team', cover: 'cover', chapters: [], tags: [] } };
     const context = {
-        requireAdmin: async () => ({ uid: 'a', role: 'admin' }),
+        requireStaff: async () => ({ uid: 'a', role: 'admin' }),
+        URLSearchParams, location: { search: '' },
+        scopeMangas: staff.scopeMangas, assertCanManageManga: staff.assertCanManageManga,
+        showStaffAccessError(error) { assert.fail(error.message); },
         getTeams: async () => registry, resolveMangaTeam: teams.resolveMangaTeam, getTeamById: teams.getTeamById,
         getMangas: async () => catalogue, editManga: async manga => { saved = manga; },
         document: { getElementById: el, createElement: () => el(Symbol()), addEventListener() {} },
@@ -143,7 +113,10 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
     const calls = [];
     const catalogue = { sample: { title: 'Sample', teamId: 'heliumtg', cover: 'old-cover', chapters: [{ id: 0, title: 'Prologue', createAt: '2026-01-01' }], tags: [] } };
     const context = {
-        requireAdmin: async () => ({ uid: 'a', role: 'admin' }),
+        requireStaff: async () => ({ uid: 'a', role: 'admin' }),
+        URLSearchParams, location: { search: '' },
+        scopeMangas: staff.scopeMangas, assertCanManageManga: staff.assertCanManageManga,
+        showStaffAccessError(error) { assert.fail(error.message); },
         getTeams: async () => registry, resolveMangaTeam: teams.resolveMangaTeam, getTeamById: teams.getTeamById,
         getMangas: async () => catalogue,
         newManga: async manga => calls.push(['create', manga]),
@@ -181,9 +154,9 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
 });
 
 test('chapter editor recognizes chapter zero in a direct edit URL', async () => {
-    const source = stripImports(await read('admin/chapter.js')).replace('\ninit();', '\n');
+    const source = stripImports(await read('admin/chapter.js')).replace('\nawait init().catch(showStaffAccessError);', '\n');
     const context = {
-        requireAdmin: async () => ({ role: 'admin' }),
+        requireStaff: async () => ({ role: 'admin' }),
         URLSearchParams, location: { search: '?manga=own&chapter=0' },
         document: { getElementById: () => ({ addEventListener() {} }) }
     };

@@ -140,12 +140,12 @@ After custom claims change, call getIdToken(true) or sign out/in before expectin
 the new claims. Existing signed tokens remain valid until expiry; this Worker does
 not add an immediate Firebase revocation/account-disable lookup.
 
-Existing frontend routes intentionally remain admin-only. Before enabling leaders,
-deploy and exercise this backend in a test environment, verify trusted custom
-claim provisioning and deployed rules, then implement claim-consistent staff entry
-and team-scoped editor UI. Review existing public/admin HTML interpolation before
-allowing less-trusted staff to publish arbitrary text. A UI filter is never a
-replacement for the backend checks implemented here.
+The frontend staff-access layer now accepts claim-consistent admins and team
+leaders and scopes leader lists/editors to their explicit teamId. See
+`phase-1b-staff-access.md` for the frontend contract and validation. Deploy and
+exercise the backend/frontend together in a test environment and verify trusted
+claim provisioning and deployed rules. A UI filter is never a replacement for
+the backend checks implemented here.
 
 Coordinate the eventual frontend and Worker release: new staging clients require
 this Worker contract, while the new Worker rejects legacy unauthenticated/direct

@@ -1,5 +1,6 @@
+import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
 import { getTeams, resolveMangaTeam, getTeamById } from "../assets/js/teams.js";
-import { requireAdmin } from "../assets/js/adminGuard.js";
+import { requireStaff } from "../assets/js/adminGuard.js";
 
 import { getMangas } from "./api/manga.js";
 import { uploadImage, stageMangaCover } from "./api/upload.js";
@@ -18,7 +19,7 @@ import {
 
 from "./api/github.js";
 
-await requireAdmin();
+const currentStaff = await requireStaff();
 
 let mangas = {};
 
@@ -90,12 +91,18 @@ document.getElementById("team");
 
 const teams = await getTeams();
 teamSelect.replaceChildren();
-for (const team of teams) {
+for (const team of teams.filter(team => currentStaff.role === "admin" || team.id === currentStaff.teamId)) {
     const option = document.createElement("option");
     option.value = team.id;
     option.textContent = team.name;
     teamSelect.appendChild(option);
 }
+
+teamSelect.disabled = currentStaff.role === "team_leader";
+const adminPick = document.getElementById("adminPick");
+const pickOrder = document.getElementById("pickOrder");
+adminPick.disabled = currentStaff.role === "team_leader";
+pickOrder.disabled = currentStaff.role === "team_leader";
 
 const chapterList =
 document.getElementById("chapterList");
@@ -104,19 +111,18 @@ const addChapterBtn =
 document.getElementById("addChapterBtn");
 
 
-init().catch(error => {
-    console.error("Manga ownership validation failed", error);
-    alert(error.message);
-});
+await init().catch(showStaffAccessError);
 
 async function init(){
 
-    mangas = await getMangas();
+    mangas = scopeMangas(currentStaff, await getMangas());
     for (const manga of Object.values(mangas)) resolveMangaTeam(manga, teams);
 
+    const requestedManga = new URLSearchParams(location.search).get("manga");
+    if (requestedManga) assertCanManageManga(currentStaff, mangas[requestedManga]);
     renderMangas();
-
     bindEvents();
+    if (requestedManga) openEditor(requestedManga);
 
 }
 
@@ -270,11 +276,10 @@ function renderCover(){
 
 function openEditor(mangaSlug){
 
-    currentSlug = mangaSlug;
-
     const manga = mangas[mangaSlug];
-
-    if(!manga) return;
+    try { assertCanManageManga(currentStaff, manga); }
+    catch (error) { showStaffAccessError(error); return; }
+    currentSlug = mangaSlug;
 
     editor.classList.remove("hidden");
 
@@ -334,7 +339,9 @@ function openNew(){
 
     author.value = "";
 
-    teamSelect.value = teams.find(team => team.active)?.id || "";
+    teamSelect.value = currentStaff.role === "team_leader"
+        ? currentStaff.teamId
+        : teams.find(team => team.active)?.id || "";
 
     status.value = "Ongoing";
 
@@ -389,7 +396,10 @@ if(!title.value.trim()){
 
         saveBtn.innerHTML="Đang lưu...";
 
-        const selectedTeam = await getTeamById(teamSelect.value, teams);
+        if (currentSlug) assertCanManageManga(currentStaff, mangas[currentSlug]);
+        const selectedTeam = await getTeamById(
+            currentStaff.role === "team_leader" ? currentStaff.teamId : teamSelect.value, teams
+        );
         if (!selectedTeam.active && (!currentSlug ||
             resolveMangaTeam(mangas[currentSlug], teams).id !== selectedTeam.id)) {
             throw new Error("Cannot assign manga to an inactive team");
@@ -449,13 +459,11 @@ if(!title.value.trim()){
         ? mangas[currentSlug].chapters
         : [],
 
-            adminPick:
+            adminPick: currentStaff.role === "admin" ? adminPick.checked
+                : currentSlug ? mangas[currentSlug].adminPick : false,
 
-        adminPick.checked,
-
-    pickOrder:
-
-        Number(pickOrder.value)
+            pickOrder: currentStaff.role === "admin" ? Number(pickOrder.value)
+                : currentSlug ? mangas[currentSlug].pickOrder : 999
 
         };
 
@@ -471,7 +479,7 @@ if(!title.value.trim()){
 
         }
 
-        mangas = await getMangas();
+        mangas = scopeMangas(currentStaff, await getMangas());
         for (const manga of Object.values(mangas)) resolveMangaTeam(manga, teams);
 
         renderMangas(
@@ -514,15 +522,14 @@ async function removeCurrent(){
 
     try{
 
+        assertCanManageManga(currentStaff, mangas[currentSlug]);
         await deleteManga(
 
             currentSlug
 
         );
 
-        mangas=
-
-        await getMangas();
+        mangas = scopeMangas(currentStaff, await getMangas());
 
         renderMangas();
 
@@ -721,6 +728,7 @@ async function deleteChapter(id){
 
     try{
 
+        assertCanManageManga(currentStaff, manga);
         await removeChapter(currentSlug, id);
         manga.chapters = manga.chapters.filter(c => Number(c.id) !== id);
 
@@ -796,7 +804,8 @@ function renderChapterList(){
 }
 
 addChapterBtn.onclick = ()=>{
-
+    try { assertCanManageManga(currentStaff, mangas[currentSlug]); }
+    catch (error) { showStaffAccessError(error); return; }
     location.href =
 `/admin/chapter/?manga=${currentSlug}&new=1`;
 

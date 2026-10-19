@@ -1,3 +1,4 @@
+import { clearStaffNavigation, updateStaffNavigation } from "./staff-navigation.js";
 import { createDefaultProfile } from "./user-profile.js";
 import "./notifications.js";
 import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
@@ -18,6 +19,8 @@ from
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
 
+let authVersion = 0;
+
 const userBox =
     document.getElementById(
         "user-box"
@@ -27,6 +30,8 @@ const userBox =
 onAuthStateChanged(
     auth,
     async (user) => {
+        const version = ++authVersion;
+        clearStaffNavigation();
 
         if(user){
 
@@ -52,6 +57,7 @@ if(userSnap.exists()){
     userData = createDefaultProfile(user);
     await setDoc(userRef, userData);
 }
+            if (version !== authVersion || auth.currentUser !== user) return;
             userBox.innerHTML = `
             
             <div class="user-profile">
@@ -75,18 +81,6 @@ if(userSnap.exists()){
             
             `;
 
-            if(userData.role === "admin"){
-
-    document.querySelector(
-        ".navigation"
-    ).innerHTML +=
-    `
-    <a href="/admin/">
-        Admin
-    </a>
-    `;
-
-}
 
 
             document
@@ -108,6 +102,8 @@ if(userSnap.exists()){
 
                 }
             );
+
+            await updateStaffNavigation(user, userData);
 
         }
         else{

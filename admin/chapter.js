@@ -1,5 +1,6 @@
+import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
 import { chapterUrl } from "../assets/js/routes.js";
-import { requireAdmin } from "../assets/js/adminGuard.js";
+import { requireStaff } from "../assets/js/adminGuard.js";
 import { getMangas } from "./api/manga.js";
 import { uploadImage } from "./api/upload.js";
 import {
@@ -8,7 +9,7 @@ import {
     renameImages
 } from "./api/github.js";
 
-await requireAdmin();
+const currentStaff = await requireStaff();
 
 /* ===========================
         STATE
@@ -59,15 +60,18 @@ const addImageBtn = document.getElementById("addImageBtn");
         INIT
 =========================== */
 
-init();
+await init().catch(showStaffAccessError);
 
 async function init(){
 
-    mangas = await getMangas();
+    mangas = scopeMangas(currentStaff, await getMangas());
 
     parseQuery();
+    const requestedManga = new URLSearchParams(location.search).get("manga");
+    if (requestedManga) assertCanManageManga(currentStaff, mangas[requestedManga]);
 
     renderMangaList();
+    if (requestedManga) mangaSelect.value = requestedManga;
 
     bindEvents();
 
@@ -98,6 +102,7 @@ function parseQuery(){
     const slug = params.get("manga");
 
     const chapter = Number(params.get("chapter"));
+    if (slug) currentSlug = slug;
 
     if(slug && params.has("chapter") && Number.isFinite(chapter)){
 
@@ -189,7 +194,7 @@ function renderMangaList(){
     
 
     .forEach(([slug,manga])=>{
-        if (manga.status !== "Hiatus" && manga.status !== "Completed")
+        if (slug === currentSlug || manga.status !== "Hiatus" && manga.status !== "Completed")
     {
 
         mangaSelect.innerHTML +=
@@ -238,11 +243,10 @@ function setToday(){
 
 async function loadEditor(){
 
-    mangaSelect.value = currentSlug;
-
-    mangaSelect.disabled = true;
-
     const manga = mangas[currentSlug];
+    assertCanManageManga(currentStaff, manga);
+    mangaSelect.value = currentSlug;
+    mangaSelect.disabled = true;
 
     if(!manga){
 
@@ -649,6 +653,7 @@ async function save(){
 async function uploadChapter(){
 
     const slug = mangaSelect.value;
+    assertCanManageManga(currentStaff, mangas[slug]);
 
     const chapter = Number(
 
@@ -762,6 +767,7 @@ const copyChapterLink = document.getElementById("copyChapterLink");
 =========================== */
 
 async function saveChapter(){
+    assertCanManageManga(currentStaff, mangas[currentSlug]);
 
     const folder = `${currentSlug}/chap${currentChapter}`;
 

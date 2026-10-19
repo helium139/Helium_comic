@@ -45,7 +45,7 @@ jobs:
         run: npm ci --prefix worker --ignore-scripts --no-audit --no-fund
 
       - name: Test CMS authorization without production requests
-        run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs
+        run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs scripts/test-staff-access.mjs
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs

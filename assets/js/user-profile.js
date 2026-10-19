@@ -14,11 +14,25 @@ export function createDefaultProfile(user) {
     };
 }
 
-export function resolveStaffContext(uid, profile) {
-    const role = profile?.role || "user";
-    if (!["admin", "team_leader"].includes(role)) throw new Error("Staff access required");
-    if (role === "team_leader" && (typeof profile.teamId !== "string" || !profile.teamId)) {
-        throw new Error("Team leader has no assigned team");
+export function resolveStaffContext(uid, profile, claims) {
+    const staffRoles = ["admin", "team_leader"];
+    const role = claims?.role || "user";
+    const profileRole = profile?.role || "user";
+    const deny = (code, message) => {
+        const error = new Error(message);
+        error.code = code;
+        throw error;
+    };
+    const stale = () => deny("staff/stale-token",
+        "Quyền trong hồ sơ và Firebase token không khớp. Hãy làm mới token hoặc đăng xuất rồi đăng nhập lại. Nếu vẫn lỗi, liên hệ quản trị viên.");
+    if (role !== profileRole && (staffRoles.includes(role) || staffRoles.includes(profileRole))) stale();
+    if (!staffRoles.includes(role)) deny("staff/forbidden", "Staff access required");
+    if (role === "team_leader") {
+        if (typeof claims.teamId !== "string" || !claims.teamId.trim()) {
+            if (profile?.teamId) stale();
+            deny("staff/team-required", "Team leader chưa được gán teamId. Vui lòng liên hệ quản trị viên.");
+        }
+        if (profile?.teamId !== claims.teamId) stale();
     }
-    return Object.freeze({ uid, role, teamId: profile.teamId || null });
+    return Object.freeze({ uid, role, teamId: typeof claims.teamId === "string" ? claims.teamId : null });
 }

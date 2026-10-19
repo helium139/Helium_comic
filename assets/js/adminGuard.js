@@ -1,43 +1,40 @@
-import { auth, onAuthStateChanged } from "./firebase-session.js";
-import { db } from "./firebase.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-import { resolveStaffContext } from "./user-profile.js";
-import { getTeamById } from "./teams.js";
+import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
+import { getStaffContext, showStaffAccessError } from "./staff-access.js";
 
-// UI guard only. Worker authorization must be implemented separately in Phase 1B.
-function requireContext(adminOnly) {
+// Frontend gate; Worker authorization remains authoritative.
+export function requireStaff() {
     return new Promise((resolve, reject) => {
+        let revision = 0;
+        let resolvedContext;
         onAuthStateChanged(auth, async user => {
+            const requestRevision = ++revision;
             if (!user) {
+                showStaffAccessError(new Error("Login required"));
                 location.href = "/login/";
                 reject(new Error("Login required"));
                 return;
             }
             try {
-                const snapshot = await getDoc(doc(db, "users", user.uid));
-                const context = resolveStaffContext(user.uid, snapshot.data());
-                if (context.role === "team_leader") {
-                    const team = await getTeamById(context.teamId);
-                    if (!team.active) throw new Error("Assigned team is inactive");
+                const profile = await getUserSnapshot(user.uid);
+                const context = await getStaffContext(user, profile.data());
+                if (requestRevision !== revision || auth.currentUser !== user) return;
+                if (resolvedContext && (resolvedContext.uid !== context.uid ||
+                    resolvedContext.role !== context.role || resolvedContext.teamId !== context.teamId)) {
+                    showStaffAccessError(new Error("Phiên quản trị đã thay đổi. Đang tải lại phạm vi truy cập…"));
+                    location.href = "/admin/";
+                    return;
                 }
-                if (adminOnly && context.role !== "admin") {
-                    throw new Error("Team leader management is disabled until Phase 1B");
-                }
-                if (auth.currentUser?.uid !== user.uid) throw new Error("Authentication changed");
+                resolvedContext = context;
                 resolve(context);
             } catch (error) {
-                location.href = "/";
+                if (requestRevision !== revision || auth.currentUser !== user) return;
+                showStaffAccessError(error);
+                if (error.code === "staff/forbidden") location.href = "/";
                 reject(error);
             }
         });
     });
 }
 
-export function requireStaff() {
-    return requireContext(false);
-}
-
-// All existing admin routes keep this stricter guard throughout Phase 1A.
-export function requireAdmin() {
-    return requireContext(true);
-}
+// Compatibility name: the existing admin area now accepts both staff roles.
+export const requireAdmin = requireStaff;
