@@ -7,7 +7,7 @@ import { db } from "./firebase.js";
 import {
     doc,
     getDoc,
-    setDoc,
+    runTransaction,
     updateDoc,
     increment,
     arrayUnion,
@@ -78,64 +78,6 @@ const params =
 
 const mangaId =
     params.get("id");
-
-    async function updateView() {
-
-    const viewKey =
-        `viewed-${mangaId}`;
-
-
-    // Đã xem rồi thì không tăng
-    if(localStorage.getItem(viewKey)) {
-
-        return;
-    }
-
-
-    const statRef =
-        doc(
-            db,
-            "mangaStats",
-            mangaId
-        );
-
-
-    const statSnap =
-        await getDoc(statRef);
-
-
-    // Nếu chưa có dữ liệu
-    if(!statSnap.exists()) {
-
-        await setDoc(
-            statRef,
-            {
-                views: 1,
-                likes: 0,
-                follows: 0
-            }
-        );
-
-    }
-    else {
-
-        await updateDoc(
-            statRef,
-            {
-                views: increment(1)
-            }
-        );
-
-    }
-
-
-    // Đánh dấu đã xem
-    localStorage.setItem(
-        viewKey,
-        "1"
-    );
-
-}
 
 async function loadStats() {
 
@@ -211,6 +153,14 @@ function updateLikeButton(){
 
 }
 
+// View counting no longer creates stats. Initialize only social fields on user intent.
+async function ensureSocialStats(reference) {
+    await runTransaction(db, async transaction => {
+        const snapshot = await transaction.get(reference);
+        if (!snapshot.exists()) transaction.set(reference, { likes: 0, follows: 0 });
+    });
+}
+
 async function toggleLike(){
 
     if(likeBusy) return;
@@ -230,6 +180,7 @@ async function toggleLike(){
         const statRef =
             doc(db,"mangaStats",mangaId);
 
+        await ensureSocialStats(statRef);
         if(liked){
 
             await Promise.all([
@@ -340,6 +291,7 @@ async function toggleFollow(){
         const statRef =
             doc(db,"mangaStats",mangaId);
 
+        await ensureSocialStats(statRef);
         if(followed){
 
             await Promise.all([
@@ -394,7 +346,6 @@ async function toggleFollow(){
 .then(res => res.json())
 .then(data => {
 
-    updateView();
     loadStats();
 
     const manga =

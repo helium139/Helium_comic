@@ -86,15 +86,25 @@ rel="stylesheet">
                 <p>Chưa có bộ đếm tổng hợp theo nhóm</p>
             </article>
             <article class="stat-card">
-                <h2>Total Views</h2>
-                <p class="dashboard-stat-value dashboard-unavailable">Not active yet</p>
-                <p>Lượt xem hợp lệ sẽ có từ Phase 3</p>
+                <h2>Total Valid Views</h2>
+                <p class="dashboard-stat-value dashboard-unavailable" id="total-valid-views">Not active yet</p>
+                <p>Chỉ gồm ledger hợp lệ sau thời điểm kích hoạt</p>
             </article>
             <article class="stat-card">
-                <h2>Views This Month</h2>
-                <p class="dashboard-stat-value dashboard-unavailable">Not active yet</p>
+                <h2>Valid Views This Month</h2>
+                <p class="dashboard-stat-value dashboard-unavailable" id="monthly-valid-views">Not active yet</p>
                 <p>Không sử dụng lượt xem cũ để tính thanh toán</p>
             </article>
+        </section>
+
+        <section class="dashboard-manga-section" aria-labelledby="view-analytics-heading">
+            <div class="dashboard-section-header">
+                <h2 id="view-analytics-heading">Valid View Analytics</h2>
+                <label>Period <select id="view-analytics-period"><option value="all">All Time</option><option value="month">This Month (UTC)</option></select></label>
+            </div>
+            <p id="view-analytics-status" class="dashboard-muted" role="status">Not active yet</p>
+            <button id="view-analytics-expand" type="button" aria-expanded="false" disabled>Explore Team → Manga → Chapter</button>
+            <ul id="view-analytics-tree" hidden></ul>
         </section>
 
         <section class="dashboard-manga-section" aria-labelledby="manga-heading">

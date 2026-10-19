@@ -107,6 +107,7 @@ async function dashboard(staff, { failFetch = false, deny = false } = {}) {
         fetch: async url => { assert.equal(guarded, true); requests.push(url); return { ok: !failFetch, json: async () => catalogue }; },
         scopeMangas: staffHelpers.scopeMangas, assertCanManageManga: staffHelpers.assertCanManageManga,
         showStaffAccessError: error => errors.push(error),
+        createDashboardAnalytics: () => ({ update() {} }),
         getDashboardScope,
         buildDashboardModel: (...args) => buildDashboardModel(...args, now)
     };
@@ -168,7 +169,8 @@ test('guard/fetch failures do not display misleading zero counts; placeholders d
     assert.equal(failed.errors.length, 1);
     assert.equal(failed.get('dashboard-content').hidden, true);
     const markup = await read('admin/index.html');
-    assert.equal((markup.match(/Not active yet/g) || []).length, 2);
+    assert.match(markup, /id="total-valid-views"/);
+    assert.match(markup, /id="monthly-valid-views"/);
     assert.match(markup, /Available in Phase 4/);
     const source = await read('admin/dashboard.js');
     assert.doesNotMatch(source, /firebase-firestore|mangaStats|onSnapshot|getDocs|getCountFromServer|increment\(/);

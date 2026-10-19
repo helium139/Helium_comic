@@ -852,3 +852,11 @@ exports.notifyNewChapter = onRequest(
       }
     },
 );
+
+
+/* Trusted chapter views reuse the existing Admin Firestore instance. */
+const {createViewEndpoints} = require("./lib/views/endpoints.js");
+const viewEndpoints = createViewEndpoints(db);
+exports.startChapterViewSession = viewEndpoints.startChapterViewSession;
+exports.recordChapterView = viewEndpoints.recordChapterView;
+exports.getChapterViewAnalytics = viewEndpoints.getChapterViewAnalytics;

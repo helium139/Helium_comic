@@ -130,6 +130,7 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
         document: { getElementById: element, querySelector: () => ({}), documentElement: { removeAttribute() {} } },
         location: { href: '/manga/m/chapter/10.5/', origin: 'https://example.com' },
         window: { addEventListener() {} },
+        startChapterViews() {},
         markChapterRead: async (uid, id, data, chapter) => {
             assert.equal(chapter, '10.5');
             writes++;

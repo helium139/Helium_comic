@@ -1419,3 +1419,9 @@ color:white;
     .dashboard-manga-section { padding: 16px; }
 }
 @media (max-width: 360px) { .dashboard-page .dashboard-grid { grid-template-columns: 1fr; } }
+
+#view-analytics-tree { list-style: none; padding: 16px 0; }
+#view-analytics-tree ul { list-style: none; margin: 8px 0 8px 18px; padding-left: 12px; border-left: 1px solid #475569; }
+#view-analytics-tree li { padding: 7px 0; }
+#view-analytics-tree button, #view-analytics-expand { color: #bfdbfe; background: #1e3a5f; padding: 8px 12px; border-radius: 8px; text-align: left; }
+#view-analytics-period { color: #f8fafc; background: #1f2937; padding: 8px; border: 1px solid #475569; border-radius: 8px; }

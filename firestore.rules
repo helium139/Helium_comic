@@ -92,10 +92,10 @@ service cloud.firestore {
        */
       allow update:
         if isOwner(userId) &&
-           request.resource.data
+           !request.resource.data
              .diff(resource.data)
              .affectedKeys()
-             .hasNone([
+             .hasAny([
                "role",
                "teamId"
              ]);
@@ -216,26 +216,17 @@ service cloud.firestore {
         if true;
 
 
-      /*
-       * TEMPORARY LEGACY ACCESS
-       *
-       * Site hiện tại vẫn update mangaStats trực tiếp
-       * từ browser.
-       *
-       * Vì vậy Phase 1B chưa thể khóa phần này nếu chưa
-       * thay hệ thống view/like/follow.
-       *
-       * PHASE 3 PHẢI THAY:
-       *
-       * create/update browser -> DENY
-       * authoritative views -> Cloud Function/Admin SDK
-       */
+      // Legacy views are frozen. Only social counters retain browser writes.
       allow create:
-        if true;
+        if signedIn() &&
+           request.resource.data.keys().hasOnly(["likes", "follows"]) &&
+           request.resource.data.likes == 0 &&
+           request.resource.data.follows == 0;
 
       allow update:
-        if true;
-
+        if signedIn() &&
+           request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(["likes", "follows"]);
 
       /*
        * Không cần browser delete stats.
@@ -299,6 +290,15 @@ service cloud.firestore {
 
     }
 
+
+    // Authoritative views are Admin-SDK-only. Staff analytics use the
+    // getChapterViewAnalytics callable, which enforces custom-claim team scope.
+    match /chapterViewSessions/{document=**} { allow read, write: if false; }
+    match /chapterViewEvents/{document=**} { allow read, write: if false; }
+    match /viewDedup/{document=**} { allow read, write: if false; }
+    match /viewRateLimits/{document=**} { allow read, write: if false; }
+    match /viewSystem/{document=**} { allow read, write: if false; }
+    match /analyticsScopes/{document=**} { allow read, write: if false; }
 
     // =====================================================
     // DEFAULT DENY

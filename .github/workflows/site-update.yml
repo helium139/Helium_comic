@@ -38,7 +38,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
 
       - name: Install CMS verification dependency
@@ -49,6 +49,24 @@ jobs:
 
       - name: Test scoped dashboard statistics
         run: node --test scripts/test-dashboard.mjs
+
+      - name: Install Functions verification dependencies
+        run: npm ci --prefix functions --ignore-scripts --no-audit --no-fund
+
+      - name: Lint Firebase Functions
+        run: npm --prefix functions run lint
+
+      - name: Test trusted views and reader timing
+        run: node --test scripts/test-view-service.mjs scripts/test-chapter-views.mjs scripts/test-view-dashboard.mjs
+
+      - name: Setup Java for Firestore emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Test Firestore view rules and concurrent transactions
+        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firestore/emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs"
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs
@@ -141,7 +159,7 @@ jobs:
       - name: Stage public website
         run: |
           mkdir -p /tmp/pages-site
-          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' --exclude='worker/' --exclude='node_modules/' ./ /tmp/pages-site/
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='.agents/' --exclude='.codex/' --exclude='.aws/' --exclude='.vscode/' --exclude='scripts/' --exclude='worker/' --exclude='functions/' --exclude='firestore/' --exclude='firebase.json' --exclude='firestore.rules' --exclude='firestore.indexes.json' --exclude='node_modules/' ./ /tmp/pages-site/
 
       # Use the Pages archive format, but replace the artifact on build reruns.
       # upload-pages-artifact does not expose upload-artifact's overwrite input.

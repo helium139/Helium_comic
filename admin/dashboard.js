@@ -1,3 +1,4 @@
+import { createDashboardAnalytics } from "./view-analytics.js";
 import { requireStaff } from "../assets/js/adminGuard.js";
 import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
 import { getTeams } from "../assets/js/teams.js";
@@ -16,6 +17,7 @@ try {
         })
     ]);
     const accessibleMangas = scopeMangas(currentStaff, catalogue);
+    const analytics = createDashboardAnalytics({ staff: currentStaff, teams, catalogue });
     const filter = document.getElementById("dashboard-team");
     const isAdmin = currentStaff.role === "admin";
     let scope = getDashboardScope(currentStaff, "all", teams);
@@ -49,6 +51,7 @@ try {
 
     function render() {
         const model = buildDashboardModel(currentStaff, accessibleMangas, teams, scope);
+        analytics.update(model.scope);
         document.getElementById("dashboard-scope").textContent = `Team: ${model.scopeName}`;
         document.getElementById("total-manga").textContent = String(model.mangaCount);
         document.getElementById("monthly-chapters").textContent = String(model.monthlyChapters);

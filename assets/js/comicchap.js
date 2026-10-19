@@ -1,75 +1,12 @@
+import { startChapterViews } from "./chapter-views.js";
 import { markChapterRead, showProgressError } from "./reading-progress.js";
 import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { mangaUrl, chapterUrl, getRouteParams } from "./routes.js";
-import {
-    doc,
-    setDoc,
-    getDoc,
-    updateDoc,
-    increment
-}
-from
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-import { db }
-from "./firebase.js";
-
-
 const params = getRouteParams();
 
 const mangaId = params.get("id");
 const chapterId = params.get("chap");
 
-
-async function updateChapterView() {
-
-    const viewKey =
-        `viewed-${mangaId}-${chapterId}`;
-
-    // Đã tính view chap này rồi
-    if(localStorage.getItem(viewKey)) {
-        return;
-    }
-
-    const statRef =
-        doc(
-            db,
-            "mangaStats",
-            mangaId
-        );
-
-    const statSnap =
-        await getDoc(statRef);
-
-    if(!statSnap.exists()) {
-
-        await setDoc(
-            statRef,
-            {
-                views: 1,
-                likes: 0,
-                follows: 0
-            }
-        );
-
-    } else {
-
-        await updateDoc(
-            statRef,
-            {
-                views: increment(1)
-            }
-        );
-
-    }
-
-    // Đánh dấu chap đã tính view
-    localStorage.setItem(
-        viewKey,
-        "1"
-    );
-}
-updateChapterView();
 
 // Resolve only after valid metadata and the first page image have loaded.
 let loadedChapter = null;
@@ -210,6 +147,7 @@ document.querySelector(
     const chapterOpened = () => {
         loadedChapter = { manga };
         saveProgress();
+        startChapterViews({ mangaId, chapterId, manga, chapter, firstImage });
     };
     if (firstImage?.complete && firstImage.naturalWidth > 0) chapterOpened();
     else firstImage?.addEventListener("load", chapterOpened, { once: true });
