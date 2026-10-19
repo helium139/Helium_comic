@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monthly Reports · Helium CMS</title><link rel="stylesheet" href="/admin/admin.css"><link rel="icon" href="/assets/images/helium_logo.webp">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"></head><body>
+<button id="menuToggleBtn" class="menu-toggle-btn">
+  <i class="bx bx-menu"></i>
+</button>
+
+<div id="adminOverlay" class="admin-overlay"></div>
+<div class="sidebar">
+
+    <div class="logo">
+        <img src="/assets/images/helium_logo.webp">
+        <h2>Helium CMS</h2>
+    </div>
+
+    <a href="/admin/">
+        <i class='bx bx-home'></i>
+        Dashboard
+    </a>
+
+    <a href="/admin/manga/">
+        <i class='bx bx-book'></i>
+        Quản lý truyện
+    </a>
+
+    <a href="/admin/chapter/">
+        <i class='bx bx-file'></i>
+        Thêm Chapter
+    </a>
+
+    <a href="/admin/comments/">
+        <i class='bx bx-comment'></i>
+        Comments
+    </a>
+
+    <a href="/admin/reports/" class="active" data-admin-report-link hidden>
+        <i class='bx bx-spreadsheet'></i>
+        Reports
+    </a>
+
+    <a href="/">
+        <i class='bx bx-world'></i>
+        Website
+    </a>
+
+</div>
+
+<main class="content dashboard-page"><header class="dashboard-header"><div><p class="dashboard-eyebrow">Helium CMS</p><h1>Monthly Valid-View Reports</h1><p class="dashboard-muted">UTC snapshots · Admin only · Sheets are exports</p></div></header>
+<section id="reports-content" class="dashboard-manga-section" hidden><button id="reports-refresh" type="button">Refresh</button><p id="reports-status" class="dashboard-muted" role="status" aria-live="polite"></p>
+<div class="dashboard-table-scroll"><table class="dashboard-manga-table"><thead><tr><th>Month</th><th>Total Valid Views</th><th>Teams</th><th>Status</th><th>Generated At (UTC)</th><th>Action</th></tr></thead><tbody id="report-rows"></tbody></table></div>
+<button id="reports-more" type="button" hidden>Load more reports</button></section></main><script type="module" src="/admin/reports.js"></script><script src="/admin/menu.js"></script></body></html>

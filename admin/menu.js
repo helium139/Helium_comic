@@ -35,3 +35,15 @@ document.querySelectorAll(".sidebar a").forEach(link => {
     };
 
 });
+// Navigation visibility only; report callables and report-page guard enforce admin access.
+const reportLinks = document.querySelectorAll('[data-admin-report-link]');
+if (reportLinks.length) {
+    import('../assets/js/firebase-session.js').then(({auth, onAuthStateChanged}) => {
+        onAuthStateChanged(auth, async user => {
+            for (const link of reportLinks) link.hidden = true;
+            if (!user) return;
+            const result = await user.getIdTokenResult();
+            if (auth.currentUser === user) for (const link of reportLinks) link.hidden = result.claims.role !== 'admin';
+        });
+    }).catch(() => {});
+}

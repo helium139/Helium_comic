@@ -1440,3 +1440,6 @@ color:white;
 #comments-more{background:#1e3a5f;color:#bfdbfe;border-radius:6px;padding:10px 14px;margin-top:12px}
 @media(max-width:600px){.admin-comment-filters label{width:100%}.admin-comment-filters select{flex:1;min-width:0}.admin-comment-replies{margin-left:4px;padding-left:8px}}
 #comments-team-field[hidden],#comments-content[hidden],#comments-more[hidden]{display:none}
+.sidebar [data-admin-report-link][hidden],#reports-content[hidden],#reports-more[hidden]{display:none}
+#reports-refresh,#reports-more,#report-rows button{background:#1e3a5f;color:#bfdbfe;border-radius:6px;padding:8px 12px;cursor:pointer}
+#report-rows a{color:#bfdbfe}#report-rows button:disabled{opacity:.5}#reports-status{margin:12px 0}

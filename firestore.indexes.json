@@ -53,12 +53,40 @@
           "order": "ASCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "periods",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "kind",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "period",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "scopeId",
+          "order": "ASCENDING"
+        }
+      ]
     }
   ],
   "fieldOverrides": [
     {
       "collectionGroup": "viewRateLimits",
       "fieldPath": "acceptedAt",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "monthlyReports",
+      "fieldPath": "teams",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "snapshotChunks",
+      "fieldPath": "rows",
       "indexes": []
     }
   ]

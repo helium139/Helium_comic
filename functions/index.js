@@ -873,3 +873,11 @@ exports.listComments = commentEndpoints.listComments;
 /* Public popularity only; independent of valid-view accounting. */
 const {createPopularityEndpoint} = require("./lib/popularity/endpoint.js");
 exports.recordChapterPopularity = createPopularityEndpoint(db);
+
+/* Read-only monthly analytics and immutable monthly reporting/export. */
+const {createReportEndpoints} = require("./lib/reports/endpoints.js");
+const reportEndpoints = createReportEndpoints(db);
+exports.getMonthlyViewDashboard = reportEndpoints.getMonthlyViewDashboard;
+exports.getMonthlyViewReports = reportEndpoints.getMonthlyViewReports;
+exports.retryMonthlyViewReport = reportEndpoints.retryMonthlyViewReport;
+exports.closeMonthlyViewReport = reportEndpoints.closeMonthlyViewReport;

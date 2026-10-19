@@ -1,14 +1,19 @@
+import { getMonthlyViewDashboard } from './api/monthly-reports.js';
+import { createMonthRollover } from '../assets/js/month-rollover.mjs';
 import { getViewAnalytics } from './api/view-analytics.js';
 
-export function createDashboardAnalytics({ staff, teams, catalogue, call = getViewAnalytics }) {
+export function createDashboardAnalytics({ staff, teams, catalogue, call = getViewAnalytics, monthlyCall = getMonthlyViewDashboard, rollover = null }) {
     const total = document.getElementById('total-valid-views');
     const monthly = document.getElementById('monthly-valid-views');
+    const previous = document.getElementById('previous-month-valid-views');
     const status = document.getElementById('view-analytics-status');
     const tree = document.getElementById('view-analytics-tree');
     const expand = document.getElementById('view-analytics-expand');
     const periodSelect = document.getElementById('view-analytics-period');
     let revision = 0, currentScope, currentRoot, expanded = false, active = false;
     let serverMonth;
+    const monthWatcher = rollover || createMonthRollover({refresh: () => currentScope && update(currentScope),
+        doc: document, win: window, now: () => performance.now(), schedule: (fn, ms) => setTimeout(fn, ms), cancel: id => clearTimeout(id)});
     const period = () => periodSelect.value === 'month' ? (serverMonth || new Date().toISOString().slice(0, 7)) : 'all';
     function title(row) {
         if (row.kind === 'team') return teams.find(team => team.id === row.teamId)?.name || row.teamId;
@@ -62,23 +67,26 @@ export function createDashboardAnalytics({ staff, teams, catalogue, call = getVi
         const version = ++revision;
         expanded = false; active = false; tree.replaceChildren(); tree.hidden = true;
         expand.disabled = true; expand.setAttribute('aria-expanded', 'false');
-        total.textContent = monthly.textContent = 'Loading…';
+        total.textContent = monthly.textContent = previous.textContent = 'Loading…';
         status.textContent = 'Đang tải thống kê tổng hợp…';
         try {
-            const result = await call({ scopeId: currentRoot, period: period() });
+            const result = await monthlyCall({ scopeId: currentRoot });
             if (version !== revision) return;
-            serverMonth = result.month;
+            serverMonth = result.currentPeriod;
+            monthWatcher.sync(result);
             active = result.active;
             total.textContent = active ? Number(result.total).toLocaleString() : 'Not active yet';
             monthly.textContent = active ? Number(result.monthly).toLocaleString() : 'Not active yet';
+            previous.textContent = active ? Number(result.previousMonthly).toLocaleString() : 'Not active yet';
+            previous.title = result.previousPeriod || '';
             status.textContent = active
-                ? `Valid views since ${new Date(result.activationAt).toISOString()} · UTC month ${result.month}`
+                ? `Valid views since ${new Date(result.activationAt).toISOString()} · UTC current ${result.currentPeriod} · previous ${result.previousPeriod}`
                 : 'Valid views chưa được kích hoạt. Không bao gồm lượt xem lịch sử.';
             expand.disabled = !active;
         } catch (error) {
             if (version !== revision) return;
             const missing = ['functions/not-found', 'functions/failed-precondition'].includes(error.code);
-            total.textContent = monthly.textContent = missing ? 'Not active yet' : 'Unavailable';
+            total.textContent = monthly.textContent = previous.textContent = missing ? 'Not active yet' : 'Unavailable';
             status.textContent = missing ? 'Backend valid views chưa sẵn sàng.' : 'Không thể tải thống kê hợp lệ. Vui lòng thử lại sau.';
         }
     }
@@ -92,5 +100,5 @@ export function createDashboardAnalytics({ staff, teams, catalogue, call = getVi
         finally { expand.disabled = !active; }
     });
     periodSelect.addEventListener('change', () => { if (currentScope) update(currentScope); });
-    return { update };
+    return { update, dispose: () => monthWatcher.dispose() };
 }

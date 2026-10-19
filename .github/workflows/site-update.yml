@@ -62,6 +62,9 @@ jobs:
       - name: Test threaded comment validation and UI
         run: node --test scripts/test-comments.mjs scripts/test-firebase-session.mjs
 
+      - name: Test UTC monthly reports, dashboard rollover and export safety
+        run: node --test scripts/test-monthly-reports.mjs scripts/test-monthly-report-ui.mjs
+
       - name: Setup Java for Firestore emulator
         uses: actions/setup-java@v4
         with:
@@ -69,7 +72,7 @@ jobs:
           java-version: '21'
 
       - name: Test Firestore view and comment rules and transactions
-        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs scripts/test-comment-firestore.mjs"
+        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs scripts/test-comment-firestore.mjs scripts/test-monthly-report-firestore.mjs"
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs

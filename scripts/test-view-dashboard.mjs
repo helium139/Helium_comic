@@ -9,7 +9,9 @@ function node() { return { children: [], events: {}, value: 'all', hidden: false
     addEventListener(type, callback) { this.events[type] = callback; }, setAttribute() {}, remove() {} }; }
 function harness(staff, call) {
     const elements = new Map(); const get = id => { if (!elements.has(id)) elements.set(id, node()); return elements.get(id); };
-    const context = { getViewAnalytics: call, document: { getElementById: get, createElement: node } };
+    const context = { window: {}, getViewAnalytics: call,
+        getMonthlyViewDashboard: async data => { const result = await call(data); return {...result, currentPeriod: result.month || '2026-10', previousPeriod:'2026-09', previousMonthly:result.previousMonthly ?? 0, serverNow:1, nextBoundary:2}; },
+        createMonthRollover: () => ({sync() {},dispose() {}}), document: { getElementById: get, createElement: node } };
     vm.createContext(context); vm.runInContext(source, context);
     return { get, analytics: context.createDashboardAnalytics({ staff, teams: [{ id: 'heliumtg', name: 'HeliumTG' }], catalogue: {} }) };
 }

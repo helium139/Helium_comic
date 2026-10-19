@@ -253,6 +253,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Full-site report snapshots, chunks and attempt audit are backend-only.
+    // Admin history/retries use claim-checked callables; leaders receive no reports.
+    match /monthlyReports/{document=**} { allow read, write: if false; }
+
     // Authoritative views are Admin-SDK-only. Staff analytics use the
     // getChapterViewAnalytics callable, which enforces custom-claim team scope.
     match /chapterViewSessions/{document=**} { allow read, write: if false; }
