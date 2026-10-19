@@ -297,6 +297,15 @@
       "cover_width": 840,
       "cover_height": 1120,
       "image_sha256": "12939ff8cb085f47490077e05ccf211aa503d9d38de7cfbf8ddd854703459d31"
+    },
+    "tay-em-trong-tay-anh-khong-che": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tay-em-trong-tay-anh-khong-che/cover-6c539876-649e-4779-85ce-46faece3424a.webp",
+      "etag": "\"dcec65a859f0711879bfd000ec637fdd\"",
+      "last_modified": "Mon, 19 Oct 2026 15:26:48 GMT",
+      "cover_sha256": "67e4c980c78c25200d5a26a3fe0ebc960908fbd34d9f95ac17dbc8c0b95638f0",
+      "cover_width": 400,
+      "cover_height": 533,
+      "image_sha256": "b56e2a40618d10bb2a1d730e107672e29236d1b9a4693b8bc340d8911d2cf717"
     }
   }
 }
