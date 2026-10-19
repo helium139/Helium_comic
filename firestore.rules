@@ -1,0 +1,314 @@
+rules_version = '2';
+
+service cloud.firestore {
+
+  match /databases/{database}/documents {
+
+    // =====================================================
+    // HELPERS
+    // =====================================================
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return signedIn() &&
+             request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+             request.auth.token.role == "admin";
+    }
+
+    function isTeamLeader() {
+      return signedIn() &&
+             request.auth.token.role == "team_leader" &&
+             request.auth.token.teamId != null;
+    }
+
+    function isStaff() {
+      return isAdmin() || isTeamLeader();
+    }
+
+    function sameTeam(teamId) {
+      return isTeamLeader() &&
+             request.auth.token.teamId == teamId;
+    }
+
+
+    // =====================================================
+    // USERS
+    // =====================================================
+
+    match /users/{userId} {
+
+      /*
+       * User:
+       * - được đọc profile của chính mình
+       *
+       * Admin:
+       * - được đọc user profiles để sau này quản lý role/team
+       *
+       * Team leader:
+       * - hiện tại chỉ cần đọc profile của chính họ
+       */
+      allow read:
+        if isOwner(userId) ||
+           isAdmin();
+
+
+      /*
+       * User chỉ được tự tạo profile của mình.
+       *
+       * Nếu frontend gửi role:
+       * role bắt buộc phải là "user".
+       *
+       * Không được tự tạo teamId.
+       */
+      allow create:
+        if isOwner(userId) &&
+           (
+             !request.resource.data.keys().hasAny(["role"]) ||
+             request.resource.data.role == "user"
+           ) &&
+           !request.resource.data.keys().hasAny(["teamId"]);
+
+
+      /*
+       * User được sửa các field thông thường của mình:
+       *
+       * name
+       * avatar
+       * likes
+       * follows
+       * ...
+       *
+       * NHƯNG không được sửa:
+       *
+       * role
+       * teamId
+       */
+      allow update:
+        if isOwner(userId) &&
+           request.resource.data
+             .diff(resource.data)
+             .affectedKeys()
+             .hasNone([
+               "role",
+               "teamId"
+             ]);
+
+
+      /*
+       * Không cho browser delete user profile.
+       */
+      allow delete:
+        if false;
+
+
+      // ===================================================
+      // READING HISTORY
+      // ===================================================
+
+      match /history/{historyId} {
+
+        allow read, create, update, delete:
+          if isOwner(userId);
+
+      }
+
+
+      // ===================================================
+      // PUSH TOKENS
+      // ===================================================
+
+      /*
+       * Push token được quản lý bằng:
+       *
+       * registerPushToken
+       * unregisterPushToken
+       *
+       * Firebase Admin SDK bypass Firestore Rules,
+       * nên browser không cần quyền trực tiếp ở đây.
+       */
+      match /pushTokens/{tokenId} {
+
+        allow read, write:
+          if false;
+
+      }
+
+    }
+
+
+    // =====================================================
+    // MANGA OWNERSHIP
+    // =====================================================
+
+    /*
+     * Collection này sẽ dùng cho authorization backend.
+     *
+     * Ví dụ:
+     *
+     * mangaOwnership/black-swan
+     *
+     * {
+     *   teamId: "heliumtg",
+     *   state: "published"
+     * }
+     *
+     * Browser KHÔNG được sửa ownership.
+     */
+    match /mangaOwnership/{mangaId} {
+
+      allow read:
+        if isAdmin() ||
+           (
+             isTeamLeader() &&
+             resource.data.teamId ==
+               request.auth.token.teamId
+           );
+
+      allow create, update, delete:
+        if false;
+
+
+      /*
+       * Nếu sau này lưu publication registry cho chapter:
+       *
+       * mangaOwnership/{mangaId}/chapters/{chapterId}
+       */
+      match /chapters/{chapterId} {
+
+  allow read:
+    if isAdmin() ||
+       (
+         isTeamLeader() &&
+         get(
+           /databases/$(database)/documents/mangaOwnership/$(mangaId)
+         ).data.teamId ==
+           request.auth.token.teamId
+       );
+
+  allow create, update, delete:
+    if false;
+}
+
+    }
+
+
+    // =====================================================
+    // MANGA STATS
+    // =====================================================
+
+    match /mangaStats/{mangaId} {
+
+      /*
+       * Public site cần đọc:
+       *
+       * views
+       * likes
+       * follows
+       */
+      allow read:
+        if true;
+
+
+      /*
+       * TEMPORARY LEGACY ACCESS
+       *
+       * Site hiện tại vẫn update mangaStats trực tiếp
+       * từ browser.
+       *
+       * Vì vậy Phase 1B chưa thể khóa phần này nếu chưa
+       * thay hệ thống view/like/follow.
+       *
+       * PHASE 3 PHẢI THAY:
+       *
+       * create/update browser -> DENY
+       * authoritative views -> Cloud Function/Admin SDK
+       */
+      allow create:
+        if true;
+
+      allow update:
+        if true;
+
+
+      /*
+       * Không cần browser delete stats.
+       */
+      allow delete:
+        if false;
+
+    }
+
+
+    // =====================================================
+    // COMMENTS
+    // =====================================================
+
+    match /comments/{mangaId}/messages/{commentId} {
+
+      /*
+       * Comment public.
+       */
+      allow read:
+        if true;
+
+
+      /*
+       * Phải đăng nhập.
+       *
+       * Quan trọng:
+       * uid trong document phải đúng với Firebase Auth UID.
+       *
+       * Không cho browser tạo comment thay tên UID người khác.
+       */
+      allow create:
+        if signedIn() &&
+           request.resource.data.uid ==
+             request.auth.uid;
+
+
+      /*
+       * Hiện tại giữ behavior cũ:
+       * chỉ author được sửa comment của mình.
+       *
+       * Đồng thời uid không được thay đổi.
+       */
+      allow update:
+        if signedIn() &&
+           request.auth.uid ==
+             resource.data.uid &&
+           request.resource.data.uid ==
+             resource.data.uid;
+
+
+      /*
+       * Author được xóa comment của mình.
+       *
+       * Admin moderation có thể được thêm Phase 4.
+       */
+      allow delete:
+        if signedIn() &&
+           request.auth.uid ==
+             resource.data.uid;
+
+    }
+
+
+    // =====================================================
+    // DEFAULT DENY
+    // =====================================================
+
+    /*
+     * Document nào không có rule ở trên
+     * sẽ không được browser truy cập.
+     */
+
+  }
+
+}
