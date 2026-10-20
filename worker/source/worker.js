@@ -1,5 +1,6 @@
 import { verifyFirebaseToken } from "./firebase-auth.js";
 import { imageFormat } from "./image-format.js";
+import { promoteChapterPages } from "./chapter-promotion.js";
 import {
     HttpError, fail, safeSlug, chapterNumber, pageCount, validateRegistry,
     activeTeam, authorizeManga, imageName, uploadFolder, metadata, editorial
@@ -255,6 +256,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 };
                 chapter.images = chapterImages(body.images, chapter.pages);
                 for (const name of chapter.images) if (!await env.BUCKET.head(`${slug}/chap${id}/${name}`)) fail(400, "Chapter image not uploaded");
+                chapter.images = await promoteChapterPages(env.BUCKET, `${slug}/chap${id}`, chapter.images);
                 manga.chapters.push(chapter);
                 manga.chapters.sort((a, b) => a.id - b.id);
                 response.chapter = chapter;

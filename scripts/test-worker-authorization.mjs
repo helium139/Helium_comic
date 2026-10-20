@@ -48,6 +48,7 @@ function harness() {
             operations.push(['put', key]);
             const bytes = new Uint8Array(await new Response(value).arrayBuffer());
             objects.set(key, { bytes, ...structuredClone(options) });
+            return {};
         },
         async get(key) {
             const value = objects.get(key);
@@ -122,7 +123,7 @@ test('image signatures determine MIME; spoofed files and mismatched chapter exte
 test('chapter manifests preserve mixed page order and reject arbitrary paths', async () => {
     const h = harness();
     const body = { manga: 'own', chapterNumber: 1, title: 'Mixed', imageCount: 2, images: ['1.webp', '2.png'] };
-    for (const name of body.images) await h.BUCKET.put(`own/chap1/${name}`, 'fixture');
+    for (const name of body.images) await h.BUCKET.put(`own/chap1/${name}`, name.endsWith('webp') ? 'RIFF1234WEBPxxxx' : Uint8Array.from([137,80,78,71,13,10,26,10]), { httpMetadata: { contentType: name.endsWith('webp') ? 'image/webp' : 'image/png' } });
     assert.equal((await h.call('/new-chapter', body, leader)).status, 200);
     assert.deepEqual(h.catalogue().own.chapters[1].images, body.images);
     assert.equal((await h.call('/new-chapter', { ...body, chapterNumber: 2, images: ['2.png', '1.webp'] }, leader)).status, 400);
@@ -278,12 +279,12 @@ test('all chapter routes inherit ownership; chapter zero and pre-record uploads 
     assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Ch 1', imageCount: 1, images: [page.key.split('/').pop()], teamId: 'other-team' }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters[1].folder, 'https://images.test/own/chap1');
     assert.equal('teamId' in h.catalogue().own.chapters[1], false);
-    await h.BUCKET.put('own/chap0/1.jpg', 'legacy page');
+    await h.BUCKET.put('own/chap0/1.jpg', Uint8Array.from([255,216,255]), { httpMetadata: { contentType: 'image/jpeg' } });
     assert.equal((await h.call('/edit-chapter', { manga: 'own', chapterId: 0, title: 'Zero edit', pages: 1, createAt: new Date().toISOString() }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters[0].title, 'Zero edit');
     assert.equal((await h.call('/delete-chapter', { manga: 'own', chapterId: 0 }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters.length, 1);
-    await h.BUCKET.put('own/chap0/2.png', 'legacy page');
+    await h.BUCKET.put('own/chap0/2.png', Uint8Array.from([137,80,78,71,13,10,26,10]), { httpMetadata: { contentType: 'image/png' } });
     assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 0, title: 'Zero', imageCount: 2, images: ['1.jpg', '2.png'] }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters[0].id, 0);
 });
@@ -415,4 +416,55 @@ test('malformed requests and upstream errors return safe JSON without secrets', 
     const failure = await broken.fetch(new Request('https://cms.test/mangas'), {});
     assert.equal(failure.status, 500);
     assert.doesNotMatch(await failure.text(), /PRIVATE_NETWORK_SECRET/);
+});
+
+test('new chapter promotes UUID upload sources into numbered final WebP names', async () => {
+    const h = harness(), images = [];
+    for (let index = 1; index <= 3; index++) {
+        const form = upload('own/chap1', `${index}.webp`);
+        form.set('file', new Blob([`RIFF1234WEBPpage${index}`], { type: 'image/webp' }), `${index}.webp`);
+        const result = await (await h.call('/upload', form, leader)).json();
+        assert.match(result.key, new RegExp(`^own/chap1/${index}-[a-f0-9-]+\\.webp$`));
+        images.push(result.key.split('/').pop());
+    }
+    const response = await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'WebP', imageCount: 3, images }, leader);
+    assert.equal(response.status, 200);
+    assert.deepEqual((await response.json()).chapter.images, ['1.webp', '2.webp', '3.webp']);
+    assert.deepEqual(h.catalogue().own.chapters[1].images, ['1.webp', '2.webp', '3.webp']);
+    for (const name of images) assert.ok(h.objects.has(`own/chap1/${name}`));
+    assert.equal(h.operations.some(([operation]) => operation === 'delete'), false);
+});
+
+test('failed new chapter catalogue commit retains existing chapter and staged sources', async () => {
+    const h = harness();
+    await h.BUCKET.put('own/chap0/1.jpg', 'published original');
+    const page = await (await h.call('/upload', upload('own/chap1'), leader)).json();
+    h.rejectSave();
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Fail', imageCount: 1, images: [page.key.split('/').pop()] }, leader)).status, 409);
+    assert.equal(h.catalogue().own.chapters.length, 1);
+    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/1.jpg').bytes), 'published original');
+    assert.ok(h.objects.has(page.key));
+    assert.equal(h.operations.some(([operation]) => operation === 'delete'), false);
+});
+
+test('new mixed-format promotion leaves an existing UUID chapter and its objects untouched', async () => {
+    const h = harness(), uuid = '6a294080-018b-4e4a-b5d2-1d945dba7afa';
+    const existingName = `1-${uuid}.webp`;
+    h.catalogue().own.chapters[0].images = [existingName];
+    await h.BUCKET.put(`own/chap0/${existingName}`, 'published existing bytes');
+    const before = structuredClone(h.catalogue().own.chapters[0]);
+    const images = [`1-${uuid}.webp`, `2-${uuid}.jpg`, `3-${uuid}.png`];
+    const bytes = ['RIFF1234WEBPnew', Uint8Array.from([255,216,255]), Uint8Array.from([137,80,78,71,13,10,26,10])];
+    const types = ['image/webp', 'image/jpeg', 'image/png'];
+    for (let i = 0; i < images.length; i++) await h.BUCKET.put(`own/chap1/${images[i]}`, bytes[i], { httpMetadata: { contentType: types[i] } });
+    h.operations.length = 0;
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Mixed', imageCount: 3, images }, leader)).status, 200);
+    assert.deepEqual(h.catalogue().own.chapters[1].images, ['1.webp', '2.jpg', '3.png']);
+    assert.deepEqual(h.catalogue().own.chapters[0], before);
+    assert.equal(new TextDecoder().decode(h.objects.get(`own/chap0/${existingName}`).bytes), 'published existing bytes');
+    assert.ok(h.operations.every(([operation, key]) => operation === 'put' && key.startsWith('own/chap1/')));
+    const operationsBefore = h.operations.length;
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 0, title: 'Forbidden replacement', imageCount: 1, images: [existingName] }, leader)).status, 409);
+    assert.equal(h.operations.length, operationsBefore);
+    assert.deepEqual(h.catalogue().own.chapters[0], before);
 });

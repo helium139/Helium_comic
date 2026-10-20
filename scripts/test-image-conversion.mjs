@@ -76,7 +76,7 @@ for (const fail of [false, true]) test(`chapter uploads sequentially and ${fail 
     const context = {
         mangaSelect: { value: 'manga' }, mangas: { manga: {} }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {},
-        newImages: [{ name: 'a.jpg' }, { name: 'b.png' }], setUploadPercent() {}, log() {},
+        pageOrder: [], newImages: [{ name: 'a.jpg' }, { name: 'b.png' }], setUploadPercent() {}, log() {},
         uploadImage: async (file, folder, name) => {
             active++; maximum = Math.max(active, maximum); await Promise.resolve(); active--;
             if (fail) throw new Error('Upload failed');
@@ -97,7 +97,7 @@ test('100-page upload keeps selection order and at most one upload active', asyn
     const files = ['1.jpg', '2.jpg', '10.jpg', ...Array.from({ length: 97 }, (_, i) => `${i+11}.jpg`)].map(name => ({ name }));
     const c = { mangaSelect: { value: 'm' }, mangas: { m: {} }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {}, newImages: files,
-        setUploadPercent() {}, log() {}, uploadImage: async (file, folder, name) => {
+        pageOrder: [], setUploadPercent() {}, log() {}, uploadImage: async (file, folder, name) => {
             active++; maximum = Math.max(maximum, active); seen.push(file.name); await Promise.resolve(); active--;
             return `https://images.test/${folder}/${name}`;
         }, publishChapter: async data => { published = data; }, chapterUrl: () => '/', chapterLink: {},
@@ -153,10 +153,29 @@ test('preview rerender releases object URLs and requests lazy image decoding', (
 });
 
 const readerSource = await readFile(new URL('../assets/js/comicchap.js', import.meta.url), 'utf8');
-for (const images of [undefined, ['1.png', '2.jpg', '3.png'], ['1.webp', '2.jpg', '3.png']]) test(`reader preserves ${images ? images.join('/') : 'legacy JPG'} page paths and order`, () => {
+for (const images of [undefined, ['1.png', '2.jpg', '3.png'], ['1.webp', '2.jpg', '3.png'], ['1-6a294080-018b-4e4a-b5d2-1d945dba7afa.webp', '2.jpg', '3.png']]) test(`reader preserves ${images ? images.join('/') : 'legacy JPG'} page paths and order`, () => {
     const reader = { innerHTML: '' }, chapter = { folder: 'https://img.test/m/chap0', pages: 3, ...(images ? { images } : {}) };
     const c = { chapter, document: { getElementById: () => reader } };
     vm.createContext(c); vm.runInContext(readerSource.slice(readerSource.indexOf('    const reader ='), readerSource.indexOf('    const firstImage =')), c);
     const paths = [...reader.innerHTML.matchAll(/src="([^"]+)"/g)].map(match => match[1]);
     assert.deepEqual(paths, (images || ['1.jpg', '2.jpg', '3.jpg']).map(name => `${chapter.folder}/${name}`));
+});
+
+test('new chapter numbers uploads from final displayed order, preserving actual mixed extensions', async () => {
+    const first = { name: 'first.jpg' }, second = { name: 'second.png' }, third = { name: 'third.jpg' };
+    const seen = []; let saved;
+    const c = { mangaSelect: { value: 'm' }, mangas: { m: { chapters: [] } }, currentStaff: {}, assertCanManageManga() {},
+        chapterNumber: { value: '4' }, chapterTitle: { value: 'New' }, progress: {},
+        newImages: [first, second, third], pageOrder: [third, first, second],
+        setUploadPercent() {}, log() {}, uploadImage: async (file, folder, name) => {
+            seen.push([file.name, name]);
+            const ext = file === first ? 'jpg' : file === second ? 'png' : 'webp';
+            return `https://images.test/${folder}/${name.split('.')[0]}-6a294080-018b-4e4a-b5d2-1d945dba7afa.${ext}`;
+        }, publishChapter: async value => { saved = value; }, chapterUrl: () => '/', chapterLink: {},
+        chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
+    };
+    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter(){'), chapterSource.indexOf('async function saveChapter(){')), c);
+    await c.uploadChapter();
+    assert.deepEqual(seen, [['third.jpg', '1.jpg'], ['first.jpg', '2.jpg'], ['second.png', '3.png']]);
+    assert.deepEqual(Array.from(saved.images, name => name.split('.').pop()), ['webp', 'jpg', 'png']);
 });

@@ -285,3 +285,32 @@ Run all migration/cleanup tests without production requests:
 ```sh
 npm --prefix scripts/webp test
 ```
+
+## Numbered filenames for new chapters
+
+New chapter publication (`/new-chapter` only) promotes the uploaded source set to
+`<slug>/chapN/1.ext`, `2.ext`, and so on. The extension comes from the validated
+actual upload format: optimized WebP stays WebP, retained JPG/PNG stays JPG/PNG.
+The CMS snapshots the final displayed order before assigning page numbers.
+Uploads still use temporary `<slug>/chapN/<page>-<uuid>.<extension>` keys to keep
+incomplete uploads isolated from published images. UUIDs are not copied into the
+new chapter's final `images` manifest.
+
+The Worker validates all sources and destination collisions before writing final
+objects, creates destinations with a create-only condition, verifies their bytes,
+then commits the numbered manifest with the GitHub SHA check. Different existing
+destination bytes cause a conflict rather than an overwrite. Failed promotion or
+catalogue commit retains all sources and existing objects; an unreferenced final
+copy may remain for retry. Temporary source objects are retained; this operation
+does not add automatic deletion.
+
+Existing chapter objects and metadata are not renamed or migrated. Existing edit
+and reorder behavior is unchanged, including UUID manifests. Reader legacy and
+UUID compatibility, migration discovery, and cleanup exact-reference rules are
+unchanged. No versioned folders are introduced.
+
+Additional naming checks:
+
+```sh
+node --test scripts/test-chapter-promotion.mjs scripts/test-worker-authorization.mjs scripts/test-image-conversion.mjs
+```

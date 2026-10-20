@@ -702,12 +702,14 @@ async function uploadChapter(){
 
     "Đang upload...";
 
+    // Snapshot the displayed order; upload indices become final published page numbers.
+    const orderedImages = [...(pageOrder.length ? pageOrder : newImages)];
     const filenames = [];
-    for(let i=0;i<newImages.length;i++){
+    for(let i=0;i<orderedImages.length;i++){
 
-        setUploadPercent(i,newImages.length);
+        setUploadPercent(i,orderedImages.length);
 
-        const file = newImages[i];
+        const file = orderedImages[i];
 
         const ext = file.name
 
@@ -717,7 +719,7 @@ async function uploadChapter(){
 
             .toLowerCase();
 
-        progress.textContent = `Converting / uploading ${i+1}/${newImages.length}`;
+        progress.textContent = `Converting / uploading ${i+1}/${orderedImages.length}`;
         const uploadedUrl = await uploadImage(
 
             file,
@@ -737,7 +739,7 @@ async function uploadChapter(){
 
         setUploadPercent(
     i + 1,
-    newImages.length
+    orderedImages.length
 );
 
     }
@@ -750,7 +752,7 @@ async function uploadChapter(){
 
         title,
 
-        imageCount:newImages.length,
+        imageCount:orderedImages.length,
         images: filenames
 
     });
