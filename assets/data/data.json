@@ -3703,6 +3703,38 @@
                 "createAt": "2026-10-07T18:33:39.913Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/chap12",
                 "pages": 23
+            },
+            {
+                "id": 13,
+                "title": "Chap 13",
+                "createAt": "2026-10-20T16:36:16.146Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/chap13",
+                "pages": 23,
+                "images": [
+                    "1-6a294080-018b-4e4a-b5d2-1d945dba7afa.webp",
+                    "2-76bbfc8c-e5b4-4f2e-84ad-a05021259158.webp",
+                    "3-3f8bb2c7-3510-4845-9dc1-8891377c4a17.webp",
+                    "4-f03724c1-19d5-46dc-9331-874d926ef718.webp",
+                    "5-e791b5bd-4a0f-43da-b450-ef16f0e80ab5.webp",
+                    "6-ef25d851-e37b-4964-b244-1b38c88f5f61.webp",
+                    "7-80fd948f-2c2c-447c-b203-64bc5594f9e8.webp",
+                    "8-fc6eb4cb-95b3-49d5-974c-c1a7855ac42d.webp",
+                    "9-78ac9c4b-d0de-4f52-8c3e-c7673aefc122.webp",
+                    "10-8f3a8453-4b58-456f-b44a-da8f24bd9a2e.webp",
+                    "11-26e3324f-f211-4bf5-9d4c-fc2818305808.webp",
+                    "12-ff7b7342-c500-4f32-9df6-d2397f48bb87.webp",
+                    "13-5f264a25-e23f-4098-aa48-ff8f281a4628.webp",
+                    "14-60f7faf8-34df-4133-b8ce-34ddcecbc84b.webp",
+                    "15-c725d6b7-2227-4408-94b0-95f2688bcd52.webp",
+                    "16-34c0301a-b2bf-418a-b932-354a5dd227c9.webp",
+                    "17-306e9245-9d69-4b6d-ba57-72a83cd93926.webp",
+                    "18-efc9469a-7005-48f4-8c9d-d2fe9a26f69b.webp",
+                    "19-5e52844a-075c-4e68-9f59-41c80592986b.webp",
+                    "20-0c418f6f-1a57-409d-a9db-a87f1f444240.webp",
+                    "21-219637f7-7299-4251-b10b-3cde643263f8.webp",
+                    "22-1e69331c-0b4b-4f4b-95cd-402df1f0cb22.webp",
+                    "23-a0be4b03-d045-46d6-91dd-d3c9e1268766.webp"
+                ]
             }
         ]
     },
