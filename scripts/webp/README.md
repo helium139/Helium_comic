@@ -167,3 +167,121 @@ Each apply writes `<journal>.catalogue.json` before external writes (exclusive c
 - `.gitignore`: local dependencies and default migration journal/backup names.
 - `scripts/webp/rollback.mjs`, `scripts/webp/test-rollback.mjs`: exact journal rollback with original-hash checks and SHA-protected updates.
 - This runbook and `scripts/webp/ROLLOUT.md`.
+
+## Cleanup of deployed chapter originals
+
+`cleanup-originals.mjs` is a separate, chapters-only deletion tool. Migration
+still retains originals; cleanup never updates the catalogue and never invokes
+upload conversion. Do not run cleanup until the **Update Site** workflow has
+finished deploying the migrated catalogue and the live reader has been checked.
+
+Use Node 24 and `npm ci --prefix scripts/webp`. Configure the same nine migration
+variables in the launching process or an explicitly loaded private `.env.webp`
+file. Keep this file outside version control (prefer an absolute path outside
+this repository). Dry-run needs R2 List/Get (including HEAD) and GitHub Contents
+read. Apply also needs R2 Delete, restricted to the intended bucket/prefix;
+cleanup needs neither R2 Put nor GitHub Contents write. Use separate credentials
+with deletion permission only for cleanup.
+
+Production catalogue verification is pinned to
+`https://heliumtg.com/assets/data/data.json`, derived from `CNAME` and the reader's
+`/assets/data/data.json` fetch. Every candidate fetch uses a fresh cache-busting
+query, no-cache headers, a 30-second timeout, and rejects redirects. GitHub
+credentials are never sent to production. Unavailable, malformed, mismatched,
+or stale live data yields **live catalogue not verified** and retains the source.
+If the production hostname/path changes, update this constant before cleanup.
+Do not point it at GitHub or a preview deployment.
+
+For each canonical chapter JPG/JPEG/PNG in the prefix, cleanup requires an exact
+same-stem WebP reference at the same chapter and page index in both the current
+GitHub catalogue and production. Numbered legacy chapters without manifests
+still reference their JPGs and are protected. UUID filenames must match exactly.
+The tool checks all catalogue chapters and explicit metadata references for
+continued use of the original, including references outside the requested
+prefix. Malformed chapter metadata fails closed. Unknown/orphan sources are
+reported as `skippedUnknown` and retained; similarly named replacements alone
+are insufficient. Covers, OG paths, GIF, WebP, noncanonical paths, and objects
+outside the prefix are excluded.
+
+Both WebP HEAD and GET must succeed, report `image/webp`, and agree on nonzero
+size. The original is HEAD/GET checked too. Sharp decodes both files, verifies
+matching dimensions and supported static source formats, and rejects APNG,
+animation and EXIF-oriented originals. Catalogue and live references are checked
+again, followed by both object ETags, immediately before the pending journal and
+delete. Deletion uses the original ETag as `IfMatch`; failed conditions or
+unsupported conditional deletes are failures, never retried unconditionally.
+After deletion, source HEAD must return object-not-found. Authentication errors,
+connection failures and missing buckets are not accepted as proof of deletion.
+
+Pause catalogue/CMS edits, migration, rollback, deployments and other R2 writers
+throughout cleanup. These separate services cannot provide an atomic snapshot;
+checks reduce races but cannot prevent a concurrent catalogue rollback or a
+replacement deletion after verification. A live catalogue check also cannot
+prove that every already-open reader or cached old catalogue has expired.
+Allow your desired cache/reader grace period before cleanup. **After deletion,
+rollback to JPG/PNG requires an independent backup**; the migration journal does
+not contain the original image bytes.
+
+Workflow for `nguoi-hau-trong-tu-kinh/` (examples only; no production cleanup has
+been run during development):
+
+A. Preview migration:
+
+```sh
+node --env-file=.env.webp scripts/webp/migrate.mjs --dry-run --scope chapters --prefix nguoi-hau-trong-tu-kinh/
+```
+
+B. Apply migration and retain its journal/backups:
+
+```sh
+node --env-file=.env.webp scripts/webp/migrate.mjs --apply --scope chapters --prefix nguoi-hau-trong-tu-kinh/ --journal webp-chapters-reviewed.jsonl
+```
+
+C. Deploy using **Update Site**, and wait for successful production deployment.
+
+D. Verify production chapter `images` references and representative reader WebP
+requests. Keep originals through your chosen cache/reader grace period.
+
+E. Preview cleanup and review the journal and summary:
+
+```sh
+node --env-file=.env.webp scripts/webp/cleanup-originals.mjs --dry-run --scope chapters --prefix nguoi-hau-trong-tu-kinh/ --journal webp-cleanup-preview.jsonl
+```
+
+F. Apply only after reviewing the preview, using a different journal:
+
+```sh
+node --env-file=.env.webp scripts/webp/cleanup-originals.mjs --apply --scope chapters --prefix nguoi-hau-trong-tu-kinh/ --journal webp-cleanup-apply.jsonl
+```
+
+`--prefix nguoi-hau-trong-tu-kinh/chap0/` narrows to one chapter. Optional
+`--limit N` caps canonical source objects checked, including skipped or failed
+sources; it does not mean N deletions. No whole-bucket or covers scope exists.
+Only one of `--dry-run` and `--apply` is allowed.
+
+Both modes create a local journal exclusively (`wx`, mode `0600`); existing
+files are never appended to or overwritten. Without `--journal`, the name is
+`webp-cleanup-<timestamp>-<uuid>.jsonl`. Dry-run makes **zero R2 writes/deletes and
+zero catalogue writes**, but does write its local audit journal. Each checked
+source records `originalKey`, `webpKey`, `originalBytes`, `webpBytes`,
+`catalogueVerified`, `liveCatalogueVerified`, `webpVerified`, `deleted`, `reason`,
+and `timestamp`. Unread/unverified byte sizes remain zero. Apply syncs a pending
+record to disk before deletion and syncs the completed result afterward.
+Failures are recorded with redacted stage/class/message diagnostics and
+processing continues; any journal failure stops the entire run. A pending
+record without a completed result needs inspection after a crash; the tool does
+not automatically replay journal entries.
+
+Summary fields are `scanned`, `eligible` (exact current WebP identity found),
+`safeToDelete`, `skippedReferenced`, `skippedLiveNotVerified`,
+`skippedMissingWebp`, `skippedUnknown`, `deleted`, `failed`, and
+`reclaimableBytes`. `safeToDelete`/`reclaimableBytes` describe verified candidates,
+including any subsequent delete failures; `deleted` counts only verified
+not-found results. Skips are reported without deletion; operational failures
+exit nonzero. Preserve journals alongside your independent original backups.
+
+Run all migration/cleanup tests without production requests:
+
+```sh
+npm --prefix scripts/webp test
+```

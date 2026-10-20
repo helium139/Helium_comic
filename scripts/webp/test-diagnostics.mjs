@@ -1,6 +1,5 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { connect, formatFailure, migrate, parseArguments, references, REQUIRED_ENV } from './migrate.mjs';
 
 test('startup reports every missing variable without secrets', async () => {
@@ -18,10 +17,10 @@ test('argument diagnostics reject missing and invalid prefixes', () => {
     }
 });
 
-test('supplied chapter prefix discovers four legacy JPGs in repository catalogue', async () => {
-    const data = JSON.parse(await readFile(new URL('../../assets/data/data.json', import.meta.url)));
+test('legacy chapter prefix discovers four implied JPGs independently of later migrations', () => {
     const prefix = 'nguoi-hau-trong-tu-kinh/chap0/';
-    const base = data['nguoi-hau-trong-tu-kinh'].chapters[0].folder.split('/').slice(0, 3).join('/');
+    const base = 'https://images.test';
+    const data = { 'nguoi-hau-trong-tu-kinh': { chapters: [{ id: 0, pages: 4, folder: `${base}/${prefix.slice(0, -1)}` }] } };
     assert.deepEqual(references(data, base, 'chapters', prefix).map(r => r.key), [1, 2, 3, 4].map(n => `${prefix}${n}.jpg`));
 });
 
