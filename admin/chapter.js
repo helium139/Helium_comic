@@ -679,6 +679,11 @@ async function uploadChapter(){
 
     );
 
+    // Avoid uploading orphan replacements when “New chapter” targets an existing record.
+    if (mangas[slug].chapters?.some(item => Number(item.id) === chapter)) {
+        throw new Error('Chapter already exists. Open Edit chapter to replace or reorder its pages.');
+    }
+
     const title =
 
         chapterTitle.value.trim();
@@ -726,7 +731,7 @@ async function uploadChapter(){
         filenames.push(uploadedUrl.split('/').pop());
         log(
 
-            `✔ ${i+1}.${ext}`
+            `✔ ${filenames[i]}`
 
         );
 
@@ -830,7 +835,7 @@ async function saveChapter(){
 
         nextIndex++;
 
-        log(`✔ ${filename}`);
+        log(`✔ ${uploadedUrl.split('/').pop()}`);
 
         setUploadPercent(i + 1, total);
 

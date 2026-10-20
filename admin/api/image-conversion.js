@@ -9,20 +9,20 @@ export async function prepareImage(file, filename, quality = 0.85) {
 
 async function convertImage(file, filename, quality) {
     const extension = filename.split('.').pop().toLowerCase();
-    if (!['jpg', 'jpeg', 'png'].includes(extension)) return { file, filename };
+    if (!['jpg', 'jpeg', 'png'].includes(extension)) return { file, filename, reason: 'passthrough' };
     const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
     const signature = String.fromCharCode(...header);
     // Canvas drops EXIF orientation. Retain these originals rather than rotate/mirror them.
-    if (header[0] === 255 && header[1] === 216 && await hasOrientation(file)) return { file, filename };
+    if (header[0] === 255 && header[1] === 216 && await hasOrientation(file)) return { file, filename, reason: 'exif-orientation' };
     // Do not flatten animation merely because somebody gave it a JPG filename.
-    if (signature.startsWith('GIF8') || (signature.startsWith('RIFF') && signature.slice(8) === 'WEBP')) return { file, filename };
+    if (signature.startsWith('GIF8') || (signature.startsWith('RIFF') && signature.slice(8) === 'WEBP')) return { file, filename, reason: 'passthrough-signature' };
     // APNG must keep its animation, just like GIF.
     if (extension === 'png' || (header[0] === 137 && signature.slice(1, 4) === 'PNG')) {
         const bytes = new Uint8Array(await file.arrayBuffer());
         const view = new DataView(bytes.buffer);
         for (let offset = 8; offset + 12 <= bytes.length;) {
             const length = view.getUint32(offset);
-            if (String.fromCharCode(...bytes.subarray(offset + 4, offset + 8)) === 'acTL') return { file, filename };
+            if (String.fromCharCode(...bytes.subarray(offset + 4, offset + 8)) === 'acTL') return { file, filename, reason: 'animated-png' };
             offset += 12 + length;
         }
     }
@@ -46,8 +46,10 @@ async function convertImage(file, filename, quality) {
         context.drawImage(bitmap, 0, 0);
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', quality));
         if (!blob || !blob.size) throw new Error('WebP conversion failed');
-        if (blob.type !== 'image/webp' || blob.size >= file.size) return { file, filename };
-        return { file: blob, filename: filename.replace(/\.[^.]+$/, '.webp') };
+        const candidate = { type: blob.type, size: blob.size };
+        if (blob.type !== 'image/webp') return { file, filename, candidate, reason: 'encoder-unsupported' };
+        if (blob.size >= file.size) return { file, filename, candidate, reason: 'not-smaller' };
+        return { file: blob, filename: filename.replace(/\.[^.]+$/, '.webp'), candidate, reason: 'converted' };
     } finally {
         bitmap?.close?.();
         if (objectUrl) URL.revokeObjectURL(objectUrl);
