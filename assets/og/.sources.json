@@ -264,12 +264,12 @@
     },
     "love-me-animal": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/cover.webp",
-      "etag": "\"96c1fbdd2ff45316715aeb19c804330c\"",
-      "last_modified": "Thu, 01 Oct 2026 05:12:58 GMT",
-      "cover_sha256": "6863c3f8aacf2dca234434b8bbf3760d52372e4df38bff5539f13db11d4d9def",
-      "cover_width": 2074,
-      "cover_height": 3032,
-      "image_sha256": "7c25c8d005f5a98e8edaba7f48e6a81b6a4cc96385ada4336babced43ebc63e9"
+      "etag": "\"ae3ecb5ffccdb564316ff250c975869f\"",
+      "last_modified": "Tue, 20 Oct 2026 08:24:53 GMT",
+      "cover_sha256": "9f20ac9485e483143029013f2807f54c0420ea6c15d10e03f4f0a143667e9799",
+      "cover_width": 480,
+      "cover_height": 701,
+      "image_sha256": "fef4d56c252a90c131af06e981ddcffd64744a95c89f95471ac8c9575e39b75c"
     },
     "way-of-practice": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/way-of-practice/cover.webp",
