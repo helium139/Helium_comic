@@ -264,7 +264,7 @@ test('public auth module wires claim-consistent navigation for admins, leaders a
 test('manga manager pagination keeps search and leader scope, then resets on search input', async () => {
     const data = Object.fromEntries(Array.from({length:33},(_,i)=>[`m${i}`, {title:`Manga ${String(i).padStart(2,'0')}`,teamId:i<23?'heliumtg':'other-team',chapters:[],tags:[]}]));
     const d = await editor('admin/manga.js',leader,'',data);
-    assert.equal(d.errors.length,0);assert.equal(d.get('mangaGrid').children.length,10);
+    assert.equal(d.errors.length,0);assert.equal(d.get('mangaGrid').children.length,14);
     d.get('manga-pagination').children.at(-1).events.click();
     assert.match(d.get('manga-pagination-summary').textContent,/Showing 11–20 of 23/);
     d.get('manga-pagination').children.at(-1).events.click();
@@ -273,7 +273,7 @@ test('manga manager pagination keeps search and leader scope, then resets on sea
     assert.equal(d.get('mangaGrid').children.length,1);assert.match(d.get('manga-pagination-summary').textContent,/Showing 1–1 of 1/);
     assert.equal(d.get('manga-pagination').children[0].disabled,true);
     d.get('searchInput').value='';d.get('searchInput').oninput();
-    assert.equal(d.get('mangaGrid').children.length,10);assert.match(d.get('manga-pagination-summary').textContent,/Showing 1–10 of 23/);
+    assert.equal(d.get('mangaGrid').children.length,14);assert.match(d.get('manga-pagination-summary').textContent,/Showing 1–14 of 23/);
     const all=await editor('admin/manga.js',admin,'',data);
-    assert.match(all.get('manga-pagination-summary').textContent,/Showing 1–10 of 33/);
+    assert.match(all.get('manga-pagination-summary').textContent,/Showing 1–14 of 33/);
 });
