@@ -15,14 +15,14 @@
             {
                 "id": 0,
                 "title": "Chap 0 - Prologue",
-                "createAt": "2025-09-01T19:00:00Z",
+                "createAt": "2025-09-01T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0",
                 "pages": 4,
                 "images": [
-                    "1.webp",
-                    "2.jpg",
-                    "3.jpg",
-                    "4.jpg"
+                    "1-a53f3859-16fb-42ca-9fd9-0a17519ab29a.webp",
+                    "2-a53f3859-16fb-42ca-9fd9-0a17519ab29a.jpg",
+                    "3-a53f3859-16fb-42ca-9fd9-0a17519ab29a.jpg",
+                    "4-a53f3859-16fb-42ca-9fd9-0a17519ab29a.webp"
                 ]
             },
             {
