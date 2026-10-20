@@ -1,4 +1,4 @@
-export const MANGA_PAGE_SIZE = 10;
+export const MANGA_PAGE_SIZE = 14;
 export function paginateMangas(items, requestedPage = 1) {
     const pageCount = Math.max(1, Math.ceil(items.length / MANGA_PAGE_SIZE));
     const page = Math.min(pageCount, Math.max(1, Math.trunc(Number(requestedPage)) || 1));
