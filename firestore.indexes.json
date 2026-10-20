@@ -18,6 +18,17 @@
         }
       ]
     },
+{
+  "collectionGroup": "monthlyReports",
+  "queryScope": "COLLECTION",
+  "fields": [
+    {
+      "fieldPath": "__name__",
+      "order": "DESCENDING"
+    }
+  ]
+},
+
     {
       "collectionGroup": "messages",
       "queryScope": "COLLECTION",

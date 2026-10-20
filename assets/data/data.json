@@ -1157,6 +1157,13 @@
                 "createAt": "2026-10-09T17:57:17.519Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap17",
                 "pages": 68
+            },
+            {
+                "id": 18,
+                "title": "Chap 18",
+                "createAt": "2026-10-20T06:28:35.858Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xich-ho/chap18",
+                "pages": 31
             }
         ]
     },
@@ -3047,6 +3054,20 @@
                 "createAt": "2026-10-09T09:40:24.915Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bang-gia-tren-em-ice-on-me/chap17",
                 "pages": 39
+            },
+            {
+                "id": 18,
+                "title": "Chap 18",
+                "createAt": "2026-10-20T06:23:01.845Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bang-gia-tren-em-ice-on-me/chap18",
+                "pages": 20
+            },
+            {
+                "id": 19,
+                "title": "Chap 19",
+                "createAt": "2026-10-20T06:24:31.629Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bang-gia-tren-em-ice-on-me/chap19",
+                "pages": 7
             }
         ]
     },
@@ -3723,6 +3744,13 @@
                 "title": "Chap 8",
                 "createAt": "2026-10-15T09:50:33.902Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/black-swan/chap8",
+                "pages": 44
+            },
+            {
+                "id": 9,
+                "title": "Chap 9",
+                "createAt": "2026-10-20T06:26:01.401Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/black-swan/chap9",
                 "pages": 44
             }
         ]

@@ -43,7 +43,11 @@ exports.createReportEndpoints = (db) => {
       return await work();
     } catch (error) {
       if (["invalid-argument", "permission-denied", "unauthenticated", "failed-precondition", "resource-exhausted", "aborted"].includes(error.code)) throw new HttpsError(error.code, error.message);
-      logger.error("Monthly report operation failed", {errorType: error?.name || "Error"});
+      logger.error("Monthly report operation failed", {errorType: error?.name || "Error",
+        errorCode: error?.code || null,
+        errorMessage: error?.message || null,
+        stack: error?.stack || null,
+      });
       throw new HttpsError("unavailable", "Report service temporarily unavailable");
     }
   };
