@@ -17,7 +17,7 @@ class MigrationError extends Error {
 // Print only selected diagnostic fields, never raw SDK errors, responses or stacks.
 export function redact(value, env = process.env) {
     let result = String(value);
-    for (const name of ['R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'GITHUB_TOKEN', 'AWS_SESSION_TOKEN', 'CLOUDFLARE_API_TOKEN']) {
+    for (const name of Object.keys(env).filter(name => /TOKEN|SECRET|PASSWORD|CREDENTIAL|ACCESS_KEY/i.test(name))) {
         if (env[name]) for (const secret of [env[name], encodeURIComponent(env[name])]) result = result.split(secret).join('[REDACTED]');
     }
     return result.replace(/\b(Bearer|Basic)\s+[A-Za-z0-9+/=._~-]+/gi, '$1 [REDACTED]')
@@ -38,9 +38,14 @@ export function formatFailure(error, context = {}, env = process.env) {
     if (code) diagnostic.code = redact(code, env);
     if (Number.isInteger(status)) diagnostic.httpStatus = status;
     for (const field of ['key', 'prefix', 'destination']) if (details[field]) diagnostic[field] = redact(details[field], env);
+    if (original !== error && original?.message) diagnostic.cause = redact(original.message, env);
     if (original?.cause?.message) diagnostic.cause = redact(original.cause.message, env);
     if (stage.startsWith('r2.') && (status === 401 || status === 403 || /AccessDenied|InvalidAccessKeyId|SignatureDoesNotMatch/.test(original?.name || ''))) {
         diagnostic.hint = 'Check R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT and bucket permissions.';
+    } else if (stage.startsWith('r2.') && (status === 404 || /NoSuchKey|NotFound|NoSuchBucket/.test(original?.name || ''))) {
+        diagnostic.hint = 'R2 object or bucket not found; check R2_BUCKET and the exact bucket-relative key.';
+    } else if (/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|ECONNRESET|EAI_AGAIN|CERT_|TLS/.test(String(code))) {
+        diagnostic.hint = 'Connection failed; check the endpoint, DNS, network access and TLS configuration.';
     }
     return JSON.stringify(diagnostic);
 }
@@ -82,14 +87,14 @@ export async function convert(bytes, quality, { onSkip = () => {} } = {}) {
             offset += 12 + bytes.readUInt32BE(offset);
         }
     }
-    const { default: sharp } = await import('sharp');
+    const { default: sharp } = await atStage('dependencies.sharp', {}, () => import('sharp'));
     const image = sharp(bytes, { limitInputPixels: 100_000_000 });
-    const meta = await image.metadata();
+    const meta = await atStage('conversion.decode', {}, () => image.metadata());
     if (!['jpeg', 'png'].includes(meta.format)) { onSkip(`Unsupported source format for conversion: ${meta.format}; original retained`); return null; }
     if ((meta.pages || 1) > 1) { onSkip('Animated image preserved'); return null; }
     if (meta.orientation && meta.orientation !== 1) { onSkip('EXIF-oriented original preserved'); return null; }
-    const output = await image.webp({ quality }).toBuffer();
-    const verified = await sharp(output).metadata();
+    const output = await atStage('conversion.encode', {}, () => image.webp({ quality }).toBuffer());
+    const verified = await atStage('verification.conversion', {}, () => sharp(output).metadata());
     if (verified.format !== 'webp' || verified.width !== meta.width || verified.height !== meta.height) throw new MigrationError('verification.conversion', 'Converted WebP format or dimensions do not match source');
     if (output.length >= bytes.length) { onSkip('WebP is not smaller; original retained'); return null; }
     return output;

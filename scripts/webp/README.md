@@ -43,6 +43,16 @@ See ROLLOUT.md for current test totals. A separate existing `scripts/test-staff-
 
 Set the following in your local process through your normal secret manager; do not commit values:
 
+The Node CLI reads **`process.env` only**. It does not load `.env`, Wrangler
+config, Worker bindings, Cloudflare login/session, or Wrangler OAuth. R2 uses
+explicit S3-compatible `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`, region
+`auto`, `R2_ENDPOINT` and `R2_BUCKET`. Configure all nine names below in the
+shell launching Node or your local secret manager. With Node 24, you can also
+load a private file outside the repository explicitly:
+`node --env-file=/absolute/path/to/webp.env scripts/webp/migrate.mjs ...`.
+Do not commit that file or paste credentials into chat. No Worker defaults are
+inherited. The source HEAD request requires object read permission too.
+
 | Variable | Value / permission |
 | --- | --- |
 | `R2_ENDPOINT` | `https://<account-id>.r2.cloudflarestorage.com` |
@@ -58,6 +68,57 @@ Dry-run needs R2 List/Get and GitHub Contents read only. Apply additionally need
 Apply performs real GitHub catalogue commits, one per successful object. Those commits may trigger existing repository workflows/deployments. The `--dry-run` path performs no local or remote writes (it does download/encode samples). Use a test branch and bucket first, with catalogue URLs matching the configured public base. Pause CMS/R2 edits during a migration; GitHub SHA checks prevent lost catalogue writes but cannot make R2 and GitHub one atomic transaction. Run one migration process at a time.
 
 ## Commands
+
+### Legacy chapter diagnostics
+
+The repository catalogue `assets/data/data.json` contains chapter ID `0` of
+`nguoi-hau-trong-tu-kinh`, with four pages and folder
+`https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap0`.
+The supplied prefix `nguoi-hau-trong-tu-kinh/chap0/` is valid and present in
+this catalogue. Without an `images` manifest, it implies `1.jpg` through
+`4.jpg`. Metadata references do not prove live R2 object existence. The CLI
+reads the remote GitHub branch, not the repository working copy.
+
+For one sample, discovery follows: GitHub catalogue GET → legacy reference
+`nguoi-hau-trong-tu-kinh/chap0/1.jpg` → R2 prefix LIST → source HEAD and GET →
+Sharp decode and WebP encode → verify WebP format and original dimensions →
+candidate `nguoi-hau-trong-tu-kinh/chap0/1.webp` → print proposed
+`chapters[id=0].images[0]` update. Dry-run writes no objects, catalogue,
+journal or snapshot. Replacement readback and catalogue readback happen only
+after writes in apply mode; dry-run cannot verify future writes.
+
+With Node 24, dependencies installed, all nine variables configured, and
+`R2_PUBLIC_URL=https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev`, run:
+
+```sh
+node scripts/webp/migrate.mjs --dry-run --scope chapters --prefix nguoi-hau-trong-tu-kinh/chap0/ --limit 1
+```
+
+Failures print JSON with operation stage, error class/message, safe key/prefix,
+HTTP status and connection code when available. Secret environment values,
+authorization headers, URL credentials and URL query strings are redacted;
+raw SDK objects, response bodies and stacks are never dumped. Stages identify
+arguments/configuration, GitHub access, catalogue parsing/discovery, R2
+list/head/get, conversion decode/encode and verification. Unsupported or
+animated images are reported as skips; corrupt sources fail during decoding.
+Failures exit nonzero and retain originals.
+
+In the inspected local environment, all nine variables were absent: the sample
+command stopped at `configuration` before accessing GitHub or R2. This revision
+already emits staged diagnostics; the old generic sentence comes from different
+code and cannot establish its historical underlying failure. Live R2 membership
+via the authenticated S3 API remains unverified until a configured read-only run
+succeeds. A public HEAD of the exact `chap0/1.jpg` URL returned HTTP 200,
+`Content-Type: image/jpeg`, and `Content-Length: 507858` during this inspection;
+the first legacy object is publicly served at that key.
+
+Run migration-only tests with:
+
+```sh
+node --test scripts/webp/test-diagnostics.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs
+```
+
+### Migration invocations
 
 Substitute the actual manga slug for `nguoi-hau-trong-tu-kinh`. Prefixes require a trailing `/`; no whole-bucket default exists. A chapter-specific prefix such as `nguoi-hau-trong-tu-kinh/chap0/` is also allowed. `--limit` bounds eligible originals attempted, including conversion failures/skips.
 
