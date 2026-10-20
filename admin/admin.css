@@ -832,7 +832,7 @@ padding:20px;
 
     display:flex;
 
-    justify-content:center;
+    justify-content:space-between;
 
     align-items:center;
 
@@ -840,7 +840,6 @@ padding:20px;
 
     border-bottom:1px solid #1e293b;
     display: flex;
-    align-items: center;
 
 }
 
@@ -863,6 +862,9 @@ padding:20px;
     color:white;
 
     font-size:22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
 }
 
