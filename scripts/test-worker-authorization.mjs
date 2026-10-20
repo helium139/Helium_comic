@@ -2,8 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 const { createLocalJWKSet, createRemoteJWKSet, customFetch, generateKeyPair, exportJWK, SignJWT } =
-    await import(createRequire(new URL('../worker/package.json', import.meta.url)).resolve('jose'));
+    await import(pathToFileURL(createRequire(new URL('../worker/package.json', import.meta.url)).resolve('jose')).href);
 import { createWorker } from '../worker/source/worker.js';
 import { verifyFirebaseToken, FIREBASE_PROJECT } from '../worker/source/firebase-auth.js';
 
@@ -95,13 +96,72 @@ function harness() {
 }
 function upload(folder, filename = '1.jpg', extra = {}) {
     const form = new FormData();
-    form.set('file', new Blob(['test-image'], { type: 'image/jpeg' }), filename);
+    form.set('file', new Blob([Uint8Array.from([255,216,255,224]), 'test-image'], { type: 'image/jpeg' }), filename);
     if (folder !== undefined) form.set('folder', folder);
     if (filename !== undefined && folder !== undefined) form.set('filename', filename);
     for (const [key, value] of Object.entries(extra)) form.set(key, value);
     return form;
 }
 const stageForm = () => upload(undefined, 'cover.jpg', { kind: 'new-manga-cover' });
+
+test('image signatures determine MIME; spoofed files and mismatched chapter extensions fail', async () => {
+    const h = harness();
+    const fake = upload('own/chap1');
+    fake.set('file', new Blob(['not an image'], { type: 'image/jpeg' }), '1.jpg');
+    assert.equal((await h.call('/upload', fake)).status, 400);
+    assert.equal((await h.call('/upload', upload('own/chap1', '1.webp'))).status, 400);
+    const webp = upload('own/chap1', '1.webp');
+    webp.set('file', new Blob(['RIFF1234WEBPxxxx'], { type: 'image/png' }), '1.webp');
+    const response = await h.call('/upload', webp);
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.match(result.key, /^own\/chap1\/1-[a-f0-9-]+\.webp$/);
+    assert.equal(h.objects.get(result.key).httpMetadata.contentType, 'image/webp');
+});
+
+test('chapter manifests preserve mixed page order and reject arbitrary paths', async () => {
+    const h = harness();
+    const body = { manga: 'own', chapterNumber: 1, title: 'Mixed', imageCount: 2, images: ['1.webp', '2.png'] };
+    for (const name of body.images) await h.BUCKET.put(`own/chap1/${name}`, 'fixture');
+    assert.equal((await h.call('/new-chapter', body, leader)).status, 200);
+    assert.deepEqual(h.catalogue().own.chapters[1].images, body.images);
+    assert.equal((await h.call('/new-chapter', { ...body, chapterNumber: 2, images: ['2.png', '1.webp'] }, leader)).status, 400);
+    assert.equal((await h.call('/new-chapter', { ...body, chapterNumber: 2, images: ['../1.webp', '2.png'] }, leader)).status, 400);
+});
+
+test('publishing a missing page or cover cannot write broken catalogue references', async () => {
+    const h = harness();
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Missing', imageCount: 1, images: ['1.webp'] })).status, 400);
+    assert.equal((await h.call('/edit-manga', { ...input(), cover: 'https://images.test/own/cover.webp' })).status, 400);
+    assert.equal(h.commits.length, 0);
+});
+
+test('failed catalogue save after upload/reorder preserves every live original', async () => {
+    const h = harness();
+    await h.BUCKET.put('own/chap0/1.jpg', 'original page');
+    await h.BUCKET.put('own/cover.jpg', 'original cover');
+    const page = await (await h.call('/upload', upload('own/chap0'))).json();
+    const cover = await (await h.call('/upload', upload('own', 'cover.jpg'))).json();
+    const reordered = await (await h.call('/rename-images', { folder: 'own/chap0', images: [page.key.split('/').pop()] })).json();
+    h.rejectSave();
+    assert.equal((await h.call('/edit-chapter', { manga: 'own', chapterId: 0, title: 'Edit', createAt: new Date().toISOString(), pages: 1, images: reordered.images })).status, 409);
+    assert.equal((await h.call('/edit-manga', { ...input(), cover: cover.url })).status, 409);
+    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/1.jpg').bytes), 'original page');
+    assert.equal(new TextDecoder().decode(h.objects.get('own/cover.jpg').bytes), 'original cover');
+    assert.equal(h.operations.some(([op]) => op === 'delete'), false);
+    assert.equal(h.catalogue().own.chapters[0].images, undefined);
+});
+
+test('partial reorder upload failure preserves originals and catalogue', async () => {
+    const h = harness();
+    await h.BUCKET.put('own/chap0/1.jpg', 'one'); await h.BUCKET.put('own/chap0/2.png', 'two');
+    const put = h.BUCKET.put; let copies = 0;
+    h.BUCKET.put = async (...args) => { if (++copies === 2) throw Error('simulated failure'); return put(...args); };
+    assert.equal((await h.call('/rename-images', { folder: 'own/chap0', images: ['2.png', '1.jpg'] })).status, 500);
+    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/1.jpg').bytes), 'one');
+    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/2.png').bytes), 'two');
+    assert.equal(h.operations.some(([op]) => op === 'delete'), false); assert.equal(h.commits.length, 0);
+});
 
 // Every route goes through the same verifier before any GitHub or R2 operation.
 test('every mutation denies anonymous and ordinary users without touching storage or GitHub', async () => {
@@ -212,15 +272,19 @@ test('all chapter routes inherit ownership; chapter zero and pre-record uploads 
             pages: 1, createAt: new Date().toISOString(), teamId: 'heliumtg'
         }, leader)).status, 403);
     }
-    assert.equal((await h.call('/upload', upload('own/chap1'), leader)).status, 200);
-    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Ch 1', imageCount: 1, teamId: 'other-team' }, leader)).status, 200);
+    const uploaded = await h.call('/upload', upload('own/chap1'), leader);
+    assert.equal(uploaded.status, 200);
+    const page = await uploaded.json();
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Ch 1', imageCount: 1, images: [page.key.split('/').pop()], teamId: 'other-team' }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters[1].folder, 'https://images.test/own/chap1');
     assert.equal('teamId' in h.catalogue().own.chapters[1], false);
+    await h.BUCKET.put('own/chap0/1.jpg', 'legacy page');
     assert.equal((await h.call('/edit-chapter', { manga: 'own', chapterId: 0, title: 'Zero edit', pages: 1, createAt: new Date().toISOString() }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters[0].title, 'Zero edit');
     assert.equal((await h.call('/delete-chapter', { manga: 'own', chapterId: 0 }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters.length, 1);
-    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 0, title: 'Zero', imageCount: 2 }, leader)).status, 200);
+    await h.BUCKET.put('own/chap0/2.png', 'legacy page');
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 0, title: 'Zero', imageCount: 2, images: ['1.jpg', '2.png'] }, leader)).status, 200);
     assert.equal(h.catalogue().own.chapters[0].id, 0);
 });
 
@@ -242,7 +306,7 @@ test('uploads reject traversal, arbitrary keys, unexpected prefixes and cross-te
     assert.equal((await h.call('/upload', upload('other/chap1'), leader)).status, 403);
     assert.equal((await h.call('/upload', upload('missing/chap1'), leader)).status, 404);
     assert.equal((await h.call('/upload', upload('own', 'cover.webp'), leader)).status, 200);
-    assert.equal(h.objects.has('own/cover.webp'), true);
+    assert.equal([...h.objects.keys()].some(key => /^own\/cover-[a-f0-9-]+\.jpg$/.test(key)), true);
     assert.equal((await h.call('/upload', upload('other/chap1'), admin)).status, 200);
 });
 
@@ -259,9 +323,9 @@ test('staged covers are server-keyed, caller-bound and promoted only after team 
     assert.equal((await h.call('/new-manga', { ...input('new'), coverStagingRef: stageKey }, leader)).status, 400);
     assert.equal((await h.call('/new-manga', { ...input('new'), cover: 'https://evil.test/image' }, leader)).status, 400);
     assert.equal((await h.call('/new-manga', { ...input('new'), coverStagingRef: staged.stagingRef }, leader)).status, 200);
-    assert.equal(h.catalogue().new.cover, `https://images.test/new/cover-${staged.stagingRef}.webp`);
+    assert.equal(h.catalogue().new.cover, `https://images.test/new/cover-${staged.stagingRef}.jpg`);
     assert.equal(h.objects.has(stageKey), false);
-    assert.equal(h.objects.has(`new/cover-${staged.stagingRef}.webp`), true);
+    assert.equal(h.objects.has(`new/cover-${staged.stagingRef}.jpg`), true);
     assert.equal((await h.call('/new-manga', { ...input('reuse'), coverStagingRef: staged.stagingRef }, leader)).status, 403);
     assert.equal((await h.call('/upload', upload('own', 'cover.webp', { kind: 'new-manga-cover' }), leader)).status, 400);
 });
@@ -304,9 +368,14 @@ test('rename validates all sources/destinations before writes and preserves cont
         assert.ok([400, 403, 404].includes(response.status));
         assert.equal(h.operations.length, count);
     }
-    assert.equal((await h.call('/rename-images', { folder: 'own/chap0', images: ['2.jpg', '1.jpg'] }, leader)).status, 200);
-    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/1.jpg').bytes), 'two');
-    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/2.jpg').bytes), 'one');
+    const response = await h.call('/rename-images', { folder: 'own/chap0', images: ['2.jpg', '1.jpg'] }, leader);
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.equal(new TextDecoder().decode(h.objects.get(`own/chap0/${result.images[0]}`).bytes), 'two');
+    assert.equal(new TextDecoder().decode(h.objects.get(`own/chap0/${result.images[1]}`).bytes), 'one');
+    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/1.jpg').bytes), 'one');
+    assert.equal(new TextDecoder().decode(h.objects.get('own/chap0/2.jpg').bytes), 'two');
+    assert.equal(h.operations.some(([operation]) => operation === 'delete'), false);
     assert.equal([...h.objects.keys()].some(key => key.includes('tmp-')), false);
 });
 

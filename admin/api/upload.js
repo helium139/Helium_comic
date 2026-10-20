@@ -1,4 +1,5 @@
 import { authenticatedFetch } from "./authenticated-fetch.js";
+import { prepareImage } from "./image-conversion.js";
 
 /*
     Upload bất kỳ file nào lên R2
@@ -20,6 +21,11 @@ export async function uploadImage(
 
 ){
 
+    const sourceName = file.name || filename;
+    const chapter = folder.includes('/');
+    const prepared = await prepareImage(file, chapter ? filename : file.name, chapter ? 0.85 : 0.88);
+    file = prepared.file;
+    filename = chapter ? prepared.filename : `cover.${prepared.filename.split('.').pop().toLowerCase()}`;
     const form = new FormData();
 
     form.append(
@@ -46,7 +52,8 @@ export async function uploadImage(
 
     );
 
-    const res = await authenticatedFetch(
+    let res;
+    try { res = await authenticatedFetch(
 
         "/upload",
 
@@ -58,7 +65,7 @@ export async function uploadImage(
 
         }
 
-    );
+    ); } catch { throw new Error(`Image upload failed: ${sourceName}`); }
 
     const json = await res.json();
 
@@ -79,6 +86,7 @@ export async function uploadImage(
 }
 // New manga do not yet have an authorized R2 prefix. Only the Worker chooses a staging key.
 export async function stageMangaCover(file) {
+    file = (await prepareImage(file, file.name, 0.88)).file;
     const form = new FormData();
     form.append("file", file);
     form.append("kind", "new-manga-cover");

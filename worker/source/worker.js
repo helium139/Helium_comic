@@ -1,4 +1,5 @@
 import { verifyFirebaseToken } from "./firebase-auth.js";
+import { imageFormat } from "./image-format.js";
 import {
     HttpError, fail, safeSlug, chapterNumber, pageCount, validateRegistry,
     activeTeam, authorizeManga, imageName, uploadFolder, metadata, editorial
@@ -16,6 +17,15 @@ const ORIGINS = new Set([
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
 const STAGING_TTL = 24 * 60 * 60 * 1000;
+
+function chapterImages(images, count) {
+    if (!Array.isArray(images) || images.length !== count || new Set(images).size !== count) fail(400, "Invalid chapter image list");
+    return images.map((name, index) => {
+        imageName(name);
+        if (Number(name.split(/[.-]/)[0]) !== index + 1) fail(400, "Invalid page order");
+        return name;
+    });
+}
 
 // Dependency injection is code-level only; request/env data cannot replace verification.
 export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
@@ -89,16 +99,19 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return `staging/manga-covers/${owner}/${ref}`;
     }
 
-    function validateFile(file) {
+    async function validateFile(file) {
         if (!file || typeof file.stream !== "function" || !file.size || file.size > 32 * 1024 * 1024 ||
             !IMAGE_TYPES.has(file.type)) fail(400, "Invalid image upload");
+        const format = imageFormat(new Uint8Array(await file.slice(0, 32).arrayBuffer()));
+        if (!format) fail(400, "Unrecognized image bytes");
+        return format;
     }
 
     async function upload(request, env, actor, data, teams) {
         let form;
         try { form = await request.formData(); } catch { fail(400, "Invalid upload request"); }
         const file = form.get("file");
-        validateFile(file);
+        const [extension, contentType] = await validateFile(file);
         if (form.get("kind") === "new-manga-cover") {
             if (["folder", "filename", "key", "destination", "manga"].some(key => form.has(key))) {
                 fail(400, "Invalid upload path");
@@ -106,7 +119,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             const ref = crypto.randomUUID();
             const key = await stagedKey(actor, ref);
             await env.BUCKET.put(key, file.stream(), {
-                httpMetadata: { contentType: file.type },
+                httpMetadata: { contentType },
                 customMetadata: { owner: actor.uid, createdAt: String(Date.now()) }
             });
             return { success: true, stagingRef: ref };
@@ -116,10 +129,14 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         authorizeManga(actor, data, slug, teams);
         const filename = form.get("filename");
         if (chapterId === null) {
-            if (filename !== "cover.webp") fail(400, "Invalid upload path");
+            if (!/^cover\.(webp|jpg|jpeg|png|gif|avif)$/.test(filename)) fail(400, "Invalid upload path");
         } else imageName(filename);
-        const key = `${folder}/${filename}`;
-        await env.BUCKET.put(key, file.stream(), { httpMetadata: { contentType: file.type } });
+        const actualExtension = filename.split('.').pop();
+        if (chapterId !== null && actualExtension.replace('jpeg', 'jpg') !== extension) fail(400, "Image extension does not match bytes");
+        // Never overwrite a live page/cover before a separate catalogue save succeeds.
+        const stem = chapterId === null ? 'cover' : filename.split(/[.-]/)[0];
+        const key = `${folder}/${stem}-${crypto.randomUUID()}.${extension}`;
+        await env.BUCKET.put(key, file.stream(), { httpMetadata: { contentType } });
         return { success: true, key, url: `${publicBase(env)}/${key}` };
     }
 
@@ -144,7 +161,10 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 fail(403, "Staged cover unavailable or expired");
             }
             // Unique filename prevents a losing concurrent create from overwriting a winner's cover.
-            finalKey = `${slug}/cover-${body.coverStagingRef}.webp`;
+            const formats = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/avif': 'avif' };
+            const ext = formats[stage.httpMetadata?.contentType];
+            if (!ext) fail(400, "Invalid staged image type");
+            finalKey = `${slug}/cover-${body.coverStagingRef}.${ext}`;
             manga.cover = `${publicBase(env)}/${finalKey}`;
             await env.BUCKET.put(finalKey, stage.body, { httpMetadata: stage.httpMetadata });
         } else manga.cover = "";
@@ -159,12 +179,14 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return { success: true, cover: manga.cover };
     }
 
-    function editedCover(body, existing, slug, env) {
+    async function editedCover(body, existing, slug, env) {
         if (body.coverStagingRef !== undefined) fail(400, "Staging is only supported for new manga covers");
         if (body.cover === undefined || body.cover === existing.cover) return existing.cover;
-        const allowed = `${publicBase(env)}/${slug}/cover.webp`;
-        if (body.cover !== allowed) fail(400, "Invalid cover path");
-        return allowed;
+        const base = `${publicBase(env)}/${slug}/`;
+        if (typeof body.cover !== 'string' || !body.cover.startsWith(base) ||
+            !/^cover(?:-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?\.(webp|jpg|jpeg|png|gif|avif)$/.test(body.cover.slice(base.length))) fail(400, "Invalid cover path");
+        if (!await env.BUCKET.head(body.cover.slice(publicBase(env).length + 1))) fail(400, "Cover image not uploaded");
+        return body.cover;
     }
 
     async function renameImages(body, env, actor, data, teams) {
@@ -174,31 +196,23 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             body.images.length > 10000 || new Set(body.images).size !== body.images.length ||
             Object.keys(body).some(key => !["folder", "images"].includes(key))) fail(400, "Invalid rename request");
         // Validate the entire plan before touching R2. Neither sources nor destinations are paths from the client.
+        const operation = crypto.randomUUID();
         const plan = body.images.map((name, index) => {
             imageName(name);
             const ext = name.split(".").pop();
-            const destination = imageName(`${index + 1}.${ext}`);
+            const destination = imageName(`${index + 1}-${operation}.${ext}`);
             return { source: `${folder}/${name}`, destination: `${folder}/${destination}`, ext };
         });
         for (const item of plan) {
             if (!await env.BUCKET.head(item.source)) fail(404, "Chapter image not found");
         }
-        const operation = crypto.randomUUID();
-        for (const [index, item] of plan.entries()) {
-            item.temp = `${folder}/tmp-${operation}-${index}.${item.ext}`;
+        for (const item of plan) {
             const object = await env.BUCKET.get(item.source);
             if (!object) fail(409, "Chapter images changed; reload before retrying");
-            await env.BUCKET.put(item.temp, object.body, { httpMetadata: object.httpMetadata });
-        }
-        // Keep originals until all temporary copies exist.
-        for (const item of plan) await env.BUCKET.delete(item.source);
-        for (const item of plan) {
-            const object = await env.BUCKET.get(item.temp);
-            if (!object) throw new Error("Missing rename temporary object");
             await env.BUCKET.put(item.destination, object.body, { httpMetadata: object.httpMetadata });
+            if (!await env.BUCKET.head(item.destination)) throw new Error("Missing reordered image");
         }
-        for (const item of plan) await env.BUCKET.delete(item.temp);
-        return { success: true };
+        return { success: true, images: plan.map(item => item.destination.slice(folder.length + 1)) };
     }
 
     async function mutate(path, request, env, actor) {
@@ -220,7 +234,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     ? activeTeam(teams, body.teamId)
                     : teams.find(team => team.id === manga.teamId);
                 Object.assign(manga, metadata(body), {
-                    cover: editedCover(body, manga, slug, env), teamId: team.id, team: team.name,
+                    cover: await editedCover(body, manga, slug, env), teamId: team.id, team: team.name,
                     ...(actor.role === "admin" ? editorial(body) : {})
                 });
                 // chapters and unknown/global fields remain authoritative for every caller.
@@ -239,6 +253,8 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     id, title: body.title, createAt: new Date().toISOString(),
                     folder: `${publicBase(env)}/${slug}/chap${id}`, pages: pageCount(body.imageCount)
                 };
+                chapter.images = chapterImages(body.images, chapter.pages);
+                for (const name of chapter.images) if (!await env.BUCKET.head(`${slug}/chap${id}/${name}`)) fail(400, "Chapter image not uploaded");
                 manga.chapters.push(chapter);
                 manga.chapters.sort((a, b) => a.id - b.id);
                 response.chapter = chapter;
@@ -251,7 +267,12 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 if (!chapter) fail(404, "Chapter not found");
                 if (typeof body.title !== "string" || !body.title.trim() ||
                     typeof body.createAt !== "string" || !Number.isFinite(Date.parse(body.createAt))) fail(400, "Invalid chapter metadata");
-                Object.assign(chapter, { title: body.title, createAt: body.createAt, pages: pageCount(body.pages) });
+                const pages = pageCount(body.pages);
+                const images = body.images === undefined ? chapter.images : chapterImages(body.images, pages);
+                if (images && images.length !== pages) fail(400, "Image list does not match page count");
+                const names = images || Array.from({ length: pages }, (_, i) => `${i+1}.jpg`);
+                for (const name of names) if (!await env.BUCKET.head(`${slug}/chap${id}/${name}`)) fail(400, "Chapter image not uploaded");
+                Object.assign(chapter, { title: body.title, createAt: body.createAt, pages, ...(images ? { images } : {}) });
                 response.chapter = chapter;
                 message = `Edit ${slug} chapter ${id}`;
                 break;

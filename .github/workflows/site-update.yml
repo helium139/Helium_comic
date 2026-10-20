@@ -47,6 +47,12 @@ jobs:
       - name: Test CMS authorization without production requests
         run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs scripts/test-staff-access.mjs
 
+      - name: Install local WebP verification dependencies
+        run: npm ci --prefix scripts/webp --no-audit --no-fund
+
+      - name: Test WebP conversion, migration and rollback without production requests
+        run: node --test scripts/test-image-conversion.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs
+
       - name: Test scoped dashboard statistics
         run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
 

@@ -28,6 +28,8 @@ let existingImages = [];
 let newImages = [];
 
 let sortable = null;
+let previewObjectUrls = [];
+let pageOrder = [];
 
 /* ===========================
         DOM
@@ -290,9 +292,9 @@ async function loadEditor(){
 
             type:"remote",
 
-            name:`${i}.jpg`,
+            name:chapter.images?.[i-1] || `${i}.jpg`,
 
-            url:`${chapter.folder}/${i}.jpg`
+            url:`${chapter.folder}/${chapter.images?.[i-1] || `${i}.jpg`}`
 
         });
 
@@ -327,6 +329,7 @@ function initDragDrop(){
     dropZone.addEventListener("drop",e=>{
 
         e.preventDefault();
+        if (uploadBtn.disabled) return;
 
         dropZone.classList.remove("dragging");
 
@@ -352,15 +355,21 @@ function initDragDrop(){
 
 function renderPreview(){
 
+    for (const url of previewObjectUrls) URL.revokeObjectURL(url);
+    previewObjectUrls = [];
+
     preview.innerHTML = "";
 
-    const images = [
+    const selected = [
 
         ...existingImages,
 
         ...newImages
 
     ];
+    pageOrder = pageOrder.filter(img => selected.includes(img));
+    for (const img of selected) if (!pageOrder.includes(img)) pageOrder.push(img);
+    const images = pageOrder;
 
     if(images.length===0){
 
@@ -387,6 +396,8 @@ function renderPreview(){
         card.dataset.index = index;
 
         const image = document.createElement("img");
+        image.loading = 'lazy';
+        image.decoding = 'async';
 
         if(img.type==="remote"){
 
@@ -396,7 +407,10 @@ function renderPreview(){
 
         else{
 
-            image.src = URL.createObjectURL(img);
+            const url = URL.createObjectURL(img);
+            previewObjectUrls.push(url);
+            image.onload = image.onerror = () => URL.revokeObjectURL(url);
+            image.src = url;
 
         }
 
@@ -462,13 +476,7 @@ function initSortable(){
 
         onEnd(e){
 
-    const all=[
-
-        ...existingImages,
-
-        ...newImages
-
-    ];
+    const all = [...pageOrder];
 
     const moved=all.splice(
 
@@ -487,6 +495,7 @@ function initSortable(){
         moved
 
     );
+    pageOrder = all;
 
     existingImages=[];
 
@@ -521,6 +530,7 @@ function initSortable(){
 =========================== */
 
 preview.addEventListener("click",e=>{
+    if (uploadBtn.disabled) return;
 
     const btn = e.target.closest(
 
@@ -536,11 +546,13 @@ preview.addEventListener("click",e=>{
 
     );
 
-    if(index < existingImages.length){
+    const target = pageOrder[index];
+    const existingIndex = existingImages.indexOf(target);
+    if(existingIndex !== -1){
 
         existingImages.splice(
 
-            index,
+            existingIndex,
 
             1
 
@@ -552,7 +564,7 @@ preview.addEventListener("click",e=>{
 
         newImages.splice(
 
-            index-existingImages.length,
+            newImages.indexOf(target),
 
             1
 
@@ -603,6 +615,10 @@ function updateStats(){
 async function save(){
 
     uploadBtn.disabled = true;
+    const controls = [...document.querySelectorAll('input, select, textarea, button')].filter(control => control !== uploadBtn);
+    const disabled = controls.map(control => control.disabled);
+    controls.forEach(control => { control.disabled = true; });
+    sortable?.option('disabled', true);
 
     uploadBtn.innerHTML =
 
@@ -635,6 +651,8 @@ async function save(){
     }
 
     uploadBtn.disabled = false;
+    controls.forEach((control, index) => { control.disabled = disabled[index]; });
+    sortable?.option('disabled', false);
 
     uploadBtn.innerHTML =
 
@@ -679,6 +697,7 @@ async function uploadChapter(){
 
     "Đang upload...";
 
+    const filenames = [];
     for(let i=0;i<newImages.length;i++){
 
         setUploadPercent(i,newImages.length);
@@ -693,7 +712,8 @@ async function uploadChapter(){
 
             .toLowerCase();
 
-        await uploadImage(
+        progress.textContent = `Converting / uploading ${i+1}/${newImages.length}`;
+        const uploadedUrl = await uploadImage(
 
             file,
 
@@ -703,6 +723,7 @@ async function uploadChapter(){
 
         );
 
+        filenames.push(uploadedUrl.split('/').pop());
         log(
 
             `✔ ${i+1}.${ext}`
@@ -724,7 +745,8 @@ async function uploadChapter(){
 
         title,
 
-        imageCount:newImages.length
+        imageCount:newImages.length,
+        images: filenames
 
     });
 
@@ -774,7 +796,7 @@ async function saveChapter(){
     progress.innerHTML = "Đang upload ảnh mới...";
     log("Upload ảnh mới...");
 
-    const uploaded = [];
+    const uploaded = new Map();
 
     let nextIndex = existingImages.length + 1;
 
@@ -791,18 +813,19 @@ async function saveChapter(){
 
         const filename = `${nextIndex}.${ext}`;
 
-        await uploadImage(
+        progress.textContent = `Converting / uploading ${i+1}/${newImages.length}`;
+        const uploadedUrl = await uploadImage(
             file,
             folder,
             filename
         );
 
-        uploaded.push({
-            name: filename,
+        uploaded.set(file, {
+            name: uploadedUrl.split("/").pop(),
             type: "remote",
             url: `${mangas[currentSlug]
                 .chapters.find(c=>c.id===currentChapter)
-                .folder}/${filename}`
+                .folder}/${uploadedUrl.split("/").pop()}`
         });
 
         nextIndex++;
@@ -815,19 +838,19 @@ async function saveChapter(){
 
     progress.innerHTML = "Đang sắp xếp ảnh...";
 
-    const images = [
-        ...existingImages,
-        ...uploaded
-    ];
+    const images = pageOrder.map(img => uploaded.get(img) || img);
 
     
-    await renameImages({
+    const renamed = await renameImages({
 
         folder,
 
         images: images.map(img=>img.name)
 
     });
+    if (!Array.isArray(renamed.images) || renamed.images.length !== images.length) {
+        throw new Error('Worker did not return reordered filenames; reload after the Worker update.');
+    }
 
     progress.innerHTML = "Đang cập nhật chapter...";
 
@@ -842,11 +865,15 @@ async function saveChapter(){
         createAt: new Date(chapterDate.value)
             .toISOString(),
 
-        pages: images.length
+        pages: images.length,
+        images: renamed.images
 
     });
 
-    existingImages = images;
+    existingImages = images.map((img, index) => {
+        const name = renamed.images[index];
+        return { ...img, name, url: `${mangas[currentSlug].chapters.find(c=>c.id===currentChapter).folder}/${name}` };
+    });
 
     newImages = [];
 

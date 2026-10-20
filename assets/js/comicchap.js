@@ -132,7 +132,7 @@ document.querySelector(
 ){
 
     const imageUrl =
-        `${chapter.folder}/${i}.jpg`;
+        `${chapter.folder}/${chapter.images?.[i-1] || `${i}.jpg`}`;
 
     reader.innerHTML += `
         <img

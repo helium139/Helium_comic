@@ -4,13 +4,14 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
-const strip = source => source.replace(/^import .*;\n/gm, '').replace(/export /g, '');
+const strip = source => source.replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
 const paths = ['/new-manga', '/edit-manga', '/delete-manga', '/new-chapter', '/edit-chapter', '/delete-chapter', '/upload', '/rename-images'];
 async function client({ user, response } = {}) {
     const calls = [];
     const context = {
         auth: { currentUser: user === undefined ? { getIdToken: async () => 'sdk-token' } : user },
         Headers, FormData,
+        prepareImage: async (file, filename) => ({ file, filename }),
         fetch: async (url, options) => {
             calls.push({ url, options });
             return response || new Response(JSON.stringify({ success: true, url: 'cover.webp' }), {

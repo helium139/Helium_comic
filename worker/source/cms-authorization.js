@@ -57,7 +57,7 @@ export function authorizeManga(actor, catalogue, slug, teams) {
 }
 
 export function imageName(value) {
-    if (typeof value !== "string" || !/^[1-9]\d{0,4}\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(value)) {
+    if (typeof value !== "string" || !/^[1-9]\d{0,4}(?:-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})?\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(value)) {
         fail(400, "Invalid image filename");
     }
     return value;

@@ -18,7 +18,7 @@ test('guest popularity increments only mangaStats.views and preserves likes/foll
     assert.equal(writes.length,1);
 });
 test('popularity adapter waits for first-image success, submits once per page, and isolates failures', async () => {
-    const source=(await readFile(new URL('../assets/js/chapter-popularity.js',import.meta.url),'utf8')).replace(/^import .*;\n/gm,'').replace(/export /g,'');
+    const source=(await readFile(new URL('../assets/js/chapter-popularity.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace(/export /g,'');
     const calls=[];
     const context={viewCallable(name) { assert.equal(name,'recordChapterPopularity'); return async data=>{calls.push(data);throw new Error('offline');}; }};
     vm.createContext(context);vm.runInContext(source,context);
