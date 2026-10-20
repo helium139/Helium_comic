@@ -5,11 +5,14 @@ import { paginateMangas, renderPagination, MANGA_PAGE_SIZE } from '../admin/pagi
 import { buildDashboardModel } from '../admin/dashboard-data.mjs';
 const teams=[{id:'own',name:'Own'},{id:'other',name:'Other'}];
 const catalogue=Object.fromEntries(Array.from({length:33},(_,i)=>[`m${i}`,{title:`Manga ${i}`,teamId:i<23?'own':'other',chapters:[]}]));
-test('10 manga/page, last-page count, clamping and control disabled states',()=>{
-    assert.equal(MANGA_PAGE_SIZE,10);
+test('14 manga/page, last-page count, clamping and control disabled states',()=>{
+    assert.equal(MANGA_PAGE_SIZE,14);
     const items=Object.keys(catalogue);
-    assert.equal(paginateMangas(items).items.length,10);
-    const last=paginateMangas(items,4);assert.equal(last.items.length,3);assert.equal(last.first,31);assert.equal(last.last,33);
+    const first=paginateMangas(items);
+    assert.equal(first.items.length,14);assert.equal(first.first,1);assert.equal(first.last,14);assert.equal(first.pageCount,3);
+    const second=paginateMangas(items,2);
+    assert.equal(second.items.length,14);assert.equal(second.first,15);assert.equal(second.last,28);
+    const last=paginateMangas(items,3);assert.equal(last.items.length,5);assert.equal(last.first,29);assert.equal(last.last,33);
     const nodes=[];const dom={createElement:()=>({setAttribute(k,v){this[k]=v;},addEventListener(t,fn){this[t]=fn;}})};
     const container={replaceChildren(){nodes.length=0;},appendChild(item){nodes.push(item);}};
     let chosen;
@@ -17,14 +20,21 @@ test('10 manga/page, last-page count, clamping and control disabled states',()=>
     assert.equal(nodes[0].disabled,true);assert.equal(nodes.at(-1).disabled,false);
     nodes[2].click();assert.equal(chosen,2);
     renderPagination(container,last,()=>{},dom);assert.equal(nodes[0].disabled,false);assert.equal(nodes.at(-1).disabled,true);
-    assert.equal(paginateMangas(items,999).page,4);
+    assert.equal(paginateMangas(items,999).page,3);
+    const small=paginateMangas(items.slice(0,10));
+    assert.equal(small.items.length,10);assert.equal(small.first,1);assert.equal(small.last,10);assert.equal(small.pageCount,1);
+    assert.equal(small.previousDisabled,true);assert.equal(small.nextDisabled,true);
     const empty=paginateMangas([]);assert.equal(empty.first,0);assert.equal(empty.previousDisabled,true);assert.equal(empty.nextDisabled,true);
 });
 test('pagination follows team authorization; admin scope and leader fixed scope retain all permitted manga',()=>{
     const admin=buildDashboardModel({role:'admin'},catalogue,teams,'all');assert.equal(paginateMangas(admin.mangas).total,33);
     const leader=buildDashboardModel({role:'team_leader',teamId:'own'},catalogue,teams,'all');
-    assert.equal(paginateMangas(leader.mangas).total,23);assert.equal(paginateMangas(leader.mangas,3).items.length,3);
-    assert.ok(paginateMangas(leader.mangas,3).items.every(item=>item.manga.teamId==='own'));
+    assert.equal(paginateMangas(leader.mangas).total,23);
+    const last=paginateMangas(leader.mangas,2);
+    assert.equal(last.pageCount,2);assert.equal(last.items.length,9);assert.equal(last.first,15);assert.equal(last.last,23);
+    assert.equal(last.previousDisabled,false);assert.equal(last.nextDisabled,true);
+    assert.equal(paginateMangas(leader.mangas,3).page,2);
+    assert.ok(last.items.every(item=>item.manga.teamId==='own'));
 });
 test('search/team changes reset page 1; page navigation preserves search and avoids analytics refresh',async()=>{
     const manager=await readFile(new URL('../admin/manga.js',import.meta.url),'utf8');
