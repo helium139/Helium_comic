@@ -372,7 +372,14 @@
                 "title": "Hậu Kì",
                 "createAt": "2026-07-15T19:35:51.875Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-hau-trong-tu-kinh/chap12",
-                "pages": 5
+                "pages": 5,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg"
+                ]
             }
         ],
         "pickOrder": 999
