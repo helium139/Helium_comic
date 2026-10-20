@@ -19,7 +19,7 @@ test('real monthly snapshot transaction and concurrent close preserve Phase 3 da
             {scopeId:'manga:a:m',kind:'manga',parentScopeId:'team:a',teamId:'a',mangaId:'m',validViews:5}])await db.doc(`analyticsScopes/${row.scopeId}/periods/${month}`).set({...row,period:month});
         const service=createReportService({db,exporter,catalogue:async()=>({revision:'test',teams:[{id:'a',name:'A',active:true},{id:'z',name:'Zero',active:true}],data:{m:{title:'Manga'}}}),
             folderId:'private_owner_folder',timestamp:ms=>Timestamp.fromMillis(ms),clock:()=>Date.parse('2026-11-01T00:10:00Z')});
-        const results=await Promise.allSettled([service.run(month),service.run(month)]);assert.equal(results.filter(result=>result.status==='fulfilled' && result.value.alreadyGenerated===false).length,1);
+        const results=await Promise.allSettled([service.scheduled({scheduleTime:'2026-11-01T00:10:00Z'}),service.generate({month},{uid:'admin',role:'admin'})]);assert.equal(results.filter(result=>result.status==='fulfilled' && result.value.alreadyGenerated===false).length,1);
         assert.ok(results.some(result=>result.status==='fulfilled'));
         assert.equal(created,1);await service.run(month);assert.equal(created,1);
         const report=(await db.doc(`monthlyReports/${month}`).get()).data();assert.equal(report.status,'generated');assert.equal(report.totalValidViews,5);assert.equal(report.teams.find(team=>team.teamId==='z').validViews,0);

@@ -881,3 +881,5 @@ exports.getMonthlyViewDashboard = reportEndpoints.getMonthlyViewDashboard;
 exports.getMonthlyViewReports = reportEndpoints.getMonthlyViewReports;
 exports.retryMonthlyViewReport = reportEndpoints.retryMonthlyViewReport;
 exports.closeMonthlyViewReport = reportEndpoints.closeMonthlyViewReport;
+
+exports.generateMonthlyViewReport = reportEndpoints.generateMonthlyViewReport;

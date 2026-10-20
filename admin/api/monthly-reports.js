@@ -6,3 +6,6 @@ export const getMonthlyViewReports = viewCallable('getMonthlyViewReports');
 // Report history initializes existing client App Check before this action is enabled.
 const retry = httpsCallable(getFunctions(app, 'us-central1'), 'retryMonthlyViewReport', {timeout: 540000});
 export const retryMonthlyViewReport = async data => (await retry(data)).data;
+
+const generate = httpsCallable(getFunctions(app, 'us-central1'), 'generateMonthlyViewReport', {timeout: 540000});
+export const generateMonthlyViewReport = async data => (await generate(data)).data;

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 const source = (await readFile(new URL('../admin/view-analytics.js', import.meta.url), 'utf8'))
-    .replace(/^import .*;\n/gm, '').replace(/export /g, '');
+    .replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
 function node() { return { children: [], events: {}, value: 'all', hidden: false,
     appendChild(child) { this.children.push(child); }, replaceChildren() { this.children = []; },
     addEventListener(type, callback) { this.events[type] = callback; }, setAttribute() {}, remove() {} }; }

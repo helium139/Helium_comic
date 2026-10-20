@@ -47,5 +47,9 @@
 
 <main class="content dashboard-page"><header class="dashboard-header"><div><p class="dashboard-eyebrow">Helium CMS</p><h1>Monthly Valid-View Reports</h1><p class="dashboard-muted">UTC snapshots · Admin only · Sheets are exports</p></div></header>
 <section id="reports-content" class="dashboard-manga-section" hidden><button id="reports-refresh" type="button">Refresh</button><p id="reports-status" class="dashboard-muted" role="status" aria-live="polite"></p>
+<h2>Export Monthly Report</h2><label for="report-month">Completed UTC month</label>
+<select id="report-month" disabled></select><button id="report-generate" type="button" disabled>Generate Report</button>
+<a id="report-open" target="_blank" rel="noopener noreferrer" hidden>Open Sheet</a>
+<p id="report-generation-status" role="status" aria-live="polite"></p>
 <div class="dashboard-table-scroll"><table class="dashboard-manga-table"><thead><tr><th>Month</th><th>Total Valid Views</th><th>Teams</th><th>Status</th><th>Generated At (UTC)</th><th>Action</th></tr></thead><tbody id="report-rows"></tbody></table></div>
 <button id="reports-more" type="button" hidden>Load more reports</button></section></main><script type="module" src="/admin/reports.js"></script><script src="/admin/menu.js"></script></body></html>

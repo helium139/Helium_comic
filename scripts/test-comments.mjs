@@ -24,7 +24,7 @@ function node() {
         addEventListener(type, callback) { this.events[type] = callback; }, querySelector() { return null; } };
 }
 test('UI uses safe text, deleted placeholders, bounded root/reply requests and no realtime listeners', async () => {
-    const source = (await readFile(new URL('../assets/js/comment.js', import.meta.url), 'utf8')).replace(/^import .*;\n/gm, '');
+    const source = (await readFile(new URL('../assets/js/comment.js', import.meta.url), 'utf8')).replace(/^import .*;\r?\n/gm, '');
     assert.doesNotMatch(source, /onSnapshot|innerHTML|firebase-firestore/);
     const elements = new Map(), requests = [], events = {};
     const get = id => { if (!elements.has(id)) elements.set(id, node()); return elements.get(id); };

@@ -326,3 +326,39 @@ actual Google consent/access, Scheduler IAM, index readiness, and live UI behavi
 - Final monthly UI/export unit reruns passed, including expired external-write budget and private-folder enforcement.
 - Existing Function bodies were verified byte-for-byte preserved before the appended exports. Existing Phase 3/4/popularity/Worker implementations are unchanged.
 - No live Google API/account setup, file creation, production data writes, deployment, activation, commit, or push was performed.
+
+
+## Admin manual generation/backfill
+
+`generateMonthlyViewReport({month: "YYYY-MM"})` is admin-only and accepts only
+that field. It permits strictly closed UTC months from the month containing the
+Phase 3 `viewSystem/config.activationAt` timestamp (inclusive). That first month
+can contain a partial month of trusted accounting. Missing/future activation fails
+closed; disabled current ingestion does not erase historical availability.
+The scheduler retains its existing ten-minute grace; manual generation may run
+at the UTC boundary. The admin selector uses server eligibility, never browser time.
+
+New reports use the existing authoritative aggregate snapshot/export pipeline and
+append start/finish attempts with `admin_manual_generate`. Generated reports
+return the existing URL without writes or Google calls. Incomplete reports return
+`retryRequired: true`; the UI exposes Retry using the existing recovery endpoint.
+The existence decision and new-report claim are transactional, sharing the scheduler
+lease. No new indexes, rules, production writes or activation changes are needed.
+
+Operator deployment commands (not executed), after existing Phase 5 setup:
+
+```sh
+firebase deploy --project helium-team-d7f80 --only functions:generateMonthlyViewReport,functions:getMonthlyViewReports,functions:retryMonthlyViewReport,functions:closeMonthlyViewReport
+```
+
+Publish the updated admin frontend using the existing site workflow after deploying
+the endpoints. The shared service also returns the existing Sheet URL for retries.
+
+Manual-generation validation on this Windows workspace: 61 tests passed, zero
+failed; six emulator-dependent tests skipped because Java is unavailable. Functions
+lint passes with `npm.cmd --prefix functions run lint -- --rule "linebreak-style: off"`;
+ordinary lint encounters existing CRLF checkout errors. Frontend syntax checks pass.
+Four existing regression test import strippers now support CRLF as well as LF.
+The Firestore concurrency integration test now exercises scheduler versus manual
+claims; it still requires the demo emulator to execute. Google operations remain
+mocked. No deployment, commit, push, production writes or live Sheet creation occurred.

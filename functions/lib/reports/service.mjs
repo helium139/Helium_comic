@@ -1,6 +1,7 @@
 import {randomUUID, createHash} from "node:crypto";
 import {utcMonths, monthEnd} from "./utc-months.mjs";
 import {buildSnapshot, requireAdmin, fail} from "./accounting.mjs";
+import {millis} from "../views/policy.mjs";
 const LEASE_MS = 15 * 60_000;
 
 export function createReportService({db, catalogue, exporter, folderId, timestamp, clock = Date.now, projectId = "helium-team-d7f80"}) {
@@ -51,11 +52,16 @@ export function createReportService({db, catalogue, exporter, folderId, timestam
     } catch {
       fail("invalid-argument", "Invalid report month");
     }
-    if (clock() < end + 10 * 60_000) fail("failed-precondition", "Month is not ready to close");
+    if (clock() < end + (actor.trigger === "admin_manual_generate" ? 0 : 10 * 60_000)) fail("failed-precondition", "Month is not ready to close");
     const runId = randomUUID();
     const claimed = await db.runTransaction(async (tx) => {
       const current = (await tx.get(ref(month))).data();
-      if (current?.status === "generated") return false;
+      if (current?.status === "generated") return {month, status: "generated", alreadyGenerated: true, spreadsheetUrl: current.spreadsheetUrl};
+      if (actor.trigger === "admin_manual_generate") {
+        if (current) return {month, status: current.status, retryRequired: true};
+        const bounds = eligibility((await tx.get(db.doc("viewSystem/config"))).data());
+        if (!bounds.firstEligibleMonth || month < bounds.firstEligibleMonth) fail("failed-precondition", "Month predates trusted accounting availability");
+      }
       if (current?.status === "generating" && current.leaseUntil.toMillis() > clock()) fail("aborted", "Report generation is already running");
       tx.set(ref(month), {month, timezone: "UTC", schemaVersion: 1, ...(!current ? {generatedAt: null, closedAt: null, snapshotHash: null,
         spreadsheetId: null, spreadsheetUrl: null, creationState: "not_started",
@@ -67,7 +73,7 @@ export function createReportService({db, catalogue, exporter, folderId, timestam
         requestedBy: actor.uid || null, outcome: "started", createdAt: timestamp(clock())});
       return true;
     });
-    if (!claimed) return {status: "generated", alreadyGenerated: true, month};
+    if (claimed !== true) return claimed;
     try {
       const data = await snapshot(month, runId);
       if (!/^[A-Za-z0-9_-]{10,200}$/.test(data.driveFolderId || "")) fail("failed-precondition", "Report folder is not configured");
@@ -102,7 +108,7 @@ export function createReportService({db, catalogue, exporter, folderId, timestam
         tx.create(db.doc(`monthlyReports/${month}/attempts/${runId}_finish`), {runId, trigger: actor.trigger,
           requestedBy: actor.uid || null, outcome: "generated", createdAt: timestamp(clock())});
       });
-      return {month, status: "generated", alreadyGenerated: false};
+      return {month, status: "generated", alreadyGenerated: false, spreadsheetUrl: `https://docs.google.com/spreadsheets/d/${file.id}/edit`};
     } catch (error) {
       await db.runTransaction(async (tx) => {
         const current = (await tx.get(ref(month))).data();
@@ -114,6 +120,16 @@ export function createReportService({db, catalogue, exporter, folderId, timestam
       });
       throw error;
     }
+  }
+  function eligibility(config) {
+    const at = millis(config?.activationAt);
+    return {firstEligibleMonth: Number.isFinite(at) && at <= clock() ? utcMonths(at).currentPeriod : null,
+      currentMonth: utcMonths(clock()).currentPeriod, lastEligibleMonth: utcMonths(clock()).previousPeriod};
+  }
+  async function generate(data, actor) {
+    requireAdmin(actor);
+    if (!data || Object.keys(data).length !== 1 || !Object.hasOwn(data, "month")) fail("invalid-argument", "Only month is accepted");
+    return run(data.month, {uid: actor.uid, trigger: "admin_manual_generate"});
   }
   async function retry(data, actor) {
     requireAdmin(actor);
@@ -135,10 +151,20 @@ export function createReportService({db, catalogue, exporter, folderId, timestam
         fail("invalid-argument", "Invalid cursor");
       }
     }
+    const bounds = eligibility((await db.doc("viewSystem/config").get()).data());
+    if (data?.month) {
+      try {
+        monthEnd(data.month);
+      } catch {
+        fail("invalid-argument", "Invalid report month");
+      }
+      const row = (await ref(data.month).get()).data();
+      return {...bounds, report: row ? {month: row.month, status: row.status, spreadsheetUrl: row.status === "generated" ? row.spreadsheetUrl : null} : null};
+    }
     let query = db.collection("monthlyReports").orderBy("__name__", "desc").limit(21);
     if (data?.cursor) query = query.startAfter(data.cursor);
     const docs = (await query.get()).docs;
-    return {reports: docs.slice(0, 20).map((doc) => {
+    return {...bounds, reports: docs.slice(0, 20).map((doc) => {
       const row = doc.data();
       return {month: row.month, totalValidViews: row.totalValidViews ?? null, teamCount: row.teams?.length ?? null,
         status: row.status, generatedAt: row.generatedAt?.toMillis?.() ?? null, closedAt: row.closedAt?.toMillis?.() ?? null,
@@ -146,5 +172,5 @@ export function createReportService({db, catalogue, exporter, folderId, timestam
     }), nextCursor: docs.length > 20 ? docs[19].id : null};
   }
   const scheduled = (event) => run(utcMonths(event?.scheduleTime || clock()).previousPeriod, {trigger: "scheduler"});
-  return {run, retry, history, scheduled};
+  return {run, generate, retry, history, scheduled};
 }

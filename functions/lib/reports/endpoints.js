@@ -54,6 +54,7 @@ exports.createReportEndpoints = (db) => {
       return getMonthlyDashboard(request.data, actor(request), {db});
     })),
     getMonthlyViewReports: onCall(options, (request) => safe(async () => (await service()).history(request.data, actor(request)))),
+    generateMonthlyViewReport: onCall({...options, secrets, timeoutSeconds: 540, memory: "512MiB", concurrency: 1}, (request) => safe(async () => (await service()).generate(request.data, actor(request)))),
     retryMonthlyViewReport: onCall({...options, secrets, timeoutSeconds: 540, memory: "512MiB", concurrency: 1}, (request) => safe(async () => (await service()).retry(request.data, actor(request)))),
     closeMonthlyViewReport: onSchedule({region: "us-central1", schedule: "10 0 1 * *", timeZone: "UTC", secrets,
       retryCount: 5, minBackoffSeconds: 60, maxBackoffSeconds: 3600, maxRetrySeconds: 86400,

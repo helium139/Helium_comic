@@ -18,7 +18,7 @@ function dom(){const map=new Map();function node(tag='div'){return{tag,children:
     appendChild(item){this.children.push(item);},append(...items){this.children.push(...items);},replaceChildren(){this.children=[];},
     setAttribute(){},addEventListener(type,fn){this.events[type]=fn;},remove(){}};}
     const get=id=>{if(!map.has(id))map.set(id,node());return map.get(id);};return{get,document:{getElementById:get,createElement:node}};}
-const strip=source=>source.replace(/^import .*;\n/gm,'').replace(/export /g,'');
+const strip=source=>source.replace(/^import .*;\r?\n/gm,'').replace(/export /g,'');
 test('dashboard current/previous/all cards stay scope-safe and zero missing new month after rollover',async()=>{
     const source=strip(await readFile(new URL('../admin/view-analytics.js',import.meta.url),'utf8'));
     const d=dom(),calls=[];let next={active:true,activationAt:1,currentPeriod:'2026-10',previousPeriod:'2026-09',monthly:8,previousMonthly:3,total:11,serverNow:1,nextBoundary:2},refresh;
@@ -47,4 +47,17 @@ test('sleeping visible browser rechecks UTC month when wall time advances but pe
     let wall=0,callback,refreshes=0;const doc=events(),win=events();
     const watcher=createMonthRollover({doc,win,now:()=>0,wallNow:()=>wall,schedule:fn=>{callback=fn;return 1;},cancel(){},refresh:async()=>{refreshes++;}});
     watcher.sync({serverNow:1000,nextBoundary:2000});wall=5000;await callback();assert.equal(refreshes,1);watcher.dispose();
+});
+
+test('manual selector uses server eligibility and shows Generate, Retry and Open Sheet',async()=>{
+ const source=strip(await readFile(new URL('../admin/reports.js',import.meta.url),'utf8')).split('\nconst staff =')[0];
+ const d=dom(),calls=[],bounds={firstEligibleMonth:'2026-09',lastEligibleMonth:'2026-12',currentMonth:'2027-01'};
+ let report=null;
+ const context={getMonthlyViewReports:async()=>({reports:[]}),retryMonthlyViewReport:async()=>({})};vm.createContext(context);vm.runInContext(source,context);
+ const page=context.createReportsPage({staff:{role:'admin'},dom:d.document,history:async data=>data.month?{...bounds,report}:{...bounds,reports:[],nextCursor:null},generate:async data=>{calls.push(data);return{status:'generated'};}});
+ await page.load();await new Promise(resolve=>setImmediate(resolve));
+ assert.deepEqual(d.get('report-month').children.map(n=>n.value),['2026-12','2026-11','2026-10','2026-09']);assert.equal(d.get('report-generate').disabled,false);
+ await d.get('report-generate').events.click();assert.equal(calls[0].month,'2026-12');assert.deepEqual(Object.keys(calls[0]),['month']);
+ report={status:'failed'};await d.get('report-month').events.change();assert.equal(d.get('report-generate').textContent,'Retry');
+ report={status:'generated',spreadsheetUrl:'https://docs.google.com/spreadsheets/d/existing123/edit'};await d.get('report-month').events.change();assert.equal(d.get('report-open').hidden,false);assert.equal(d.get('report-generate').disabled,true);
 });

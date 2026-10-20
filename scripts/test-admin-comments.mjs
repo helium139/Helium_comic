@@ -6,7 +6,7 @@ import { getDashboardScope } from '../admin/dashboard-data.mjs';
 const read = file => readFile(new URL(`../${file}`, import.meta.url), 'utf8');
 const helpers = {};
 vm.createContext(helpers);
-vm.runInContext((await read('assets/js/staff-access.js')).replace(/^import .*;\n/gm, '').replace(/export /g, ''), helpers);
+vm.runInContext((await read('assets/js/staff-access.js')).replace(/^import .*;\r?\n/gm, '').replace(/export /g, ''), helpers);
 const teams = [{id:'heliumtg',name:'HeliumTG'},{id:'other',name:'Other Team'}];
 const catalogue = {own:{teamId:'heliumtg',title:'Alpha'},foreign:{teamId:'other',title:'Beta'}};
 function dom() {
@@ -30,7 +30,7 @@ async function setup(staff, options = {}) {
     const d=dom(),calls=[],moderations=[];
     const context={scopeMangas:helpers.scopeMangas,assertCanManageManga:helpers.assertCanManageManga,getDashboardScope};
     vm.createContext(context);
-    const source=(await read('admin/comments.js')).replace(/^import .*;\n/gm,'').replace(/export /g,'').split('\nconst currentStaff =')[0];
+    const source=(await read('admin/comments.js')).replace(/^import .*;\r?\n/gm,'').replace(/export /g,'').split('\nconst currentStaff =')[0];
     vm.runInContext(source,context);
     const management=context.createCommentManagement({staff,teams,catalogue,dom:d.document,confirmAction:()=>true,requestedManga:options.requestedManga,
         list:async data=>{calls.push(data);if(options.list) return options.list(data);return {comments:data.rootId?[{...root,id:'reply',text:'Reply'}]:data.cursor?[]:[root,hidden,deleted],canModerate:options.canModerate!==false,nextCursor:data.rootId?null:data.cursor?null:{id:'next'}};},

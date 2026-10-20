@@ -114,7 +114,7 @@ test('Google adapter builds typed RAW rows, private Drive markers, numeric/heade
 test('Functions manifest preserves existing exports and fixes monthly schedule to 00:10 UTC',()=>{
     const require=createRequire(new URL('../functions/package.json',import.meta.url));
     const functions=require('./index.js');
-    for(const name of ['health','registerPushToken','unregisterPushToken','notifyNewChapter','setUserAccess','startChapterViewSession','recordChapterView','getChapterViewAnalytics','listComments','createComment','editComment','deleteComment','moderateComment','recordChapterPopularity','closeMonthlyViewReport','getMonthlyViewReports','retryMonthlyViewReport','getMonthlyViewDashboard'])assert.equal(typeof functions[name],'function',name);
+    for(const name of ['health','registerPushToken','unregisterPushToken','notifyNewChapter','setUserAccess','startChapterViewSession','recordChapterView','getChapterViewAnalytics','listComments','createComment','editComment','deleteComment','moderateComment','recordChapterPopularity','closeMonthlyViewReport','getMonthlyViewReports','retryMonthlyViewReport','generateMonthlyViewReport','getMonthlyViewDashboard'])assert.equal(typeof functions[name],'function',name);
     const schedule=functions.closeMonthlyViewReport.__endpoint.scheduleTrigger;
     assert.equal(schedule.schedule,'10 0 1 * *');assert.equal(schedule.timeZone,'UTC');assert.equal(schedule.retryConfig.retryCount,5);
 });
@@ -132,4 +132,34 @@ test('Google export rejects shared/non-owner folders before creating a confident
         return{ok:true,status:200,json:async()=>url.includes('oauth2')?{access_token:'token',expires_in:3600}:{mimeType:'application/vnd.google-apps.folder',ownedByMe:true,permissions:[{role:'owner'},{role:'reader'}]}};
     }});
     await assert.rejects(google.find({driveFolderId:folder}),e=>e.code==='failed-precondition');assert.equal(writes,0);
+});
+
+const admin = {uid:'admin', role:'admin'};
+function manualHarness() { const h=harness(); h.db.data.set('viewSystem/config',{enabled:true,activationAt:new Stamp(Date.parse('2026-09-15T00:00:00Z'))}); return h; }
+test('manual generation uses historical trusted aggregates, excludes popularity and appends audit',async()=>{
+ const h=manualHarness();h.db.data.set('mangaStats/m',{views:999999});
+ const result=await h.service.generate({month},admin);assert.equal(result.status,'generated');assert.match(result.spreadsheetUrl,/sheet_created/);
+ const report=h.db.data.get('monthlyReports/'+month);assert.equal(report.totalValidViews,7);assert.equal(report.lastTrigger,'admin_manual_generate');
+ assert.ok([...h.db.data.entries()].filter(([p])=>p.includes('/attempts/')).every(([,r])=>r.trigger==='admin_manual_generate'));
+ const writes=h.db.writes.length;assert.equal((await h.service.generate({month},admin)).spreadsheetUrl,result.spreadsheetUrl);assert.equal(h.calls.create,1);assert.equal(h.db.writes.length,writes);
+});
+test('manual validation rejects non-admins, current/future, malformed, preactivation and browser export fields',async()=>{
+ const h=manualHarness();
+ for(const actor of [{},{uid:'l',role:'team_leader'},{uid:'u',role:'user'}])await assert.rejects(h.service.generate({month},actor));
+ for(const value of ['2026-11','2026-12','2026-13','2026-1','garbage','2026-08'])await assert.rejects(h.service.generate({month:value},admin));
+ await assert.rejects(h.service.generate({month,spreadsheetId:'injected'},admin));assert.equal(h.db.writes.length,0);
+ const noConfig=harness();await assert.rejects(noConfig.service.generate({month},admin),/availability/);
+});
+test('manual incomplete reports require retry and preserve snapshot and uncertain creation intent',async()=>{
+ const h=manualHarness();h.exporter.populate=async()=>{throw new Error('failed');};await assert.rejects(h.service.generate({month},admin));
+ const before=JSON.stringify([...h.db.data]);const result=await h.service.generate({month},admin);assert.equal(result.retryRequired,true);assert.equal(JSON.stringify([...h.db.data]),before);
+ h.exporter.populate=async()=>{};await h.service.retry({month},admin);assert.equal(h.calls.create,1);
+});
+test('manual and scheduler share the lease and create at most one Sheet',async()=>{
+ const h=manualHarness();await Promise.allSettled([h.service.generate({month},admin),h.service.scheduled({scheduleTime:'2026-11-01T00:10:00Z'})]);assert.equal(h.calls.create,1);assert.equal(h.db.data.get('monthlyReports/'+month).status,'generated');
+});
+test('manual December closes at January UTC boundary and activation month is eligible',async()=>{
+ const h=manualHarness();h.setTime(Date.parse('2027-01-01T00:00:00Z'));
+ await h.service.generate({month:'2026-12'},admin);await assert.rejects(h.service.generate({month:'2027-01'},admin));
+ const bounds=await h.service.history({},admin);assert.equal(bounds.firstEligibleMonth,'2026-09');assert.equal(bounds.lastEligibleMonth,'2026-12');
 });

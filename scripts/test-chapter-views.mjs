@@ -97,7 +97,7 @@ test('detail page has no view submission; chapter hook is after first-image read
 
 test('reader adapter rejects missing/broken first pages, initializes once, and tolerates unavailable crypto', async () => {
     const source = (await readFile(new URL('../assets/js/chapter-views.js', import.meta.url), 'utf8'))
-        .replace(/^import .*;\n/gm, '').replace(/export /g, '');
+        .replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
     let initialized = 0, ready = 0;
     const context = { auth: {}, onAuthStateChanged: () => () => {}, viewCallable: () => async () => ({}),
         localStorage: { getItem: () => null, setItem() {} }, crypto: { randomUUID: () => '00000000-0000-4000-8000-000000000000' },
