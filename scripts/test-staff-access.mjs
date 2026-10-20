@@ -268,7 +268,9 @@ test('manga manager pagination keeps search and leader scope, then resets on sea
     d.get('manga-pagination').children.at(-1).events.click();
     assert.match(d.get('manga-pagination-summary').textContent,/Showing 15–23 of 23/);
     d.get('manga-pagination').children.at(-1).events.click();
-    assert.equal(d.get('mangaGrid').children.length,3);assert.equal(d.get('manga-pagination').children.at(-1).disabled,true);
+     assert.equal(d.get('mangaGrid').children.length, 9);
+    assert.match(d.get('manga-pagination-summary').textContent,/Showing 15–23 of 23/);
+    assert.equal(d.get('manga-pagination').children.at(-1).disabled,true);
     d.get('searchInput').value='Manga 00';d.get('searchInput').oninput();
     assert.equal(d.get('mangaGrid').children.length,1);assert.match(d.get('manga-pagination-summary').textContent,/Showing 1–1 of 1/);
     assert.equal(d.get('manga-pagination').children[0].disabled,true);
