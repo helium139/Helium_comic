@@ -4251,7 +4251,18 @@
                 "title": "Chap 5",
                 "createAt": "2026-08-18T09:43:15.949Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/dear-hunting/chap5",
-                "pages": 9
+                "pages": 9,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg"
+                ]
             },
             {
                 "id": 6,
