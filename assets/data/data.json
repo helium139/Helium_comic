@@ -3076,6 +3076,36 @@
                 "createAt": "2026-10-13T16:23:41.646Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ve-ep-cua-su-huy-diet/chap28",
                 "pages": 46
+            },
+            {
+                "id": 29,
+                "title": "Chap 29",
+                "createAt": "2026-10-22T05:03:52.273Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ve-ep-cua-su-huy-diet/chap29",
+                "pages": 21,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp",
+                    "11.webp",
+                    "12.webp",
+                    "13.webp",
+                    "14.webp",
+                    "15.webp",
+                    "16.webp",
+                    "17.webp",
+                    "18.webp",
+                    "19.webp",
+                    "20.webp",
+                    "21.webp"
+                ]
             }
         ]
     },
