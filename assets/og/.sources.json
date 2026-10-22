@@ -137,13 +137,13 @@
       "image_sha256": "8460de1f621dc23cd2fd7cf13179cd446509b58062c9780507852d1706976856"
     },
     "hoan-hwan": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoan-hwan/cover.webp",
-      "etag": "\"032ebc6aaf51fd0f0bb66715b90e4858\"",
-      "last_modified": "Wed, 22 Jul 2026 18:18:04 GMT",
-      "cover_sha256": "26f356579f243f487135c42349a0c5e6eed7e69b5143950e5ce45025ff07e43c",
-      "cover_width": 1920,
-      "cover_height": 2784,
-      "image_sha256": "d5ab3fdf123365f0a91e24fb04265c750c9e9bd39b768fa83b7891a91c38f41a"
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoan-hwan/cover-f9371d4f-26d4-4800-a9b5-ab014b8d0099.webp",
+      "etag": "\"b0d0b4ecfda232909921652db4c8ee85\"",
+      "last_modified": "Thu, 22 Oct 2026 06:48:35 GMT",
+      "cover_sha256": "4e9ec2320ffea959e8c1c7f19f594606f96513452839ec3e60d127bcdf33d2c7",
+      "cover_width": 480,
+      "cover_height": 696,
+      "image_sha256": "4d78496448102b7ce0f4dc7206241a019dd295223e7cb98f0b274d3753f606ae"
     },
     "ong-quang": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ong-quang/cover.webp",
