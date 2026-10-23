@@ -5,14 +5,14 @@ import { paginateMangas, renderPagination, MANGA_PAGE_SIZE } from '../admin/pagi
 import { buildDashboardModel } from '../admin/dashboard-data.mjs';
 const teams=[{id:'own',name:'Own'},{id:'other',name:'Other'}];
 const catalogue=Object.fromEntries(Array.from({length:33},(_,i)=>[`m${i}`,{title:`Manga ${i}`,teamId:i<23?'own':'other',chapters:[]}]));
-test('14 manga/page, last-page count, clamping and control disabled states',()=>{
-    assert.equal(MANGA_PAGE_SIZE,14);
+test('15 manga/page, last-page count, clamping and control disabled states',()=>{
+    assert.equal(MANGA_PAGE_SIZE,15);
     const items=Object.keys(catalogue);
     const first=paginateMangas(items);
-    assert.equal(first.items.length,14);assert.equal(first.first,1);assert.equal(first.last,14);assert.equal(first.pageCount,3);
+    assert.equal(first.items.length,15);assert.equal(first.first,1);assert.equal(first.last,15);assert.equal(first.pageCount,3);
     const second=paginateMangas(items,2);
-    assert.equal(second.items.length,14);assert.equal(second.first,15);assert.equal(second.last,28);
-    const last=paginateMangas(items,3);assert.equal(last.items.length,5);assert.equal(last.first,29);assert.equal(last.last,33);
+    assert.equal(second.items.length,15);assert.equal(second.first,16);assert.equal(second.last,30);
+    const last=paginateMangas(items,3);assert.equal(last.items.length,3);assert.equal(last.first,31);assert.equal(last.last,33);
     const nodes=[];const dom={createElement:()=>({setAttribute(k,v){this[k]=v;},addEventListener(t,fn){this[t]=fn;}})};
     const container={replaceChildren(){nodes.length=0;},appendChild(item){nodes.push(item);}};
     let chosen;
@@ -31,7 +31,7 @@ test('pagination follows team authorization; admin scope and leader fixed scope 
     const leader=buildDashboardModel({role:'team_leader',teamId:'own'},catalogue,teams,'all');
     assert.equal(paginateMangas(leader.mangas).total,23);
     const last=paginateMangas(leader.mangas,2);
-    assert.equal(last.pageCount,2);assert.equal(last.items.length,9);assert.equal(last.first,15);assert.equal(last.last,23);
+    assert.equal(last.pageCount,2);assert.equal(last.items.length,8);assert.equal(last.first,16);assert.equal(last.last,23);
     assert.equal(last.previousDisabled,false);assert.equal(last.nextDisabled,true);
     assert.equal(paginateMangas(leader.mangas,3).page,2);
     assert.ok(last.items.every(item=>item.manga.teamId==='own'));

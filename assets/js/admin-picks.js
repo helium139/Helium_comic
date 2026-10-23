@@ -70,8 +70,10 @@ export function renderAdminPicks(catalogue) {
     };
     root.addEventListener('mouseenter', () => { hovered = true; schedule(); });
     root.addEventListener('mouseleave', () => { hovered = false; schedule(); });
-    root.addEventListener('focusin', () => { focused = true; schedule(); });
-    root.addEventListener('focusout', event => { focused = root.contains(event.relatedTarget); schedule(); });
+    // Navigation buttons retain focus after a click; that must not stop autoplay.
+    // Pause only while reading/following a link inside the active slide.
+    root.addEventListener('focusin', event => { focused = !!event.target.closest('.pick-slide'); schedule(); });
+    root.addEventListener('focusout', event => { focused = !!event.relatedTarget && root.contains(event.relatedTarget) && !!event.relatedTarget.closest('.pick-slide'); schedule(); });
     document.addEventListener('visibilitychange', schedule);
     motion.addEventListener('change', schedule);
     schedule();

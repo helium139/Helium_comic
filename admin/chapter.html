@@ -138,7 +138,18 @@ readonly>
 id="chapterTitle"
 type="text">
 
-<label class="checkbox"><input id="isRawCaughtUp" type="checkbox"> Ngang Raw</label>
+<div class="manga-editor-options chapter-visibility-options">
+  <label class="manga-option-row" for="isRawCaughtUp">
+    <span class="manga-option-copy">
+      <span class="manga-option-title">Ngang Raw</span>
+      <span class="manga-option-help" id="chapter-raw-help">Đánh dấu truyện đang ngang với raw hiện tại.</span>
+    </span>
+    <span class="manga-option-switch">
+      <input id="isRawCaughtUp" type="checkbox" aria-describedby="chapter-raw-help">
+      <span class="manga-option-track" aria-hidden="true"></span>
+    </span>
+  </label>
+</div>
 
 <label>Ngày đăng</label>
 

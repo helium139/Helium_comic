@@ -1472,3 +1472,7 @@ color:white;
 .manga-option-info { display: inline-grid; place-items: center; flex: 0 0 16px; height: 16px; margin-top: 2px; border: 1px solid #7399c9; border-radius: 50%; color: #b3d1f5; font-size: 11px; font-weight: 600; }
 @media (max-width: 360px) { .manga-editor-options { padding: 14px; } .manga-editor-options .manga-option-row { gap: 10px; } }
 @media (prefers-reduced-motion: reduce) { .manga-option-track, .manga-option-track::after { transition: none; } }
+
+/* Compact reuse of the manga settings card in the chapter form. */
+.manga-editor-options.chapter-visibility-options { margin: 18px 0; padding: 14px 16px; border-radius: 12px; }
+.chapter-visibility-options .manga-option-row { padding: 0; }

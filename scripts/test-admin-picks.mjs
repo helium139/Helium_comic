@@ -62,3 +62,42 @@ test('carousel CSS supports mobile stacking, dark mode, reduced motion and hidde
     const css = await read('assets/css/admin-picks.css');
     for (const pattern of [/data-theme="dark"/, /max-width: 700px/, /grid-template-columns: minmax\(0, 1fr\)/, /prefers-reduced-motion/, /\.pick-slide\[hidden\]/]) assert.match(css, pattern);
 });
+
+test('autoplay advances, loops and resumes after manual navigation retains button focus', () => {
+    const previous = { document: globalThis.document, matchMedia: globalThis.matchMedia,
+        setTimeout: globalThis.setTimeout, clearTimeout: globalThis.clearTimeout };
+    const events = {}, docEvents = {}, timers = new Map();
+    let nextTimer = 0;
+    const control = () => ({ addEventListener(type, fn) { this[type] = fn; },
+        setAttribute() {}, removeAttribute() {}, closest: () => null });
+    const slides = Array.from({ length: 2 }, (_, i) => ({ hidden: i !== 0,
+        querySelector: () => ({ style: {} }) }));
+    const dots = [control(), control()];
+    const buttons = { '.pick-prev': control(), '.pick-next': control(), '.pick-pause': control() };
+    const root = { innerHTML: '', querySelectorAll: selector => selector === '.pick-slide' ? slides : dots,
+        querySelector: selector => buttons[selector], addEventListener: (type, fn) => { events[type] = fn; },
+        contains: node => node === dots[0] || node === dots[1] };
+    globalThis.document = { hidden: false, getElementById: () => root,
+        addEventListener: (type, fn) => { docEvents[type] = fn; } };
+    globalThis.matchMedia = () => ({ matches: false, addEventListener() {} });
+    globalThis.setTimeout = (fn, delay) => { assert.equal(delay, 6000); timers.set(++nextTimer, fn); return nextTimer; };
+    globalThis.clearTimeout = id => timers.delete(id);
+    const tick = () => { assert.equal(timers.size, 1); const [id, fn] = [...timers][0]; timers.delete(id); fn(); };
+    try {
+        picks.renderAdminPicks({ a: { adminPick: true, title: 'A' }, b: { adminPick: true, title: 'B' } });
+        tick(); assert.equal(slides[1].hidden, false);
+        tick(); assert.equal(slides[0].hidden, false);
+        events.focusin({ target: dots[1] });
+        dots[1].click();
+        assert.equal(slides[1].hidden, false);
+        tick(); assert.equal(slides[0].hidden, false);
+        events.mouseenter(); assert.equal(timers.size, 0);
+        events.mouseleave(); assert.equal(timers.size, 1);
+        events.focusin({ target: { closest: () => slides[0] } }); assert.equal(timers.size, 0);
+        events.focusout({ relatedTarget: dots[0] }); assert.equal(timers.size, 1);
+        globalThis.document.hidden = true; docEvents.visibilitychange(); assert.equal(timers.size, 0);
+        globalThis.document.hidden = false; docEvents.visibilitychange(); tick();
+        buttons['.pick-pause'].onclick({ currentTarget: buttons['.pick-pause'] }); assert.equal(timers.size, 0);
+        buttons['.pick-pause'].onclick({ currentTarget: buttons['.pick-pause'] }); tick();
+    } finally { Object.assign(globalThis, previous); }
+});

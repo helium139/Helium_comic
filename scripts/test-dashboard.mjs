@@ -182,16 +182,16 @@ test('guard/fetch failures do not display misleading zero counts; placeholders d
 test('dashboard paginates scoped catalogue; team changes reset to first page', async () => {
     const data = Object.fromEntries(Array.from({length:33}, (_,i) => [`m${i}`, {title:`Manga ${String(i).padStart(2,'0')}`,teamId:i<23?'heliumtg':'testteam',chapters:[]}]));
     const d = await dashboard(admin,{data});
-    assert.equal(d.get('manga-list').children.length,14);
-    assert.match(d.get('manga-results').textContent,/Showing 1–14 of 33/);
+    assert.equal(d.get('manga-list').children.length,15);
+    assert.match(d.get('manga-results').textContent,/Showing 1–15 of 33/);
     assert.equal(d.get('manga-pagination').children[0].disabled,true);
     assert.equal(d.get('manga-pagination').children.at(-1).disabled,false);
     d.get('manga-pagination').children.at(-1).events.click();
-    assert.equal(d.get('manga-list').children.length,14);
-    assert.match(d.get('manga-results').textContent,/Showing 15–28 of 33/);
+    assert.equal(d.get('manga-list').children.length,15);
+    assert.match(d.get('manga-results').textContent,/Showing 16–30 of 33/);
     d.get('manga-pagination').children.at(-1).events.click();
-    assert.equal(d.get('manga-list').children.length,5);
-    assert.match(d.get('manga-results').textContent,/Showing 29–33 of 33/);
+    assert.equal(d.get('manga-list').children.length,3);
+    assert.match(d.get('manga-results').textContent,/Showing 31–33 of 33/);
     assert.equal(d.get('manga-pagination').children[0].disabled,false);
     assert.equal(d.get('manga-pagination').children.at(-1).disabled,true);
     const team=d.get('dashboard-team');team.value='testteam';team.events.change();
@@ -201,8 +201,8 @@ test('dashboard paginates scoped catalogue; team changes reset to first page', a
     assert.equal(d.get('manga-pagination').children.at(-1).disabled,true);
     const own=await dashboard(leader,{data});
     own.get('manga-pagination').children.at(-1).events.click();
-    assert.equal(own.get('manga-list').children.length,9);
-    assert.match(own.get('manga-results').textContent,/Showing 15–23 of 23/);
+    assert.equal(own.get('manga-list').children.length,8);
+    assert.match(own.get('manga-results').textContent,/Showing 16–23 of 23/);
     assert.equal(own.get('manga-pagination').children.length,4); // Previous, pages 1–2, Next; no page 3.
     assert.equal(own.get('manga-pagination').children[0].disabled,false);
     assert.equal(own.get('manga-pagination').children.at(-1).disabled,true);
