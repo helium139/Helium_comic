@@ -28,3 +28,43 @@ not duplicate state to delete. Optional-editor DOM guards protect older HTML and
 
 Generated pages, OG images, firestore.rules.backup (local/untracked), account caches,
 and recovery journals are not deleted. No live data, secrets, R2 paths or URLs changed.
+
+## Completed changes and verification
+
+Deleted `admin/utils/builder.js`, `admin/utils/logger.js`, and
+`scripts/webp/test-diagnostics.mjs`. The diagnostics tests were appended to
+`test-migration.mjs`; no regression assertions were removed. No files renamed.
+Added only this inventory/report, for a net reduction of two tracked files
+(785 to 783 after adding the report).
+
+`installCoverFallback` in `assets/js/manga-card.js` now serves completed, team,
+ranking and featured-carousel renderers; the ranking adapter keeps its exported
+API. Existing scopes and featured-background cleanup remain intact. Removed
+unused homepage `isNewChapter`, catalogue console dump, chapter-link debug logging,
+and unused Swiper CSS. Left external Swiper includes in legacy/generated pages
+alone to avoid unrelated generated-file churn; no live Swiper markup/constructor
+was found. Operational CLI output and error reporting were retained.
+
+No dependencies changed. Only the WebP package test command changed to reflect the
+merged diagnostics suite; its lockfile dependency graph is unchanged. CI now also
+covers chapter promotion, original cleanup, Admin's Picks, completed/team pages,
+rankings, push notifications and reading progress. Existing emulator/lint/security
+steps are retained. The ranking test now checks the existing English status labels;
+the follow VM test supplies the actual imported rawBadge implementation instead of
+failing because its import-stripping harness omitted that dependency.
+
+Verification with cached Node **24.22.0** (CI uses Node 24):
+
+- All 31 retained JavaScript test files pass under `node --test scripts/test-*.mjs scripts/webp/test-*.mjs`.
+- Six Firestore integration assertions in four test files explicitly skip without
+  `FIRESTORE_EMULATOR_HOST`. These are **not** locally verified integration passes;
+  the existing CI emulator command is unchanged.
+- All 13 Python OG tests pass.
+- Firebase Functions ESLint passes.
+- All 123 retained JavaScript files parse; all static relative module imports resolve.
+- Catalogue validation passes for 34 manga / 2 teams.
+- `git diff --check` passes.
+
+No browser visual or live service/deployment verification performed. No catalogue,
+chapter, image, Worker authorization, Firebase configuration, secrets, public routes,
+or accounting data changed. No push or deploy performed.
