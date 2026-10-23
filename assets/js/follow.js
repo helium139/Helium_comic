@@ -1,3 +1,4 @@
+import { rawBadge } from "./manga-card.js";
 import { auth, onAuthStateChanged, getUserSnapshot } from "./firebase-session.js";
 import { mangaUrl } from "./routes.js";
 
@@ -32,7 +33,7 @@ async function loadFollowedManga(user) {
             const unread = progressResult.value && hasUnreadChapter(manga, progressResult.value.get(id));
             container.insertAdjacentHTML("beforeend", `
                 <a href="${mangaUrl(id)}" class="comic-item">
-                    <div class="comic-poster">
+                    <div class="comic-poster">${rawBadge(manga)}
                         ${unread ? '<span class="new-chapter-badge">UP</span>' : ""}
                         <img src="${manga.cover}" alt="${manga.title}">
                     </div>

@@ -1,3 +1,4 @@
+import { rawBadge } from "./manga-card.js";
 import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { chapterUrl } from "./routes.js";
 
@@ -81,7 +82,7 @@ async function renderHistory(history){
     
     <div class="comic-item">
 
-        <div class="comic-poster">
+        <div class="comic-poster">${rawBadge(manga)}
 
             <img
                 src="${manga.cover}"

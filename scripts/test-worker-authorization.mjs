@@ -256,7 +256,7 @@ test('existing ownership protects edits/deletes; editorial and chapter data cann
     assert.equal((await h.call('/edit-manga', { ...input('other'), chapters: [], adminPick: false, pickOrder: 7 })).status, 200);
     assert.equal(h.catalogue().other.teamId, 'heliumtg');
     assert.equal(h.catalogue().other.chapters.length, 1);
-    assert.equal(h.catalogue().other.pickOrder, 7);
+    assert.equal(h.catalogue().other.pickOrder, 999);
     assert.equal((await h.call('/edit-manga', { ...input(), teamId: 'inactive' })).status, 403);
     h.catalogue().retired = manga('inactive');
     assert.equal((await h.call('/edit-manga', { ...input('retired'), teamId: 'inactive' })).status, 200);
@@ -467,4 +467,43 @@ test('new mixed-format promotion leaves an existing UUID chapter and its objects
     assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 0, title: 'Forbidden replacement', imageCount: 1, images: [existingName] }, leader)).status, 409);
     assert.equal(h.operations.length, operationsBefore);
     assert.deepEqual(h.catalogue().own.chapters[0], before);
+});
+
+
+test('raw flag is boolean, persists both directions, and inherits manga ownership', async () => {
+    const h = harness();
+    for (const value of [true, false]) {
+        assert.equal((await h.call('/edit-manga', { ...input(), isRawCaughtUp: value }, leader)).status, 200);
+        assert.equal(h.catalogue().own.isRawCaughtUp, value);
+        assert.equal(h.catalogue().own.status, 'Ongoing');
+    }
+    assert.equal((await h.call('/edit-manga', { ...input('other'), isRawCaughtUp: true }, leader)).status, 403);
+    assert.equal((await h.call('/edit-manga', { ...input(), isRawCaughtUp: 'true' })).status, 400);
+    assert.equal((await h.call('/edit-manga', { ...input('other'), isRawCaughtUp: true })).status, 200);
+    assert.equal(h.catalogue().other.isRawCaughtUp, true);
+    await h.BUCKET.put('own/chap0/1.jpg', 'image');
+    assert.equal((await h.call('/edit-chapter', { manga: 'own', chapterId: 0, title: 'Edit', createAt: '2026-01-01', pages: 1, isRawCaughtUp: true }, leader)).status, 200);
+    assert.equal(h.catalogue().own.isRawCaughtUp, true);
+    await h.BUCKET.put('own/chap1/1.webp', 'RIFF1234WEBPxxxx', { httpMetadata: { contentType: 'image/webp' } });
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'New', imageCount: 1, images: ['1.webp'], isRawCaughtUp: false }, leader)).status, 200);
+    assert.equal(h.catalogue().own.isRawCaughtUp, false);
+});
+
+test('admin queue enforces FIFO, preserves order and rejects conflicting commits', async () => {
+    const h = harness();
+    for (const value of Object.values(h.catalogue())) value.adminPick = false;
+    for (let i = 0; i < 11; i++) {
+        assert.equal((await h.call('/new-manga', { ...input(`pick-${i}`), adminPick: true })).status, 200);
+    }
+    const selected = () => Object.entries(h.catalogue()).filter(([, m]) => m.adminPick).sort((a,b) => a[1].pickOrder - b[1].pickOrder).map(([id]) => id);
+    assert.deepEqual(selected(), Array.from({ length: 10 }, (_, i) => `pick-${i + 1}`));
+    assert.equal(h.catalogue()['pick-0'].adminPick, false);
+    assert.equal((await h.call('/edit-manga', { ...input('pick-5'), adminPick: false })).status, 200);
+    assert.deepEqual(selected(), ['pick-1','pick-2','pick-3','pick-4','pick-6','pick-7','pick-8','pick-9','pick-10']);
+    const before = selected();
+    assert.equal((await h.call('/edit-manga', { ...input('pick-1'), adminPick: false }, leader)).status, 200);
+    assert.deepEqual(selected(), before);
+    h.rejectSave();
+    assert.equal((await h.call('/edit-manga', { ...input('pick-0'), adminPick: true })).status, 409);
+    assert.deepEqual(selected(), before);
 });

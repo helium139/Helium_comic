@@ -37,6 +37,7 @@ let pageOrder = [];
 
 const mangaSelect = document.getElementById("mangaSelect");
 const chapterNumber = document.getElementById("chapterNumber");
+const rawCaughtUp = document.getElementById("isRawCaughtUp");
 const chapterTitle = document.getElementById("chapterTitle");
 const chapterDate = document.getElementById("chapterDate");
 
@@ -216,6 +217,7 @@ function renderMangaList(){
 function updateNextChapter(){
 
     const manga = mangas[mangaSelect.value];
+    rawCaughtUp.checked = manga?.isRawCaughtUp === true;
 
     if(!manga) return;
 
@@ -248,6 +250,7 @@ async function loadEditor(){
     const manga = mangas[currentSlug];
     assertCanManageManga(currentStaff, manga);
     mangaSelect.value = currentSlug;
+    rawCaughtUp.checked = manga.isRawCaughtUp === true;
     mangaSelect.disabled = true;
 
     if(!manga){
@@ -638,6 +641,7 @@ async function save(){
 
         }
 
+        mangas[mangaSelect.value].isRawCaughtUp = rawCaughtUp.checked;
         alert("Đã lưu thành công.");
 
     }
@@ -745,6 +749,7 @@ async function uploadChapter(){
     }
 
     await publishChapter({
+        isRawCaughtUp: rawCaughtUp.checked,
 
         manga:slug,
 
@@ -862,6 +867,7 @@ async function saveChapter(){
     progress.innerHTML = "Đang cập nhật chapter...";
 
     await updateChapter({
+        isRawCaughtUp: rawCaughtUp.checked,
 
         manga: currentSlug,
 

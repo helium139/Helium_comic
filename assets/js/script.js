@@ -1,5 +1,6 @@
+import { renderAdminPicks } from "./admin-picks.js";
 import { renderRanking, installRankingFallback } from "./home-ranking.js";
-import { renderMangaCard } from "./manga-card.js";
+import { renderMangaCard, rawBadge } from "./manga-card.js";
 import { mangaUrl } from "./routes.js";
 import { db } from "./firebase.js";
 console.log(db);
@@ -16,59 +17,6 @@ from
 
 let mangas = [];
 let mangaData = {};
-
-function renderAdminPicks(data){
-
-    const container =
-        document.getElementById(
-            "admin-picks"
-        );
-
-    container.innerHTML = "";
-
-
-    Object.entries(data)
-
-.filter(([slug, manga]) =>
-    manga.adminPick === true
-)
-
-.sort(([, a], [, b]) =>
-    a.pickOrder - b.pickOrder
-)
-.slice(0, 10)
-
-    .forEach(([slug, manga]) => {
-
-
-        container.innerHTML += `
-        
-        <div class="swiper-slide">
-
-            <a href="${mangaUrl(slug)}">
-
-                <img
-                    src="${manga.cover}"
-                    alt="${manga.title}"
-                    loading="lazy"
-                >
-
-                <div class="slide-title">
-                    ${manga.title}
-                </div>
-
-            </a>
-
-        </div>
-
-        `;
-
-    });
-
-
-    initSwiper();
-
-}
 
 let currentPage = 1;
 const perPage =
@@ -344,9 +292,9 @@ function handleSearch(){
         href="${mangaUrl(slug)}"
         class="search-item">
 
-            <img 
-            src="${manga.cover}" 
-            alt="${manga.title}">
+            <div class="search-cover">${rawBadge(manga)}<img
+            src="${manga.cover}"
+            alt="${manga.title}"></div>
 
             <div class="search-info">
 
@@ -396,48 +344,6 @@ document.addEventListener("click", function(e){
 });
 
 // ================= XỬ LÝ RENDER ADMIN PICKS ================= //
-function initSwiper(){
-
-    new Swiper(".mySwiper", {
-
-        effect: "coverflow",
-
-        grabCursor: true,
-
-        centeredSlides: true,
-
-        slidesPerView: "auto",
-
-        loop: true,
-
-
-        coverflowEffect: {
-
-            rotate: 0,
-
-            stretch: -20,
-
-            depth: 150,
-
-            modifier: 1,
-
-            slideShadows: false
-
-        },
-
-
-        navigation: {
-
-            nextEl: ".swiper-button-next",
-
-            prevEl: ".swiper-button-prev"
-
-        }
-
-    });
-
-}
-
 function isNewChapter(manga) {
 
     if (

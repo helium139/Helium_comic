@@ -91,6 +91,6 @@ export function metadata(body) {
 }
 
 export function editorial(body) {
-    if (typeof body.adminPick !== "boolean" || !Number.isFinite(body.pickOrder)) fail(400, "Invalid editorial fields");
-    return { adminPick: body.adminPick, pickOrder: body.pickOrder };
+    if (typeof body.adminPick !== "boolean") fail(400, "Invalid editorial fields");
+    return { adminPick: body.adminPick, pickOrder: 999 };
 }

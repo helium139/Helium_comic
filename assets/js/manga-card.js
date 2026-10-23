@@ -11,12 +11,17 @@ export function imageURL(value) {
     } catch { return "/assets/images/helium_logo.webp"; }
 }
 
+export function rawBadge(manga) {
+    return manga.isRawCaughtUp === true ? '<span class="raw-caught-up-badge">Ngang Raw</span>' : '';
+}
+
 // The homepage card is shared with team listings, including its existing CSS classes.
 export function renderMangaCard(slug, manga, now = Date.now()) {
     const chapter = manga.chapters?.at(-1);
     const age = now - Date.parse(chapter?.createAt);
     return `<a href="${escapeHTML(mangaUrl(slug))}" class="comic-item">
         <div class="comic-poster">
+            ${rawBadge(manga)}
             ${manga.status === "Completed" ? '<span class="comic-end-badge">END</span>' : ''}
             ${age >= 0 && age <= 172800000 ? '<span class="new-chapter-badge">UP</span>' : ''}
             <img src="${escapeHTML(imageURL(manga.cover))}" alt="${escapeHTML(manga.title)}" loading="lazy" decoding="async">

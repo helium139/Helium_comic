@@ -6,7 +6,6 @@
     <meta name="keywords" 
 content="truyện BL, đọc truyện BL, manhwa BL, yaoi, Helium Team, truyện tranh Việt hóa, truyện tranh online, truyện tranh đam mỹ, truyện tranh bách hợp hàn quốc, truyện tranh xuyên không cổ đại, truyện tranh audio, truyện tranh ngôn tình full">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
     <title>Helium Team - Kho Truyện BL Nhà Helium</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -65,6 +64,7 @@ crossorigin>
     <link rel = "stylesheet" href = "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="/assets/css/homepage.css" rel="stylesheet">
     <link href="/assets/css/home-ranking.css" rel="stylesheet">
+    <link href="/assets/css/admin-picks.css" rel="stylesheet">
     <meta property="og:title"
 content="Helium Team - Kho Truyện BL Nhà Helium">
 
@@ -146,19 +146,17 @@ content="website">
       <a href="/teams.html">Nhóm Dịch</a>
     </nav>
     <main>
-    <div class="swiper mySwiper">
+    <section class="admin-picks-section" aria-label="Admin’s Picks">
       <div class="admin-picks-heading">
         <h2>Admin's Picks!</h2>
         <button id="notification-button" class="notification-button" type="button"
                 aria-describedby="notification-status" disabled>🔔 Nhận thông báo</button>
       </div>
       <p id="notification-status" class="notification-status" role="status"></p>
-  <div class="swiper-wrapper" id="admin-picks">
+  <div id="admin-picks" aria-roledescription="băng chuyền">
     
     </div>
-    <div class="swiper-button-next"></div>
-  <div class="swiper-button-prev"></div>
-  </div>
+  </section>
   
   
     <div class="update-section">
@@ -235,7 +233,6 @@ content="website">
     </p>
     
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script type="module" src="/assets/js/auth.js"></script>
 <script type="module" src="/assets/js/script.js"></script>
 <script type="module" src="/assets/js/notifications.js"></script>

@@ -177,14 +177,14 @@ test('manga editor scopes lists, locks leader team/editorial controls, and force
     assert.equal(own.get('team').disabled, true);
     assert.equal(own.get('team').children.length, 1);
     assert.equal(own.get('adminPick').disabled, true);
-    assert.equal(own.get('pickOrder').disabled, true);
+
     own.get('team').value = 'other-team';
     own.get('adminPick').checked = false;
     own.get('pickOrder').value = '1';
     await own.api.saveCurrent();
     assert.equal(own.calls[0][1].teamId, 'heliumtg');
     assert.equal(own.calls[0][1].adminPick, true);
-    assert.equal(own.calls[0][1].pickOrder, 4);
+    assert.equal(own.calls[0][1].isRawCaughtUp, false);
     assert.deepEqual(Object.keys(own.api.scope()), ['own']);
     own.api.openNew();
     assert.equal(own.get('team').value, 'heliumtg');

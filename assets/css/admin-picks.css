@@ -1,0 +1,42 @@
+.admin-picks-section { --pick-surface: #fff8fc; --pick-text: #513b47; --pick-muted: #705a67; --pick-accent: #973951; --pick-overlay: linear-gradient(90deg, #fff8fc20, #fff8fce8 55%, #fff8fcf5); margin: 24px auto 36px; max-width: 1440px; color: var(--pick-text); }
+[data-theme="dark"] .admin-picks-section { --pick-surface: #2c2430; --pick-text: #f6e9f1; --pick-muted: #dac3d2; --pick-accent: #ffbed1; --pick-overlay: linear-gradient(90deg, #2c243030, #2c2430e8 55%, #2c2430f5); }
+.admin-picks-section .admin-picks-heading { margin-bottom: 16px; }
+.pick-stage { border-radius: 28px; overflow: hidden; background: var(--pick-surface); box-shadow: 0 6px 24px #63334414; }
+.pick-slide { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(240px, .8fr) minmax(0, 1.4fr); min-height: 420px; animation: pick-reveal .5s ease; }
+.pick-slide[hidden], .pick-controls[hidden] { display: none; }
+.pick-backdrop { position: absolute; inset: 0; z-index: -2; background-size: cover; background-position: center; filter: blur(12px); transform: scale(1.04); opacity: .6; }
+.pick-slide::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--pick-overlay); }
+.pick-art { position: relative; min-width: 0; display: flex; justify-content: center; align-items: center; padding: 24px; }
+.pick-art img { display: block; max-width: 100%; width: auto; height: 380px; object-fit: contain; border-radius: 16px; box-shadow: 0 8px 24px #36203622; }
+.pick-copy { align-self: center; padding: 32px 40px 32px 20px; min-width: 0; }
+.pick-copy h3 { margin: 0 0 20px; font-size: clamp(24px, 3vw, 40px); font-weight: 500; line-height: 1.25; overflow-wrap: anywhere; }
+.pick-copy p { font-size: 15px; line-height: 1.6; color: var(--pick-muted); margin: 7px 0; }
+.pick-tags { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; max-height: 78px; overflow: auto; }
+.pick-tags span { padding: 6px 12px; border-radius: 25px; background: #e3a5ba35; color: var(--pick-accent); font-size: 13px; }
+.pick-copy .pick-description { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 20px; }
+.pick-cta { display: inline-flex; gap: 18px; align-items: center; border-radius: 24px; padding: 12px 20px; text-decoration: none; background: var(--pick-accent); color: var(--pick-surface); font-weight: 600; }
+.pick-controls { display: flex; gap: 12px; align-items: center; justify-content: center; padding: 14px 4px; }
+.pick-controls button { cursor: pointer; border: 1px solid #b9658235; border-radius: 50%; background: var(--pick-surface); color: var(--pick-accent); min-width: 40px; min-height: 40px; font-size: 22px; }
+.pick-dots { display: flex; flex-wrap: wrap; justify-content: center; }
+.pick-dots button { min-width: 22px; min-height: 36px; border: 0; background: none; padding: 5px; }
+.pick-dots button::after { content: ''; display: block; height: 8px; width: 8px; border-radius: 10px; background: #cc819a65; transition: width .2s; }
+.pick-dots button[aria-current]::after { width: 22px; background: #cc819a; }
+.pick-controls .pick-pause { font-size: 15px; }
+.admin-picks-section :is(button, a):focus-visible { outline: 3px solid var(--pick-accent); outline-offset: 3px; }
+@keyframes pick-reveal { from { opacity: .3; } to { opacity: 1; } }
+@media (max-width: 1000px) { .pick-copy { padding: 24px; } .pick-art { padding: 16px; } .pick-art img { height: 330px; } .pick-slide { min-height: 370px; } }
+@media (max-width: 700px) {
+  .admin-picks-section { --pick-overlay: linear-gradient(180deg, #fff8fc20, #fff8fce8 50%, #fff8fc); }
+  [data-theme="dark"] .admin-picks-section { --pick-overlay: linear-gradient(180deg, #2c243030, #2c2430e8 50%, #2c2430); }
+  .pick-slide { grid-template-columns: minmax(0, 1fr); }
+  .pick-art { padding: 18px 18px 0; }
+  .pick-art img { height: 230px; }
+  .pick-copy { padding: 22px; }
+  .pick-copy h3 { font-size: 24px; margin-bottom: 14px; }
+  .pick-copy p { font-size: 14px; }
+  .pick-controls { gap: 3px; }
+  .pick-controls button { min-width: 32px; min-height: 36px; }
+  .pick-dots button { min-width: 18px; padding: 4px; }
+  .pick-dots button[aria-current]::after { width: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .pick-slide { animation: none; } .pick-dots button::after { transition: none; } }

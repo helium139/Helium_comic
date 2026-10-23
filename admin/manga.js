@@ -102,9 +102,9 @@ for (const team of teams.filter(team => currentStaff.role === "admin" || team.id
 
 teamSelect.disabled = currentStaff.role === "team_leader";
 const adminPick = document.getElementById("adminPick");
-const pickOrder = document.getElementById("pickOrder");
+const rawCaughtUp = document.getElementById("isRawCaughtUp");
 adminPick.disabled = currentStaff.role === "team_leader";
-pickOrder.disabled = currentStaff.role === "team_leader";
+
 
 const chapterList =
 document.getElementById("chapterList");
@@ -314,7 +314,7 @@ function openEditor(mangaSlug){
 
     adminPick.checked = manga.adminPick || false;
 
-    pickOrder.value = manga.pickOrder || 999;
+    rawCaughtUp.checked = manga.isRawCaughtUp === true;
 
     currentTags = [...(manga.tags || [])];
 
@@ -364,7 +364,7 @@ function openNew(){
 
     adminPick.checked = false;
 
-    pickOrder.value = 999;
+    rawCaughtUp.checked = false;
 
     coverPreview.innerHTML = "";
 
@@ -473,8 +473,7 @@ if(!title.value.trim()){
             adminPick: currentStaff.role === "admin" ? adminPick.checked
                 : currentSlug ? mangas[currentSlug].adminPick : false,
 
-            pickOrder: currentStaff.role === "admin" ? Number(pickOrder.value)
-                : currentSlug ? mangas[currentSlug].pickOrder : 999
+            isRawCaughtUp: rawCaughtUp.checked
 
         };
 

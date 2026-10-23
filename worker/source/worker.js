@@ -1,3 +1,4 @@
+import { setPick } from "../../assets/js/admin-picks-order.mjs";
 import { verifyFirebaseToken } from "./firebase-auth.js";
 import { imageFormat } from "./image-format.js";
 import { promoteChapterPages } from "./chapter-promotion.js";
@@ -5,6 +6,12 @@ import {
     HttpError, fail, safeSlug, chapterNumber, pageCount, validateRegistry,
     activeTeam, authorizeManga, imageName, uploadFolder, metadata, editorial
 } from "./cms-authorization.js";
+
+function rawFlag(body) {
+    if (!Object.hasOwn(body, "isRawCaughtUp")) return {};
+    if (typeof body.isRawCaughtUp !== "boolean") fail(400, "Invalid Ngang Raw flag");
+    return { isRawCaughtUp: body.isRawCaughtUp };
+}
 
 const MUTATIONS = new Set([
     "/new-manga", "/edit-manga", "/delete-manga", "/new-chapter",
@@ -146,8 +153,8 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         if (Object.hasOwn(result.data, slug)) fail(409, "Manga already exists");
         const team = activeTeam(teams, actor.role === "admin" ? body.teamId : actor.teamId);
         const manga = {
-            ...metadata(body), teamId: team.id, team: team.name,
-            ...(actor.role === "admin" ? editorial(body) : { adminPick: false, pickOrder: 999 }),
+            ...metadata(body), ...rawFlag(body), teamId: team.id, team: team.name,
+            ...(actor.role === "admin" ? { ...editorial(body), adminPick: false } : { adminPick: false, pickOrder: 999 }),
             chapters: []
         };
         // New covers must be caller-owned staged objects, never arbitrary URLs/keys.
@@ -170,6 +177,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             await env.BUCKET.put(finalKey, stage.body, { httpMetadata: stage.httpMetadata });
         } else manga.cover = "";
         result.data[slug] = manga;
+        if (actor.role === "admin") setPick(result.data, slug, body.adminPick);
         // A failed response can be ambiguous: retain the unique final object in case GitHub committed.
         // Staging and any orphaned final cover can be reconciled by the documented cleanup job.
         await saveData(env, result.data, result.sha, `Create manga ${slug}`);
@@ -234,9 +242,12 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 const team = actor.role === "admin" && body.teamId !== undefined && body.teamId !== manga.teamId
                     ? activeTeam(teams, body.teamId)
                     : teams.find(team => team.id === manga.teamId);
-                Object.assign(manga, metadata(body), {
-                    cover: await editedCover(body, manga, slug, env), teamId: team.id, team: team.name,
-                    ...(actor.role === "admin" ? editorial(body) : {})
+                if (actor.role === "admin") {
+                    editorial(body);
+                    setPick(result.data, slug, body.adminPick);
+                }
+                Object.assign(manga, metadata(body), rawFlag(body), {
+                    cover: await editedCover(body, manga, slug, env), teamId: team.id, team: team.name
                 });
                 // chapters and unknown/global fields remain authoritative for every caller.
                 message = `Edit manga ${slug}`;
@@ -247,6 +258,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 message = `Delete manga ${slug}`;
                 break;
             case "/new-chapter": {
+                Object.assign(manga, rawFlag(body));
                 const id = chapterNumber(body.chapterNumber);
                 if (manga.chapters.some(chapter => Number(chapter.id) === id)) fail(409, "Chapter already exists");
                 if (typeof body.title !== "string" || !body.title.trim()) fail(400, "Invalid chapter title");
@@ -264,6 +276,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 break;
             }
             case "/edit-chapter": {
+                Object.assign(manga, rawFlag(body));
                 const id = chapterNumber(body.chapterId);
                 const chapter = manga.chapters.find(chapter => Number(chapter.id) === id);
                 if (!chapter) fail(404, "Chapter not found");
