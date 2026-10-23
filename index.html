@@ -64,6 +64,7 @@ crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mea+Culpa&display=swap" rel="stylesheet">
     <link rel = "stylesheet" href = "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href="/assets/css/homepage.css" rel="stylesheet">
+    <link href="/assets/css/home-ranking.css" rel="stylesheet">
     <meta property="og:title"
 content="Helium Team - Kho Truyện BL Nhà Helium">
 
@@ -168,15 +169,19 @@ content="website">
     </div>
     <button class="view-more-button" id="viewMoreLastest">Xem Thêm</button>
 </div>
-<div class="update-section">
-
-<h2 class="section-title">
-🔥 Truyện HOT
-</h2>
-
-<div class="comics-grid"
-     id="hot-comic-list">
-</div>
+<section class="home-ranking" aria-labelledby="ranking-title">
+  <header class="ranking-header">
+    <div>
+      <p class="ranking-eyebrow"><svg aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M7 2h10v3h4v4a5 5 0 0 1-5 5h-.2a5 5 0 0 1-2.8 1.9V19h4v3H7v-3h4v-3.1A5 5 0 0 1 8.2 14H8a5 5 0 0 1-5-5V5h4V2Zm0 5H5v2a3 3 0 0 0 2 2.8V7Zm10 0v4.8A3 3 0 0 0 19 9V7h-2Z"/></svg> ĐƯỢC ĐỌC NHIỀU NHẤT</p>
+      <h2 id="ranking-title">Top 10 toàn web</h2>
+      <p class="ranking-subtitle">Những truyện được yêu thích nhất HeliumTG</p>
+    </div>
+    <span class="ranking-period">Tổng lượt xem <span aria-hidden="true">✦</span></span>
+  </header>
+  <div class="ranking-columns" id="hot-comic-list" aria-live="polite">
+    <p class="ranking-message" role="status">Đang tải bảng xếp hạng…</p>
+  </div>
+</section>
 
 <button id="menuToggleBtn" class="menu-toggle-btn">
   <i class="bx bx-menu"></i>

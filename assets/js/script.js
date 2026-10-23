@@ -1,3 +1,4 @@
+import { renderRanking, installRankingFallback } from "./home-ranking.js";
 import { renderMangaCard } from "./manga-card.js";
 import { mangaUrl } from "./routes.js";
 import { db } from "./firebase.js";
@@ -7,8 +8,7 @@ import {
  collection,
  getDocs,
  query,
- orderBy,
- limit
+ orderBy
 }
 from 
 "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -100,103 +100,17 @@ function renderComics() {
     checkViewMore();
 }
 
-function renderHotComics(list = [], data = {}){
-
-    const container =
-        document.getElementById("hot-comic-list");
-
-    if(!container) return;
-
-    container.innerHTML = "";
-
-    list.forEach(doc=>{
-
-        const id = doc.id;
-
-        const manga = data[id];
-
-        if(!manga) return;
-
-        const latestChap =
-            manga.chapters?.length
-            ? manga.chapters[manga.chapters.length-1]
-            : { title:"Chưa có chapter" };
-
-        const newChapter =
-    isNewChapter(manga);
-
-container.innerHTML += `
-<a href="${mangaUrl(id)}"
-           class="comic-item">
-
-    <div class="comic-poster">
-
-        ${
-            manga.status === "Completed"
-            ? `<span class="comic-end-badge">END</span>`
-            : ""
-        }
-
-        ${
-            newChapter
-            ? `<span class="new-chapter-badge">
-                    UP
-               </span>`
-            : ""
-        }
-
-        <img
-            src="${manga.cover}"
-            alt="${manga.title}"
-            loading="lazy"
-            decoding="async">
-
-    </div>
-
-    <div class="comic-info">
-
-        <h3 class="comic-name">
-            ${manga.title}
-        </h3>
-
-        <span class="comic-chapter">
-            ${latestChap.title}
-        </span>
-
-    </div>
-
-</a>
-`;
-
-    });
-
-}
-
 async function loadHotComics(data) {
-
-    const statsRef =
-        collection(
-            db,
-            "mangaStats"
-        );
-
-
-    const q =
-        query(
-            statsRef,
-            orderBy("views", "desc"),
-            limit(12)
-        );
-
-
-    const snapshot =
-        await getDocs(q);
-
-
-    renderHotComics(
-        snapshot.docs,
-        data
-    );
+    const container = document.getElementById("hot-comic-list");
+    if (!container) return;
+    installRankingFallback(container);
+    try {
+        // Read existing public popularity once; filter stale IDs before taking ten.
+        const snapshot = await getDocs(query(collection(db, "mangaStats"), orderBy("views", "desc")));
+        renderRanking(container, snapshot.docs.map(doc => ({ id: doc.id, views: doc.data().views })), data);
+    } catch {
+        container.innerHTML = '<p class="ranking-message" role="status">Chưa thể tải bảng xếp hạng. Vui lòng thử lại sau.</p>';
+    }
 }
 
 function checkViewMore(){

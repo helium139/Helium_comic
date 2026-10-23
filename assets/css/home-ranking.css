@@ -1,0 +1,93 @@
+/* Scoped to the homepage ranking; shares the site's data-theme mechanism. */
+.home-ranking {
+  --rank-surface: #fffafb;
+  --rank-text: #503b40;
+  --rank-muted: #806970;
+  --rank-border: #efdee3;
+  --rank-accent: #a73750;
+  --rank-winner: linear-gradient(110deg, #fff4df, #fbe7eb);
+  --rank-winner-border: #e8c5a0;
+  box-sizing: border-box;
+  width: min(1440px, 100%);
+  margin: 36px auto;
+  padding: 30px;
+  border: 1px solid var(--rank-border);
+  border-radius: 30px;
+  background: linear-gradient(125deg, #fcf0f2, #fff 65%);
+  color: var(--rank-text);
+  box-shadow: 0 8px 28px #6333440b;
+}
+[data-theme="dark"] .home-ranking {
+  --rank-surface: #302932;
+  --rank-text: #f5e8ed;
+  --rank-muted: #c6acb7;
+  --rank-border: #58424f;
+  --rank-accent: #ffa9bc;
+  --rank-winner: linear-gradient(110deg, #44362c, #44303c);
+  --rank-winner-border: #947354;
+  background: linear-gradient(125deg, #342831, #25222c 65%);
+}
+.home-ranking .ranking-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; padding: 0; background: none; box-shadow: none; border: 0; width: auto; }
+.ranking-eyebrow { color: var(--rank-accent); letter-spacing: .09em; font-size: 12px; margin: 0 0 10px; }
+.ranking-eyebrow svg { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; }
+.home-ranking h2 { margin: 0 0 10px; font-size: clamp(25px, 3vw, 36px); font-weight: 500; color: var(--rank-text); }
+.ranking-subtitle { margin: 0; color: var(--rank-muted); font-size: 14px; line-height: 1.6; }
+.ranking-period { flex-shrink: 0; padding: 14px 16px; border: 1px solid var(--rank-border); border-radius: 30px; color: var(--rank-accent); font-size: 12px; background: var(--rank-surface); }
+.ranking-period span { margin-left: 10px; }
+.ranking-columns { display: grid; grid-template-columns: 1.05fr 1fr; gap: 22px; }
+.ranking-leaders, .ranking-runners { display: grid; gap: 10px; min-width: 0; }
+.ranking-leaders { grid-auto-rows: minmax(165px, 1fr); }
+.ranking-runners { align-content: start; }
+.ranking-card { box-sizing: border-box; position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; gap: 14px; min-width: 0; border: 1px solid var(--rank-border); background: var(--rank-surface); border-radius: 20px; padding: 22px 18px; color: var(--rank-text); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+.ranking-place-1 { background: var(--rank-winner); border-color: var(--rank-winner-border); }
+.ranking-number { flex-shrink: 0; color: var(--rank-muted); font-size: 21px; font-variant-numeric: tabular-nums; }
+.ranking-featured .ranking-number { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; font-size: 18px; background: #eee7f0; color: #666075; }
+.ranking-place-1 .ranking-number { background: #a8782b; color: white; box-shadow: 0 3px 10px #a8782b24; }
+.ranking-place-3 .ranking-number { background: #f5e1d5; color: #97542c; }
+.ranking-cover { flex-shrink: 0; width: 86px; height: 118px; object-fit: cover; border-radius: 12px; background: var(--rank-border); box-shadow: 0 5px 14px #503b4012; }
+.ranking-copy { flex: 1; min-width: 0; }
+.ranking-copy h3 { font-size: 18px; font-weight: 500; margin: 0 0 10px; line-height: 1.4; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ranking-views { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; font-size: 13px; }
+.ranking-views svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--rank-muted); }
+.ranking-total { color: var(--rank-accent); font-size: 18px; font-variant-numeric: tabular-nums; }
+.ranking-unit { color: var(--rank-muted); font-size: 11px; }
+.ranking-status { margin: 14px 0 0; font-size: 12px; color: var(--rank-muted); }
+.ranking-arrow { flex-shrink: 0; color: var(--rank-muted); }
+.ranking-decoration { position: absolute; right: 18px; bottom: -28px; z-index: -1; font-size: 150px; font-weight: 500; color: var(--rank-accent); opacity: .055; line-height: 1; pointer-events: none; }
+.ranking-compact { min-height: 73px; padding: 8px 14px; border-radius: 17px; gap: 12px; }
+.ranking-compact .ranking-cover { width: 48px; height: 54px; border-radius: 7px; box-shadow: none; }
+.ranking-compact .ranking-copy h3 { font-size: 14px; margin-bottom: 5px; }
+.ranking-compact .ranking-total { font-size: 14px; }
+.ranking-compact .ranking-number { min-width: 27px; }
+.ranking-message { color: var(--rank-muted); line-height: 1.6; grid-column: 1 / -1; }
+.ranking-card:focus-visible { outline: 3px solid var(--rank-accent); outline-offset: 3px; }
+@media (hover: hover) { .ranking-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px #63334414; } }
+@media (max-width: 1100px) {
+  .home-ranking { padding: 22px; }
+  .ranking-columns { gap: 16px; }
+  .ranking-featured { padding: 18px 12px; gap: 10px; }
+  .ranking-featured .ranking-cover { width: 68px; height: 96px; }
+  .ranking-copy h3 { font-size: 16px; }
+  .ranking-total { font-size: 16px; }
+}
+@media (max-width: 800px) {
+  .ranking-columns { grid-template-columns: 1fr; }
+  .ranking-leaders { grid-auto-rows: auto; }
+  .ranking-featured { min-height: 140px; }
+  .ranking-header { flex-wrap: wrap; }
+  .ranking-decoration { font-size: 120px; bottom: -18px; }
+}
+@media (max-width: 480px) {
+  .home-ranking { padding: 18px 12px; border-radius: 24px; margin: 28px auto; }
+  .home-ranking .ranking-header { margin-bottom: 20px; gap: 12px; }
+  .ranking-period { padding: 9px 12px; }
+  .ranking-subtitle { font-size: 13px; }
+  .ranking-card { gap: 9px; }
+  .ranking-featured .ranking-number { width: 30px; height: 30px; font-size: 16px; }
+  .ranking-featured .ranking-cover { width: 60px; height: 84px; }
+  .ranking-copy h3 { font-size: 15px; }
+  .ranking-total { font-size: 15px; }
+  .ranking-compact { padding: 10px; }
+  .ranking-compact .ranking-cover { width: 42px; height: 48px; }
+}
+@media (prefers-reduced-motion: reduce) { .ranking-card { transition: none; } .ranking-card:hover { transform: none; } }
