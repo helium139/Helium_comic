@@ -6453,8 +6453,8 @@
         ],
         "teamId": "heliumtg",
         "team": "HeliumTG",
-        "adminPick": false,
-        "pickOrder": 999,
+        "adminPick": true,
+        "pickOrder": 10,
         "chapters": [
             {
                 "id": 1,
@@ -6524,6 +6524,7 @@
                 ]
             }
         ],
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tay-em-trong-tay-anh-khong-che/cover-6c539876-649e-4779-85ce-46faece3424a.webp"
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tay-em-trong-tay-anh-khong-che/cover-6c539876-649e-4779-85ce-46faece3424a.webp",
+        "isRawCaughtUp": false
     }
 }
