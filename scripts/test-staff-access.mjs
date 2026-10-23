@@ -37,7 +37,7 @@ function dom() {
     function node(tag = 'div') {
         const classes = new Set();
         return {
-            tag, events: {}, value: '', textContent: '', innerHTML: '', style: {}, dataset: {}, children: [],
+            tag, events: {}, value: '', textContent: '', get innerHTML() { return this.html || ''; }, set innerHTML(value) { this.html = value; this.children = []; }, style: {}, dataset: {}, children: [],
             classList: { add: value => classes.add(value), remove: value => classes.delete(value), contains: value => classes.has(value) },
             append(...children) { for (const child of children) this.appendChild(child); },
             appendChild(child) { child.parent = this; this.children.push(child); if (child.id) nodes.set(child.id, child); },
@@ -142,9 +142,11 @@ test('guard accepts both staff roles and denies users/guests/stale tokens before
 
 // Dashboard scope/card/table integration is covered by test-dashboard.mjs.
 
-async function editor(file, staff, search, fixtureData = fixtures) {
+async function editor(file, staff, search, fixtureData = fixtures, missingControls = []) {
     const d = dom(), errors = [], calls = [];
     const catalogue = structuredClone(fixtureData);
+    const getElement = d.document.getElementById;
+    d.document.getElementById = id => missingControls.includes(id) ? null : getElement(id);
     let guarded = false;
     const context = { ...d, URLSearchParams, location: { search },
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, d.document),
@@ -290,4 +292,60 @@ test('manga manager pagination keeps search and leader scope, then resets on sea
     assert.match(all.get('manga-pagination-summary').textContent,/Showing 29–33 of 33/);
     assert.equal(all.get('manga-pagination').children[0].disabled,false);
     assert.equal(all.get('manga-pagination').children.at(-1).disabled,true);
+});
+
+
+test('manga initialization restores flags, tags and chapters, clears prior state and preserves catalogue metadata', async () => {
+    const data = {
+        first: { ...structuredClone(fixtures.own), tags: ['Drama', 'Romance', 'BL'], isRawCaughtUp: true,
+            chapters: [{ id: 2, title: 'Two', images: ['1.webp', '2.jpg'] }, { id: 0, title: 'Prologue', images: ['1.png'] }] },
+        second: { ...structuredClone(fixtures.own), title: 'Second', tags: ['Comedy'], isRawCaughtUp: false, adminPick: false,
+            chapters: [{ id: 4, title: 'Four', images: ['1.jpg'] }] },
+        legacy: { ...structuredClone(fixtures.own), tags: [], chapters: [], adminPick: undefined }
+    };
+    for (const missing of [[], ['isRawCaughtUp'], ['adminPick'], ['isRawCaughtUp', 'adminPick']]) {
+        const page = await editor('admin/manga.js', admin, '', data, missing);
+        page.api.openEditor('first');
+        assert.equal(page.errors.length, 0);
+        assert.equal(page.get('tagList').children.length, 3);
+        for (const tag of ['Drama', 'Romance', 'BL']) assert.ok(page.get('tagList').children.some(node => node.innerHTML.includes(tag)));
+        assert.match(page.get('chapterList').innerHTML, /Prologue/);
+        assert.match(page.get('chapterList').innerHTML, /Two/);
+        if (!missing.includes('isRawCaughtUp')) assert.equal(page.get('isRawCaughtUp').checked, true);
+        if (!missing.includes('adminPick')) {
+            assert.equal(page.get('adminPick').checked, true);
+            assert.equal(page.get('adminPick').disabled, false);
+        }
+        assert.deepEqual(Array.from(page.api.scope().first.tags), data.first.tags);
+        assert.deepEqual(JSON.parse(JSON.stringify(page.api.scope().first.chapters)), data.first.chapters);
+        await page.api.saveCurrent();
+        assert.equal(page.calls[0][1].isRawCaughtUp, true);
+        assert.equal(page.calls[0][1].adminPick, true);
+        page.api.openEditor('second');
+        assert.equal(page.get('tagList').children.length, 1);
+        assert.match(page.get('tagList').children[0].innerHTML, /Comedy/);
+        assert.match(page.get('chapterList').innerHTML, /Four/);
+        assert.doesNotMatch(page.get('chapterList').innerHTML, /Prologue|Two/);
+        if (!missing.includes('isRawCaughtUp')) assert.equal(page.get('isRawCaughtUp').checked, false);
+        if (!missing.includes('adminPick')) assert.equal(page.get('adminPick').checked, false);
+        page.api.openEditor('legacy');
+        assert.equal(page.get('tagList').children.length, 0);
+        assert.doesNotMatch(page.get('chapterList').innerHTML, /Four|Prologue|Two/);
+        if (!missing.includes('isRawCaughtUp')) assert.equal(page.get('isRawCaughtUp').checked, false);
+        if (!missing.includes('adminPick')) assert.equal(page.get('adminPick').checked, false);
+        page.api.openNew();
+        assert.equal(page.get('chapterList').innerHTML, '');
+    }
+});
+
+test('source and clean-route manga HTML expose matching optional controls without manual pick order', async () => {
+    const source = await read('admin/manga.html');
+    const generated = await read('admin/manga/index.html');
+    assert.equal(generated, '<!-- Generated by scripts/build-clean-urls.py; edit the source template. -->\n' + source);
+    for (const id of ['isRawCaughtUp', 'adminPick']) {
+        assert.equal((source.match(new RegExp(`id="${id}"`, 'g')) || []).length, 1);
+        assert.match(source, new RegExp(`<input id="${id}" type="checkbox">`));
+    }
+    assert.doesNotMatch(source, /id="pickOrder"/);
+    assert.ok(source.indexOf('manga-editor-options') < source.indexOf('editor-actions'));
 });

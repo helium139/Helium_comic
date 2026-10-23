@@ -103,7 +103,7 @@ for (const team of teams.filter(team => currentStaff.role === "admin" || team.id
 teamSelect.disabled = currentStaff.role === "team_leader";
 const adminPick = document.getElementById("adminPick");
 const rawCaughtUp = document.getElementById("isRawCaughtUp");
-adminPick.disabled = currentStaff.role === "team_leader";
+if (adminPick) adminPick.disabled = currentStaff.role !== "admin";
 
 
 const chapterList =
@@ -312,10 +312,6 @@ function openEditor(mangaSlug){
 
     description.value = manga.description || "";
 
-    adminPick.checked = manga.adminPick || false;
-
-    rawCaughtUp.checked = manga.isRawCaughtUp === true;
-
     currentTags = [...(manga.tags || [])];
 
     renderTags();
@@ -325,10 +321,18 @@ function openEditor(mangaSlug){
     `<img src="${manga.cover}">`;
 
     coverFile = null;
+    coverFileInput.value = "";
+    tagInput.value = "";
 
     deleteBtn.style.display = "block";
 
     renderChapterList();
+
+    if (rawCaughtUp) rawCaughtUp.checked = manga.isRawCaughtUp === true;
+    if (adminPick) {
+        adminPick.checked = manga.adminPick === true;
+        adminPick.disabled = currentStaff.role !== "admin";
+    }
 
 }
 
@@ -362,9 +366,9 @@ function openNew(){
 
     renderTags();
 
-    adminPick.checked = false;
+    if (adminPick) adminPick.checked = false;
 
-    rawCaughtUp.checked = false;
+    if (rawCaughtUp) rawCaughtUp.checked = false;
 
     coverPreview.innerHTML = "";
 
@@ -373,6 +377,8 @@ function openNew(){
     coverFileInput.value = "";
 
     deleteBtn.style.display = "none";
+    tagInput.value = "";
+    renderChapterList();
 
 }
 function closePanel(){
@@ -470,10 +476,11 @@ if(!title.value.trim()){
         ? mangas[currentSlug].chapters
         : [],
 
-            adminPick: currentStaff.role === "admin" ? adminPick.checked
-                : currentSlug ? mangas[currentSlug].adminPick : false,
+            adminPick: currentStaff.role === "admin" && adminPick ? adminPick.checked === true
+                : currentSlug ? mangas[currentSlug].adminPick === true : false,
 
-            isRawCaughtUp: rawCaughtUp.checked
+            isRawCaughtUp: rawCaughtUp ? rawCaughtUp.checked === true
+                : currentSlug ? mangas[currentSlug].isRawCaughtUp === true : false
 
         };
 
@@ -766,7 +773,7 @@ function renderChapterList(){
 
     const manga = mangas[currentSlug];
 
-    manga.chapters
+    [...(manga.chapters || [])]
         .sort((a,b)=>a.id-b.id)
         .forEach(ch=>{
 
