@@ -2395,7 +2395,8 @@
                     "46-0edadede-9ff4-4060-932a-2121248052e2.webp"
                 ]
             }
-        ]
+        ],
+        "isRawCaughtUp": true
     },
     "cach-thuc-yeu-uong": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/cover.webp",
