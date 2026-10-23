@@ -71,7 +71,7 @@ test('EXIF-oriented JPEG stays original to preserve visual orientation', async (
 });
 
 const chapterSource = await readFile(new URL('../admin/chapter.js', import.meta.url), 'utf8');
-for (const fail of [false, true]) test(`chapter uploads sequentially and ${fail ? 'does not publish after upload failure' : 'publishes returned filenames in order'}`, async () => {
+for (const rawValue of [undefined, false, true]) for (const fail of [false, true]) test(`chapter uploads (raw=${rawValue}) sequentially and ${fail ? 'does not publish after upload failure' : 'publishes returned filenames in order'}`, async () => {
     let active = 0, maximum = 0, published;
     const context = {
         mangaSelect: { value: 'manga' }, mangas: { manga: {} }, currentStaff: {}, assertCanManageManga() {},
@@ -86,9 +86,9 @@ for (const fail of [false, true]) test(`chapter uploads sequentially and ${fail 
         chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
     vm.createContext(context);
-    vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter(){'), chapterSource.indexOf('async function saveChapter(){')), context);
-    if (fail) { await assert.rejects(context.uploadChapter(), /Upload failed/); assert.equal(published, undefined); }
-    else { await context.uploadChapter(); assert.deepEqual(Array.from(published.images), ['1.webp', '2.webp']); }
+    vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), context);
+    if (fail) { await assert.rejects(context.uploadChapter(rawValue), /Upload failed/); assert.equal(published, undefined); }
+    else { await context.uploadChapter(rawValue); assert.deepEqual(Array.from(published.images), ['1.webp', '2.webp']); assert.equal(published.isRawCaughtUp, rawValue === true); }
     assert.equal(maximum, 1);
 });
 
@@ -103,7 +103,7 @@ test('100-page upload keeps selection order and at most one upload active', asyn
         }, publishChapter: async data => { published = data; }, chapterUrl: () => '/', chapterLink: {},
         chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter(){'), chapterSource.indexOf('async function saveChapter(){')), c);
+    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), c);
     await c.uploadChapter(); assert.equal(maximum, 1); assert.deepEqual(seen, files.map(file => file.name));
     assert.equal(published.images.length, 100);
 });
@@ -118,7 +118,7 @@ test('dragging a new page between remote pages preserves the displayed order', (
     assert.deepEqual(Array.from(c.pageOrder, img => img.name), ['1.jpg', '10.jpg', '2.png']);
 });
 
-for (const failure of [undefined, 'upload', 'rename', 'update']) test(`chapter edit ${failure ? failure + ' failure retains queue' : 'saves exact displayed order and returned filenames'}`, async () => {
+for (const rawValue of [undefined, false, true]) for (const failure of [undefined, 'upload', 'rename', 'update']) test(`chapter edit (raw=${rawValue}) ${failure ? failure + ' failure retains queue' : 'saves exact displayed order and returned filenames'}`, async () => {
     const a = { type: 'remote', name: '1.jpg' }, b = { type: 'remote', name: '2.png' }, added = { name: '10.jpg' };
     let renamedSources, saved;
     const c = { currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 0,
@@ -130,13 +130,13 @@ for (const failure of [undefined, 'upload', 'rename', 'update']) test(`chapter e
         chapterTitle: { value: 'Edit' }, chapterDate: { value: '2026-01-01' }, renderPreview() {},
         chapterUrl: () => '/', chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter(){'), chapterSource.indexOf('function resetForm(){')), c);
+    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter('), chapterSource.indexOf('function resetForm(){')), c);
     if (failure) {
-        await assert.rejects(c.saveChapter(), new RegExp(failure));
+        await assert.rejects(c.saveChapter(rawValue), new RegExp(failure));
         assert.equal(c.newImages[0], added); assert.equal(c.existingImages[0], a); assert.equal(saved, undefined);
     } else {
-        await c.saveChapter(); assert.deepEqual(Array.from(renamedSources), ['1.jpg', '3.webp', '2.png']);
-        assert.deepEqual(Array.from(saved.images), ['1.webp', '2.webp', '3.png']); assert.equal(c.newImages.length, 0);
+        await c.saveChapter(rawValue); assert.deepEqual(Array.from(renamedSources), ['1.jpg', '3.webp', '2.png']);
+        assert.deepEqual(Array.from(saved.images), ['1.webp', '2.webp', '3.png']); assert.equal(saved.isRawCaughtUp, rawValue === true); assert.equal(c.newImages.length, 0);
     }
 });
 
@@ -174,7 +174,7 @@ test('new chapter numbers uploads from final displayed order, preserving actual 
         }, publishChapter: async value => { saved = value; }, chapterUrl: () => '/', chapterLink: {},
         chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter(){'), chapterSource.indexOf('async function saveChapter(){')), c);
+    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), c);
     await c.uploadChapter();
     assert.deepEqual(seen, [['third.jpg', '1.jpg'], ['first.jpg', '2.jpg'], ['second.png', '3.png']]);
     assert.deepEqual(Array.from(saved.images, name => name.split('.').pop()), ['webp', 'jpg', 'png']);

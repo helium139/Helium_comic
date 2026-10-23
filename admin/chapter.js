@@ -627,21 +627,23 @@ async function save(){
 
     "Đang lưu...";
 
+    const isRawCaughtUp = rawCaughtUp?.checked === true;
+
     try{
 
         if(mode==="new"){
 
-            await uploadChapter();
+            await uploadChapter(isRawCaughtUp);
 
         }
 
         else{
 
-            await saveChapter();
+            await saveChapter(isRawCaughtUp);
 
         }
 
-        mangas[mangaSelect.value].isRawCaughtUp = rawCaughtUp.checked;
+        mangas[mangaSelect.value].isRawCaughtUp = isRawCaughtUp;
         alert("Đã lưu thành công.");
 
     }
@@ -672,7 +674,7 @@ async function save(){
         NEW CHAPTER
 =========================== */
 
-async function uploadChapter(){
+async function uploadChapter(isRawCaughtUp = false){
 
     const slug = mangaSelect.value;
     assertCanManageManga(currentStaff, mangas[slug]);
@@ -749,7 +751,7 @@ async function uploadChapter(){
     }
 
     await publishChapter({
-        isRawCaughtUp: rawCaughtUp.checked,
+        isRawCaughtUp: isRawCaughtUp === true,
 
         manga:slug,
 
@@ -800,7 +802,7 @@ const copyChapterLink = document.getElementById("copyChapterLink");
         EDIT CHAPTER
 =========================== */
 
-async function saveChapter(){
+async function saveChapter(isRawCaughtUp = false){
     assertCanManageManga(currentStaff, mangas[currentSlug]);
 
     const folder = `${currentSlug}/chap${currentChapter}`;
@@ -867,7 +869,7 @@ async function saveChapter(){
     progress.innerHTML = "Đang cập nhật chapter...";
 
     await updateChapter({
-        isRawCaughtUp: rawCaughtUp.checked,
+        isRawCaughtUp: isRawCaughtUp === true,
 
         manga: currentSlug,
 
