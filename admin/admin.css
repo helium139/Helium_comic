@@ -1449,8 +1449,26 @@ color:white;
 #reports-refresh,#reports-more,#report-rows button{background:#1e3a5f;color:#bfdbfe;border-radius:6px;padding:8px 12px;cursor:pointer}
 #report-rows a{color:#bfdbfe}#report-rows button:disabled{opacity:.5}#reports-status{margin:12px 0}
 
-/* Keep optional manga flags visible above the save/delete action row. */
-.manga-editor-options { margin: 24px 0 0; padding: 16px; border: 1px solid #475569; border-radius: 12px; min-width: 0; }
-.manga-editor-options .checkbox { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
-.manga-editor-options input[type="checkbox"] { width: auto; flex: 0 0 auto; }
-.manga-editor-options p { font-size: 13px; line-height: 1.5; color: #cbd5e1; }
+/* Manga visibility controls: scoped to the existing editor settings card. */
+.manga-editor-options { margin: 24px 0 0; padding: 18px; border: 1px solid #29374e; border-radius: 16px; min-width: 0; background: #131e31; }
+.manga-editor-options h3 { margin: 0 0 8px; color: #b8c7dd; font-size: 12px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+.manga-editor-options .manga-option-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0; padding: 16px 0; cursor: pointer; }
+.manga-option-row + .manga-option-row { border-top: 1px solid #29374e; }
+.manga-option-copy { display: grid; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.manga-option-title { color: #f1f5f9; font-size: 14px; font-weight: 600; }
+.manga-option-help { color: #a2b1c7; font-size: 12px; line-height: 1.6; }
+.manga-option-switch { position: relative; display: inline-flex; align-items: center; width: 44px; height: 28px; flex: 0 0 44px; }
+.manga-editor-options .manga-option-switch input[type="checkbox"] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; z-index: 1; }
+.manga-option-track { display: block; width: 44px; height: 24px; border: 1px solid #52627a; border-radius: 20px; background: #334155; transition: background-color .18s, border-color .18s; }
+.manga-option-track::after { content: ''; display: block; width: 18px; height: 18px; margin: 2px; border-radius: 50%; background: #f8fafc; box-shadow: 0 1px 3px #0003; transition: transform .18s; }
+.manga-option-switch input:checked + .manga-option-track { background: #2563eb; border-color: #3b82f6; }
+.manga-option-switch input:checked + .manga-option-track::after { transform: translateX(18px); }
+.manga-option-switch input:focus-visible + .manga-option-track { outline: 2px solid #93c5fd; outline-offset: 4px; }
+.manga-editor-options .manga-option-switch input:disabled { cursor: not-allowed; }
+.manga-option-switch input:disabled + .manga-option-track { opacity: .45; }
+.manga-option-row:has(input:disabled) { cursor: not-allowed; }
+.manga-option-row:has(input:disabled) .manga-option-copy { opacity: .65; }
+.manga-editor-options .manga-option-notice { display: flex; align-items: flex-start; gap: 9px; margin: 0; padding: 12px; border-radius: 10px; background: #1c2b43; color: #acbdd6; font-size: 12px; line-height: 1.6; }
+.manga-option-info { display: inline-grid; place-items: center; flex: 0 0 16px; height: 16px; margin-top: 2px; border: 1px solid #7399c9; border-radius: 50%; color: #b3d1f5; font-size: 11px; font-weight: 600; }
+@media (max-width: 360px) { .manga-editor-options { padding: 14px; } .manga-editor-options .manga-option-row { gap: 10px; } }
+@media (prefers-reduced-motion: reduce) { .manga-option-track, .manga-option-track::after { transition: none; } }

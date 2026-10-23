@@ -350,12 +350,33 @@ class="cover-preview">
 
 </div>
 
-<fieldset class="manga-editor-options">
-<legend>Hiển thị truyện</legend>
-<label class="checkbox"><input id="isRawCaughtUp" type="checkbox"> Ngang Raw</label>
-<label class="checkbox"><input id="adminPick" type="checkbox"> Admin’s Pick</label>
-<p>Admin’s Picks: chỉ quản trị viên được thay đổi. Tối đa 10 truyện; lựa chọn mới thay thế lựa chọn cũ nhất.</p>
-</fieldset>
+<section class="manga-editor-options" aria-labelledby="manga-options-heading">
+<h3 id="manga-options-heading">Hiển thị truyện</h3>
+<label class="manga-option-row" for="isRawCaughtUp">
+  <span class="manga-option-copy">
+    <span class="manga-option-title">Ngang Raw</span>
+    <span class="manga-option-help" id="raw-option-help">Hiển thị badge “Ngang Raw” trên các card truyện.</span>
+  </span>
+  <span class="manga-option-switch">
+    <input id="isRawCaughtUp" type="checkbox" aria-describedby="raw-option-help">
+    <span class="manga-option-track" aria-hidden="true"></span>
+  </span>
+</label>
+<label class="manga-option-row" for="adminPick">
+  <span class="manga-option-copy">
+    <span class="manga-option-title">Admin’s Pick</span>
+    <span class="manga-option-help" id="pick-option-help">Hiển thị truyện trong khu vực đề xuất nổi bật.</span>
+  </span>
+  <span class="manga-option-switch">
+    <input id="adminPick" type="checkbox" aria-describedby="pick-option-help pick-option-notice">
+    <span class="manga-option-track" aria-hidden="true"></span>
+  </span>
+</label>
+<p class="manga-option-notice" id="pick-option-notice">
+  <span class="manga-option-info" aria-hidden="true">i</span>
+  <span>Chỉ quản trị viên có thể thay đổi Admin’s Picks. Tối đa 10 truyện; khi đủ 10, lựa chọn mới sẽ thay thế lựa chọn cũ nhất.</span>
+</p>
+</section>
 
 <div class="editor-actions">
 
