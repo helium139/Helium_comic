@@ -51,7 +51,10 @@ jobs:
         run: npm ci --prefix scripts/webp --no-audit --no-fund
 
       - name: Test WebP conversion, migration and rollback without production requests
-        run: node --test scripts/test-image-conversion.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs
+        run: node --test scripts/test-image-conversion.mjs scripts/test-chapter-promotion.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs scripts/webp/test-cleanup-originals.mjs
+
+      - name: Test public pages, carousel, notifications and reading progress
+        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-push-notifications.mjs
 
       - name: Test scoped dashboard statistics
         run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs

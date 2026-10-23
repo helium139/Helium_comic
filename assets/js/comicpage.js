@@ -599,9 +599,6 @@ const chapterContainer =
         </div>
     `;
 
-    console.log(
-    chapterUrl(mangaId, chap.id)
-);
 
 });
 

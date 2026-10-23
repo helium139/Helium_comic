@@ -1,6 +1,6 @@
 import { loadPopularity } from './popularity.js';
 import { completedEntries } from './completed-catalogue.mjs';
-import { renderMangaCard } from './manga-card.js';
+import { renderMangaCard, installCoverFallback } from './manga-card.js';
 
 const grid = document.getElementById('completed-grid');
 const search = document.getElementById('completed-search');
@@ -10,13 +10,7 @@ try {
     if (localStorage.getItem('userWebTheme') === 'dark') document.documentElement.dataset.theme = 'dark';
 } catch { /* Storage can be disabled. */ }
 
-grid.addEventListener('error', event => {
-    const img = event.target;
-    if (img.tagName !== 'IMG') return;
-    if (img.dataset.fallback) { img.hidden = true; return; }
-    img.dataset.fallback = 'true';
-    img.src = '/assets/images/helium_logo.webp';
-}, true);
+installCoverFallback(grid);
 
 async function init() {
     try {

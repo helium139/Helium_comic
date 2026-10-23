@@ -98,23 +98,6 @@ fetch("/assets/data/data.json")
 
     });
 
-    console.table(
-
-mangas.map(([slug,manga])=>({
-
-    slug,
-
-    title:manga.title,
-
-    latest:manga.chapters.at(-1)?.title,
-
-    time:manga.chapters.at(-1)?.createAt
-
-}))
-
-);
-
-
     renderComics();
     loadHotComics(data);
    });    
@@ -332,33 +315,3 @@ document.addEventListener("click", function(e){
 });
 
 // ================= XỬ LÝ RENDER ADMIN PICKS ================= //
-function isNewChapter(manga) {
-
-    if (
-        !manga.chapters ||
-        manga.chapters.length === 0
-    ) {
-        return false;
-    }
-
-    const latestChapter =
-        manga.chapters[manga.chapters.length - 1];
-
-    if (!latestChapter.createAt) {
-        return false;
-    }
-
-    const chapterTime =
-        new Date(latestChapter.createAt).getTime();
-
-    const now =
-        Date.now();
-
-    const fourtyEightHours =
-        24 * 60 * 60 * 1000 * 2; // 2 days in milliseconds
-
-    return (
-        now - chapterTime >= 0 &&
-        now - chapterTime <= fourtyEightHours
-    );
-}

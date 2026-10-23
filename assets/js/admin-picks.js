@@ -1,6 +1,6 @@
 import { orderedPicks } from "./admin-picks-order.mjs";
 import { mangaUrl } from "./route-urls.mjs";
-import { escapeHTML as esc, imageURL, rawBadge } from "./manga-card.js";
+import { escapeHTML as esc, imageURL, rawBadge, installCoverFallback } from "./manga-card.js";
 
 const statuses = { Completed: 'Đã hoàn', Ongoing: 'Đang tiến hành', Hiatus: 'Tạm ngưng' };
 export const nextSlide = (current, direction, count) => count ? (current + direction + count) % count : 0;
@@ -36,14 +36,9 @@ export function renderAdminPicks(catalogue) {
     slides.forEach((slide, i) => {
         slide.querySelector('.pick-backdrop').style.backgroundImage = `url(${JSON.stringify(imageURL(entries[i][1].cover))})`;
     });
-    root.addEventListener('error', event => {
-        const img = event.target;
-        if (img.tagName !== 'IMG') return;
-        if (img.dataset.fallback) { img.hidden = true; return; }
-        img.dataset.fallback = 'true';
-        img.src = '/assets/images/helium_logo.webp';
+    installCoverFallback(root, '.pick-art img', img => {
         img.closest('.pick-slide').querySelector('.pick-backdrop').style.backgroundImage = 'none';
-    }, true);
+    });
     if (entries.length === 1) return;
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
     let current = 0, timer, paused = false, hovered = false, focused = false;

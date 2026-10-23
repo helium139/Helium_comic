@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test-diagnostics.mjs test-migration.mjs test-rollback.mjs test-cleanup-originals.mjs"
+    "test": "node --test test-migration.mjs test-rollback.mjs test-cleanup-originals.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.0.0",

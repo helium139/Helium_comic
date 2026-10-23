@@ -11,6 +11,18 @@ export function imageURL(value) {
     } catch { return "/assets/images/helium_logo.webp"; }
 }
 
+// One delegated handler covers lazy/dynamically inserted images and stops retry loops.
+export function installCoverFallback(root, selector = 'img', onFallback) {
+    root.addEventListener('error', event => {
+        const img = event.target;
+        if (!img.matches?.(selector)) return;
+        if (img.dataset.fallback) { img.hidden = true; return; }
+        img.dataset.fallback = 'true';
+        img.src = '/assets/images/helium_logo.webp';
+        onFallback?.(img);
+    }, true);
+}
+
 export function rawBadge(manga) {
     return manga.isRawCaughtUp === true ? '<span class="raw-caught-up-badge">Ngang Raw</span>' : '';
 }

@@ -1,5 +1,5 @@
 import { getTeams } from "./teams.js";
-import { escapeHTML as esc, imageURL, renderMangaCard } from "./manga-card.js";
+import { escapeHTML as esc, imageURL, renderMangaCard, installCoverFallback } from "./manga-card.js";
 import { teamManga, sortTeamManga, getUpdateTime, validTeamId } from "./team-catalogue.js";
 
 const root = document.getElementById("team-content");
@@ -13,14 +13,7 @@ try {
     if (localStorage.getItem("userWebTheme") === "dark") document.documentElement.dataset.theme = "dark";
 } catch { /* Storage may be disabled. */ }
 
-// Capture image failures, including images inserted after initial load.
-root.addEventListener("error", event => {
-    const img = event.target;
-    if (img.tagName !== "IMG") return;
-    if (img.dataset.fallback) { img.hidden = true; return; }
-    img.dataset.fallback = "true";
-    img.src = fallback;
-}, true);
+installCoverFallback(root);
 
 function message(text) {
     root.innerHTML = `<section class="team-state"><h1>${esc(text)}</h1><a href="/teams.html">Xem tất cả nhóm dịch</a></section>`;

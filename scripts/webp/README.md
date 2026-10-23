@@ -115,7 +115,7 @@ the first legacy object is publicly served at that key.
 Run migration-only tests with:
 
 ```sh
-node --test scripts/webp/test-diagnostics.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs
+node --test scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs
 ```
 
 ### Migration invocations

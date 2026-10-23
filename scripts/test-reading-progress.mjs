@@ -3,6 +3,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
+// The VM strips imports; supply the real shared badge dependency used by follow.js.
+const cardSource = (await readFile(new URL('../assets/js/manga-card.js', import.meta.url), 'utf8'))
+    .replace('"./route-urls.mjs"', JSON.stringify(new URL('../assets/js/route-urls.mjs', import.meta.url).href));
+const { rawBadge } = await import('data:text/javascript;base64,' + Buffer.from(cardSource).toString('base64'));
+
 const source = (await readFile(new URL('../assets/js/reading-progress.js', import.meta.url), 'utf8'))
     .replace(/^import[\s\S]*?from "[^"]+";\n/gm, '')
     .replace(/export /g, '');
@@ -124,7 +129,7 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
         auth: {}, db: {},
         onAuthStateChanged(auth, callback) { authChanged = callback; },
         getRouteParams: () => new URLSearchParams('id=m&chap=10.5'),
-        mangaUrl: () => '/manga/m/', chapterUrl: () => '/manga/m/chapter/10.5/',
+        mangaUrl: () => '/manga/m/', rawBadge, chapterUrl: () => '/manga/m/chapter/10.5/',
         localStorage: { getItem: () => '1', setItem() {} },
         fetch: async () => ({ json: async () => ({ m: chapterManga }) }),
         document: { getElementById: element, querySelector: () => ({}), documentElement: { removeAttribute() {} } },
@@ -173,7 +178,7 @@ test('follow renders existing UP component, clears it after reading, and handles
         hasUnreadChapter: helpers().hasUnreadChapter,
         showProgressError() { errors++; },
         fetch: async () => ({ ok: true, json: async () => ({ m: { ...manga, title: 'Test', cover: 'cover' } }) }),
-        mangaUrl: () => '/manga/m/',
+        mangaUrl: () => '/manga/m/', rawBadge,
         document: { getElementById: id => id === 'follow-list' ? container : element, documentElement: { removeAttribute() {} } },
         window: { addEventListener(type, callback) { restore = callback; } },
         location: {}, localStorage: { getItem() {}, setItem() {} }

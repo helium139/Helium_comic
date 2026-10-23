@@ -1,5 +1,5 @@
 import { mangaUrl } from "./route-urls.mjs";
-import { escapeHTML as esc, imageURL } from "./manga-card.js";
+import { escapeHTML as esc, imageURL, installCoverFallback } from "./manga-card.js";
 
 const formatViews = new Intl.NumberFormat("vi-VN");
 const statusLabels = { Completed: "Completed", Ongoing: "Ongoing", Hiatus: "Drop" };
@@ -41,11 +41,5 @@ export function renderRanking(container, stats, catalogue) {
 }
 
 export function installRankingFallback(container) {
-    container.addEventListener("error", event => {
-        const img = event.target;
-        if (!img.matches?.(".ranking-cover")) return;
-        if (img.dataset.fallback) { img.hidden = true; return; }
-        img.dataset.fallback = "true";
-        img.src = fallback;
-    }, true);
+    installCoverFallback(container, '.ranking-cover');
 }

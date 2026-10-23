@@ -72,7 +72,7 @@ body::before {
   transition: background-image 0.3s ease; 
 }
 /* Áp dụng biến này cho tất cả các nút bấm hoặc card truyện của bạn */
-.comic-item, .theme-btn, .contact-link, .swiper-button-next, .swiper-button-prev, .comic-name, .comic-chapter, .navigation, navigation a, .search_button, .welcome_text, .view-more-button, first {
+.comic-item, .theme-btn, .contact-link, .comic-name, .comic-chapter, .navigation, navigation a, .search_button, .welcome_text, .view-more-button, first {
   background-color: var(--button-bg) !important;
   color: var(--button-text) !important;
   transition: all 0.3s ease;
@@ -80,11 +80,6 @@ body::before {
 .user_button i, .section-title {
     color: var(--button-text1) !important;
     transition: all 0.3s ease;
-}
-
-.swiper-button-next, .swiper-button-prev {
-  border-radius: 15px;
-  padding: 5px;
 }
 
 /* 3. CSS CHO SIDE MENU (ẨN/HIỆN VUỐT CẠNH) */
@@ -258,16 +253,8 @@ body::before {
   .comic-poster {
     border-radius: 15px;
   }
-  .swiper-slide {
-    width: 180px;
-    height: 250px;
-  }
 
-  .slide-title {
-    font-size: 12px;
-    padding: 6px;
-  }
-  .navigation{
+.navigation{
 
     width:100%;
 
@@ -511,55 +498,11 @@ body::before {
 .user_button a:hover {
     color: #e070d1;
 }
-/* Định kích thước toàn bộ khung slide */
-.swiper {
-  width: 100%;
-  padding-top: 50px;
-  padding-bottom: 50px;
-}
-.swiper-wrapper {
-  /* Ép trình duyệt bật tăng tốc phần cứng */
-  display: flex !important; /* Ép buộc các slide xếp trên một hàng ngang cố định */
-  align-items: center;
-  will-change: transform;
-}
 
-/* Định kích thước cho từng tấm ảnh trong slide */
-.swiper-slide {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  background-position: center;
-  background-size: cover;
-  width: 300px; /* Chiều rộng của ảnh */
-  height: 420px; /* Chiều cao của ảnh */
-  border-radius: 10px; /* Bo góc ảnh */
-  overflow: hidden;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.2); /* Tạo bóng đổ cho ảnh nổi bật */
-  /* Giúp Swiper tính toán mượt mà, tránh bị nhảy cóc tọa độ khi trượt ngược */
-  transform-style: preserve-3d;
-  flex-shrink: 0;
-  backface-visibility: hidden;
-}
 
-.swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
-/* Tên truyện hiển thị phía dưới chân ảnh */
-.slide-title {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.6); /* Nền đen trong suốt */
-  color: #fff;
-  padding: 10px;
-  font-size: 16px;
-  text-align: center;
-}
+
+
 /* Vùng bao quanh toàn bộ phần cập nhật */
 .update-section {
   max-width: 1200px;

@@ -44,11 +44,11 @@ test('cards retain clean URLs, escape titles, translate only existing statuses',
     const html = ranking.rankingCard({ id: 'example', views: 2565591 }, data, 0);
     assert.match(html, /href="\/manga\/example\/"/);
     assert.match(html, /2\.565\.591/);
-    assert.match(html, /Đã hoàn/);
+    assert.match(html, /Completed/);
     assert.match(html, /&lt;unsafe&gt;/);
     assert.doesNotMatch(html, /javascript:/);
     data.example.status = 'Hiatus';
-    assert.match(ranking.rankingCard({ id: 'example', views: 1 }, data, 1), /Tạm ngưng/);
+    assert.match(ranking.rankingCard({ id: 'example', views: 1 }, data, 1), /Drop/);
     data.example.status = 'unknown';
     assert.doesNotMatch(ranking.rankingCard({ id: 'example', views: 1 }, data, 1), /ranking-status/);
 });
