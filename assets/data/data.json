@@ -5724,7 +5724,8 @@
                     "79.webp"
                 ]
             }
-        ]
+        ],
+        "isRawCaughtUp": true
     },
     "melting-chocolate": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/melting-chocolate/cover.webp",
