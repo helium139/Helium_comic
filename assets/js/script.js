@@ -2,18 +2,7 @@ import { renderAdminPicks } from "./admin-picks.js";
 import { renderRanking, installRankingFallback } from "./home-ranking.js";
 import { renderMangaCard, rawBadge } from "./manga-card.js";
 import { mangaUrl } from "./routes.js";
-import { db } from "./firebase.js";
-console.log(db);
-
-import {
- collection,
- getDocs,
- query,
- orderBy
-}
-from 
-"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
+import { loadPopularity } from "./popularity.js";
 
 let mangas = [];
 let mangaData = {};
@@ -54,8 +43,7 @@ async function loadHotComics(data) {
     installRankingFallback(container);
     try {
         // Read existing public popularity once; filter stale IDs before taking ten.
-        const snapshot = await getDocs(query(collection(db, "mangaStats"), orderBy("views", "desc")));
-        renderRanking(container, snapshot.docs.map(doc => ({ id: doc.id, views: doc.data().views })), data);
+        renderRanking(container, await loadPopularity(), data);
     } catch {
         container.innerHTML = '<p class="ranking-message" role="status">Chưa thể tải bảng xếp hạng. Vui lòng thử lại sau.</p>';
     }

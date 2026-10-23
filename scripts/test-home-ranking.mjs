@@ -66,7 +66,7 @@ test('cover failures use existing logo fallback without an error loop', () => {
 test('homepage reuses loaded catalogue, catches ranking failures and scopes styles', async () => {
     const source = await read('assets/js/script.js');
     assert.equal((source.match(/fetch\("\/assets\/data\/data.json"\)/g) || []).length, 1);
-    assert.match(source, /doc\.data\(\)\.views/);
+    assert.match(await read('assets/js/popularity.js'), /doc\.data\(\)\.views/);
     assert.match(source, /Chưa thể tải bảng xếp hạng/);
     const css = await read('assets/css/home-ranking.css');
     assert.match(css, /\[data-theme="dark"\] \.home-ranking/);

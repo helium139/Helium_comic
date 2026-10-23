@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Truyện hoàn thành | HeliumTG</title>
+  <meta name="description" content="Khám phá truyện hoàn thành tại HeliumTG, sắp xếp theo độ phổ biến, cập nhật và tên truyện.">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/css/homepage.css">
+  <link rel="stylesheet" href="/assets/css/completed.css">
+  <script type="module" src="/assets/js/completed.js"></script>
+</head>
+<body class="completed-page">
+  <nav class="navigation" aria-label="Điều hướng chính">
+    <a href="/">Trang Chủ</a>
+    <a href="/comics.html" aria-current="page">Truyện Hoàn Thành</a>
+    <a href="/follow/">Theo Dõi</a>
+    <a href="/history/">Lịch Sử Đọc</a>
+    <a href="/user/">Hồ Sơ</a>
+    <a href="/teams.html">Nhóm Dịch</a>
+  </nav>
+  <main>
+    <h1>Truyện hoàn thành</h1>
+    <div class="completed-controls">
+      <label for="completed-search">Tìm truyện hoàn thành
+        <input id="completed-search" type="search" placeholder="Nhập tên truyện…" disabled>
+      </label>
+      <label for="completed-sort">Sắp xếp
+        <select id="completed-sort" disabled>
+          <option value="hot" selected>Phổ biến nhất</option>
+          <option value="updated">Mới cập nhật</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
+      </label>
+    </div>
+    <p id="completed-status" role="status">Đang tải truyện hoàn thành…</p>
+    <div id="completed-grid" class="comics-grid"></div>
+    <noscript>Vui lòng bật JavaScript để xem truyện hoàn thành.</noscript>
+  </main>
+  <footer><p>© Helium Team</p></footer>
+</body>
+</html>
