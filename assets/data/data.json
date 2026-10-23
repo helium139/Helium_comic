@@ -2020,7 +2020,7 @@
         "teamId": "heliumtg",
         "status": "Ongoing",
         "adminPick": true,
-        "pickOrder": 10,
+        "pickOrder": 9,
         "tags": [
             "BL",
             "Mỹ Nhân Đại Chiến",
@@ -2882,7 +2882,7 @@
         ],
         "description": "Vì việc kinh doanh của cha thất bại và mẹ phải trải qua một ca phẫu thuật lớn, Chang Hyun phải gánh trên vai khoản nợ lên tới 180 triệu won. Để kiếm tiền trả nợ, cậu lang bạt trong giới ăn chơi, làm đủ mọi công việc.\n\nTrong lúc tuyệt vọng, với tâm thế bấu víu vào cọng rơm cứu mạng cuối cùng, Chang Hyun tìm đến một người.\n\nĐó chính là Woo Ah Jun, mối nghiệt duyên từ thời trung học, đồng thời là đứa con ngoài giá thú của một gia tộc tài phiệt.\n\n\"Bò lên đây đi.\"\n\n\"Lên trên bàn.\"\n\nKhoảnh khắc tái ngộ, Ah Jun bộc lộ cảm xúc méo mó và đầy lệch lạc mà hắn luôn che giấu.\n\nĐổi lấy số tiền Chang Hyun cần, hắn yêu cầu cậu trở thành món đồ chỉ để sưởi ấm giường chiếu cho mình.\n\nChỉ trong chớp mắt, Chang Hyun rơi vào thân phận bị giam cầm và phụ thuộc vào Ah Jun.\n\nRồi cậu bị nhốt trong một căn biệt thự nằm trên Nakdo, hòn đảo biệt lập giữa biển khơi...",
         "adminPick": true,
-        "pickOrder": 9,
+        "pickOrder": 8,
         "chapters": [
             {
                 "id": 1,
@@ -5374,8 +5374,8 @@
             "Truyện Ngắn"
         ],
         "description": "Một phần của tuyển tập tự ý cấm xuất tinh.",
-        "adminPick": true,
-        "pickOrder": 2,
+        "adminPick": false,
+        "pickOrder": 999,
         "chapters": [
             {
                 "id": 1,
@@ -5507,7 +5507,8 @@
                     "16.webp"
                 ]
             }
-        ]
+        ],
+        "isRawCaughtUp": false
     },
     "mien-at-hua": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mien-at-hua/cover.webp",
@@ -5525,7 +5526,7 @@
         ],
         "description": "",
         "adminPick": true,
-        "pickOrder": 3,
+        "pickOrder": 2,
         "chapters": [
             {
                 "id": 1,
@@ -5763,7 +5764,7 @@
         ],
         "description": "Melting Chocolate\n\nGiới thiệu tác phẩm\n\nYoon Hee Soo vừa mới bước sang tuổi hai mươi. Từ nhỏ đã bị cha mẹ bỏ rơi, cậu phải một mình bươn chải sống qua ngày, mang theo nỗi cô đơn suốt quãng đời mình.\n\nMột ngày nọ, trong lúc làm công việc giao hàng để kiếm sống, chỉ vì một sai lầm duy nhất, cậu bị người đàn ông tên Shin Gyo Yeon, kẻ luôn gọi cậu là “bé con”, bắt cóc và giam cầm.\n\nHee Soo vẫn luôn nghĩ rằng mọi bất hạnh đều có nguyên do, và những chuyện xảy đến với mình đều là lỗi của bản thân. Thế nhưng lúc này, người đàn ông chỉ cần một câu nói là có thể tống cậu vào tù lại khiến cậu sợ hãi vô cùng.\n\nLiệu cậu có thể tự nhủ rằng chính mình là người gây ra bất hạnh lần này, rồi chấp nhận và ôm lấy nó hay không?",
         "adminPick": true,
-        "pickOrder": 8,
+        "pickOrder": 7,
         "chapters": [
             {
                 "id": 1,
@@ -5892,7 +5893,7 @@
         ],
         "description": "Năm 17 tuổi, Mun Gyeol gặp Do Yi Je lần đầu tiên. Cho đến năm 22 tuổi, cậu vẫn luôn đơn phương người bạn đồng trang lứa ấy.\n\nVì sợ Do Yi Je sẽ cảm thấy bị phản bộ nếu biết chuyện này, Mun Gyeol thậm chí chẳng dám mơ đến chuyện thổ lộ.\nĐúng lúc đó, phòng trọ của Mun Gyeol xảy ra vấn đề, khiến cậu phải đến ở nhờ nhà Do Yi Je, người đang sống một mình.\n\n“Tôi ngủ trong phòng làm việc là được đúng không?”\n“Phòng làm việc gì chứ? Cậu ngủ cùng tôi là được mà?”\n\nKhông hề biết Mun Gyeol đang có tình cảm với mình, Do Yi Je thản nhiên rủ cậu ngủ chung giường, chẳng khác nào mời chào một con thú đang khao khát hơi ấm của người…\n\nNhư thể muốn cảnh cáo Mun Gyeol không được đến gần những nhân thú khác, Do Yi Je để lại pheromone không thể lý giải trên khắp cơ thể cậu.\n\n“Tôi đang phát tình đấy”\n“C-cậu… phát tình”\n\nKhi kỳ phát tình đến, Do Yi Je còn kích thích cả bản năng mà Mun Gyeol khó lòng chống lại.\n\n“Tôi muốn đâm vào cậu.”\n\nRốt cuộc, Mun Gyeol nên hiểu những hành động ấy của cậu ấy theo nghĩa nào đây?",
         "adminPick": true,
-        "pickOrder": 7,
+        "pickOrder": 6,
         "chapters": [
             {
                 "id": 1,
@@ -6051,7 +6052,7 @@
         ],
         "description": "Trong một xã hội tương lai gần, nơi cuộc chiến giữa ma cà rồng và con người đã kết thúc.\nThế nhưng, gia tộc Hunter, vốn chuyên săn lùng ma cà rồng từ xa xưa, vẫn luôn khinh miệt loài sinh vật này.\n\nVane Hunt được gia tộc Hunter nhận nuôi vì sở hữu một thể chất đặc biệt.\nCả đời tận tụy làm việc vì gia tộc nhưng chưa bao giờ được xem là người nhà, nay cậu nhận được một nhiệm vụ mới.\n\nĐó là tiếp cận Theodor Basilesku, người sống sót duy nhất của gia tộc ma cà rồng quyền thế Basilesku.\n\nCha của Vane ra lệnh cho cậu phải bằng mọi giá đánh cắp bảo vật gia truyền mà Basilesku đang nắm giữ.\n\nDựa vào thể chất đặc biệt khiến cậu không bị nhiễm độc dù bị ma cà rồng hút máu, nói cách khác, lợi dụng chính cơ thể của cậu.",
         "adminPick": true,
-        "pickOrder": 4,
+        "pickOrder": 3,
         "chapters": [
             {
                 "id": 1,
@@ -6329,7 +6330,7 @@
         ],
         "description": "Nam chính sinh ra trong một gia tộc pháp sư trừ tà nổi tiếng. Sau tám năm xa cách, anh gặp lại mối tình đầu Song Hyeon tại lễ cưới của anh ấy, đồng thời tái ngộ Seong Hwa, người em họ của Song Hyeon.\nSeong Hwa đã thầm yêu nam chính suốt nhiều năm. Biết anh vẫn chưa thể buông bỏ Song Hyeon, cậu quyết định lợi dụng gương mặt có nhiều nét tương đồng với người ấy để lên giường cùng anh.\nHai người dần bị đối phương thu hút, tình cảm cũng theo đó mà nảy nở. Thế nhưng, nam chính lại che giấu Seong Hwa một lý do chí mạng khiến cậu tuyệt đối không được phép yêu mình...",
         "adminPick": true,
-        "pickOrder": 5,
+        "pickOrder": 4,
         "chapters": [
             {
                 "id": 1,
@@ -6414,7 +6415,7 @@
         ],
         "description": "Trong giờ lễ Misa thiêng liêng, Ye Nok đã yêu Mattia ngay từ cái nhìn đầu tiên khi nghe cậu cất tiếng hát thánh ca.\nThế nhưng, đằng sau gương mặt xinh đẹp của Mattia là những lời đồn không ngớt gọi cậu là “đồ lăng loàn”, mà bản thân Mattia cũng chẳng hề che giấu hay phủ nhận điều đó.\nKể từ đó, Ye Nok được giao nhiệm vụ quản lý riêng Mattia, người đã bị gán mác học sinh cá biệt. Qua những buổi học phụ đạo chỉ có hai người mỗi ngày, Ye Nok dần trở nên thân thiết với cậu.\nNhưng rồi một ngày nọ, Mattia đột nhiên biến mất, khiến Ye Nok nghĩ rằng mối duyên giữa hai người đã chấm dứt.\nCho đến vài năm sau, khi Mattia trở về với thân phận tình nhân của cô mình...",
         "adminPick": true,
-        "pickOrder": 6,
+        "pickOrder": 5,
         "chapters": [
             {
                 "id": 1,
