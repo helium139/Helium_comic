@@ -49,7 +49,7 @@ export function renderAdminPicks(catalogue) {
     let current = 0, timer, paused = false, hovered = false, focused = false;
     function schedule() {
         clearTimeout(timer);
-        if (!paused && !hovered && !focused && !document.hidden && !motion.matches) timer = setTimeout(() => show(nextSlide(current, 1, slides.length)), 6000);
+        if (!paused && !hovered && !focused && !document.hidden && !motion.matches) timer = setTimeout(() => show(nextSlide(current, 1, slides.length)), 3000);
     }
     function show(index) {
         slides[current].hidden = true;

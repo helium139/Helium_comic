@@ -154,7 +154,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         const team = activeTeam(teams, actor.role === "admin" ? body.teamId : actor.teamId);
         const manga = {
             ...metadata(body), ...rawFlag(body), teamId: team.id, team: team.name,
-            ...(actor.role === "admin" ? { ...editorial(body), adminPick: false } : { adminPick: false, pickOrder: 999 }),
+            ...(actor.role === "admin" ? { ...editorial(body), adminPick: false, pickOrder: 999 } : { adminPick: false, pickOrder: 999 }),
             chapters: []
         };
         // New covers must be caller-owned staged objects, never arbitrary URLs/keys.
@@ -177,7 +177,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             await env.BUCKET.put(finalKey, stage.body, { httpMetadata: stage.httpMetadata });
         } else manga.cover = "";
         result.data[slug] = manga;
-        if (actor.role === "admin") setPick(result.data, slug, body.adminPick);
+        if (actor.role === "admin" && Object.hasOwn(body, "adminPick")) setPick(result.data, slug, body.adminPick);
         // A failed response can be ambiguous: retain the unique final object in case GitHub committed.
         // Staging and any orphaned final cover can be reconciled by the documented cleanup job.
         await saveData(env, result.data, result.sha, `Create manga ${slug}`);
@@ -244,7 +244,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     : teams.find(team => team.id === manga.teamId);
                 if (actor.role === "admin") {
                     editorial(body);
-                    setPick(result.data, slug, body.adminPick);
+                    if (Object.hasOwn(body, "adminPick")) setPick(result.data, slug, body.adminPick);
                 }
                 Object.assign(manga, metadata(body), rawFlag(body), {
                     cover: await editedCover(body, manga, slug, env), teamId: team.id, team: team.name

@@ -80,7 +80,7 @@ test('autoplay advances, loops and resumes after manual navigation retains butto
     globalThis.document = { hidden: false, getElementById: () => root,
         addEventListener: (type, fn) => { docEvents[type] = fn; } };
     globalThis.matchMedia = () => ({ matches: false, addEventListener() {} });
-    globalThis.setTimeout = (fn, delay) => { assert.equal(delay, 6000); timers.set(++nextTimer, fn); return nextTimer; };
+    globalThis.setTimeout = (fn, delay) => { assert.equal(delay, 3000); timers.set(++nextTimer, fn); return nextTimer; };
     globalThis.clearTimeout = id => timers.delete(id);
     const tick = () => { assert.equal(timers.size, 1); const [id, fn] = [...timers][0]; timers.delete(id); fn(); };
     try {

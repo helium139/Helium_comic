@@ -507,3 +507,45 @@ test('admin queue enforces FIFO, preserves order and rejects conflicting commits
     assert.equal((await h.call('/edit-manga', { ...input('pick-0'), adminPick: true })).status, 409);
     assert.deepEqual(selected(), before);
 });
+
+
+test('current editor payload needs no pickOrder; optional fields preserve saved state', async () => {
+    const h = harness();
+    const body = { ...input(), adminPick: true, isRawCaughtUp: true };
+    delete body.pickOrder;
+    assert.equal((await h.call('/edit-manga', body)).status, 200);
+    assert.equal(h.catalogue().own.adminPick, true);
+    assert.equal(h.catalogue().own.isRawCaughtUp, true);
+    const order = h.catalogue().own.pickOrder;
+    delete body.adminPick;
+    delete body.isRawCaughtUp;
+    assert.equal((await h.call('/edit-manga', { ...body, unknownEditorialFlag: true })).status, 200);
+    assert.equal(h.catalogue().own.adminPick, true);
+    assert.equal(h.catalogue().own.pickOrder, order);
+    assert.equal(h.catalogue().own.isRawCaughtUp, true);
+    assert.equal(Object.hasOwn(h.catalogue().own, 'unknownEditorialFlag'), false);
+    assert.equal((await h.call('/edit-manga', { ...body, adminPick: false, isRawCaughtUp: false })).status, 200);
+    assert.equal(h.catalogue().own.adminPick, false);
+    assert.equal(h.catalogue().own.isRawCaughtUp, false);
+    assert.equal((await h.call('/new-manga', { ...body, slug: 'legacy-create' })).status, 200);
+    assert.equal(h.catalogue()['legacy-create'].adminPick, false);
+    assert.equal(h.catalogue()['legacy-create'].pickOrder, 999);
+});
+
+test('editorial fields reject non-booleans and invalid legacy order without commits', async () => {
+    const h = harness();
+    for (const field of ['adminPick', 'isRawCaughtUp']) {
+        for (const value of ['true', 'false', null, 1, 0, {}, []]) {
+            const before = h.commits.length;
+            assert.equal((await h.call('/edit-manga', { ...input(), [field]: value })).status, 400);
+            assert.equal(h.commits.length, before);
+        }
+    }
+    assert.equal((await h.call('/edit-manga', { ...input(), pickOrder: '1' })).status, 400);
+    const body = { ...input(), isRawCaughtUp: true, adminPick: false };
+    delete body.pickOrder;
+    assert.equal((await h.call('/edit-manga', body, leader)).status, 200);
+    assert.equal(h.catalogue().own.isRawCaughtUp, true);
+    assert.equal(h.catalogue().own.adminPick, true); // Team callers cannot change editorial selection.
+    assert.equal((await h.call('/edit-manga', { ...body, slug: 'other' }, leader)).status, 403);
+});

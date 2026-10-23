@@ -91,6 +91,13 @@ export function metadata(body) {
 }
 
 export function editorial(body) {
-    if (typeof body.adminPick !== "boolean") fail(400, "Invalid editorial fields");
-    return { adminPick: body.adminPick, pickOrder: 999 };
+    // Omitted flags preserve existing state; supplied flags must be JSON booleans.
+    if (Object.hasOwn(body, "adminPick") && typeof body.adminPick !== "boolean") {
+        fail(400, "Invalid editorial fields");
+    }
+    // Accept the legacy ordering field, but never use it to position a pick.
+    if (Object.hasOwn(body, "pickOrder") && !Number.isFinite(body.pickOrder)) {
+        fail(400, "Invalid editorial fields");
+    }
+    return Object.hasOwn(body, "adminPick") ? { adminPick: body.adminPick } : {};
 }
