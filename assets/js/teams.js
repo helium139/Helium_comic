@@ -13,7 +13,11 @@ export function normalizeTeam(value) {
         typeof value.active !== "boolean") {
         throw new Error("Invalid team metadata: explicit id, name, slug and boolean active are required");
     }
-    return Object.freeze({ id: value.id, name: value.name, slug: value.slug, active: value.active });
+    return Object.freeze({ id: value.id, name: value.name, slug: value.slug, active: value.active,
+        ...(typeof value.avatar === "string" ? { avatar: value.avatar } : {}),
+        ...(typeof value.leader === "string" ? { leader: value.leader } : {}),
+        ...(typeof value.description === "string" ? { description: value.description } : {})
+    });
 }
 
 export function normalizeTeams(values) {

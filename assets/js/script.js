@@ -1,3 +1,4 @@
+import { renderMangaCard } from "./manga-card.js";
 import { mangaUrl } from "./routes.js";
 import { db } from "./firebase.js";
 console.log(db);
@@ -92,56 +93,7 @@ function renderComics() {
 
     showMangas.forEach(([slug, manga]) => {
 
-        const latestChap =
-            manga.chapters[
-                manga.chapters.length - 1
-            ];
-
-
-        const newChapter =
-    isNewChapter(manga);
-
-container.innerHTML += `
-<a href="${mangaUrl(slug)}" class="comic-item">
-
-    <div class="comic-poster">
-
-        ${
-            manga.status === "Completed"
-            ? `<span class="comic-end-badge">END</span>`
-            : ""
-        }
-
-        ${
-            newChapter
-            ? `<span class="new-chapter-badge">
-                    UP
-               </span>`
-            : ""
-        }
-
-        <img
-            src="${manga.cover}"
-            alt="${manga.title}"
-            loading="lazy"
-            decoding="async">
-
-    </div>
-
-    <div class="comic-info">
-
-        <h3 class="comic-name">
-            ${manga.title}
-        </h3>
-
-        <span class="comic-chapter">
-            ${latestChap.title}
-        </span>
-
-    </div>
-
-</a>
-`;
+        container.innerHTML += renderMangaCard(slug, manga);
     });
 
 

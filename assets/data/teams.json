@@ -3,7 +3,8 @@
     "id": "heliumtg",
     "name": "HeliumTG",
     "slug": "heliumtg",
-    "active": true
+    "active": true,
+    "avatar": "/assets/images/helium_logo.webp"
   },
   {
     "id": "testteam",
