@@ -1417,9 +1417,9 @@ footer p {
 
 /* Raw release progress is independent of publication status. */
 .comic-poster, .search-cover { position: relative; }
-.raw-caught-up-badge { position: absolute; top: 10px; left: 10px; z-index: 3; border: 1px solid #f0ceda; border-radius: 30px; padding: 6px 10px; background: #fff8fbeF; color: #973951; font-size: 12px; font-weight: 600; box-shadow: 0 2px 8px #64364912; }
+.raw-caught-up-badge { position: absolute; top: 10px; left: 10px; z-index: 3; box-sizing: border-box; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; border: 1px solid #f0ceda; border-radius: 30px; padding: 6px 10px; background: #fff8fbeF; color: #973951; font-size: 12px; font-weight: 600; box-shadow: 0 2px 8px #64364912; }
 [data-theme="dark"] .raw-caught-up-badge { background: #392b38ef; color: #ffbed1; border-color: #835669; }
-.comic-poster:has(.raw-caught-up-badge) .comic-end-badge { top: 46px; }
-.comic-poster:has(.raw-caught-up-badge) .new-chapter-badge { top: 46px; }
-.search-cover { flex-shrink: 0; }
-.search-cover .raw-caught-up-badge { top: 2px; left: 2px; padding: 2px 4px; font-size: 9px; }
+/* Preserve END/UP positions; only the raw overlay moves to avoid END. */
+.comic-poster:has(.comic-end-badge) .raw-caught-up-badge { top: auto; bottom: 10px; }
+.search-cover { flex-shrink: 0; overflow: hidden; border-radius: 5px; }
+.search-cover .raw-caught-up-badge { top: 2px; left: 2px; max-width: calc(100% - 4px); padding: 2px 4px; font-size: 9px; }
