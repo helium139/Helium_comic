@@ -301,8 +301,12 @@ objects, creates destinations with a create-only condition, verifies their bytes
 then commits the numbered manifest with the GitHub SHA check. Different existing
 destination bytes cause a conflict rather than an overwrite. Failed promotion or
 catalogue commit retains all sources and existing objects; an unreferenced final
-copy may remain for retry. Temporary source objects are retained; this operation
-does not add automatic deletion.
+copy may remain for retry. After the GitHub commit succeeds, the Worker rereads the catalogue, confirms the
+numbered manifest, revalidates source/final bytes, and deletes only the exact
+UUID sources supplied by this publish that are unreferenced anywhere in metadata.
+Cleanup failure is logged for retry without failing the committed publication.
+An identical publish retry verifies existing final objects and tolerates sources
+already deleted; conflicting existing chapter manifests remain protected.
 
 Existing chapter objects and metadata are not renamed or migrated. Existing edit
 and reorder behavior is unchanged, including UUID manifests. Reader legacy and
@@ -313,4 +317,55 @@ Additional naming checks:
 
 ```sh
 node --test scripts/test-chapter-promotion.mjs scripts/test-worker-authorization.mjs scripts/test-image-conversion.mjs
+```
+
+
+### One-time duplicate staging cleanup
+
+The upload Worker generates `<page>-<crypto.randomUUID()>.<extension>` (UUID v4).
+Promotion copies bytes without re-encoding. The cleanup matcher accepts only that
+pattern and preserves its extension; arbitrary hashes and legacy names are skipped.
+
+Use Node 22+ and the existing `.env.webp` migration configuration/dependencies.
+A manga or chapter prefix with a trailing slash is mandatory; global scans are
+rejected. No mode means dry-run. Both command filenames below are supported:
+`cleanup-staging-duplicates.mjs` and the original `cleanup-chapter-staging.mjs`.
+
+```sh
+node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --dry-run --prefix manga-slug/chap20/
+node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --apply --prefix manga-slug/chap20/ --journal cleanup-staging-chap20.jsonl
+# Manga scope is also supported:
+node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --prefix manga-slug/
+```
+
+The tool reuses the migration R2 connection and the original-cleanup catalogue
+inventory and public catalogue fetch. Both catalogues must be readable and valid.
+Any reference to a staging key/URL, including legacy chapter manifests, protects it.
+The exact numbered final must be referenced by both catalogues. It must have a
+nonzero size, a signature matching its extension, matching MIME when present,
+consistent HEAD/GET sizes, and fully decodable pixels via Sharp. Staging and final
+must have identical bytes (and therefore identical dimensions). Both must have
+ETags and modification timestamps at least 24 hours old. Missing timestamps,
+recent objects, unknown names and failures are skipped with explicit reasons.
+
+Apply must run while uploads, edits, publishing and migrations are paused for the
+requested prefix. There is no shared cross-service lock between GitHub and R2;
+the age guard and repeated checks reduce races but cannot provide an atomic
+transaction across them. Before every deletion the tool rereads both catalogues,
+rejects any catalogue SHA/content change, revalidates bytes and decoding, then
+checks versions and ETags again after flushing the pending journal entry. Source
+deletion uses `IfMatch`; missing final objects and changed objects cause a skip.
+
+Reports include each SAFE source/final/size, skip reasons, counts, reclaimable
+bytes and MiB before any deletion. Apply journals are created exclusively (`wx`,
+mode 0600), with a generated filename if `--journal` is omitted. An existing file
+fails rather than being overwritten. Pending deletion entries are flushed before
+the request; confirmed/failed results and skips are recorded. Journal failures
+stop the run. A crash after deletion may leave a pending entry; rerun with a new
+journal and missing sources are harmless. Dry-run does not create a journal.
+
+Local regression checks (no R2 access):
+
+```sh
+node --test scripts/webp/test-cleanup-chapter-staging.mjs scripts/webp/test-migration.mjs scripts/webp/test-cleanup-originals.mjs scripts/webp/test-rollback.mjs
 ```

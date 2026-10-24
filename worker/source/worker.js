@@ -1,7 +1,7 @@
 import { setPick } from "../../assets/js/admin-picks-order.mjs";
 import { verifyFirebaseToken } from "./firebase-auth.js";
 import { imageFormat } from "./image-format.js";
-import { promoteChapterPages } from "./chapter-promotion.js";
+import { promoteChapterPages, cleanupChapterSources } from "./chapter-promotion.js";
 import {
     HttpError, fail, safeSlug, chapterNumber, pageCount, validateRegistry,
     activeTeam, authorizeManga, imageName, uploadFolder, metadata, editorial
@@ -237,6 +237,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         const manga = authorizeManga(actor, result.data, slug, teams);
         let response = { success: true };
         let message;
+        let chapterCleanup;
         switch (path) {
             case "/edit-manga": {
                 const team = actor.role === "admin" && body.teamId !== undefined && body.teamId !== manga.teamId
@@ -260,7 +261,16 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             case "/new-chapter": {
                 Object.assign(manga, rawFlag(body));
                 const id = chapterNumber(body.chapterNumber);
-                if (manga.chapters.some(chapter => Number(chapter.id) === id)) fail(409, "Chapter already exists");
+                const existing = manga.chapters.find(chapter => Number(chapter.id) === id);
+                if (existing) {
+                    const names = chapterImages(body.images, pageCount(body.imageCount));
+                    const finals = names.map((name, i) => `${i + 1}.${name.split('.').pop()}`);
+                    if (existing.title !== body.title || JSON.stringify(existing.images) !== JSON.stringify(finals)) fail(409, "Chapter already exists");
+                    await promoteChapterPages(env.BUCKET, `${slug}/chap${id}`, names, { committed: true });
+                    try { await cleanupChapterSources(env.BUCKET, `${slug}/chap${id}`, names, result.data, publicBase(env)); }
+                    catch { log({ service: "r2", operation: "chapter-staging-cleanup", outcome: "retry-required" }); }
+                    return { success: true, chapter: existing };
+                }
                 if (typeof body.title !== "string" || !body.title.trim()) fail(400, "Invalid chapter title");
                 const chapter = {
                     id, title: body.title, createAt: new Date().toISOString(),
@@ -268,7 +278,8 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 };
                 chapter.images = chapterImages(body.images, chapter.pages);
                 for (const name of chapter.images) if (!await env.BUCKET.head(`${slug}/chap${id}/${name}`)) fail(400, "Chapter image not uploaded");
-                chapter.images = await promoteChapterPages(env.BUCKET, `${slug}/chap${id}`, chapter.images);
+                chapterCleanup = { folder: `${slug}/chap${id}`, names: [...chapter.images] };
+                chapter.images = await promoteChapterPages(env.BUCKET, chapterCleanup.folder, chapter.images);
                 manga.chapters.push(chapter);
                 manga.chapters.sort((a, b) => a.id - b.id);
                 response.chapter = chapter;
@@ -302,6 +313,14 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             }
         }
         await saveData(env, result.data, result.sha, message);
+        if (chapterCleanup) {
+            try {
+                const committed = await getFile(env, "data.json");
+                const saved = committed.data[slug]?.chapters?.find(chapter => chapter.folder === response.chapter.folder);
+                if (JSON.stringify(saved?.images) !== JSON.stringify(response.chapter.images)) throw new Error("Catalogue verification failed");
+                await cleanupChapterSources(env.BUCKET, chapterCleanup.folder, chapterCleanup.names, committed.data, publicBase(env));
+            } catch { log({ service: "r2", operation: "chapter-staging-cleanup", outcome: "retry-required" }); }
+        }
         return response;
     }
 

@@ -56,6 +56,10 @@ function harness() {
         },
         async head(key) { return objects.has(key) ? {} : null; },
         async delete(key) {
+            if (/\/chap1\/[1-9]\d*-[a-f0-9-]+\./.test(key)) {
+                assert.ok(commits.length > 0, 'staging deletion follows catalogue commit');
+                assert.ok(catalogue.own.chapters.some(chapter => chapter.id === 1 && chapter.images.every(name => !name.includes('-'))));
+            }
             operations.push(['delete', key]);
             if (failDelete) throw new Error('private bucket credentials');
             objects.delete(key);
@@ -431,8 +435,8 @@ test('new chapter promotes UUID upload sources into numbered final WebP names', 
     assert.equal(response.status, 200);
     assert.deepEqual((await response.json()).chapter.images, ['1.webp', '2.webp', '3.webp']);
     assert.deepEqual(h.catalogue().own.chapters[1].images, ['1.webp', '2.webp', '3.webp']);
-    for (const name of images) assert.ok(h.objects.has(`own/chap1/${name}`));
-    assert.equal(h.operations.some(([operation]) => operation === 'delete'), false);
+    for (const name of images) assert.equal(h.objects.has(`own/chap1/${name}`), false);
+    assert.equal(h.operations.filter(([operation]) => operation === 'delete').length, 3);
 });
 
 test('failed new chapter catalogue commit retains existing chapter and staged sources', async () => {
@@ -462,7 +466,8 @@ test('new mixed-format promotion leaves an existing UUID chapter and its objects
     assert.deepEqual(h.catalogue().own.chapters[1].images, ['1.webp', '2.jpg', '3.png']);
     assert.deepEqual(h.catalogue().own.chapters[0], before);
     assert.equal(new TextDecoder().decode(h.objects.get(`own/chap0/${existingName}`).bytes), 'published existing bytes');
-    assert.ok(h.operations.every(([operation, key]) => operation === 'put' && key.startsWith('own/chap1/')));
+    assert.ok(h.operations.every(([, key]) => key.startsWith('own/chap1/')));
+    for (const name of images) assert.equal(h.objects.has(`own/chap1/${name}`), name === existingName);
     const operationsBefore = h.operations.length;
     assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 0, title: 'Forbidden replacement', imageCount: 1, images: [existingName] }, leader)).status, 409);
     assert.equal(h.operations.length, operationsBefore);
@@ -548,4 +553,38 @@ test('editorial fields reject non-booleans and invalid legacy order without comm
     assert.equal(h.catalogue().own.isRawCaughtUp, true);
     assert.equal(h.catalogue().own.adminPick, true); // Team callers cannot change editorial selection.
     assert.equal((await h.call('/edit-manga', { ...body, slug: 'other' }, leader)).status, 403);
+});
+
+test('successful publish retries with missing staging and retained staging after delete failure', async () => {
+    const h = harness();
+    const page = await (await h.call('/upload', upload('own/chap1'), leader)).json();
+    const body = { manga: 'own', chapterNumber: 1, title: 'Retry', imageCount: 1, images: [page.key.split('/').pop()] };
+    assert.equal((await h.call('/new-chapter', body, leader)).status, 200);
+    assert.equal(h.objects.has(page.key), false);
+    assert.equal((await h.call('/new-chapter', body, leader)).status, 200);
+    assert.equal(h.commits.length, 1);
+    const g = harness();
+    const source = await (await g.call('/upload', upload('own/chap1'), leader)).json();
+    g.failDelete();
+    assert.equal((await g.call('/new-chapter', { ...body, images: [source.key.split('/').pop()] }, leader)).status, 200);
+    assert.ok(g.objects.has(source.key));
+});
+
+test('referenced session source anywhere in catalogue survives publication', async () => {
+    const h = harness();
+    const page = await (await h.call('/upload', upload('own/chap1'), leader)).json();
+    h.catalogue().other.retainedAsset = `https://images.test/${page.key}`;
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Referenced', imageCount: 1, images: [page.key.split('/').pop()] }, leader)).status, 200);
+    assert.ok(h.objects.has(page.key));
+});
+
+test('failed final verification retains staging and does not commit', async () => {
+    const h = harness();
+    const page = await (await h.call('/upload', upload('own/chap1'), leader)).json();
+    const put = h.BUCKET.put;
+    h.BUCKET.put = async (...args) => { const result = await put(...args); h.objects.get(args[0]).bytes = new Uint8Array([0]); return result; };
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Bad', imageCount: 1, images: [page.key.split('/').pop()] }, leader)).status, 400);
+    assert.ok(h.objects.has(page.key));
+    assert.equal(h.commits.length, 0);
+    assert.equal(h.operations.some(([op]) => op === 'delete'), false);
 });

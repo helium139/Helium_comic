@@ -30,7 +30,7 @@ for (const extensions of [['webp','webp','webp'], ['jpg','webp','png']]) test(`f
 });
 test('reorder uses final display order', async () => {
     const names = [`1-${uuid}.jpg`, `2-${uuid}.png`], f = fixture(names);
-    const result = await promoteChapterPages(f.bucket, 'm/chap1', names.toReversed());
+    const result = await promoteChapterPages(f.bucket, 'm/chap1', [...names].reverse());
     assert.deepEqual(result, ['1.png', '2.jpg']);
     assert.deepEqual([...f.objects.get('m/chap1/1.png').body], [...f.objects.get(`m/chap1/${names[1]}`).body]);
 });

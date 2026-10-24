@@ -181,7 +181,7 @@ export async function connect({ env = process.env, fetchImpl = fetch, sendS3 } =
     if (publicUrl.protocol !== 'https:' || publicUrl.username || publicUrl.password || publicUrl.search || publicUrl.hash) throw new MigrationError('configuration', 'Invalid R2_PUBLIC_URL; HTTPS required, without credentials, query or fragment');
     const endpoint = required('R2_ENDPOINT').replace(/\/+$/, '');
     if (!/^https:\/\/[a-z0-9]+\.r2\.cloudflarestorage\.com$/.test(endpoint)) throw new MigrationError('configuration', 'Invalid R2_ENDPOINT; expected https://<account-id>.r2.cloudflarestorage.com (not the public r2.dev URL)');
-    const { S3Client, ListObjectsV2Command, HeadObjectCommand, GetObjectCommand, PutObjectCommand } =
+    const { S3Client, ListObjectsV2Command, HeadObjectCommand, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } =
         await atStage('dependencies', {}, () => import('@aws-sdk/client-s3'));
     const client = new S3Client({ region: 'auto', endpoint,
         credentials: { accessKeyId: required('R2_ACCESS_KEY_ID'), secretAccessKey: required('R2_SECRET_ACCESS_KEY') } });
@@ -204,6 +204,7 @@ export async function connect({ env = process.env, fetchImpl = fetch, sendS3 } =
                 return { bytes: Buffer.from(await result.Body.transformToByteArray()), contentType: result.ContentType };
             });
         },
+        delete: (Key, { ifMatch }) => atStage('r2.delete', { key: Key }, () => send(new DeleteObjectCommand({ Bucket, Key, IfMatch: ifMatch }))),
         put: (Key, Body) => atStage('r2.put', { key: Key }, () => send(new PutObjectCommand({ Bucket, Key, Body, ContentType: 'image/webp', IfNoneMatch: '*' })))
     };
     const owner = required('GITHUB_OWNER'), repo = required('GITHUB_REPO'), branch = required('GITHUB_BRANCH');
@@ -237,7 +238,7 @@ export async function connect({ env = process.env, fetchImpl = fetch, sendS3 } =
         },
         save: ({ sha, data }) => request('PUT', { sha, branch, message: 'Migrate verified comic image to WebP', content: Buffer.from(JSON.stringify(data, null, 4)).toString('base64') })
     };
-    return { base, store, catalogue };
+    return { base, store, catalogue, close: () => client.destroy() };
 }
 
 export function parseArguments(args) {
