@@ -2,6 +2,7 @@ import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../asse
 import { chapterUrl } from "../assets/js/routes.js";
 import { requireStaff } from "../assets/js/adminGuard.js";
 import { getMangas } from "./api/manga.js";
+import { bindUploadProgress, paintProgress, settleUploadProgress } from "./upload-progress.mjs";
 import { uploadImage } from "./api/upload.js";
 import {
     publishChapter,
@@ -53,6 +54,7 @@ const dropZone = document.getElementById("dropZone");
 const uploadLog = document.getElementById("uploadLog");
 
 const progress = document.getElementById("progress");
+const uploadProgress = bindUploadProgress(progress);
 
 const fileCount = document.getElementById("fileCount");
 
@@ -616,6 +618,10 @@ function updateStats(){
 =========================== */
 
 async function save(){
+    if (uploadBtn.disabled) return;
+    uploadProgress.reset(mode === 'new' ? (pageOrder.length || newImages.length) : newImages.length);
+    uploadLog.textContent = '';
+    document.getElementById('chapterLinkBox')?.classList.add('hidden');
 
     uploadBtn.disabled = true;
     const controls = [...document.querySelectorAll('input, select, textarea, button')].filter(control => control !== uploadBtn);
@@ -644,6 +650,8 @@ async function save(){
         }
 
         mangas[mangaSelect.value].isRawCaughtUp = isRawCaughtUp;
+        uploadProgress.complete();
+        await settleUploadProgress(progress);
         alert("Đã lưu thành công.");
 
     }
@@ -651,7 +659,8 @@ async function save(){
     catch(err){
 
         console.error(err);
-
+        uploadProgress.fail(err.message);
+        await paintProgress();
         alert(err.message);
 
     }
@@ -704,16 +713,13 @@ async function uploadChapter(isRawCaughtUp = false){
 
     }
 
-    progress.innerHTML =
-
-    "Đang upload...";
-
     // Snapshot the displayed order; upload indices become final published page numbers.
     const orderedImages = [...(pageOrder.length ? pageOrder : newImages)];
+    if (!orderedImages.length) throw new Error('Chưa chọn ảnh chapter.');
+    uploadProgress.prepared();
+    await paintProgress();
     const filenames = [];
     for(let i=0;i<orderedImages.length;i++){
-
-        setUploadPercent(i,orderedImages.length);
 
         const file = orderedImages[i];
 
@@ -725,14 +731,14 @@ async function uploadChapter(isRawCaughtUp = false){
 
             .toLowerCase();
 
-        progress.textContent = `Converting / uploading ${i+1}/${orderedImages.length}`;
         const uploadedUrl = await uploadImage(
 
             file,
 
             `${slug}/chap${chapter}`,
 
-            `${i+1}.${ext}`
+            `${i+1}.${ext}`,
+            uploadProgressOptions(i)
 
         );
 
@@ -743,13 +749,10 @@ async function uploadChapter(isRawCaughtUp = false){
 
         );
 
-        setUploadPercent(
-    i + 1,
-    orderedImages.length
-);
-
     }
 
+    uploadProgress.publishing();
+    await paintProgress();
     await publishChapter({
         isRawCaughtUp: isRawCaughtUp === true,
 
@@ -764,9 +767,8 @@ async function uploadChapter(isRawCaughtUp = false){
 
     });
 
-    progress.innerHTML =
-
-    "✔ Upload hoàn tất";
+    uploadProgress.published();
+    await paintProgress();
 
         const link =
 `https://heliumtg.com${chapterUrl(slug, chapter)}`;
@@ -807,14 +809,13 @@ async function saveChapter(isRawCaughtUp = false){
 
     const folder = `${currentSlug}/chap${currentChapter}`;
 
-    progress.innerHTML = "Đang upload ảnh mới...";
+    uploadProgress.prepared();
+    await paintProgress();
     log("Upload ảnh mới...");
 
     const uploaded = new Map();
 
     let nextIndex = existingImages.length + 1;
-
-    const total = newImages.length;
 
     for(let i=0;i<newImages.length;i++){
 
@@ -827,11 +828,11 @@ async function saveChapter(isRawCaughtUp = false){
 
         const filename = `${nextIndex}.${ext}`;
 
-        progress.textContent = `Converting / uploading ${i+1}/${newImages.length}`;
         const uploadedUrl = await uploadImage(
             file,
             folder,
-            filename
+            filename,
+            uploadProgressOptions(i)
         );
 
         uploaded.set(file, {
@@ -846,11 +847,10 @@ async function saveChapter(isRawCaughtUp = false){
 
         log(`✔ ${uploadedUrl.split('/').pop()}`);
 
-        setUploadPercent(i + 1, total);
-
     }
 
-    progress.innerHTML = "Đang sắp xếp ảnh...";
+    uploadProgress.publishing("Đang sắp xếp ảnh...");
+    await paintProgress();
 
     const images = pageOrder.map(img => uploaded.get(img) || img);
 
@@ -866,7 +866,8 @@ async function saveChapter(isRawCaughtUp = false){
         throw new Error('Worker did not return reordered filenames; reload after the Worker update.');
     }
 
-    progress.innerHTML = "Đang cập nhật chapter...";
+    uploadProgress.reordered();
+    await paintProgress();
 
     await updateChapter({
         isRawCaughtUp: isRawCaughtUp === true,
@@ -885,6 +886,9 @@ async function saveChapter(isRawCaughtUp = false){
 
     });
 
+    uploadProgress.published();
+    await paintProgress();
+
     existingImages = images.map((img, index) => {
         const name = renamed.images[index];
         return { ...img, name, url: `${mangas[currentSlug].chapters.find(c=>c.id===currentChapter).folder}/${name}` };
@@ -893,8 +897,6 @@ async function saveChapter(isRawCaughtUp = false){
     newImages = [];
 
     renderPreview();
-
-    progress.innerHTML = "✔ Hoàn tất";
 
     log("✔ Chapter updated");
 
@@ -940,7 +942,7 @@ function resetForm(){
 
     uploadLog.innerHTML="";
 
-    progress.innerHTML="";
+    uploadProgress.reset();
 
     chapterFiles.value="";
 
@@ -1010,31 +1012,11 @@ addImageBtn.onclick = () => {
     chapterFiles.click();
 };
 
-function setUploadPercent(current, total){
-
-    const percent = total === 0
-        ? 0
-        : Math.round(current / total * 100);
-
-    progress.innerHTML = `
-
-        <div class="progress-header">
-
-            <span>Đang upload...</span>
-
-            <span>${current}/${total} (${percent}%)</span>
-
-        </div>
-
-        <div class="progress-bar">
-
-            <div
-                class="progress-fill"
-                style="width:${percent}%">
-            </div>
-
-        </div>
-
-    `;
-
+function uploadProgressOptions(index) {
+    return { onProgress: async phase => {
+        if (phase === 'converting') uploadProgress.converting(index);
+        if (phase === 'converted') uploadProgress.converted(index);
+        if (phase === 'uploaded') uploadProgress.uploaded(index);
+        await paintProgress();
+    } };
 }

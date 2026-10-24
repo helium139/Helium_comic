@@ -556,8 +556,21 @@ button:disabled{
 
     border-radius:999px;
 
-    transition:width .25s;
+    transition:width 180ms ease;
 
+    flex:none;
+
+    min-width:0;
+
+}
+
+.progress-wrapper.is-error .progress-fill{ background:#ef4444; }
+.progress-wrapper.is-error #progressStatus{ color:#fca5a5; }
+.progress-wrapper.is-success .progress-fill{ background:#22c55e; }
+.progress-header{ gap:12px; }
+#progressPercent{ flex:none; font-variant-numeric:tabular-nums; }
+@media (prefers-reduced-motion: reduce){
+    .progress-fill{ transition:none; }
 }
 
 /* ===========================

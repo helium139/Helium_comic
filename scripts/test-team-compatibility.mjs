@@ -1,3 +1,4 @@
+import { createUploadProgress } from "../admin/upload-progress.mjs";
 import { paginateMangas, renderPagination } from '../admin/pagination.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -161,6 +162,7 @@ test('chapter editor recognizes chapter zero in a direct edit URL', async () => 
     const context = {
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ role: 'admin' }),
+        bindUploadProgress: () => createUploadProgress(),
         URLSearchParams, location: { search: '?manga=own&chapter=0' },
         document: { getElementById: () => ({ addEventListener() {} }) }
     };

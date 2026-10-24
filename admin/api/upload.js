@@ -32,14 +32,18 @@ export async function uploadImage(
 
     folder,
 
-    filename
+    filename,
+
+    { onProgress = () => {} } = {}
 
 ){
 
     const sourceName = file.name || filename;
     const chapter = folder.includes('/');
+    await onProgress('converting');
     const prepared = await prepareImage(file, chapter ? filename : file.name, chapter ? 0.85 : 0.88);
     traceConversion(file, prepared);
+    await onProgress('converted');
     file = prepared.file;
     filename = chapter ? prepared.filename : `cover.${prepared.filename.split('.').pop().toLowerCase()}`;
     const form = new FormData();
@@ -101,6 +105,7 @@ export async function uploadImage(
     }
 
     traceUpload({ stage: 'uploaded', key: json.key, url: json.url });
+    await onProgress('uploaded');
     return json.url;
 
 }

@@ -225,8 +225,15 @@ Chọn ảnh
 
 </div>
 
-<div id="progress" class="progress-wrapper">
-
+<div id="progress" class="progress-wrapper" aria-busy="false">
+    <div class="progress-header">
+        <span id="progressStatus" role="status" aria-live="polite">Chưa bắt đầu</span>
+        <span id="progressPercent">0%</span>
+    </div>
+    <div id="progressTrack" class="progress-bar" role="progressbar"
+         aria-label="Tiến độ lưu chapter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div id="progressFill" class="progress-fill"></div>
+    </div>
 </div>
 <div id="chapterLinkBox" class="chapter-link-box hidden">
 

@@ -1,3 +1,4 @@
+import { createUploadProgress } from "../admin/upload-progress.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -71,12 +72,24 @@ test('EXIF-oriented JPEG stays original to preserve visual orientation', async (
 });
 
 const chapterSource = await readFile(new URL('../admin/chapter.js', import.meta.url), 'utf8');
+// Function-level chapter fixtures use the real progress model and callback adapter.
+function withProgress(context) {
+    context.uploadProgress = createUploadProgress();
+    context.uploadProgress.reset(context.newImages?.length || 0);
+    context.paintProgress = async () => {};
+    return context;
+}
+function chapterContext(context) {
+    vm.createContext(withProgress(context));
+    vm.runInContext(chapterSource.slice(chapterSource.indexOf('function uploadProgressOptions(')), context);
+}
+
 for (const rawValue of [undefined, false, true]) for (const fail of [false, true]) test(`chapter uploads (raw=${rawValue}) sequentially and ${fail ? 'does not publish after upload failure' : 'publishes returned filenames in order'}`, async () => {
     let active = 0, maximum = 0, published;
     const context = {
         mangaSelect: { value: 'manga' }, mangas: { manga: {} }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {},
-        pageOrder: [], newImages: [{ name: 'a.jpg' }, { name: 'b.png' }], setUploadPercent() {}, log() {},
+        pageOrder: [], newImages: [{ name: 'a.jpg' }, { name: 'b.png' }], log() {},
         uploadImage: async (file, folder, name) => {
             active++; maximum = Math.max(active, maximum); await Promise.resolve(); active--;
             if (fail) throw new Error('Upload failed');
@@ -85,7 +98,7 @@ for (const rawValue of [undefined, false, true]) for (const fail of [false, true
         publishChapter: async value => { published = value; }, chapterUrl: () => '/chapter/',
         chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(context);
+    chapterContext(context);
     vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), context);
     if (fail) { await assert.rejects(context.uploadChapter(rawValue), /Upload failed/); assert.equal(published, undefined); }
     else { await context.uploadChapter(rawValue); assert.deepEqual(Array.from(published.images), ['1.webp', '2.webp']); assert.equal(published.isRawCaughtUp, rawValue === true); }
@@ -97,13 +110,13 @@ test('100-page upload keeps selection order and at most one upload active', asyn
     const files = ['1.jpg', '2.jpg', '10.jpg', ...Array.from({ length: 97 }, (_, i) => `${i+11}.jpg`)].map(name => ({ name }));
     const c = { mangaSelect: { value: 'm' }, mangas: { m: {} }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {}, newImages: files,
-        pageOrder: [], setUploadPercent() {}, log() {}, uploadImage: async (file, folder, name) => {
+        pageOrder: [], log() {}, uploadImage: async (file, folder, name) => {
             active++; maximum = Math.max(maximum, active); seen.push(file.name); await Promise.resolve(); active--;
             return `https://images.test/${folder}/${name}`;
         }, publishChapter: async data => { published = data; }, chapterUrl: () => '/', chapterLink: {},
         chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), c);
+    chapterContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), c);
     await c.uploadChapter(); assert.equal(maximum, 1); assert.deepEqual(seen, files.map(file => file.name));
     assert.equal(published.images.length, 100);
 });
@@ -123,14 +136,14 @@ for (const rawValue of [undefined, false, true]) for (const failure of [undefine
     let renamedSources, saved;
     const c = { currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 0,
         mangas: { m: { chapters: [{ id: 0, folder: 'https://img.test/m/chap0' }] } },
-        existingImages: [a, b], newImages: [added], pageOrder: [a, added, b], progress: {}, log() {}, setUploadPercent() {},
+        existingImages: [a, b], newImages: [added], pageOrder: [a, added, b], progress: {}, log() {},
         uploadImage: async () => { if (failure === 'upload') throw Error('upload'); return 'https://img.test/m/chap0/3.webp'; },
         renameImages: async body => { if (failure === 'rename') throw Error('rename'); renamedSources = body.images; return { images: ['1.webp', '2.webp', '3.png'] }; },
         updateChapter: async body => { if (failure === 'update') throw Error('update'); saved = body; },
         chapterTitle: { value: 'Edit' }, chapterDate: { value: '2026-01-01' }, renderPreview() {},
         chapterUrl: () => '/', chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter('), chapterSource.indexOf('function resetForm(){')), c);
+    chapterContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter('), chapterSource.indexOf('function resetForm(){')), c);
     if (failure) {
         await assert.rejects(c.saveChapter(rawValue), new RegExp(failure));
         assert.equal(c.newImages[0], added); assert.equal(c.existingImages[0], a); assert.equal(saved, undefined);
@@ -167,14 +180,14 @@ test('new chapter numbers uploads from final displayed order, preserving actual 
     const c = { mangaSelect: { value: 'm' }, mangas: { m: { chapters: [] } }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '4' }, chapterTitle: { value: 'New' }, progress: {},
         newImages: [first, second, third], pageOrder: [third, first, second],
-        setUploadPercent() {}, log() {}, uploadImage: async (file, folder, name) => {
+        log() {}, uploadImage: async (file, folder, name) => {
             seen.push([file.name, name]);
             const ext = file === first ? 'jpg' : file === second ? 'png' : 'webp';
             return `https://images.test/${folder}/${name.split('.')[0]}-6a294080-018b-4e4a-b5d2-1d945dba7afa.${ext}`;
         }, publishChapter: async value => { saved = value; }, chapterUrl: () => '/', chapterLink: {},
         chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
-    vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), c);
+    chapterContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function uploadChapter('), chapterSource.indexOf('async function saveChapter(')), c);
     await c.uploadChapter();
     assert.deepEqual(seen, [['third.jpg', '1.jpg'], ['first.jpg', '2.jpg'], ['second.png', '3.png']]);
     assert.deepEqual(Array.from(saved.images, name => name.split('.').pop()), ['webp', 'jpg', 'png']);
