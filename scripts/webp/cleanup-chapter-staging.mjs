@@ -4,14 +4,32 @@ import { inventory, fetchLiveCatalogue, notFound, createJournal } from './cleanu
 import { stagingName } from '../../worker/source/chapter-promotion.js';
 import { imageFormat } from '../../worker/source/image-format.js';
 
-const DAY = 24 * 60 * 60 * 1000;
+const HOUR = 60 * 60 * 1000;
 export function parseStagingArguments(args) {
-    const supplied = [...args];
+    const supplied = [];
+    let minAgeHours = 24;
+    let minAgeProvided = false;
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] !== '--min-age-hours') {
+            supplied.push(args[i]);
+            continue;
+        }
+        if (minAgeProvided) throw new Error('Duplicate --min-age-hours');
+        if (args[i + 1] === undefined || args[i + 1].startsWith('--')) {
+            throw new Error('Missing value for --min-age-hours');
+        }
+        minAgeProvided = true;
+        const value = args[++i];
+        minAgeHours = Number(value);
+        if (!value.trim() || !Number.isFinite(minAgeHours) || minAgeHours < 0) {
+            throw new Error('Invalid --min-age-hours; expected a number greater than or equal to 0');
+        }
+    }
     if (!supplied.includes('--apply') && !supplied.includes('--dry-run')) supplied.push('--dry-run');
     if (!supplied.includes('--scope')) supplied.push('--scope', 'chapters');
     const options = parseArguments(supplied);
     if (options.scope !== 'chapters') throw new Error('Only chapters supported');
-    return options;
+    return { ...options, minAgeHours };
 }
 
 export async function decodeImage(bytes) {
@@ -23,8 +41,10 @@ export async function decodeImage(bytes) {
 }
 
 export async function cleanupStaging({ store, catalogue, liveCatalogue, base, prefix, apply = false,
-    journal, verify = decodeImage, log = console.log, now = Date.now(), limit = Infinity }) {
+    journal, verify = decodeImage, log = console.log, now = Date.now(), limit = Infinity,
+    minAgeHours = 24 }) {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*\/(?:chap\d+(?:\.\d+)?\/)?$/.test(prefix)) throw new Error('Explicit manga/chapter prefix required');
+    if (!Number.isFinite(minAgeHours) || minAgeHours < 0) throw new Error('Invalid minimum age; expected a number greater than or equal to 0');
     if (apply && typeof journal !== 'function') throw new Error('Apply requires a durable journal');
     log(apply ? 'APPLY MODE' : 'DRY RUN - NO FILES WILL BE DELETED');
     log(`Prefix: ${prefix}`);
@@ -42,10 +62,11 @@ export async function cleanupStaging({ store, catalogue, liveCatalogue, base, pr
         return null;
     };
     const stats = { scanned: 0, candidates: 0, safeToDelete: 0, skippedReferenced: 0,
-        skippedMissingFinal: 0, skippedVerificationFailed: 0, skippedUnknown: 0, deleted: 0, reclaimableBytes: 0 };
+        skippedMissingFinal: 0, skippedRecent: 0, skippedVerificationFailed: 0, skippedUnknown: 0,
+        deleted: 0, reclaimableBytes: 0 };
     const count = { SKIP_REFERENCED: 'skippedReferenced', SKIP_MISSING_FINAL: 'skippedMissingFinal',
         SKIP_UNKNOWN: 'skippedUnknown', SKIP_VERIFICATION_FAILED: 'skippedVerificationFailed',
-        SKIP_CHANGED: 'skippedVerificationFailed', SKIP_RECENT: 'skippedVerificationFailed' };
+        SKIP_CHANGED: 'skippedVerificationFailed', SKIP_RECENT: 'skippedRecent' };
     const skip = async (key, reason) => {
         stats[count[reason]]++; log(`${reason} ${key}`);
         if (apply) await journal({ stagingKey: key, finalKey: null, action: 'skip',
@@ -58,7 +79,7 @@ export async function cleanupStaging({ store, catalogue, liveCatalogue, base, pr
         const ah = await store.head(key), a = await store.get(key);
         // Missing timestamps cannot establish that publication is quiescent.
         if (![ah, bh].every(head => Number.isFinite(new Date(head.LastModified).getTime()) &&
-            new Date(head.LastModified).getTime() <= now - DAY)) return { reason: 'SKIP_RECENT' };
+            new Date(head.LastModified).getTime() <= now - minAgeHours * HOUR)) return { reason: 'SKIP_RECENT' };
         const format = imageFormat(b.bytes.subarray(0, 32));
         if (!format || !b.bytes.length || b.bytes.length > 32 * 1024 * 1024 ||
             format[0] !== final.split('.').pop().replace('jpeg', 'jpg') ||
@@ -126,7 +147,7 @@ export async function cleanupStaging({ store, catalogue, liveCatalogue, base, pr
         stats.deleted++;
         await record('delete', 'confirmed missing');
     }
-    log(`Scanned: ${stats.scanned}\nCandidates: ${stats.candidates}\nSafe to delete: ${stats.safeToDelete}\nSkipped referenced: ${stats.skippedReferenced}\nSkipped missing final: ${stats.skippedMissingFinal}\nSkipped verification failed: ${stats.skippedVerificationFailed}\nSkipped unknown: ${stats.skippedUnknown}\nDeleted: ${stats.deleted}`);
+    log(`Scanned: ${stats.scanned}\nCandidates: ${stats.candidates}\nSafe to delete: ${stats.safeToDelete}\nSkipped referenced: ${stats.skippedReferenced}\nSkipped missing final: ${stats.skippedMissingFinal}\nSkipped recent: ${stats.skippedRecent}\nSkipped verification failed: ${stats.skippedVerificationFailed}\nSkipped unknown: ${stats.skippedUnknown}\nDeleted: ${stats.deleted}`);
     log(apply ? 'APPLY COMPLETE' : 'DRY RUN - NO FILES DELETED');
     return stats;
 }

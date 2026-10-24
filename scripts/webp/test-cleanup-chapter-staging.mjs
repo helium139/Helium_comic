@@ -41,6 +41,29 @@ test('default dry-run reports exact safe candidate, bytes and zero deletes', asy
     assert.ok(f.logs.includes(`SAFE\nstaging: ${f.key}\nfinal:   ${f.final}\nbytes:   ${images.webp.length}`));
     assert.equal(f.logs.at(-1), 'DRY RUN - NO FILES DELETED');
 });
+test('default minimum age remains 24 hours and skips recent objects separately', async () => {
+    const f = fixture();
+    const now = Date.now();
+    const head = f.options.store.head;
+    f.options.store.head = async key => ({ ...await head(key), LastModified: new Date(now - 60 * 60 * 1000) });
+    const parsed = parseStagingArguments(['--dry-run', '--prefix', 'm/chap1/']);
+    assert.equal(parsed.minAgeHours, 24);
+    const stats = await cleanupStaging({ ...f.options, now });
+    assert.equal(stats.skippedRecent, 1);
+    assert.equal(stats.skippedVerificationFailed, 0);
+    assert.ok(f.logs.some(line => line.includes('Skipped recent: 1')));
+    assert.deepEqual(f.deleted, []);
+});
+test('minimum age zero allows a recent object through only the age gate', async () => {
+    const f = fixture();
+    const now = Date.now();
+    const head = f.options.store.head;
+    f.options.store.head = async key => ({ ...await head(key), LastModified: new Date(now - 60 * 60 * 1000) });
+    const stats = await cleanupStaging({ ...f.options, now, minAgeHours: 0 });
+    assert.equal(stats.safeToDelete, 1);
+    assert.equal(stats.skippedRecent, 0);
+    assert.deepEqual(f.deleted, []);
+});
 for (const ext of ['webp', 'jpg', 'png']) test(`apply preserves ${ext} extension and only deletes verified staging; retry safe`, async () => {
     const f = fixture(ext);
     assert.equal((await cleanupStaging({ ...f.options, apply: true })).deleted, 1);
@@ -113,6 +136,37 @@ test('CLI defaults to dry-run, accepts manga prefix, rejects global prefix and c
     assert.equal(parseStagingArguments(['--prefix', 'm/']).apply, false);
     assert.equal(parseStagingArguments(['--apply', '--prefix', 'm/chap1/', '--journal', 'audit.jsonl']).apply, true);
     for (const args of [[], ['--prefix', '/'], ['--prefix', ''], ['--apply', '--dry-run', '--prefix', 'm/']]) assert.throws(() => parseStagingArguments(args));
+});
+test('minimum age accepts nonnegative numbers and rejects missing, negative or invalid values', () => {
+    for (const value of ['0', '1', '24', '48']) {
+        assert.equal(parseStagingArguments(['--prefix', 'm/', '--min-age-hours', value]).minAgeHours, Number(value));
+    }
+    for (const value of ['-1', 'abc', 'NaN', '']) {
+        assert.throws(() => parseStagingArguments(['--prefix', 'm/', '--min-age-hours', value]), /min-age-hours/);
+    }
+    assert.throws(() => parseStagingArguments(['--prefix', 'm/', '--min-age-hours']), /min-age-hours/);
+});
+for (const [name, makeUnsafe, skipped] of [
+    ['catalogue reference', f => { f.data.m.chapters[0].images = [f.name]; }, 'skippedReferenced'],
+    ['live catalogue reference', f => f.live({ m: { ...f.data.m, asset: `https://images.test/${f.key}?v=1` } }), 'skippedReferenced'],
+    ['missing final', f => f.objects.delete(f.final), 'skippedMissingFinal'],
+    ['different bytes', f => f.objects.set(f.final, images.png), 'skippedVerificationFailed'],
+    ['invalid MIME', f => {
+        const get = f.options.store.get;
+        f.options.store.get = async key => ({ ...await get(key), contentType: key === f.final ? 'text/plain' : 'image/webp' });
+    }, 'skippedVerificationFailed'],
+    ['decode failure', f => { f.options.verify = async () => { throw new Error('decode failed'); }; }, 'skippedVerificationFailed'],
+    ['missing ETag', f => {
+        const head = f.options.store.head;
+        f.options.store.head = async key => ({ ...await head(key), ETag: key === f.key ? undefined : 'final-etag' });
+    }, 'skippedVerificationFailed']
+]) test(`minimum age zero does not bypass ${name}`, async () => {
+    const f = fixture();
+    makeUnsafe(f);
+    const stats = await cleanupStaging({ ...f.options, minAgeHours: 0 });
+    assert.equal(stats[skipped], 1);
+    assert.equal(stats.safeToDelete, 0);
+    assert.deepEqual(f.deleted, []);
 });
 test('real decoder rejects a plausible signature with truncated image payload', async () => {
     await assert.rejects(decodeImage(Buffer.from('RIFF1234WEBPpage')));

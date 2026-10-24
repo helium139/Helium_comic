@@ -333,6 +333,7 @@ rejected. No mode means dry-run. Both command filenames below are supported:
 
 ```sh
 node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --dry-run --prefix manga-slug/chap20/
+node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --dry-run --prefix manga-slug/chap20/ --min-age-hours 0
 node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --apply --prefix manga-slug/chap20/ --journal cleanup-staging-chap20.jsonl
 # Manga scope is also supported:
 node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --prefix manga-slug/
@@ -341,12 +342,16 @@ node --env-file=.env.webp scripts/webp/cleanup-staging-duplicates.mjs --prefix m
 The tool reuses the migration R2 connection and the original-cleanup catalogue
 inventory and public catalogue fetch. Both catalogues must be readable and valid.
 Any reference to a staging key/URL, including legacy chapter manifests, protects it.
-The exact numbered final must be referenced by both catalogues. It must have a
+The default minimum object age is 24 hours; override it with
+`--min-age-hours <number>` (a nonnegative number). Setting it to `0` removes
+only the age threshold; all catalogue and object verification checks still
+apply. The exact numbered final must be referenced by both catalogues. It must have a
 nonzero size, a signature matching its extension, matching MIME when present,
 consistent HEAD/GET sizes, and fully decodable pixels via Sharp. Staging and final
 must have identical bytes (and therefore identical dimensions). Both must have
-ETags and modification timestamps at least 24 hours old. Missing timestamps,
-recent objects, unknown names and failures are skipped with explicit reasons.
+ETags and valid modification timestamps at least the configured age. Missing
+timestamps, recent objects, unknown names and failures are skipped with explicit
+reasons; recent objects have a separate summary counter.
 
 Apply must run while uploads, edits, publishing and migrations are paused for the
 requested prefix. There is no shared cross-service lock between GitHub and R2;
