@@ -4875,8 +4875,29 @@
                     "29.webp",
                     "30.webp"
                 ]
+            },
+            {
+                "id": 10,
+                "title": "Chap 10",
+                "createAt": "2026-10-24T06:33:46.760Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/chap10",
+                "pages": 11,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp",
+                    "11.webp"
+                ]
             }
-        ]
+        ],
+        "isRawCaughtUp": false
     },
     "tuyen-tap-tu-y-cam-xuat-tinh": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tuyen-tap-tu-y-cam-xuat-tinh/cover.webp",
