@@ -10,15 +10,55 @@
   <script type="module" src="/assets/js/team-pages.js"></script>
 </head>
 <body class="team-page" data-page="team">
-  <nav class="navigation" aria-label="Điều hướng chính">
-    <a href="/">Trang Chủ</a>
-    <a href="/follow/">Theo Dõi</a>
-    <a href="/history/">Lịch Sử Đọc</a>
-    <a href="/user/">Hồ Sơ</a>
-    <a href="/teams.html" >Nhóm Dịch</a>
-  </nav>
+  <header class="first_banner">
+      <a href="/"><img src="/assets/images/helium_logo.webp" alt="Helium Team Logo" width="150px"></a>
+      <h1 class="welcome_text">Helium Team</h1>
+      <div class="search_bar_form justify-content-center">
+                    <input class="search_bar" id="search-input" type="text" placeholder="Tìm kiếm truyện, tác giả, thể loại...">
+                    <button class="search_button justify-content-center" id="search-button" ><i class='bx bx-search'></i></button>
+
+                    <!-- Kết quả tìm kiếm sẽ hiển thị ở đây -->
+                     <div id="search-result"></div>
+                </div>
+        <div class="user_button" id="user-box">
+
+    <a href="/login/" id="login-link">
+        <i class="bx bx-user"></i>
+        Đăng nhập
+    </a>
+
+</div>
+      </header>
+  <nav class="navigation">
+      <a href="/" class="active">Trang Chủ</a>
+      <a href="/comics.html">Truyện Hoàn Thành</a>
+      <a href="/follow/">Theo Dõi</a>
+      <a href="/history/">Lịch Sử Đọc</a>
+      <a href="/user/">Hồ Sơ</a>
+      <a href="/teams.html">Nhóm Dịch</a>
+    </nav>
   <main id="team-content" aria-live="polite"><p>Đang tải nhóm dịch…</p></main>
   <noscript>Vui lòng bật JavaScript để xem thông tin nhóm dịch.</noscript>
-  <footer><p>© Helium Team</p></footer>
+  <footer>
+    <p>
+        © 2024 Helium Team. All rights reserved.
+    </p>
+
+    <p>
+        Liên hệ:
+        <a href="mailto:heliumviiia4003@gmail.com">
+            heliumviiia4003@gmail.com
+        </a>
+    </p>
+
+    <p>
+        Fanpage:
+        <a href="https://www.facebook.com/profile.php?id=61551473212863"
+           target="_blank">
+            Helium Translation Group
+        </a>
+    </p>
+    
+</footer>
 </body>
 </html>
