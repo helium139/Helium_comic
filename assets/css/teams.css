@@ -2,7 +2,7 @@
 [data-theme="dark"] .team-page { --team-surface: #282332; --team-muted: #e7d4e0; --team-overlay: linear-gradient(110deg, #282332f0, #382637df); }
 .team-page main { width: min(1200px, 100%); margin: 24px auto; box-sizing: border-box; padding: 0 12px; }
 .team-page a:focus-visible { outline: 3px solid #a33173; outline-offset: 5px; }
-.team-page .navigation { flex-wrap: wrap; }
+.team-page { flex-wrap: wrap; }
 .team-page .navigation a { margin: 8px; }
 .teams-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .team-card, .team-hero { display: flex; align-items: center; gap: 24px; padding: 28px; border-radius: 25px; background: var(--team-surface); color: var(--text-color); box-shadow: 0 4px 14px #64364915; }

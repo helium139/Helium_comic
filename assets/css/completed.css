@@ -1,5 +1,5 @@
 .completed-page main { width: min(1200px, 100%); box-sizing: border-box; margin: 24px auto; padding: 0 12px; }
-.completed-page .navigation { flex-wrap: wrap; }
+.completed-page{ flex-wrap: wrap; }
 .completed-page .navigation a { margin: 8px; }
 .completed-controls { display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
 .completed-controls label { display: grid; gap: 8px; flex: 1 1 220px; min-width: 0; }
