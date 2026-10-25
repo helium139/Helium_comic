@@ -4557,7 +4557,23 @@
                 "title": "Chap 9",
                 "createAt": "2026-08-13T20:05:08.320Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bang-gia-tren-em-ice-on-me/chap9",
-                "pages": 14
+                "pages": 14,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.jpg"
+                ]
             },
             {
                 "id": 10,
