@@ -39,12 +39,12 @@ function chapterImages(images, count) {
 export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
     log = (details) => console.error("CMS operation failed", details) } = {}) {
 
-    async function githubRequest(env, path, method = "GET", body) {
+    async function githubFetch(env, path, method = "GET", body, accept = "application/vnd.github+json") {
         const response = await fetchImpl(`https://api.github.com${path}`, {
             method,
             headers: {
                 Authorization: `Bearer ${env.GITHUB_TOKEN}`,
-                Accept: "application/vnd.github+json", "User-Agent": "HeliumCMS",
+                Accept: accept, "User-Agent": "HeliumCMS",
                 "X-GitHub-Api-Version": "2022-11-28"
             },
             body: body === undefined ? undefined : JSON.stringify(body)
@@ -55,7 +55,11 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             fail(response.status === 409 ? 409 : 502,
                 response.status === 409 ? "Catalogue changed; reload before retrying" : "Publishing service unavailable");
         }
-        return response.json();
+        return response;
+    }
+
+    async function githubRequest(env, path, method = "GET", body) {
+        return (await githubFetch(env, path, method, body)).json();
     }
 
     function repoPath(env, filename) {
@@ -67,6 +71,14 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         const file = await githubRequest(env, `${repoPath(env, filename)}?ref=${encodeURIComponent(env.GITHUB_BRANCH)}`);
         const bytes = Uint8Array.from(atob(file.content.replace(/\s/g, "")), char => char.charCodeAt(0));
         return { sha: file.sha, data: JSON.parse(new TextDecoder().decode(bytes)) };
+    }
+
+    async function getPublicCatalogue(env) {
+        const response = await githubFetch(env,
+            `${repoPath(env, "data.json")}?ref=${encodeURIComponent(env.GITHUB_BRANCH)}`,
+            "GET", undefined, "application/vnd.github.raw+json");
+        if (!response.body) throw new Error("Catalogue response has no body");
+        return response.body;
     }
 
     async function saveData(env, data, sha, message) {
@@ -348,7 +360,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     } });
                 }
                 if (path === "/status") return json({ success: true, message: "Helium CMS Online" });
-                if (path === "/mangas") return json((await getFile(env, "data.json")).data);
+                if (path === "/mangas") return new Response(await getPublicCatalogue(env), { status: 200, headers });
                 if (request.method !== "POST") {
                     headers.Allow = "POST, OPTIONS";
                     fail(405, "Method not allowed");

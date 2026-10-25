@@ -82,6 +82,9 @@ function harness() {
                 return Response.json({ content: { sha: `sha-${revision}` } });
             }
             const data = new URL(url).pathname.endsWith('/teams.json') ? teams : catalogue;
+            if (options.headers.Accept === 'application/vnd.github.raw+json') {
+                return new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/vnd.github.raw+json' } });
+            }
             return Response.json({ sha: `sha-${revision}`, content: Buffer.from(JSON.stringify(data)).toString('base64') });
         }
     });
