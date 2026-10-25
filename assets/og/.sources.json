@@ -306,6 +306,15 @@
       "cover_width": 400,
       "cover_height": 533,
       "image_sha256": "b56e2a40618d10bb2a1d730e107672e29236d1b9a4693b8bc340d8911d2cf717"
+    },
+    "monster-in-the-closet-khong-che": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/monster-in-the-closet-khong-che/cover-7b37c20c-598f-4626-bc88-6f7984ac0a33.webp",
+      "etag": "\"ec6822086beb7498bbab70746d762808\"",
+      "last_modified": "Sun, 25 Oct 2026 17:34:16 GMT",
+      "cover_sha256": "c27ac33664fb57d74e694eab5af5959b56d608b02ec43f01b746cf7e9660625d",
+      "cover_width": 840,
+      "cover_height": 1120,
+      "image_sha256": "0593104f7fd9374bd6bca021ad68d0783f1b34cef6b66dcb0d06434407caaff8"
     }
   }
 }
