@@ -4429,7 +4429,25 @@
                 "title": "Chap 19",
                 "createAt": "2026-10-02T05:17:22.945Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/chap19",
-                "pages": 16
+                "pages": 16,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.jpg",
+                    "15.jpg",
+                    "16.jpg"
+                ]
             },
             {
                 "id": 20,
