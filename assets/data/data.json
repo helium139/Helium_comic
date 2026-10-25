@@ -3992,7 +3992,16 @@
                 "title": "Chap 4",
                 "createAt": "2026-07-19T19:54:17.423Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/chap4",
-                "pages": 7
+                "pages": 7,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg"
+                ]
             },
             {
                 "id": 5,
