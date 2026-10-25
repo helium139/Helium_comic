@@ -4840,7 +4840,16 @@
                 "title": "Chap 19",
                 "createAt": "2026-10-20T06:24:31.629Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/bang-gia-tren-em-ice-on-me/chap19",
-                "pages": 7
+                "pages": 7,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg"
+                ]
             }
         ],
         "isRawCaughtUp": true
