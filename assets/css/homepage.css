@@ -767,7 +767,7 @@ body::before {
 [data-theme="dark"] .comic-comments-section {
   --comment-surface: rgba(37, 31, 42, 0.88);
   --comment-border: #574653;
-  --comment-text: #f0e7ef;
+  --comment-text: #c0aeba;
   --comment-muted: #c0aeba;
   --comment-accent: #ff9fc4;
   --comment-accent-soft: #4a3443;
