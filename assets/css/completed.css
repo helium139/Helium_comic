@@ -1,6 +1,6 @@
 .completed-page main { width: min(1200px, 100%); box-sizing: border-box; margin: 24px auto; padding: 0 12px; }
 .completed-page{ flex-wrap: wrap; }
-.completed-page .navigation a { margin: 8px; }
+.completed-page{ margin: 8px; }
 .completed-controls { display: flex; flex-wrap: wrap; gap: 16px; margin: 20px 0; }
 .completed-controls label { display: grid; gap: 8px; flex: 1 1 220px; min-width: 0; }
 .completed-controls input, .completed-controls select { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px; border: 1px solid #d89cb9; border-radius: 14px; background: #fff8fc; color: #513b47; font: inherit; }
