@@ -64,6 +64,8 @@ def page_metadata(template, manga, url, chapter=None, og_image=None, og_size=Non
 def build():
     data = json.loads((ROOT / "assets/data/data.json").read_text(encoding="utf-8"))
     routes = {
+        "comics": "comics.html",
+        "teams": "teams.html",
         "login": "login.html",
         "follow": "follow.html",
         "history": "history.html",
@@ -71,7 +73,7 @@ def build():
         "admin/manga": "admin/manga.html",
         "admin/chapter": "admin/chapter.html",
     }
-    urls = ["/", "/follow/", "/history/", "/user/"]
+    urls = ["/", "/comics", "/teams", "/follow/", "/history/", "/user/"]
     metadata = {}
     for slug, manga in data.items():
         # Catalogue keys must be safe directory components as well as URL segments.
@@ -103,7 +105,7 @@ def build():
 
     expected = {ROOT / route / "index.html" for route in routes}
     # Remove only files created by this generator when catalogue routes disappear.
-    for folder in ("manga", "login", "follow", "history", "user", "admin/manga", "admin/chapter"):
+    for folder in ("manga", "comics", "teams", "login", "follow", "history", "user", "admin/manga", "admin/chapter"):
         for old in (ROOT / folder).rglob("index.html"):
             if old not in expected and old.read_text(encoding="utf-8").startswith(MARKER):
                 old.unlink()

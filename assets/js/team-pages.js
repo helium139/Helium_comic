@@ -16,7 +16,7 @@ try {
 installCoverFallback(root);
 
 function message(text) {
-    root.innerHTML = `<section class="team-state"><h1>${esc(text)}</h1><a href="/teams.html">Xem tất cả nhóm dịch</a></section>`;
+    root.innerHTML = `<section class="team-state"><h1>${esc(text)}</h1><a href="/teams">Xem tất cả nhóm dịch</a></section>`;
 }
 
 async function init() {
@@ -46,7 +46,7 @@ async function init() {
         if (!team) { message("Không tìm thấy nhóm dịch."); return; }
         const entries = sortTeamManga(teamManga(catalogue, team.id));
         document.title = `${team.name} | HeliumTG`;
-        root.innerHTML = `<nav class="team-breadcrumb" aria-label="Đường dẫn"><a href="/">Trang chủ</a> <span aria-hidden="true">›</span> <a href="/teams.html">Nhóm dịch</a> <span aria-hidden="true">›</span> <span aria-current="page">${esc(team.name)}</span></nav>
+        root.innerHTML = `<nav class="team-breadcrumb" aria-label="Đường dẫn"><a href="/">Trang chủ</a> <span aria-hidden="true">›</span> <a href="/teams">Nhóm dịch</a> <span aria-hidden="true">›</span> <span aria-current="page">${esc(team.name)}</span></nav>
             <section class="team-hero"><div class="team-hero-background" aria-hidden="true"></div>${portrait(team)}
                 <div class="team-copy"><span class="team-badge">Nhóm dịch</span><h1>${esc(team.name)}</h1><p>${entries.length} bộ truyện</p>
                 ${team.description ? `<p>${esc(team.description)}</p>` : ''}</div></section>

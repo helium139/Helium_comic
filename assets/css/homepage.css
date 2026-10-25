@@ -1364,5 +1364,12 @@ footer p {
 [data-theme="dark"] .raw-caught-up-badge { background: #392b38ef; color: #ffbed1; border-color: #835669; }
 /* Preserve END/UP positions; only the raw overlay moves to avoid END. */
 .comic-poster:has(.comic-end-badge) .raw-caught-up-badge { top: auto; bottom: 10px; }
+@media (max-width: 700px) {
+    .comic-poster:not(:has(.comic-end-badge)):has(.raw-caught-up-badge) .new-chapter-badge {
+        top: 44px;
+        right: auto;
+        left: 10px;
+    }
+}
 .search-cover { flex-shrink: 0; overflow: hidden; border-radius: 5px; }
 .search-cover .raw-caught-up-badge { top: 2px; left: 2px; max-width: calc(100% - 4px); padding: 2px 4px; font-size: 9px; }
