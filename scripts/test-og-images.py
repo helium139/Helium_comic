@@ -5,6 +5,7 @@ sys.dont_write_bytecode = True
 
 import importlib.util
 import json
+import shutil
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -112,6 +113,12 @@ class GeneratorTests(unittest.TestCase):
         pages = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(pages)
         pages.ROOT = self.root
+        project_root = Path(__file__).resolve().parents[1]
+        sources = set(pages.ROUTE_TEMPLATES.values()) | {pages.MANGA_TEMPLATE, pages.CHAPTER_TEMPLATE}
+        for source in sources:
+            target = self.root / source
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(project_root / source, target)
         with redirect_stdout(StringIO()):
             pages.build()
         html = (self.root / "manga/test-comic/chapter/0/index.html").read_text(encoding="utf-8")
