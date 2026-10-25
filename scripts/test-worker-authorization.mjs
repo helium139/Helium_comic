@@ -83,7 +83,9 @@ function harness() {
             }
             const data = new URL(url).pathname.endsWith('/teams.json') ? teams : catalogue;
             if (options.headers.Accept === 'application/vnd.github.raw+json') {
-                return new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/vnd.github.raw+json' } });
+                const etag = `"data-${revision}"`;
+                if (options.headers['If-None-Match'] === etag) return new Response(null, { status: 304, headers: { ETag: etag } });
+                return new Response(JSON.stringify(data), { headers: { ETag: etag, 'Content-Type': 'application/vnd.github.raw+json' } });
             }
             return Response.json({ sha: `sha-${revision}`, content: Buffer.from(JSON.stringify(data)).toString('base64') });
         }

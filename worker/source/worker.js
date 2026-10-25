@@ -39,16 +39,21 @@ function chapterImages(images, count) {
 export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
     log = (details) => console.error("CMS operation failed", details) } = {}) {
 
-    async function githubFetch(env, path, method = "GET", body, accept = "application/vnd.github+json") {
+    let mangaOwnershipCache;
+
+    async function githubFetch(env, path, method = "GET", body, accept = "application/vnd.github+json", etag) {
         const response = await fetchImpl(`https://api.github.com${path}`, {
             method,
             headers: {
                 Authorization: `Bearer ${env.GITHUB_TOKEN}`,
                 Accept: accept, "User-Agent": "HeliumCMS",
-                "X-GitHub-Api-Version": "2022-11-28"
+                "X-GitHub-Api-Version": "2022-11-28",
+                ...(accept === "application/vnd.github.raw+json" ? { "Cache-Control": "no-cache" } : {}),
+                ...(etag ? { "If-None-Match": etag } : {})
             },
             body: body === undefined ? undefined : JSON.stringify(body)
         });
+        if (response.status === 304) return response;
         if (!response.ok) {
             // Never include upstream response bodies, headers or credentials in errors/logs.
             log({ service: "github", method, status: response.status });
@@ -81,6 +86,34 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return response.body;
     }
 
+    async function getMangaOwnership(env, slug, forceRefresh = false) {
+        const cached = forceRefresh ? null : mangaOwnershipCache;
+        const response = await githubFetch(env,
+            `${repoPath(env, "data.json")}?ref=${encodeURIComponent(env.GITHUB_BRANCH)}`,
+            "GET", undefined, "application/vnd.github.raw+json", cached?.etag);
+        if (response.status === 304) {
+            if (!cached) throw new Error("Unexpected not-modified catalogue response");
+            if (mangaOwnershipCache !== cached) return getMangaOwnership(env, slug, true);
+            const manga = cached.index[slug];
+            if (!manga) fail(404, "Manga not found");
+            return manga;
+        }
+        const catalogue = await response.json();
+        if (!catalogue || typeof catalogue !== "object" || Array.isArray(catalogue)) {
+            throw new Error("Invalid manga catalogue");
+        }
+        const index = Object.create(null);
+        for (const [id, manga] of Object.entries(catalogue)) {
+            index[id] = Object.freeze({ teamId: manga && typeof manga === "object" ? manga.teamId : undefined });
+        }
+        Object.freeze(index);
+        const etag = response.headers.get("ETag");
+        mangaOwnershipCache = etag ? { etag, index } : null;
+        const manga = index[slug];
+        if (!manga) fail(404, "Manga not found");
+        return manga;
+    }
+
     async function saveData(env, data, sha, message) {
         const bytes = new TextEncoder().encode(JSON.stringify(data, null, 4));
         let binary = "";
@@ -88,6 +121,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         await githubRequest(env, repoPath(env, "data.json"), "PUT", {
             message, content: btoa(binary), sha, branch: env.GITHUB_BRANCH
         });
+        mangaOwnershipCache = null;
     }
 
     async function readBody(request) {
@@ -127,11 +161,13 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return format;
     }
 
-    async function upload(request, env, actor, data, teams) {
+    async function upload(request, env, actor) {
         let form;
         try { form = await request.formData(); } catch { fail(400, "Invalid upload request"); }
         const file = form.get("file");
         const [extension, contentType] = await validateFile(file);
+        const teams = validateRegistry((await getFile(env, "teams.json")).data);
+        if (actor.role === "team_leader") activeTeam(teams, actor.teamId);
         if (form.get("kind") === "new-manga-cover") {
             if (["folder", "filename", "key", "destination", "manga"].some(key => form.has(key))) {
                 fail(400, "Invalid upload path");
@@ -146,13 +182,14 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         }
         if (form.has("kind") || form.has("key") || form.has("destination")) fail(400, "Invalid upload path");
         const { slug, folder, chapterId } = uploadFolder(form.get("folder"));
-        authorizeManga(actor, data, slug, teams);
         const filename = form.get("filename");
         if (chapterId === null) {
             if (!/^cover\.(webp|jpg|jpeg|png|gif|avif)$/.test(filename)) fail(400, "Invalid upload path");
         } else imageName(filename);
         const actualExtension = filename.split('.').pop();
         if (chapterId !== null && actualExtension.replace('jpeg', 'jpg') !== extension) fail(400, "Image extension does not match bytes");
+        const manga = await getMangaOwnership(env, slug);
+        authorizeManga(actor, { [slug]: manga }, slug, teams);
         // Never overwrite a live page/cover before a separate catalogue save succeeds.
         const stem = chapterId === null ? 'cover' : filename.split(/[.-]/)[0];
         const key = `${folder}/${stem}-${crypto.randomUUID()}.${extension}`;
@@ -237,11 +274,11 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
     }
 
     async function mutate(path, request, env, actor) {
+        if (path === "/upload") return upload(request, env, actor);
         // Read the authoritative GitHub branch, not a browser snapshot/static CDN cache.
         const result = await getFile(env, "data.json");
         const teams = validateRegistry((await getFile(env, "teams.json")).data);
         if (actor.role === "team_leader") activeTeam(teams, actor.teamId);
-        if (path === "/upload") return upload(request, env, actor, result.data, teams);
         const body = await readBody(request);
         if (path === "/new-manga") return newManga(body, env, actor, result, teams);
         if (path === "/rename-images") return renameImages(body, env, actor, result.data, teams);
