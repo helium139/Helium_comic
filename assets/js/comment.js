@@ -21,8 +21,8 @@ function element(tag, className, text) {
     if (text !== undefined) item.textContent = text;
     return item;
 }
-function button(text, action) {
-    const item = element('button', 'comment-action', text); item.type = 'button';
+function button(text, action, variant = '') {
+    const item = element('button', `comment-action${variant ? ` comment-action--${variant}` : ''}`, text); item.type = 'button';
     item.addEventListener('click', async () => {
         item.disabled = true;
         try { await action(); } catch (error) { status.textContent = errorMessage(error); }
@@ -33,10 +33,17 @@ function button(text, action) {
 function render(comment, container, version, replyThread = false) {
     const item = element('article', 'comment'); item.dataset.commentId = comment.id;
     const header = element('div', 'comment-header');
+    const avatarFallback = () => {
+        const fallback = element('span', 'comment-avatar-fallback', comment.name?.trim().charAt(0) || '?');
+        fallback.setAttribute('role', 'img');
+        fallback.setAttribute('aria-label', `Avatar for ${comment.name || 'user'}`);
+        return fallback;
+    };
     if (comment.avatar) {
         const avatar = element('img', 'comment-avatar'); avatar.src = comment.avatar; avatar.alt = ''; avatar.loading = 'lazy';
+        avatar.addEventListener('error', () => avatar.replaceWith(avatarFallback()), { once: true });
         header.appendChild(avatar);
-    }
+    } else header.appendChild(avatarFallback());
     header.appendChild(element('h4', '', comment.name));
     if (comment.createdAt !== null) {
         const date = element('time', '', new Date(comment.createdAt).toLocaleString());
@@ -52,8 +59,8 @@ function render(comment, container, version, replyThread = false) {
             const form = element('form', 'comment-reply-form');
             const text = element('textarea'); text.maxLength = 4000; text.required = true; text.setAttribute('aria-label', 'Reply');
             let pending;
-            const submit = element('button', 'comment-action', 'Send reply'); submit.type = 'submit';
-            form.append(text, submit, button('Cancel', () => form.remove()));
+            const submit = element('button', 'comment-action comment-action--primary', 'Send reply'); submit.type = 'submit';
+            form.append(text, submit, button('Cancel', () => form.remove(), 'secondary'));
             form.addEventListener('submit', async event => {
                 event.preventDefault(); if (submit.disabled || !text.value.trim()) return;
                 submit.disabled = true;
@@ -78,7 +85,7 @@ function render(comment, container, version, replyThread = false) {
             if (!window.confirm('Xóa bình luận này?')) return;
             await deleteComment({mangaId, commentId: comment.id});
             if (version === generation) await loadRoots(true);
-        }));
+        }, 'danger'));
     }
     if (canModerate) {
         if (!comment.deleted) for (const action of [hidden ? 'restore' : 'hide', 'delete']) {
@@ -86,7 +93,7 @@ function render(comment, container, version, replyThread = false) {
                 if (!window.confirm(`Moderation: ${action}?`)) return;
                 await moderateComment({mangaId, commentId: comment.id, action});
                 if (version === generation) await loadRoots(true);
-            }));
+            }, action === 'delete' ? 'danger' : ''));
         }
     }
     item.appendChild(actions);

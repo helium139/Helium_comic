@@ -752,40 +752,103 @@ body::before {
 .chapter-item a:hover { color: #ff4757; }
 .chapter-date { color: #888; font-size: 13px; }
 
-/* Khung bình luận */
-.comment-box {
-  border: 1px solid #eee;
-  padding: 15px;
-  border-radius: 6px;
+/* Comments */
+.comic-comments-section {
+  --comment-surface: rgba(255, 255, 255, 0.76);
+  --comment-border: #efd8e4;
+  --comment-text: #493b46;
+  --comment-muted: #887580;
+  --comment-accent: #c94f83;
+  --comment-accent-soft: #fff0f6;
+  --comment-danger: #a94d5d;
+  color: var(--comment-text);
 }
-.comment-inputs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
+
+[data-theme="dark"] .comic-comments-section {
+  --comment-surface: rgba(37, 31, 42, 0.88);
+  --comment-border: #574653;
+  --comment-text: #f0e7ef;
+  --comment-muted: #c0aeba;
+  --comment-accent: #ff9fc4;
+  --comment-accent-soft: #4a3443;
+  --comment-danger: #ff9a9a;
 }
-.comment-inputs input, .comment-textarea textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
-  outline: none;
+
+.comic-comments-section .comment-box {
+  border: 1px solid var(--comment-border);
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--comment-surface);
 }
-.comment-textarea {
+
+.comic-comments-section .comment-textarea {
   position: relative;
 }
-.comment-textarea textarea {
-  height: 80px;
-  resize: none;
-  border-radius: 8px;
+
+.comic-comments-section .comment-textarea textarea,
+.comic-comments-section .comment-reply-form textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 96px;
+  padding: 12px 14px;
+  border: 1px solid var(--comment-border);
+  border-radius: 12px;
+  background: var(--comment-surface);
+  color: var(--comment-text);
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.btn-send-comment {
+
+.comic-comments-section .comment-textarea textarea {
+  padding-right: 52px;
+}
+
+.comic-comments-section .comment-textarea textarea::placeholder,
+.comic-comments-section .comment-reply-form textarea::placeholder {
+  color: var(--comment-muted);
+  opacity: 1;
+}
+
+.comic-comments-section .comment-textarea textarea:focus,
+.comic-comments-section .comment-reply-form textarea:focus {
+  border-color: var(--comment-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--comment-accent) 18%, transparent);
+}
+
+.comic-comments-section .btn-send-comment {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  background: none;
-  border: none;
-  font-size: 20px;
+  right: 8px;
+  bottom: 8px;
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--comment-accent);
+  color: #fff;
+  font-size: 18px;
   cursor: pointer;
+}
+
+.comic-comments-section .btn-send-comment:hover {
+  filter: brightness(0.95);
+}
+
+.comic-comments-section .btn-send-comment:disabled,
+.comic-comments-section .comment-action:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.comic-comments-section .btn-send-comment:focus-visible,
+.comic-comments-section .comment-action:focus-visible {
+  outline: 2px solid var(--comment-accent);
+  outline-offset: 2px;
 }
 
 
@@ -1160,42 +1223,58 @@ footer p {
     cursor:pointer;
 }
 
-.comments-list {
-    margin-top: 20px;;
+.comic-comments-section .comments-list {
+    margin-top: 16px;
 }
 
-.comment{
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
+.comic-comments-section .comment {
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--comment-border);
+    color: var(--comment-text);
 }
 
-.comment > div{
+.comic-comments-section .comment-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px 10px;
 }
 
-.comment-avatar{
-    width: 40px;
-    height: 40px;
+.comic-comments-section .comment-avatar,
+.comic-comments-section .comment-avatar-fallback {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
     border-radius: 50%;
     object-fit: cover;
-    flex-shrink: 0;
+    background: var(--comment-accent-soft);
+    color: var(--comment-accent);
+    font-size: 15px;
+    font-weight: 700;
 }
 
-.comment h4{
+.comic-comments-section .comment-header h4 {
     margin: 0;
     font-size: 15px;
-    color: #333;
+    color: var(--comment-text);
     font-weight: 600;
 }
 
-.comment p{
-    margin: 8px 0 0 50px;
+.comic-comments-section .comment-header time,
+.comic-comments-section .comment-parent {
+    color: var(--comment-muted);
+    font-size: 0.8rem;
+}
+
+.comic-comments-section .comment-content {
+    margin: 8px 0 0 48px;
     font-size: 14px;
     line-height: 1.5;
-    color: #555;
-    word-break: break-word;
+    color: var(--comment-text);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .comic-poster{
@@ -1342,19 +1421,99 @@ footer p {
 }
 .chapter-notification-toast a { display: flow-root; }
 
-/* Threaded comments reuse the existing comment card and typography. */
-.comment-actions{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
-.comment-action{background:transparent;color:inherit;border:1px solid #555;border-radius:6px;padding:6px 10px;cursor:pointer}
-.comment-action:disabled{opacity:.6;cursor:wait}
-.comment-replies{margin:12px 0 0 12px;border-left:2px solid #555;padding-left:12px}
-.comment-reply-form{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.comment-reply-form textarea{width:100%;min-height:70px;background:transparent;color:inherit;border:1px solid #555;border-radius:6px;padding:8px}
-.comment-content{white-space:pre-wrap;overflow-wrap:anywhere}
-.comment-header time,.comment-parent{font-size:.8rem;opacity:.7}
-@media(max-width:600px){.comment-replies{margin-left:4px;padding-left:8px}}
+/* Threaded comment actions and replies. */
+.comic-comments-section .comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin: 8px 0 0 48px;
+}
 
-.comment > .comment-replies{display:block}
-.comment > .comment-replies[hidden]{display:none}
+.comic-comments-section .comment-action {
+    padding: 4px 8px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--comment-accent);
+    font: inherit;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.comic-comments-section .comment-action:hover {
+    background: var(--comment-accent-soft);
+}
+
+.comic-comments-section .comment-action--primary {
+    background: var(--comment-accent);
+    color: #fff;
+}
+
+.comic-comments-section .comment-action--primary:hover {
+    filter: brightness(0.95);
+}
+
+.comic-comments-section .comment-action--secondary {
+    color: var(--comment-muted);
+}
+
+.comic-comments-section .comment-action--danger {
+    color: var(--comment-danger);
+}
+
+.comic-comments-section .comment-replies {
+    margin: 12px 0 0 16px;
+    padding-left: 14px;
+    border-left: 2px solid var(--comment-border);
+}
+
+.comic-comments-section .comment-reply-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 4px 48px;
+}
+
+.comic-comments-section .comment-reply-form textarea {
+    flex: 1 0 100%;
+    min-height: 76px;
+}
+
+.comic-comments-section .comment-parent {
+    display: block;
+    margin: 8px 0 0 48px;
+}
+
+.comic-comments-section .comment > .comment-replies {
+    display: block;
+}
+
+.comic-comments-section .comment > .comment-replies[hidden] {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .comic-comments-section .comment {
+        padding: 14px 2px;
+    }
+
+    .comic-comments-section .comment-content,
+    .comic-comments-section .comment-actions,
+    .comic-comments-section .comment-reply-form,
+    .comic-comments-section .comment-parent {
+        margin-left: 0;
+    }
+
+    .comic-comments-section .comment-replies {
+        margin-left: 6px;
+        padding-left: 9px;
+    }
+
+    .comic-comments-section .comment-box {
+        padding: 10px;
+    }
+}
 
 /* Raw release progress is independent of publication status. */
 .comic-poster, .search-cover { position: relative; }
