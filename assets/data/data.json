@@ -9632,7 +9632,30 @@
         "team": "HeliumTG",
         "adminPick": true,
         "pickOrder": 10,
-        "chapters": [],
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-10-25T17:36:37.090Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/monster-in-the-closet-khong-che/chap1",
+                "pages": 13,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp",
+                    "11.webp",
+                    "12.webp",
+                    "13.webp"
+                ]
+            }
+        ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/monster-in-the-closet-khong-che/cover-7b37c20c-598f-4626-bc88-6f7984ac0a33.webp"
     }
 }
