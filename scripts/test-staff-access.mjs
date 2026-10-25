@@ -1,4 +1,5 @@
 import { paginateMangas, renderPagination } from '../admin/pagination.mjs';
+import { bindUploadProgress } from '../admin/upload-progress.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -38,11 +39,12 @@ function dom() {
         const classes = new Set();
         return {
             tag, events: {}, value: '', textContent: '', get innerHTML() { return this.html || ''; }, set innerHTML(value) { this.html = value; this.children = []; }, style: {}, dataset: {}, children: [],
-            classList: { add: value => classes.add(value), remove: value => classes.delete(value), contains: value => classes.has(value) },
+            classList: { add: value => classes.add(value), remove: value => classes.delete(value), contains: value => classes.has(value), toggle: (value, force) => force ? classes.add(value) : classes.delete(value) },
             append(...children) { for (const child of children) this.appendChild(child); },
             appendChild(child) { child.parent = this; this.children.push(child); if (child.id) nodes.set(child.id, child); },
             replaceChildren(...children) { this.children = []; this.append(...children); },
             addEventListener(type, callback) { this.events[type] = callback; }, setAttribute(key, value) { this[key] = value; },
+            querySelector(selector) { return get(selector.slice(1)); },
             remove() { nodes.delete(this.id); if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
         };
     }
@@ -144,6 +146,7 @@ test('guard accepts both staff roles and denies users/guests/stale tokens before
 
 async function editor(file, staff, search, fixtureData = fixtures, missingControls = []) {
     const d = dom(), errors = [], calls = [];
+    let progressBindings = 0;
     const catalogue = structuredClone(fixtureData);
     const getElement = d.document.getElementById;
     d.document.getElementById = id => missingControls.includes(id) ? null : getElement(id);
@@ -151,6 +154,7 @@ async function editor(file, staff, search, fixtureData = fixtures, missingContro
     const context = { ...d, URLSearchParams, location: { search },
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, d.document),
         requireStaff: async () => { guarded = true; return staff; },
+        bindUploadProgress: root => { progressBindings++; return bindUploadProgress(root); },
         getMangas: async () => { assert.equal(guarded, true); return catalogue; },
         scopeMangas: helpers.scopeMangas, assertCanManageManga: helpers.assertCanManageManga,
         showStaffAccessError: error => errors.push(error),
@@ -168,7 +172,7 @@ async function editor(file, staff, search, fixtureData = fixtures, missingContro
         ? '\nreturn { openEditor, openNew, saveCurrent, scope: () => mangas };'
         : '\nreturn { scope: () => mangas, uploadChapter };';
     const api = await vm.runInContext('(async () => {' + strip(await read(file)) + extra + '})()', context);
-    return { ...d, context, api, errors, calls };
+    return { ...d, context, api, errors, calls, progressBindings: () => progressBindings };
 }
 
 test('manga editor scopes lists, locks leader team/editorial controls, and forces safe submission values', async () => {
@@ -210,16 +214,19 @@ test('manga/chapter direct URLs reject other teams before editor content initial
         assert.equal(blocked.get('chapterTitle').value, '');
         assert.equal(blocked.calls.length, 0);
         assert.equal(blocked.get('uploadBtn').onclick, undefined);
+        if (file === 'admin/chapter.js') assert.equal(blocked.progressBindings(), 0);
         const allowed = await editor(file, leader, '?manga=own&chapter=0');
         assert.equal(allowed.errors.length, 0, file);
         assert.deepEqual(Object.keys(allowed.api.scope()), ['own']);
         if (file === 'admin/chapter.js') {
+            assert.equal(allowed.progressBindings(), 1);
             assert.equal(allowed.get('chapterTitle').value, 'Prologue');
             assert.equal(allowed.get('chapterNumber').value, 0);
         }
     }
     const all = await editor('admin/chapter.js', admin, '?manga=other&chapter=0');
     assert.equal(all.errors.length, 0);
+    assert.equal(all.progressBindings(), 1);
     assert.equal(all.get('chapterTitle').value, 'Other prologue');
 });
 

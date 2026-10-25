@@ -54,7 +54,7 @@ const dropZone = document.getElementById("dropZone");
 const uploadLog = document.getElementById("uploadLog");
 
 const progress = document.getElementById("progress");
-const uploadProgress = bindUploadProgress(progress);
+let uploadProgress;
 
 const fileCount = document.getElementById("fileCount");
 
@@ -93,6 +93,8 @@ async function init(){
         updateNextChapter();
 
     }
+
+    uploadProgress = bindUploadProgress(progress);
 
 }
 
