@@ -3819,7 +3819,28 @@
                 "title": "Chap 7",
                 "createAt": "2026-07-19T19:31:06.100Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ly-thuyet-cong-luoc-trai-tan/chap7",
-                "pages": 19
+                "pages": 19,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.jpg",
+                    "15.jpg",
+                    "16.jpg",
+                    "17.jpg",
+                    "18.jpg",
+                    "19.jpg"
+                ]
             },
             {
                 "id": 8,
