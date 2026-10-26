@@ -1597,7 +1597,15 @@
                 "title": "Tái Bút",
                 "createAt": "2026-08-18T07:05:04.994Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap9",
-                "pages": 6
+                "pages": 6,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg"
+                ]
             },
             {
                 "id": 10,
