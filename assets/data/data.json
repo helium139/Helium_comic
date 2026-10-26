@@ -2386,9 +2386,27 @@
             {
                 "id": 2,
                 "title": "Chap 2",
-                "createAt": "2025-09-29T19:00:00Z",
+                "createAt": "2025-09-29T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap2",
-                "pages": 28
+                "pages": 16,
+                "images": [
+                    "1-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "2-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "3-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "4-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "5-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "6-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "7-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "8-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "9-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "10-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "11-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "12-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "13-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "14-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "15-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp",
+                    "16-a935520a-877e-42b8-a1b5-90c4feaf95e1.webp"
+                ]
             },
             {
                 "id": 3,
