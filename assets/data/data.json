@@ -10470,6 +10470,25 @@
                     "39.webp",
                     "40.webp"
                 ]
+            },
+            {
+                "id": 4,
+                "title": "Chap 4",
+                "createAt": "2026-10-26T16:34:01.432Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ngay-mai-khong-he-ton-tai/chap4",
+                "pages": 10,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp"
+                ]
             }
         ],
         "isRawCaughtUp": false
