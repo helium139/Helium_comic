@@ -1428,7 +1428,15 @@
                 "title": "Chap 0 - Prologue",
                 "createAt": "2025-09-22T19:00:00Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap0",
-                "pages": 6
+                "pages": 6,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg"
+                ]
             },
             {
                 "id": 1,
