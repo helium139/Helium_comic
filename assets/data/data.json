@@ -1583,7 +1583,14 @@
                 "title": "Chap 7",
                 "createAt": "2026-07-17T21:05:18.699Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/mot-ngay-ky-la/chap8",
-                "pages": 5
+                "pages": 5,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg"
+                ]
             },
             {
                 "id": 9,
