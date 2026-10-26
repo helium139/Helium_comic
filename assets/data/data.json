@@ -2362,9 +2362,26 @@
             {
                 "id": 1,
                 "title": "Chap 1",
-                "createAt": "2025-09-22T19:00:00Z",
+                "createAt": "2025-09-22T00:00:00.000Z",
                 "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap1",
-                "pages": 22
+                "pages": 15,
+                "images": [
+                    "1-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "2-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "3-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "4-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "5-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "6-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "7-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "8-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "9-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "10-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "11-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "12-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "13-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "14-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg",
+                    "15-7eb52f11-78a9-490e-ba09-9daff339ba33.jpg"
+                ]
             },
             {
                 "id": 2,
