@@ -31,7 +31,8 @@ export function createUploadProgress(emit = () => {}) {
             work(`Đã tải ảnh lên ${uploaded.size}/${total}`);
         },
         publishing(status = 'Đang xuất bản, cập nhật danh mục và dọn file tạm...') { update(90, status); },
-        reordered() { update(94, 'Đang cập nhật chapter...'); },
+        preparingManifest() { update(94, 'Đang chuẩn bị danh sách chapter...'); },
+        sendingUpdate() { update(96, 'Đang gửi cập nhật chapter...'); },
         published() { update(98, 'Đang hoàn tất kết quả xuất bản...'); },
         complete() {
             if (state === 'error') return;

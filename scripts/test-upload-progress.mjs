@@ -62,7 +62,8 @@ test('failure preserves current progress, ignores late work and cannot complete;
 test('metadata-only edit reserves completion until update succeeds', () => {
     const f = model(0);
     f.progress.prepared(); assert.equal(f.last().percent, 90);
-    f.progress.publishing(); f.progress.reordered(); assert.equal(f.last().percent, 94);
+    f.progress.publishing(); f.progress.preparingManifest(); assert.equal(f.last().percent, 94);
+    f.progress.sendingUpdate(); assert.equal(f.last().percent, 96);
     f.progress.published(); assert.equal(f.last().percent, 98);
     f.progress.complete(); assert.equal(f.last().percent, 100);
 });
@@ -103,7 +104,7 @@ const conversionSource = await readFile(new URL('../admin/api/image-conversion.j
 for (const failure of [null, 'conversion', 'upload', 'response']) test(`upload callbacks follow completed work (${failure || 'success'})`, async () => {
     const events = [];
     const context = { Blob, FormData, console,
-        authenticatedFetch: async () => { events.push('request'); if (failure === 'upload') throw new Error('network'); return { json: async () => ({ success: failure !== 'response', url: 'https://images.test/m/chap1/1-id.webp' }) }; }
+        authenticatedFetch: async () => { events.push('request'); if (failure === 'upload') throw new Error('network'); return { json: async () => ({ success: failure !== 'response', key: 'm/chap1/1-id.webp', url: 'https://images.test/m/chap1/1-id.webp' }) }; }
     };
     vm.createContext(context);
     vm.runInContext(conversionSource.replace(/export /g, ''), context);
@@ -116,7 +117,9 @@ for (const failure of [null, 'conversion', 'upload', 'response']) test(`upload c
     const run = () => context.uploadImage(new Blob(['image']), 'm/chap1', '1.jpg', { onProgress: phase => events.push(phase) });
     if (failure) { await assert.rejects(run()); assert.ok(!events.includes('uploaded')); }
     else {
-        assert.equal(await run(), 'https://images.test/m/chap1/1-id.webp');
+        assert.deepEqual({ ...(await run()) }, {
+            key: 'm/chap1/1-id.webp', name: '1-id.webp', url: 'https://images.test/m/chap1/1-id.webp'
+        });
         assert.deepEqual(events, ['converting', 'convert', 'converted', 'request', 'uploaded']);
     }
 });
@@ -127,7 +130,7 @@ test('oversized JPEG conversion skip advances through upload without reporting a
         authenticatedFetch: async (_url, options) => {
             events.push('request');
             assert.equal(options.body.get('filename'), '2.jpg');
-            return { json: async () => ({ success: true, url: 'https://images.test/m/chap1/2-id.jpg' }) };
+            return { json: async () => ({ success: true, key: 'm/chap1/2-id.jpg', url: 'https://images.test/m/chap1/2-id.jpg' }) };
         }
     };
     vm.createContext(context);
@@ -137,10 +140,10 @@ test('oversized JPEG conversion skip advances through upload without reporting a
         return { file, filename: '2.jpg', reason: 'oversized-jpeg' };
     };
     vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), context);
-    const url = await context.uploadImage(new Blob(['large JPEG']), 'm/chap1', '2.jpeg', {
+    const uploaded = await context.uploadImage(new Blob(['large JPEG']), 'm/chap1', '2.jpeg', {
         onProgress: phase => events.push(phase)
     });
-    assert.equal(url, 'https://images.test/m/chap1/2-id.jpg');
+    assert.deepEqual({ ...uploaded }, { key: 'm/chap1/2-id.jpg', name: '2-id.jpg', url: 'https://images.test/m/chap1/2-id.jpg' });
     assert.deepEqual(events, ['converting', 'convert', 'preserved', 'converted', 'request', 'uploaded']);
 });
 
@@ -150,7 +153,7 @@ test('unsafe-dimension JPEG conversion skip advances through upload without repo
         authenticatedFetch: async (_url, options) => {
             events.push('request');
             assert.equal(options.body.get('filename'), '3.jpg');
-            return { json: async () => ({ success: true, url: 'https://images.test/m/chap1/3-id.jpg' }) };
+            return { json: async () => ({ success: true, key: 'm/chap1/3-id.jpg', url: 'https://images.test/m/chap1/3-id.jpg' }) };
         }
     };
     vm.createContext(context);
@@ -160,10 +163,10 @@ test('unsafe-dimension JPEG conversion skip advances through upload without repo
         return { file, filename: '3.jpg', reason: 'unsafe-canvas-dimensions' };
     };
     vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), context);
-    const url = await context.uploadImage(new Blob(['tall JPEG']), 'm/chap1', '3.jpeg', {
+    const uploaded = await context.uploadImage(new Blob(['tall JPEG']), 'm/chap1', '3.jpeg', {
         onProgress: phase => events.push(phase)
     });
-    assert.equal(url, 'https://images.test/m/chap1/3-id.jpg');
+    assert.deepEqual({ ...uploaded }, { key: 'm/chap1/3-id.jpg', name: '3-id.jpg', url: 'https://images.test/m/chap1/3-id.jpg' });
     assert.deepEqual(events, ['converting', 'convert', 'preserved', 'converted', 'request', 'uploaded']);
 });
 

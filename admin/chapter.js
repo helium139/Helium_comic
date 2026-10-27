@@ -31,7 +31,16 @@ let sortable = null;
 let previewObjectUrls = [];
 let pageOrder = [];
 const stagedEditImages = new Set();
-const stagedEditFiles = new Map();
+
+function createLocalPage(file) {
+    return { type: "local", file, stagingName: null };
+}
+
+function traceChapterEdit(step, details = {}) {
+    if (globalThis.HELIUM_CHAPTER_EDIT_DEBUG === true) {
+        console.debug('[chapter-edit]', step, details);
+    }
+}
 
 /* ===========================
         DOM
@@ -144,7 +153,7 @@ function bindEvents(){
 
         newImages.push(
 
-            ...Array.from(e.target.files)
+            ...Array.from(e.target.files, createLocalPage)
 
         );
 
@@ -160,7 +169,7 @@ function bindEvents(){
 
             newImages.push(
 
-                ...Array.from(e.target.files)
+                ...Array.from(e.target.files, createLocalPage)
 
             );
 
@@ -345,11 +354,7 @@ function initDragDrop(){
 
         newImages.push(
 
-            ...Array.from(
-
-                e.dataTransfer.files
-
-            )
+            ...Array.from(e.dataTransfer.files, createLocalPage)
 
         );
 
@@ -417,7 +422,7 @@ function renderPreview(){
 
         else{
 
-            const url = URL.createObjectURL(img);
+            const url = URL.createObjectURL(img.file);
             previewObjectUrls.push(url);
             image.onload = image.onerror = () => URL.revokeObjectURL(url);
             image.src = url;
@@ -434,7 +439,7 @@ function renderPreview(){
 
         name.className = "thumb-name";
 
-        name.textContent = img.name;
+        name.textContent = img.type === "remote" ? img.name : img.file.name;
 
         const remove = document.createElement("button");
 
@@ -594,7 +599,7 @@ function updateStats(){
 
     const total = newImages.reduce(
 
-        (sum,file)=>sum+file.size,
+        (sum,page)=>sum+page.file.size,
 
         0
 
@@ -665,22 +670,17 @@ async function save(){
 
         console.error(err);
         uploadProgress.fail(err.message);
-        await paintProgress();
         alert(err.message);
 
     }
-
-    uploadBtn.disabled = false;
-    controls.forEach((control, index) => { control.disabled = disabled[index]; });
-    sortable?.option('disabled', false);
-
-    uploadBtn.innerHTML =
-
-    mode==="edit"
-
-    ? "<i class='bx bx-save'></i> Lưu thay đổi"
-
-    : "<i class='bx bx-upload'></i> Upload Chapter";
+    finally {
+        uploadBtn.disabled = false;
+        controls.forEach((control, index) => { control.disabled = disabled[index]; });
+        sortable?.option('disabled', false);
+        uploadBtn.innerHTML = mode === "edit"
+            ? "<i class='bx bx-save'></i> Lưu thay đổi"
+            : "<i class='bx bx-upload'></i> Upload Chapter";
+    }
 
 }
 
@@ -726,7 +726,8 @@ async function uploadChapter(isRawCaughtUp = false){
     const filenames = [];
     for(let i=0;i<orderedImages.length;i++){
 
-        const file = orderedImages[i];
+        const page = orderedImages[i];
+        const file = page.file;
 
         const ext = file.name
 
@@ -736,7 +737,7 @@ async function uploadChapter(isRawCaughtUp = false){
 
             .toLowerCase();
 
-        const uploadedUrl = await uploadImage(
+        const uploaded = await uploadImage(
 
             file,
 
@@ -747,7 +748,7 @@ async function uploadChapter(isRawCaughtUp = false){
 
         );
 
-        filenames.push(uploadedUrl.split('/').pop());
+        filenames.push(uploaded.name);
         log(
 
             `✔ ${filenames[i]}`
@@ -813,50 +814,59 @@ async function saveChapter(isRawCaughtUp = false){
     assertCanManageManga(currentStaff, mangas[currentSlug]);
 
     const rootFolder = `${currentSlug}/chap${currentChapter}`;
-    const orderedImages = [...pageOrder];
-    if (!orderedImages.length) throw new Error('Chưa chọn ảnh chapter.');
-    if (new Set(orderedImages).size !== orderedImages.length ||
-        orderedImages.some(image => image.type === "remote"
-            ? !image.name || image.sourceType !== "existing"
-            : !image.name || typeof image.slice !== "function")) {
-        throw new Error('Danh sách ảnh chapter không hợp lệ.');
-    }
+    if (!pageOrder.length) throw new Error('Chưa chọn ảnh chapter.');
     uploadProgress.prepared();
     await paintProgress();
-    const sources = [];
-    for (let index = 0; index < orderedImages.length; index++) {
-        const image = orderedImages[index];
-        if (image.type === "remote") {
-            sources.push({ type: "existing", name: image.name });
+
+    const uploads = [...pageOrder];
+    if (new Set(uploads).size !== uploads.length) throw new Error('Danh sách ảnh chapter không hợp lệ.');
+    for (let index = 0; index < uploads.length; index++) {
+        const item = uploads[index];
+        if (item.type === "remote") {
+            if (!item.name || item.sourceType !== "existing") throw new Error('Danh sách ảnh chapter không hợp lệ.');
+            uploadProgress.converted(index);
+            uploadProgress.uploaded(index);
+            continue;
+        }
+        if (!item.file || typeof item.file.slice !== "function") throw new Error('Danh sách ảnh chapter không hợp lệ.');
+        if (item.type === "staged" && !item.stagingName) {
+            throw new Error(`Không thể xác định ảnh đã tải lên: ${item.file.name}`);
+        }
+        if (item.stagingName) {
             uploadProgress.converted(index);
             uploadProgress.uploaded(index);
             continue;
         }
 
-        let stagingName = stagedEditFiles.get(image);
-        if (!stagingName) {
-            const extension = image.name.split(".").pop().toLowerCase();
-            const uploadedUrl = await uploadImage(
-                image,
+        const extension = item.file.name.split(".").pop().toLowerCase();
+        const uploaded = await uploadImage(
+                item.file,
                 rootFolder,
                 `${index + 1}.${extension}`,
-                uploadProgressOptions(index, image)
+                uploadProgressOptions(index, item.file)
             );
-            stagingName = uploadedUrl.split("/").pop();
-            stagedEditFiles.set(image, stagingName);
-            stagedEditImages.add(stagingName);
-            log(`✔ ${stagingName}`);
-        } else {
-            uploadProgress.converted(index);
-            uploadProgress.uploaded(index);
+        if (typeof uploaded?.key !== "string" || !uploaded.name) {
+            throw new Error(`Không thể xác định ảnh đã tải lên: ${item.file.name}`);
         }
-        sources.push({ type: "staged", name: stagingName });
+        item.stagingName = uploaded.name;
+        item.type = "staged";
+        stagedEditImages.add(uploaded.name);
+        traceChapterEdit('upload staged', { filename: item.file.name, key: uploaded.key });
+        log(`✔ ${uploaded.name}`);
     }
 
-    uploadProgress.reordered();
-    await paintProgress();
-
-    const result = await updateChapter({
+    traceChapterEdit('uploads complete', { count: uploads.length });
+    traceChapterEdit('building page order');
+    const sources = uploads.map(item => {
+        if (item.type === "remote") return { type: "existing", name: item.name };
+        if (item.type === "staged" && typeof item.stagingName === "string" && item.stagingName) {
+            return { type: "staged", name: item.stagingName };
+        }
+        throw new Error(`Không thể xác định ảnh đã tải lên: ${item.file?.name || item.name || 'không rõ tên'}`);
+    });
+    traceChapterEdit('page order built', { count: sources.length });
+    traceChapterEdit('building payload');
+    const payload = {
         isRawCaughtUp: isRawCaughtUp === true,
 
         manga: currentSlug,
@@ -868,14 +878,19 @@ async function saveChapter(isRawCaughtUp = false){
         createAt: new Date(chapterDate.value)
             .toISOString(),
 
-        pages: orderedImages.length,
+        pages: sources.length,
         images: sources,
         stagedImages: [...stagedEditImages]
 
-    });
+    };
 
+    uploadProgress.preparingManifest();
+    traceChapterEdit('sending /edit-chapter', { count: sources.length });
+    const updatePromise = updateChapter(payload);
+    uploadProgress.sendingUpdate();
+    const result = await updatePromise;
+    traceChapterEdit('/edit-chapter response received');
     uploadProgress.published();
-    await paintProgress();
 
     const updatedChapter = result.chapter;
     if (!updatedChapter || !Array.isArray(updatedChapter.images) || updatedChapter.images.length !== sources.length) {
@@ -891,7 +906,6 @@ async function saveChapter(isRawCaughtUp = false){
     newImages = [];
     pageOrder = [...existingImages];
     stagedEditImages.clear();
-    stagedEditFiles.clear();
 
     renderPreview();
 
@@ -938,8 +952,6 @@ function resetForm(){
     pageOrder=[];
 
     stagedEditImages.clear();
-
-    stagedEditFiles.clear();
 
     preview.innerHTML="";
 

@@ -13,7 +13,9 @@ async function client({ user, response } = {}) {
         Headers, FormData,
         fetch: async (url, options) => {
             calls.push({ url, options });
-            return response || new Response(JSON.stringify({ success: true, url: 'cover.webp' }), {
+            return response || new Response(JSON.stringify({
+                success: true, key: 'm/chap1/1-upload-id.jpg', url: 'https://images.test/m/chap1/1-upload-id.jpg'
+            }), {
                 status: 200, headers: { 'Content-Type': 'application/json' }
             });
         }
@@ -37,8 +39,13 @@ test('all eight mutation wrappers attach SDK tokens and preserve payloads', asyn
     await c.publishChapter(chapter);
     await c.updateChapter(chapter);
     await c.removeChapter('m', 1);
-    await c.uploadImage(new Blob(['image']), 'm/chap1', '1.jpg');
+    const uploaded = await c.uploadImage(new Blob(['image']), 'm/chap1', '1.jpg');
     await c.renameImages({ folder: 'm/chap1', images: ['1.jpg'] });
+    assert.deepEqual({ ...uploaded }, {
+        key: 'm/chap1/1-upload-id.jpg',
+        name: '1-upload-id.jpg',
+        url: 'https://images.test/m/chap1/1-upload-id.jpg'
+    });
     assert.deepEqual(calls.map(call => new URL(call.url).pathname), paths);
     for (const { url, options } of calls) {
         assert.equal(new URL(url).origin, 'https://helium-cms.mylengoctra06.workers.dev');

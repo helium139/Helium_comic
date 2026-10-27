@@ -109,9 +109,14 @@ export async function uploadImage(
 
     }
 
+    if (typeof json.key !== "string" || typeof json.url !== "string") {
+        throw new Error("Image upload response did not include its server object key.");
+    }
+    const name = json.key.split("/").pop();
+    if (!name) throw new Error("Image upload response included an invalid object key.");
     traceUpload({ stage: 'uploaded', key: json.key, url: json.url });
     await onProgress('uploaded');
-    return json.url;
+    return { key: json.key, name, url: json.url };
 
 }
 // New manga do not yet have an authorized R2 prefix. Only the Worker chooses a staging key.

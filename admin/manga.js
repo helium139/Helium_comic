@@ -437,7 +437,7 @@ if(!title.value.trim()){
             const mangaSlug = slug.value.trim();
 
             if (currentSlug) {
-                cover = await uploadImage(coverFile, mangaSlug, "cover.webp");
+                cover = (await uploadImage(coverFile, mangaSlug, "cover.webp")).url;
             } else {
                 coverStagingRef = await stageMangaCover(coverFile);
             }

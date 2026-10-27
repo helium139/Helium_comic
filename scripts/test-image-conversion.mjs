@@ -174,10 +174,10 @@ function withProgress(context) {
     context.uploadProgress.reset(context.newImages?.length || 0);
     context.paintProgress = async () => {};
     context.stagedEditImages ||= new Set();
-    context.stagedEditFiles ||= new Map();
     return context;
 }
 function chapterContext(context) {
+    context.traceChapterEdit ||= () => {};
     vm.createContext(withProgress(context));
     vm.runInContext(chapterSource.slice(chapterSource.indexOf('function uploadProgressOptions(')), context);
 }
@@ -187,11 +187,12 @@ for (const rawValue of [undefined, false, true]) for (const fail of [false, true
     const context = {
         mangaSelect: { value: 'manga' }, mangas: { manga: {} }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {},
-        pageOrder: [], newImages: [{ name: 'a.jpg' }, { name: 'b.png' }], log() {},
+        pageOrder: [], newImages: [{ name: 'a.jpg' }, { name: 'b.png' }].map(file => ({ type: 'local', file, stagingName: null })), log() {},
         uploadImage: async (file, folder, name) => {
             active++; maximum = Math.max(active, maximum); await Promise.resolve(); active--;
             if (fail) throw new Error('Upload failed');
-            return `https://images.test/${folder}/${name.replace(/\.[^.]+$/, '.webp')}`;
+            const filename = name.replace(/\.[^.]+$/, '.webp');
+            return { key: `${folder}/${filename}`, name: filename, url: `https://images.test/${folder}/${filename}` };
         },
         publishChapter: async value => { published = value; }, chapterUrl: () => '/chapter/',
         chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
@@ -206,11 +207,12 @@ for (const rawValue of [undefined, false, true]) for (const fail of [false, true
 test('100-page upload keeps selection order and at most one upload active', async () => {
     let active = 0, maximum = 0, published; const seen = [];
     const files = ['1.jpg', '2.jpg', '10.jpg', ...Array.from({ length: 97 }, (_, i) => `${i+11}.jpg`)].map(name => ({ name }));
+    const pages = files.map(file => ({ type: 'local', file, stagingName: null }));
     const c = { mangaSelect: { value: 'm' }, mangas: { m: {} }, currentStaff: {}, assertCanManageManga() {},
-        chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {}, newImages: files,
+        chapterNumber: { value: '1' }, chapterTitle: { value: 'Title' }, progress: {}, newImages: pages,
         pageOrder: [], log() {}, uploadImage: async (file, folder, name) => {
             active++; maximum = Math.max(maximum, active); seen.push(file.name); await Promise.resolve(); active--;
-            return `https://images.test/${folder}/${name}`;
+            return { key: `${folder}/${name}`, name, url: `https://images.test/${folder}/${name}` };
         }, publishChapter: async data => { published = data; }, chapterUrl: () => '/', chapterLink: {},
         chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
@@ -254,12 +256,15 @@ test('chapter edit manifest contains only the current tray after removing and re
 });
 
 for (const rawValue of [undefined, false, true]) for (const failure of [undefined, 'upload', 'update']) test(`chapter edit (raw=${rawValue}) ${failure ? failure + ' failure retains queue' : 'saves exact displayed order and returned filenames'}`, async () => {
-    const a = { type: 'remote', sourceType: 'existing', name: '1.jpg' }, b = { type: 'remote', sourceType: 'existing', name: '2.png' }, added = { name: '10.jpg', slice() {} };
+    const a = { type: 'remote', sourceType: 'existing', name: '1.jpg' }, b = { type: 'remote', sourceType: 'existing', name: '2.png' }, added = { type: 'local', file: { name: '10.jpg', slice() {} }, stagingName: null };
     let saved;
     const c = { currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 0,
         mangas: { m: { chapters: [{ id: 0, folder: 'https://img.test/m/chap0', pages: 2, images: ['1.jpg', '2.png'] }] } },
         existingImages: [a, b], newImages: [added], pageOrder: [a, added, b], progress: {}, log() {},
-        uploadImage: async () => { if (failure === 'upload') throw Error('upload'); return 'https://img.test/m/chap0/3.webp'; },
+        uploadImage: async () => {
+            if (failure === 'upload') throw Error('upload');
+            return { key: 'm/chap0/3-uuid.webp', name: '3-uuid.webp', url: 'https://img.test/m/chap0/3-uuid.webp' };
+        },
         stagedEditImages: new Set(),
         updateChapter: async body => {
             if (failure === 'update') throw Error('update');
@@ -275,8 +280,8 @@ for (const rawValue of [undefined, false, true]) for (const failure of [undefine
         assert.equal(c.newImages[0], added); assert.equal(c.existingImages[0], a); assert.equal(saved, undefined);
     } else {
         await c.saveChapter(rawValue);
-        assert.deepEqual(Array.from(saved.images, source => `${source.type}:${source.name}`), ['existing:1.jpg', 'staged:3.webp', 'existing:2.png']);
-        assert.deepEqual(Array.from(saved.stagedImages), ['3.webp']);
+        assert.deepEqual(Array.from(saved.images, source => `${source.type}:${source.name}`), ['existing:1.jpg', 'staged:3-uuid.webp', 'existing:2.png']);
+        assert.deepEqual(Array.from(saved.stagedImages), ['3-uuid.webp']);
         assert.equal(saved.pages, 3); assert.equal(saved.isRawCaughtUp, rawValue === true); assert.equal(c.newImages.length, 0);
     }
 });
@@ -285,20 +290,22 @@ test('chapter edit uses shared JPEG conversion threshold and stages oversized JP
     const bytes = jpegBytes(800, 1200, 2 * 1024 * 1024 + 1);
     const file = new Blob([bytes], { type: 'image/jpeg' });
     Object.defineProperty(file, 'name', { value: 'page.jpeg' });
+    const item = { type: 'local', file, stagingName: null };
     let stagedForm, saved;
     const c = {
         Blob, FormData, Uint8Array, DataView, console,
+        traceChapterEdit() {},
         createImageBitmap: async () => { throw new Error('Oversized JPEG must not decode'); },
         document: { createElement: () => { throw new Error('Oversized JPEG must not allocate a canvas'); }, getElementById: () => ({}) },
         authenticatedFetch: async (_url, options) => {
             stagedForm = options.body;
-            return { json: async () => ({ success: true, url: 'https://images.test/m/chap0/1-stage-id.jpg' }) };
+            return { json: async () => ({ success: true, key: 'm/chap0/1-stage-id.jpg', url: 'https://images.test/m/chap0/1-stage-id.jpg' }) };
         },
         currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 0,
-        mangas: { m: { chapters: [{ id: 0 }] } }, pageOrder: [file], newImages: [], existingImages: [],
-        stagedEditFiles: new Map(), stagedEditImages: new Set(), chapterTitle: { value: 'Edited' },
+        mangas: { m: { chapters: [{ id: 0 }] } }, pageOrder: [item], newImages: [item], existingImages: [],
+        stagedEditImages: new Set(), chapterTitle: { value: 'Edited' },
         chapterDate: { value: '2026-01-01' }, chapterLink: {}, chapterLinkBox: { classList: { remove() {} } },
-        uploadProgress: { prepared() {}, converting() {}, converted() {}, uploaded() {}, reordered() {}, published() {} },
+        uploadProgress: { prepared() {}, converting() {}, converted() {}, uploaded() {}, preparingManifest() {}, sendingUpdate() {}, published() {} },
         paintProgress: async () => {}, log() {}, renderPreview() {}, chapterUrl: () => '/',
         updateChapter: async body => {
             saved = body;
@@ -319,9 +326,10 @@ test('chapter edit uses shared JPEG conversion threshold and stages oversized JP
 
 test('preview rerender releases object URLs and requests lazy image decoding', () => {
     const revoked = [], created = []; const file = { name: 'a.jpg' };
-    const c = { previewObjectUrls: ['old-url'], pageOrder: [], existingImages: [], newImages: [file],
+    const page = { type: 'local', file, stagingName: null };
+    const c = { previewObjectUrls: ['old-url'], pageOrder: [], existingImages: [], newImages: [page],
         preview: { innerHTML: '', appendChild() {} }, updateStats() {}, initSortable() {},
-        URL: { revokeObjectURL: url => revoked.push(url), createObjectURL: () => 'new-url' },
+        URL: { revokeObjectURL: url => revoked.push(url), createObjectURL: value => { assert.equal(value, file); return 'new-url'; } },
         document: { createElement: tag => { const element = { dataset: {}, append() {} }; if (tag === 'img') created.push(element); return element; } }
     };
     vm.createContext(c); vm.runInContext(chapterSource.slice(chapterSource.indexOf('function renderPreview(){'), chapterSource.indexOf('function initSortable(){')), c);
@@ -340,14 +348,16 @@ for (const images of [undefined, ['1.png', '2.jpg', '3.png'], ['1.webp', '2.jpg'
 
 test('new chapter numbers uploads from final displayed order, preserving actual mixed extensions', async () => {
     const first = { name: 'first.jpg' }, second = { name: 'second.png' }, third = { name: 'third.jpg' };
+    const pages = [first, second, third].map(file => ({ type: 'local', file, stagingName: null }));
     const seen = []; let saved;
     const c = { mangaSelect: { value: 'm' }, mangas: { m: { chapters: [] } }, currentStaff: {}, assertCanManageManga() {},
         chapterNumber: { value: '4' }, chapterTitle: { value: 'New' }, progress: {},
-        newImages: [first, second, third], pageOrder: [third, first, second],
+        newImages: pages, pageOrder: [pages[2], pages[0], pages[1]],
         log() {}, uploadImage: async (file, folder, name) => {
             seen.push([file.name, name]);
             const ext = file === first ? 'jpg' : file === second ? 'png' : 'webp';
-            return `https://images.test/${folder}/${name.split('.')[0]}-6a294080-018b-4e4a-b5d2-1d945dba7afa.${ext}`;
+            const filename = `${name.split('.')[0]}-6a294080-018b-4e4a-b5d2-1d945dba7afa.${ext}`;
+            return { key: `${folder}/${filename}`, name: filename, url: `https://images.test/${folder}/${filename}` };
         }, publishChapter: async value => { saved = value; }, chapterUrl: () => '/', chapterLink: {},
         chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
