@@ -9,7 +9,8 @@ export async function promoteChapterPages(bucket, folder, names, { committed = f
     if (uploadFolder(folder).chapterId === null) fail(400, 'Invalid chapter folder');
     const plan = names.map((name, index) => {
         imageName(name);
-        return { source: `${folder}/${name}`, destination: `${folder}/${index + 1}.${name.split('.').pop()}` };
+        const extension = name.split('.').pop().replace('jpeg', 'jpg');
+        return { source: `${folder}/${name}`, destination: `${folder}/${index + 1}.${extension}` };
     });
     async function read(key) {
         const object = await bucket.get(key);

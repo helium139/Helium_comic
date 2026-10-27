@@ -8,8 +8,9 @@ function fixture(names) {
     const objects = new Map(), writes = [];
     for (const [index, name] of names.entries()) {
         const ext = name.split('.').pop();
-        const bytes = ext === 'webp' ? Buffer.from(`RIFF1234WEBP${index}`) : ext === 'jpg' ? Buffer.from([255,216,255,index]) : Buffer.from([137,80,78,71,13,10,26,10,index]);
-        objects.set(`m/chap1/${name}`, { body: bytes, httpMetadata: { contentType: `image/${ext === 'jpg' ? 'jpeg' : ext}` } });
+        const jpeg = ['jpg', 'jpeg'].includes(ext);
+        const bytes = ext === 'webp' ? Buffer.from(`RIFF1234WEBP${index}`) : jpeg ? Buffer.from([255,216,255,index]) : Buffer.from([137,80,78,71,13,10,26,10,index]);
+        objects.set(`m/chap1/${name}`, { body: bytes, httpMetadata: { contentType: `image/${jpeg ? 'jpeg' : ext}` } });
     }
     const bucket = {
         get: async key => objects.get(key), head: async key => objects.has(key) ? {} : null,
@@ -26,7 +27,14 @@ for (const extensions of [['webp','webp','webp'], ['jpg','webp','png']]) test(`f
     const result = await promoteChapterPages(f.bucket, 'm/chap1', names);
     assert.deepEqual(result, extensions.map((ext, i) => `${i+1}.${ext}`));
     assert.ok(result.every(name => !name.includes(uuid)));
+    assert.ok(result.every(name => /^\d+\.(?:jpg|webp|png)$/.test(name)));
     for (const name of names) assert.ok(f.objects.has(`m/chap1/${name}`));
+});
+test('JPEG extension .jpeg is promoted as the canonical numbered .jpg', async () => {
+    const name = `1-${uuid}.jpeg`, f = fixture([name]);
+    assert.deepEqual(await promoteChapterPages(f.bucket, 'm/chap1', [name]), ['1.jpg']);
+    assert.ok(f.objects.has('m/chap1/1.jpg'));
+    assert.ok(!f.objects.has('m/chap1/1.jpeg'));
 });
 test('reorder uses final display order', async () => {
     const names = [`1-${uuid}.jpg`, `2-${uuid}.png`], f = fixture(names);

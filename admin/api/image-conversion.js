@@ -1,17 +1,23 @@
 // Canvas encoders are feature-tested by their output MIME type. Fail closed on errors.
-export async function prepareImage(file, filename, quality = 0.85) {
+export const MAX_CHAPTER_JPEG_CONVERSION_SIZE = 5 * 1024 * 1024;
+
+export async function prepareImage(file, filename, quality = 0.85, { maxJpegConversionSize } = {}) {
     try {
-        return await convertImage(file, filename, quality);
+        return await convertImage(file, filename, quality, maxJpegConversionSize);
     } catch {
         throw new Error(`Image conversion failed: ${file.name || filename}`);
     }
 }
 
-async function convertImage(file, filename, quality) {
+async function convertImage(file, filename, quality, maxJpegConversionSize) {
     const extension = filename.split('.').pop().toLowerCase();
     if (!['jpg', 'jpeg', 'png'].includes(extension)) return { file, filename, reason: 'passthrough' };
     const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
     const signature = String.fromCharCode(...header);
+    if (['jpg', 'jpeg'].includes(extension) && maxJpegConversionSize !== undefined &&
+        file.size > maxJpegConversionSize && header[0] === 255 && header[1] === 216 && header[2] === 255) {
+        return { file, filename: filename.replace(/\.jpeg$/i, '.jpg'), reason: 'oversized-jpeg' };
+    }
     // Canvas drops EXIF orientation. Retain these originals rather than rotate/mirror them.
     if (header[0] === 255 && header[1] === 216 && await hasOrientation(file)) return { file, filename, reason: 'exif-orientation' };
     // Do not flatten animation merely because somebody gave it a JPG filename.

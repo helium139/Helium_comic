@@ -313,7 +313,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 const existing = manga.chapters.find(chapter => Number(chapter.id) === id);
                 if (existing) {
                     const names = chapterImages(body.images, pageCount(body.imageCount));
-                    const finals = names.map((name, i) => `${i + 1}.${name.split('.').pop()}`);
+                    const finals = names.map((name, i) => `${i + 1}.${name.split('.').pop().replace('jpeg', 'jpg')}`);
                     if (existing.title !== body.title || JSON.stringify(existing.images) !== JSON.stringify(finals)) fail(409, "Chapter already exists");
                     await promoteChapterPages(env.BUCKET, `${slug}/chap${id}`, names, { committed: true });
                     try { await cleanupChapterSources(env.BUCKET, `${slug}/chap${id}`, names, result.data, publicBase(env)); }

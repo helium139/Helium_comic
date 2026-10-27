@@ -740,7 +740,7 @@ async function uploadChapter(isRawCaughtUp = false){
             `${slug}/chap${chapter}`,
 
             `${i+1}.${ext}`,
-            uploadProgressOptions(i)
+            uploadProgressOptions(i, file)
 
         );
 
@@ -834,7 +834,7 @@ async function saveChapter(isRawCaughtUp = false){
             file,
             folder,
             filename,
-            uploadProgressOptions(i)
+            uploadProgressOptions(i, file)
         );
 
         uploaded.set(file, {
@@ -1014,9 +1014,10 @@ addImageBtn.onclick = () => {
     chapterFiles.click();
 };
 
-function uploadProgressOptions(index) {
+function uploadProgressOptions(index, file) {
     return { onProgress: async phase => {
         if (phase === 'converting') uploadProgress.converting(index);
+        if (phase === 'preserved') log(`Giữ nguyên JPG: ${file.name}`);
         if (phase === 'converted') uploadProgress.converted(index);
         if (phase === 'uploaded') uploadProgress.uploaded(index);
         await paintProgress();

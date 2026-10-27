@@ -127,14 +127,26 @@ test('image signatures determine MIME; spoofed files and mismatched chapter exte
     const result = await response.json();
     assert.match(result.key, /^own\/chap1\/1-[a-f0-9-]+\.webp$/);
     assert.equal(h.objects.get(result.key).httpMetadata.contentType, 'image/webp');
+
+    const retainedJpeg = await h.call('/upload', upload('own/chap1', '2.jpeg'));
+    assert.equal(retainedJpeg.status, 200);
+    const jpegResult = await retainedJpeg.json();
+    assert.match(jpegResult.key, /^own\/chap1\/2-[a-f0-9-]+\.jpg$/);
+    assert.equal(h.objects.get(jpegResult.key).httpMetadata.contentType, 'image/jpeg');
 });
 
 test('chapter manifests preserve mixed page order and reject arbitrary paths', async () => {
     const h = harness();
-    const body = { manga: 'own', chapterNumber: 1, title: 'Mixed', imageCount: 2, images: ['1.webp', '2.png'] };
-    for (const name of body.images) await h.BUCKET.put(`own/chap1/${name}`, name.endsWith('webp') ? 'RIFF1234WEBPxxxx' : Uint8Array.from([137,80,78,71,13,10,26,10]), { httpMetadata: { contentType: name.endsWith('webp') ? 'image/webp' : 'image/png' } });
+    const body = { manga: 'own', chapterNumber: 1, title: 'Mixed', imageCount: 3, images: ['1.webp', '2.jpg', '3.webp'] };
+    for (const name of body.images) {
+        const jpeg = name.endsWith('.jpg');
+        const bytes = jpeg ? Uint8Array.from([255,216,255,224]) : 'RIFF1234WEBPxxxx';
+        await h.BUCKET.put(`own/chap1/${name}`, bytes, { httpMetadata: { contentType: jpeg ? 'image/jpeg' : 'image/webp' } });
+    }
     assert.equal((await h.call('/new-chapter', body, leader)).status, 200);
     assert.deepEqual(h.catalogue().own.chapters[1].images, body.images);
+    assert.ok(h.catalogue().own.chapters[1].images.every((name, index) => name === `${index + 1}.${['webp', 'jpg', 'webp'][index]}`));
+    assert.ok(h.catalogue().own.chapters[1].images.every(name => /^\d+\.(?:webp|jpg)$/.test(name)));
     assert.equal((await h.call('/new-chapter', { ...body, chapterNumber: 2, images: ['2.png', '1.webp'] }, leader)).status, 400);
     assert.equal((await h.call('/new-chapter', { ...body, chapterNumber: 2, images: ['../1.webp', '2.png'] }, leader)).status, 400);
 });

@@ -1,5 +1,5 @@
 import { authenticatedFetch } from "./authenticated-fetch.js";
-import { prepareImage } from "./image-conversion.js";
+import { MAX_CHAPTER_JPEG_CONVERSION_SIZE, prepareImage } from "./image-conversion.js";
 
 // Temporary opt-in diagnostics: set window.HELIUM_WEBP_DEBUG = true in the CMS console.
 // Only file metadata and public object keys are logged, never request headers or tokens.
@@ -41,8 +41,12 @@ export async function uploadImage(
     const sourceName = file.name || filename;
     const chapter = folder.includes('/');
     await onProgress('converting');
-    const prepared = await prepareImage(file, chapter ? filename : file.name, chapter ? 0.85 : 0.88);
+    const prepared = await prepareImage(file, chapter ? filename : file.name, chapter ? 0.85 : 0.88,
+        chapter ? { maxJpegConversionSize: MAX_CHAPTER_JPEG_CONVERSION_SIZE } : undefined);
     traceConversion(file, prepared);
+    if (chapter && prepared.reason === 'oversized-jpeg') {
+        await onProgress('preserved', { filename: sourceName, reason: prepared.reason });
+    }
     await onProgress('converted');
     file = prepared.file;
     filename = chapter ? prepared.filename : `cover.${prepared.filename.split('.').pop().toLowerCase()}`;

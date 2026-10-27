@@ -6,22 +6,41 @@ import { readFile } from 'node:fs/promises';
 const source = await readFile(new URL('../admin/api/image-conversion.js', import.meta.url), 'utf8');
 
 function browser({ type = 'image/webp', size = 20, fail = false } = {}) {
-    let closed = 0, canvas, quality;
+    let closed = 0, decoded = 0, canvas, quality;
     const context = { Uint8Array, DataView,
-        createImageBitmap: async () => ({ width: 800, height: 1200, close: () => closed++ }),
+        createImageBitmap: async () => { decoded++; return { width: 800, height: 1200, close: () => closed++ }; },
         document: { createElement: () => (canvas = { width: 0, height: 0,
             getContext: () => ({ drawImage() {} }),
             toBlob(callback, mime, q) { quality = q; callback(fail ? null : new Blob(['x'.repeat(size)], { type })); }
         }) }
     };
     vm.createContext(context); vm.runInContext(source.replace(/export /g, ''), context);
-    return { prepare: context.prepareImage, closed: () => closed, canvas: () => canvas, quality: () => quality };
+    return { prepare: context.prepareImage, closed: () => closed, decoded: () => decoded, canvas: () => canvas, quality: () => quality };
 }
 for (const ext of ['jpg', 'jpeg', 'png']) test(`browser ${ext} becomes WebP with correct name, type and quality`, async () => {
     const b = browser(); const input = new Blob(['x'.repeat(100)], { type: ext === 'png' ? 'image/png' : 'image/jpeg' });
     const result = await b.prepare(input, `001.${ext}`);
     assert.equal(result.filename, '001.webp'); assert.equal(result.file.type, 'image/webp');
     assert.equal(b.quality(), 0.85); assert.equal(b.closed(), 1); assert.equal(b.canvas().width, 0);
+});
+test('small JPEG still converts to WebP', async () => {
+    const b = browser({ size: 1 });
+    const input = new Blob([Uint8Array.of(255, 216, 255, 217), 'small JPEG'], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: 5 * 1024 * 1024 });
+    assert.equal(result.reason, 'converted');
+    assert.equal(result.filename, '1.webp');
+    assert.equal(result.file.type, 'image/webp');
+    assert.equal(b.decoded(), 1);
+});
+test('oversized JPEG is preserved without decoding and .jpeg normalizes to .jpg', async () => {
+    const b = browser();
+    const input = new Blob([Uint8Array.of(255, 216, 255, 217), new Uint8Array(5 * 1024 * 1024)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '2.jpeg', 0.85, { maxJpegConversionSize: 5 * 1024 * 1024 });
+    assert.equal(result.file, input);
+    assert.equal(result.filename, '2.jpg');
+    assert.equal(result.reason, 'oversized-jpeg');
+    assert.equal(b.decoded(), 0);
+    assert.equal(b.closed(), 0);
 });
 for (const ext of ['webp', 'gif', 'avif']) test(`${ext} passes through without decoding`, async () => {
     const b = browser(), input = new Blob(['x']); const result = await b.prepare(input, `1.${ext}`);
