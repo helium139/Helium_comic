@@ -126,7 +126,10 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
         newManga: async manga => calls.push(['create', manga]),
         editManga: async manga => calls.push(['edit', manga]),
         stageMangaCover: async file => { calls.push(['stage', file]); return 'staged-cover-reference'; },
-        uploadImage: async (...args) => { calls.push(['upload', ...args]); return 'updated-cover'; },
+        uploadImage: async (...args) => {
+            calls.push(['upload', ...args]);
+            return { key: 'sample/cover-updated.webp', name: 'cover-updated.webp', url: 'updated-cover' };
+        },
         removeChapter: async (...args) => calls.push(['delete-chapter', ...args]),
         FileReader: class { readAsDataURL() {} },
         document: { getElementById: el, createElement: () => el(Symbol()), addEventListener() {} },
