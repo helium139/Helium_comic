@@ -11,7 +11,6 @@ async function client({ user, response } = {}) {
     const context = {
         auth: { currentUser: user === undefined ? { getIdToken: async () => 'sdk-token' } : user },
         Headers, FormData,
-        prepareImage: async (file, filename) => ({ file, filename }),
         fetch: async (url, options) => {
             calls.push({ url, options });
             return response || new Response(JSON.stringify({ success: true, url: 'cover.webp' }), {
@@ -20,6 +19,8 @@ async function client({ user, response } = {}) {
         }
     };
     vm.createContext(context);
+    vm.runInContext(strip(await read('admin/api/image-conversion.js')), context);
+    context.prepareImage = async (file, filename) => ({ file, filename });
     vm.runInContext(strip(await read('admin/api/authenticated-fetch.js')), context);
     vm.runInContext(strip(await read('admin/api/github.js')), context);
     vm.runInContext(strip(await read('admin/api/upload.js')), context);
