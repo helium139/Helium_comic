@@ -10577,6 +10577,16 @@
                     "42-741b3687-7d79-4c75-b5dc-bea35fcd4daa.webp",
                     "43-fe0bfc8d-c1cc-489b-b086-3bbdb14c68b6.webp"
                 ]
+            },
+            {
+                "id": 11,
+                "title": "Thông báo hoãn chap",
+                "createAt": "2026-10-27T08:53:33.087Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/love-me-animal/chap11",
+                "pages": 1,
+                "images": [
+                    "1.webp"
+                ]
             }
         ],
         "isRawCaughtUp": true
