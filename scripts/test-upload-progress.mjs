@@ -144,6 +144,29 @@ test('oversized JPEG conversion skip advances through upload without reporting a
     assert.deepEqual(events, ['converting', 'convert', 'preserved', 'converted', 'request', 'uploaded']);
 });
 
+test('unsafe-dimension JPEG conversion skip advances through upload without reporting an error', async () => {
+    const events = [];
+    const context = { Blob, FormData, console,
+        authenticatedFetch: async (_url, options) => {
+            events.push('request');
+            assert.equal(options.body.get('filename'), '3.jpg');
+            return { json: async () => ({ success: true, url: 'https://images.test/m/chap1/3-id.jpg' }) };
+        }
+    };
+    vm.createContext(context);
+    vm.runInContext(conversionSource.replace(/export /g, ''), context);
+    context.prepareImage = async file => {
+        events.push('convert');
+        return { file, filename: '3.jpg', reason: 'unsafe-canvas-dimensions' };
+    };
+    vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), context);
+    const url = await context.uploadImage(new Blob(['tall JPEG']), 'm/chap1', '3.jpeg', {
+        onProgress: phase => events.push(phase)
+    });
+    assert.equal(url, 'https://images.test/m/chap1/3-id.jpg');
+    assert.deepEqual(events, ['converting', 'convert', 'preserved', 'converted', 'request', 'uploaded']);
+});
+
 test('skipped JPEG logs preservation and still completes conversion and upload progress', async () => {
     const source = await readFile(new URL('../admin/chapter.js', import.meta.url), 'utf8');
     const f = model(1), messages = [];

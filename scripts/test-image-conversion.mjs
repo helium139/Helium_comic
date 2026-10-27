@@ -5,21 +5,34 @@ import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 const source = await readFile(new URL('../admin/api/image-conversion.js', import.meta.url), 'utf8');
 
-function browser({ type = 'image/webp', size = 20, fail = false } = {}) {
-    let closed = 0, decoded = 0, canvas, quality;
+function browser({ type = 'image/webp', size = 20, fail = false, width = 800, height = 1200, canvasLimit = Infinity, canvasFailure = false } = {}) {
+    let closed = 0, decoded = 0, canvas, quality, drawn;
     const context = { Uint8Array, DataView,
-        createImageBitmap: async () => { decoded++; return { width: 800, height: 1200, close: () => closed++ }; },
-        document: { createElement: () => (canvas = { width: 0, height: 0,
-            getContext: () => ({ drawImage() {} }),
+        createImageBitmap: async () => { decoded++; return { width, height, close: () => closed++ }; },
+        document: { createElement: () => {
+            let canvasWidth = 0, canvasHeight = 0;
+            return (canvas = {
+            get width() { return canvasWidth; },
+            set width(value) { if (canvasFailure && value) throw new Error('Canvas allocation failed'); canvasWidth = Math.min(value, canvasLimit); },
+            get height() { return canvasHeight; },
+            set height(value) { if (canvasFailure && value) throw new Error('Canvas allocation failed'); canvasHeight = Math.min(value, canvasLimit); },
+            getContext: () => ({ drawImage(...args) { drawn = [...args, canvasWidth, canvasHeight]; } }),
             toBlob(callback, mime, q) { quality = q; callback(fail ? null : new Blob(['x'.repeat(size)], { type })); }
-        }) }
+        }); } }
     };
     vm.createContext(context); vm.runInContext(source.replace(/export /g, ''), context);
     return {
         prepare: context.prepareImage,
         threshold: () => vm.runInContext('MAX_CHAPTER_JPEG_CONVERSION_SIZE', context),
-        closed: () => closed, decoded: () => decoded, canvas: () => canvas, quality: () => quality
+        closed: () => closed, decoded: () => decoded, canvas: () => canvas, quality: () => quality,
+        drawn: () => drawn
     };
+}
+function jpegBytes(width, height, size = 21) {
+    const bytes = new Uint8Array(size);
+    bytes.set([255, 216, 255, 192, 0, 17, 8, height >> 8, height & 255,
+        width >> 8, width & 255, 3, 1, 17, 0, 2, 17, 0, 3, 17, 0]);
+    return bytes;
 }
 for (const ext of ['jpg', 'jpeg', 'png']) test(`browser ${ext} becomes WebP with correct name, type and quality`, async () => {
     const b = browser(); const input = new Blob(['x'.repeat(100)], { type: ext === 'png' ? 'image/png' : 'image/jpeg' });
@@ -29,35 +42,78 @@ for (const ext of ['jpg', 'jpeg', 'png']) test(`browser ${ext} becomes WebP with
 });
 test('small JPEG still converts to WebP', async () => {
     const b = browser({ size: 1 });
-    const input = new Blob([Uint8Array.of(255, 216, 255, 217), 'small JPEG'], { type: 'image/jpeg' });
+    const input = new Blob([jpegBytes(800, 1200, 100)], { type: 'image/jpeg' });
     const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: b.threshold() });
     assert.equal(result.reason, 'converted');
     assert.equal(result.filename, '1.webp');
     assert.equal(result.file.type, 'image/webp');
     assert.equal(b.decoded(), 1);
 });
-test('chapter JPEG conversion threshold is exactly 4 MiB', () => {
-    assert.equal(browser().threshold(), 4 * 1024 * 1024);
+test('chapter JPEG conversion threshold is exactly 2 MiB', () => {
+    assert.equal(browser().threshold(), 2 * 1024 * 1024);
 });
-test('JPEG exactly 4 MiB still converts to WebP', async () => {
+test('JPEG exactly 2 MiB still converts to WebP', async () => {
     const b = browser({ size: 1 });
     const limit = b.threshold();
-    const input = new Blob([Uint8Array.of(255, 216, 255, 217), new Uint8Array(limit - 4)], { type: 'image/jpeg' });
+    const input = new Blob([jpegBytes(800, 1200, limit)], { type: 'image/jpeg' });
     const result = await b.prepare(input, '2.jpg', 0.85, { maxJpegConversionSize: limit });
     assert.equal(result.reason, 'converted');
     assert.equal(result.filename, '2.webp');
     assert.equal(b.decoded(), 1);
 });
-test('JPEG above 4 MiB is preserved without decoding and .jpeg normalizes to .jpg', async () => {
+test('JPEG below 2 MiB converts to WebP', async () => {
+    const b = browser({ size: 1 });
+    const limit = b.threshold();
+    const input = new Blob([jpegBytes(800, 1200, limit - 1)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: limit });
+    assert.equal(result.reason, 'converted');
+    assert.equal(result.filename, '1.webp');
+});
+test('JPEG above 2 MiB is preserved without decoding and .jpeg normalizes to .jpg', async () => {
     const b = browser();
     const limit = b.threshold();
-    const input = new Blob([Uint8Array.of(255, 216, 255, 217), new Uint8Array(limit - 3)], { type: 'image/jpeg' });
+    const input = new Blob([jpegBytes(800, 1200, limit + 1)], { type: 'image/jpeg' });
     const result = await b.prepare(input, '2.jpeg', 0.85, { maxJpegConversionSize: limit });
     assert.equal(result.file, input);
     assert.equal(result.filename, '2.jpg');
     assert.equal(result.reason, 'oversized-jpeg');
     assert.equal(b.decoded(), 0);
     assert.equal(b.closed(), 0);
+});
+test('tall portrait JPEG keeps full dimensions and draws the entire source bitmap', async () => {
+    const b = browser({ size: 1, width: 800, height: 12000 });
+    const input = new Blob([jpegBytes(800, 12000)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, 'page.jpg', 0.85, { maxJpegConversionSize: b.threshold() });
+    assert.equal(result.reason, 'converted');
+    assert.deepEqual(b.drawn().slice(1), [0, 0, 800, 12000, 800, 12000]);
+    assert.equal(b.drawn()[0].width / b.drawn()[0].height, 800 / 12000);
+});
+test('unsafe tall JPEG dimensions preserve original bytes without decoding or canvas allocation', async () => {
+    const b = browser();
+    const input = new Blob([jpegBytes(1000, 18000)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '12.jpeg', 0.85, { maxJpegConversionSize: b.threshold() });
+    assert.equal(result.file, input);
+    assert.equal(result.filename, '12.jpg');
+    assert.equal(result.reason, 'unsafe-canvas-dimensions');
+    assert.equal(b.decoded(), 0);
+    assert.equal(b.canvas(), undefined);
+});
+test('canvas dimension clamping preserves JPEG instead of producing clipped WebP', async () => {
+    const b = browser({ canvasLimit: 700 });
+    const input = new Blob([jpegBytes(800, 1200)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: b.threshold() });
+    assert.equal(result.file, input);
+    assert.equal(result.filename, '1.jpg');
+    assert.equal(result.reason, 'unsafe-canvas-dimensions');
+    assert.equal(b.drawn(), undefined);
+});
+test('canvas allocation failure preserves a decodable JPEG as a safe skip', async () => {
+    const b = browser({ canvasFailure: true });
+    const input = new Blob([jpegBytes(800, 1200)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: b.threshold() });
+    assert.equal(result.file, input);
+    assert.equal(result.reason, 'unsafe-canvas-dimensions');
+    assert.equal(b.closed(), 1);
 });
 for (const ext of ['webp', 'gif', 'avif']) test(`${ext} passes through without decoding`, async () => {
     const b = browser(), input = new Blob(['x']); const result = await b.prepare(input, `1.${ext}`);
@@ -66,7 +122,8 @@ for (const ext of ['webp', 'gif', 'avif']) test(`${ext} passes through without d
 test('unsupported encoder or larger output keeps the original', async () => {
     const file = new Blob(['x'.repeat(100)]);
     for (const options of [{ type: 'image/png' }, { size: 100 }, { size: 101 }]) {
-        const result = await browser(options).prepare(file, '1.jpg'); assert.equal(result.file, file); assert.equal(result.filename, '1.jpg');
+        const result = await browser(options).prepare(file, '1.jpeg');
+        assert.equal(result.file, file); assert.equal(result.filename, '1.jpg');
     }
 });
 test('conversion failure rejects and releases bitmap/canvas', async () => {
@@ -98,16 +155,19 @@ test('GIF/WebP bytes disguised with a JPG filename are not flattened', async () 
 });
 
 test('EXIF-oriented JPEG stays original to preserve visual orientation', async () => {
-    const bytes = new Uint8Array(40);
+    const bytes = new Uint8Array(59);
     bytes.set([255, 216, 255, 225, 0, 34, 69, 120, 105, 102, 0, 0, 73, 73, 42, 0, 8, 0, 0, 0, 1, 0]);
     const view = new DataView(bytes.buffer);
     view.setUint16(22, 0x112, true); view.setUint16(24, 3, true); view.setUint32(26, 1, true); view.setUint16(30, 6, true);
-    bytes.set([255, 217], 38);
+    bytes.set(jpegBytes(800, 1200).subarray(2), 38);
+    bytes.set([255, 217], 57);
     const file = new Blob([bytes]), b = browser();
-    assert.equal((await b.prepare(file, 'cover.jpg')).file, file); assert.equal(b.closed(), 0);
+    const result = await b.prepare(file, 'cover.jpeg');
+    assert.equal(result.file, file); assert.equal(result.filename, 'cover.jpg'); assert.equal(b.closed(), 0);
 });
 
 const chapterSource = await readFile(new URL('../admin/chapter.js', import.meta.url), 'utf8');
+const uploadSource = await readFile(new URL('../admin/api/upload.js', import.meta.url), 'utf8');
 // Function-level chapter fixtures use the real progress model and callback adapter.
 function withProgress(context) {
     context.uploadProgress = createUploadProgress();
@@ -219,6 +279,42 @@ for (const rawValue of [undefined, false, true]) for (const failure of [undefine
         assert.deepEqual(Array.from(saved.stagedImages), ['3.webp']);
         assert.equal(saved.pages, 3); assert.equal(saved.isRawCaughtUp, rawValue === true); assert.equal(c.newImages.length, 0);
     }
+});
+
+test('chapter edit uses shared JPEG conversion threshold and stages oversized JPEG unchanged', async () => {
+    const bytes = jpegBytes(800, 1200, 2 * 1024 * 1024 + 1);
+    const file = new Blob([bytes], { type: 'image/jpeg' });
+    Object.defineProperty(file, 'name', { value: 'page.jpeg' });
+    let stagedForm, saved;
+    const c = {
+        Blob, FormData, Uint8Array, DataView, console,
+        createImageBitmap: async () => { throw new Error('Oversized JPEG must not decode'); },
+        document: { createElement: () => { throw new Error('Oversized JPEG must not allocate a canvas'); }, getElementById: () => ({}) },
+        authenticatedFetch: async (_url, options) => {
+            stagedForm = options.body;
+            return { json: async () => ({ success: true, url: 'https://images.test/m/chap0/1-stage-id.jpg' }) };
+        },
+        currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 0,
+        mangas: { m: { chapters: [{ id: 0 }] } }, pageOrder: [file], newImages: [], existingImages: [],
+        stagedEditFiles: new Map(), stagedEditImages: new Set(), chapterTitle: { value: 'Edited' },
+        chapterDate: { value: '2026-01-01' }, chapterLink: {}, chapterLinkBox: { classList: { remove() {} } },
+        uploadProgress: { prepared() {}, converting() {}, converted() {}, uploaded() {}, reordered() {}, published() {} },
+        paintProgress: async () => {}, log() {}, renderPreview() {}, chapterUrl: () => '/',
+        updateChapter: async body => {
+            saved = body;
+            return { chapter: { id: 0, pages: 1, folder: 'https://images.test/m/chap0/_revision-1', images: ['1.jpg'] } };
+        }
+    };
+    vm.createContext(c);
+    vm.runInContext(source.replace(/export /g, ''), c);
+    vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), c);
+    vm.runInContext(chapterSource.slice(chapterSource.indexOf('function uploadProgressOptions(')), c);
+    vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter('), chapterSource.indexOf('function resetForm(){')), c);
+    await c.saveChapter();
+    assert.equal(stagedForm.get('filename'), '1.jpg');
+    assert.equal(stagedForm.get('file').type, 'image/jpeg');
+    assert.equal(stagedForm.get('file').size, bytes.length);
+    assert.deepEqual(Array.from(saved.images, image => `${image.type}:${image.name}`), ['staged:1-stage-id.jpg']);
 });
 
 test('preview rerender releases object URLs and requests lazy image decoding', () => {

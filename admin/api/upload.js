@@ -44,7 +44,8 @@ export async function uploadImage(
     const prepared = await prepareImage(file, chapter ? filename : file.name, chapter ? 0.85 : 0.88,
         chapter ? { maxJpegConversionSize: MAX_CHAPTER_JPEG_CONVERSION_SIZE } : undefined);
     traceConversion(file, prepared);
-    if (chapter && prepared.reason === 'oversized-jpeg') {
+    if (chapter && ['oversized-jpeg', 'unsafe-canvas-dimensions'].includes(prepared.reason) &&
+        /\.jpg$/i.test(prepared.filename)) {
         await onProgress('preserved', { filename: prepared.filename, reason: prepared.reason });
     }
     await onProgress('converted');
