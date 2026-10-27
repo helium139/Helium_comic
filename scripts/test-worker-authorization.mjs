@@ -38,33 +38,44 @@ const input = (slug = 'own') => ({
 const manga = teamId => ({ ...input(), teamId, adminPick: true, pickOrder: 3, customGlobalFlag: true,
     chapters: [{ id: 0, title: 'Prologue', pages: 1, folder: 'https://images.test/own/chap0', createAt: '2026-01-01T00:00:00.000Z' }] });
 
-function harness() {
+function harness({ failList = false, fetchMode, githubTimeoutMs = 30_000, r2TimeoutMs = 30_000 } = {}) {
     let catalogue = { own: manga('heliumtg'), other: manga('other-team'), legacy: { ...manga('heliumtg'), teamId: undefined } };
     const objects = new Map();
     const operations = [], commits = [], logs = [], requests = [];
     let rejectSave = false, failDelete = false, revision = 1;
     let objectRevision = 0;
+    const r2Calls = { get: 0, head: 0, put: 0, list: 0, delete: 0 };
     const BUCKET = {
         async put(key, value, options = {}) {
+            r2Calls.put++;
             operations.push(['put', key]);
             if (options.onlyIf?.etagDoesNotMatch === '*' && objects.has(key)) return null;
             if (options.onlyIf?.etagMatches && objects.get(key)?.etag !== options.onlyIf.etagMatches) return null;
             const bytes = new Uint8Array(await new Response(value).arrayBuffer());
-            objects.set(key, { bytes, etag: `r2-${++objectRevision}`, ...structuredClone(options) });
-            return {};
+            const stored = { bytes, etag: `r2-${++objectRevision}`, ...structuredClone(options) };
+            objects.set(key, stored);
+            return { etag: stored.etag, size: bytes.length };
         },
         async get(key) {
+            r2Calls.get++;
             const value = objects.get(key);
             return value ? { ...structuredClone(value), body: value.bytes.slice() } : null;
         },
-        async head(key) { return objects.has(key) ? {} : null; },
+        async head(key) {
+            r2Calls.head++;
+            const value = objects.get(key);
+            return value ? { etag: value.etag, size: value.bytes.length, customMetadata: value.customMetadata } : null;
+        },
         async list({ prefix = '' } = {}) {
+            r2Calls.list++;
+            if (failList) throw new Error('test list failure');
             return {
                 objects: [...objects.keys()].filter(key => key.startsWith(prefix)).map(key => ({ key })),
                 truncated: false
             };
         },
         async delete(key, options = {}) {
+            r2Calls.delete++;
             const current = objects.get(key);
             if (options.onlyIf?.etagMatches && current?.etag !== options.onlyIf.etagMatches) return;
             if (key.startsWith('own/chap')) assert.ok(commits.length > 0, 'chapter objects are cleaned only after commit');
@@ -81,9 +92,11 @@ function harness() {
         GITHUB_REPO: 'repo', GITHUB_BRANCH: 'main', GITHUB_TOKEN: 'PRIVATE_SECRET' };
     const worker = createWorker({
         verifyToken: jwt => verifyFirebaseToken(jwt, keys),
+        githubTimeoutMs, r2TimeoutMs,
         log: details => logs.push(details),
         fetchImpl: async (url, options) => {
             requests.push({ url, method: options.method });
+            if (fetchMode === 'hang' && options.method !== 'PUT') return new Promise(() => {});
             if (options.method === 'PUT') {
                 if (rejectSave) return new Response('PRIVATE_GITHUB_ERROR', { status: 409 });
                 const body = JSON.parse(options.body);
@@ -102,7 +115,7 @@ function harness() {
             return Response.json({ sha: `sha-${revision}`, content: Buffer.from(JSON.stringify(data)).toString('base64') });
         }
     });
-    async function call(path, body = {}, jwt = admin, { method = 'POST', origin, headers = {} } = {}) {
+    async function call(path, body = {}, jwt = admin, { method = 'POST', origin, headers = {}, ctx } = {}) {
         const requestHeaders = new Headers(headers);
         if (jwt) requestHeaders.set('Authorization', `Bearer ${jwt}`);
         if (origin) requestHeaders.set('Origin', origin);
@@ -111,10 +124,11 @@ function harness() {
         return worker.fetch(new Request(`https://cms.test${path}`, {
             method, headers: requestHeaders,
             body: ['GET', 'HEAD', 'OPTIONS'].includes(method) ? undefined : multipart ? body : JSON.stringify(body)
-        }), env);
+        }), env, ctx);
     }
-    return { call, BUCKET, objects, operations, commits, logs, requests,
-        catalogue: () => catalogue, rejectSave: () => { rejectSave = true; }, failDelete: () => { failDelete = true; } };
+    return { call, BUCKET, objects, operations, commits, logs, requests, r2Calls, env,
+        catalogue: () => catalogue, rejectSave: () => { rejectSave = true; },
+        setRejectSave: value => { rejectSave = value; }, failDelete: () => { failDelete = true; } };
 }
 function upload(folder, filename = '1.jpg', extra = {}) {
     const form = new FormData();
@@ -206,7 +220,7 @@ test('chapter edit publishes exactly the tray order with immutable numbered mixe
     const response = await h.call('/edit-chapter', editRequest(desired, [jpegStage, unusedStage]), leader);
     assert.equal(response.status, 200);
     const { chapter } = await response.json();
-    assert.match(chapter.folder, /^https:\/\/images\.test\/own\/chap0\/_revision-\d+$/);
+    assert.match(chapter.folder, /^https:\/\/images\.test\/own\/chap0\/_revision-\d+-\d+$/);
     assert.deepEqual(chapter.images, ['1.webp', '2.jpg', '3.webp', '4.webp']);
     assert.ok(chapter.images.every(name => /^\d+\.(?:webp|jpg)$/.test(name)));
     assert.deepEqual([...h.objects.get(`${chapter.folder.slice('https://images.test/'.length)}/1.webp`).bytes], [...webpBytes(3)]);
@@ -299,6 +313,105 @@ test('a repeated edit safely republishes the current ordered tray', async () => 
         imageCount: retriedChapter.pages, images: retriedChapter.images
     }, leader);
     assert.equal(publishRetry.status, 200);
+});
+
+test('50-page mixed edit returns after commit, bounds promotion calls, and offloads failed cleanup', { timeout: 10000 }, async () => {
+    const h = harness({ failList: true });
+    const oldExtensions = Array.from({ length: 26 }, (_, index) => index % 3 === 0 ? 'jpg' : 'webp');
+    await setCurrentChapterImages(h, oldExtensions);
+
+    const keptExisting = oldExtensions.slice(0, 25).map((extension, index) => ({
+        type: 'existing', name: `${index + 1}.${extension}`
+    })).reverse();
+    const stages = [];
+    for (let index = 0; index < 25; index++) {
+        const extension = index % 2 === 0 ? 'jpg' : 'webp';
+        const name = `${27 + index}-${crypto.randomUUID()}.${extension}`;
+        const bytes = extension === 'jpg' ? jpegBytes(index + 30) : webpBytes(index + 30);
+        await putStagedChapterImage(h, name, bytes, extension === 'jpg' ? 'image/jpeg' : 'image/webp');
+        stages.push({ type: 'staged', name });
+    }
+    const ordered = [...keptExisting, ...stages.reverse()];
+    for (const key of Object.keys(h.r2Calls)) h.r2Calls[key] = 0;
+    const background = [];
+    h.env.HELIUM_EDIT_DEBUG = 'true';
+    const response = await h.call('/edit-chapter', editRequest(ordered, stages.map(item => item.name)), leader, {
+        ctx: { waitUntil: promise => background.push(promise) }
+    });
+
+    assert.equal(response.status, 200);
+    const { chapter } = await response.json();
+    assert.equal(chapter.pages, 50);
+    assert.deepEqual(chapter.images, ordered.map((item, index) =>
+        `${index + 1}.${item.name.split('.').pop().replace('jpeg', 'jpg')}`));
+    assert.equal(h.commits.length, 1);
+    assert.equal(background.length, 1);
+    assert.equal(h.r2Calls.get, 102, 'source validation and transfer reads plus lock acquire/release reads');
+    assert.ok(h.r2Calls.put <= 52, 'one destination write per page plus lock acquire/release');
+    assert.equal(h.r2Calls.list, 1, 'cleanup lists only the chapter prefix once');
+    assert.equal(h.requests.filter(item => item.method === 'PUT').length, 1, 'catalogue commits once');
+    assert.equal(h.requests.filter(item => item.method === 'GET' &&
+        new URL(item.url).pathname.endsWith('/contents/assets/data/data.json')).length, 3,
+    'initial catalogue, lock freshness check, and committed-manifest verification');
+    await Promise.all(background);
+    assert.ok(h.logs.some(entry => entry.operation === 'chapter-edit-cleanup' && entry.outcome === 'retry-required'));
+    assert.ok(h.logs.some(entry => entry.operation === 'phase-timing' && entry.phase === 'promotion finished'));
+    assert.ok(h.logs.some(entry => entry.operation === 'phase-timing' && entry.phase === 'response ready'));
+    assert.ok([...h.objects.values()].some(object => object.customMetadata?.state === 'released'),
+        'lock is released even when cleanup fails');
+});
+
+test('failed edit releases its lock so a second request can complete', { timeout: 10000 }, async () => {
+    const h = harness();
+    await setCurrentChapterImages(h, ['webp']);
+    const stage = `2-${crypto.randomUUID()}.jpg`;
+    await putStagedChapterImage(h, stage, jpegBytes(2), 'image/jpeg');
+    h.rejectSave();
+    const body = editRequest([{ type: 'existing', name: '1.webp' }, { type: 'staged', name: stage }], [stage]);
+    assert.equal((await h.call('/edit-chapter', body, leader)).status, 409);
+
+    h.setRejectSave(false);
+    assert.equal((await h.call('/edit-chapter', body, leader)).status, 200);
+    assert.equal(h.commits.length, 1);
+    assert.ok([...h.objects.values()].some(object => object.customMetadata?.state === 'released'));
+});
+
+test('GitHub request timeout returns a controlled response instead of leaving edit pending', { timeout: 5000 }, async () => {
+    const h = harness({ fetchMode: 'hang', githubTimeoutMs: 20 });
+    const response = await h.call('/edit-chapter', editRequest([{ type: 'existing', name: '1.jpg' }]), leader);
+    assert.equal(response.status, 503);
+    assert.match((await response.json()).message, /timed out/i);
+    assert.ok(h.logs.some(entry => entry.service === 'github' && entry.outcome === 'timeout'));
+});
+
+test('chapter edit lock read timeout returns a controlled response', { timeout: 5000 }, async () => {
+    const h = harness({ r2TimeoutMs: 20 });
+    await setCurrentChapterImages(h, ['webp']);
+    const get = h.BUCKET.get.bind(h.BUCKET);
+    h.BUCKET.get = key => key.startsWith('staging/chapter-edit-locks/')
+        ? new Promise(() => {})
+        : get(key);
+    const response = await h.call('/edit-chapter', editRequest([{ type: 'existing', name: '1.webp' }]), leader);
+    assert.equal(response.status, 503);
+    assert.match((await response.json()).message, /lock service timed out/i);
+});
+
+test('chapter cleanup rejects a non-advancing R2 cursor without blocking the edit response', { timeout: 5000 }, async () => {
+    const h = harness();
+    await setCurrentChapterImages(h, ['webp']);
+    let listCalls = 0;
+    h.BUCKET.list = async () => {
+        listCalls++;
+        return { objects: [{ key: 'own/chap0/notes.json' }], truncated: true, cursor: 'stuck' };
+    };
+    const background = [];
+    const response = await h.call('/edit-chapter', editRequest([
+        { type: 'existing', name: '1.webp' }
+    ]), leader, { ctx: { waitUntil: promise => background.push(promise) } });
+    assert.equal(response.status, 200);
+    await Promise.all(background);
+    assert.equal(listCalls, 2);
+    assert.ok(h.logs.some(entry => entry.operation === 'chapter-edit-cleanup' && entry.outcome === 'retry-required'));
 });
 
 test('publishing a missing page or cover cannot write broken catalogue references', async () => {
@@ -758,8 +871,14 @@ test('failed final verification retains staging and does not commit', async () =
     const h = harness();
     const page = await (await h.call('/upload', upload('own/chap1'), leader)).json();
     const put = h.BUCKET.put;
-    h.BUCKET.put = async (...args) => { const result = await put(...args); h.objects.get(args[0]).bytes = new Uint8Array([0]); return result; };
-    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Bad', imageCount: 1, images: [page.key.split('/').pop()] }, leader)).status, 400);
+    h.BUCKET.put = async (...args) => {
+        const result = await put(...args);
+        const stored = h.objects.get(args[0]);
+        stored.bytes = new Uint8Array([0]);
+        stored.etag = 'corrupted-object-etag';
+        return result;
+    };
+    assert.equal((await h.call('/new-chapter', { manga: 'own', chapterNumber: 1, title: 'Bad', imageCount: 1, images: [page.key.split('/').pop()] }, leader)).status, 409);
     assert.ok(h.objects.has(page.key));
     assert.equal(h.commits.length, 0);
     assert.equal(h.operations.some(([op]) => op === 'delete'), false);

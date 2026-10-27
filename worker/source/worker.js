@@ -27,7 +27,42 @@ const ORIGINS = new Set([
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
 const STAGING_TTL = 24 * 60 * 60 * 1000;
-const CHAPTER_EDIT_LOCK_TTL = 30 * 60 * 1000;
+const CHAPTER_EDIT_LOCK_TTL = 5 * 60 * 1000;
+const DEFAULT_GITHUB_TIMEOUT_MS = 30_000;
+const DEFAULT_R2_TIMEOUT_MS = 30_000;
+
+function bounded(operation, timeoutMs, label) {
+    let timer;
+    return Promise.race([
+        Promise.resolve().then(operation),
+        new Promise((_, reject) => {
+            timer = setTimeout(() => {
+                const error = new Error(`${label} timed out`);
+                error.name = 'TimeoutError';
+                reject(error);
+            }, timeoutMs);
+        })
+    ]).finally(() => clearTimeout(timer));
+}
+
+async function mapLimit(values, limit, callback) {
+    const results = new Array(values.length);
+    let next = 0;
+    let failure;
+    await Promise.all(Array.from({ length: Math.min(limit, values.length) }, async () => {
+        while (!failure) {
+            const index = next++;
+            if (index >= values.length) return;
+            try {
+                results[index] = await callback(values[index], index);
+            } catch (error) {
+                failure ||= error;
+            }
+        }
+    }));
+    if (failure) throw failure;
+    return results;
+}
 
 function chapterImages(images, count) {
     if (!Array.isArray(images) || images.length !== count || new Set(images).size !== count) fail(400, "Invalid chapter image list");
@@ -40,12 +75,37 @@ function chapterImages(images, count) {
 
 // Dependency injection is code-level only; request/env data cannot replace verification.
 export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
-    log = (details) => console.error("CMS operation failed", details) } = {}) {
+    log = (details) => console.error("CMS operation failed", details),
+    githubTimeoutMs = DEFAULT_GITHUB_TIMEOUT_MS, r2TimeoutMs = DEFAULT_R2_TIMEOUT_MS } = {}) {
 
     let mangaOwnershipCache;
 
+    async function fetchUpstream(url, options) {
+        const controller = new AbortController();
+        let timer;
+        try {
+            return await Promise.race([
+                fetchImpl(url, { ...options, signal: controller.signal }),
+                new Promise((_, reject) => {
+                    timer = setTimeout(() => {
+                        controller.abort();
+                        reject(new Error("GitHub request timed out"));
+                    }, githubTimeoutMs);
+                })
+            ]);
+        } catch (error) {
+            if (controller.signal.aborted) {
+                log({ service: "github", method: options.method, outcome: "timeout" });
+                fail(503, "Publishing service timed out; retry the chapter update");
+            }
+            throw error;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
     async function githubFetch(env, path, method = "GET", body, accept = "application/vnd.github+json", etag) {
-        const response = await fetchImpl(`https://api.github.com${path}`, {
+        const response = await fetchUpstream(`https://api.github.com${path}`, {
             method,
             headers: {
                 Authorization: `Bearer ${env.GITHUB_TOKEN}`,
@@ -67,7 +127,8 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
     }
 
     async function githubRequest(env, path, method = "GET", body) {
-        return (await githubFetch(env, path, method, body)).json();
+        const response = await githubFetch(env, path, method, body);
+        return bounded(() => response.json(), githubTimeoutMs, 'GitHub response body');
     }
 
     function repoPath(env, filename) {
@@ -288,25 +349,36 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         const owner = crypto.randomUUID();
         // R2 deletes are unconditional, so both acquisition and release use conditional puts.
         for (let attempt = 0; attempt < 3; attempt++) {
-            const current = await bucket.get(key);
+            let current;
+            try {
+                current = await bounded(() => bucket.get(key), r2TimeoutMs, 'Chapter edit lock read');
+            } catch {
+                fail(503, 'Chapter edit lock service timed out; retry shortly');
+            }
             if (current && current.customMetadata?.state === 'active') {
                 const createdAt = Number(current.customMetadata.createdAt);
-                if (!Number.isFinite(createdAt) || Date.now() - createdAt <= CHAPTER_EDIT_LOCK_TTL) {
+                const age = Date.now() - createdAt;
+                if (Number.isFinite(createdAt) && age >= -60_000 && age <= CHAPTER_EDIT_LOCK_TTL) {
                     fail(409, 'Chapter edit already in progress; retry after it finishes');
                 }
             }
-            const stored = await bucket.put(key, owner, {
-                onlyIf: current ? { etagMatches: current.etag } : { etagDoesNotMatch: '*' },
-                customMetadata: { owner, state: 'active', createdAt: String(Date.now()) }
-            });
+            let stored;
+            try {
+                stored = await bounded(() => bucket.put(key, owner, {
+                    onlyIf: current ? { etagMatches: current.etag } : { etagDoesNotMatch: '*' },
+                    customMetadata: { owner, state: 'active', createdAt: String(Date.now()) }
+                }), r2TimeoutMs, 'Chapter edit lock write');
+            } catch {
+                fail(503, 'Chapter edit lock service timed out; retry shortly');
+            }
             if (stored) {
                 return async () => {
-                    const lock = await bucket.get(key);
+                    const lock = await bounded(() => bucket.get(key), r2TimeoutMs, 'Chapter edit lock release read');
                     if (lock?.customMetadata?.owner === owner && lock.etag) {
-                        await bucket.put(key, 'released', {
+                        await bounded(() => bucket.put(key, 'released', {
                             onlyIf: { etagMatches: lock.etag },
                             customMetadata: { state: 'released', createdAt: String(Date.now()) }
-                        });
+                        }), r2TimeoutMs, 'Chapter edit lock release write');
                     }
                 };
             }
@@ -314,7 +386,8 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         fail(409, 'Chapter edit already in progress; retry after it finishes');
     }
 
-    async function editChapter(body, env, actor, result, manga, slug) {
+    async function editChapter(body, env, actor, result, manga, slug, ctx, trace) {
+        trace('chapter validation started');
         const id = chapterNumber(body.chapterId);
         const chapter = manga.chapters.find(item => Number(item.id) === id);
         if (!chapter) fail(404, "Chapter not found");
@@ -345,54 +418,63 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
             stagedNames.some(name => typeof name !== 'string' || !stagingName.test(name))) {
             fail(400, "Invalid staged image list");
         }
-        const names = [], sourceFolders = [], stageObjects = new Map();
-        for (const source of body.images) {
+        const sources = body.images.map(source => {
             if (!source || typeof source !== 'object' || Array.isArray(source) ||
                 Object.keys(source).some(key => !['type', 'name'].includes(key)) ||
                 typeof source.name !== 'string') fail(400, "Invalid chapter image source");
             imageName(source.name);
             if (source.type === 'existing' && oldNames.includes(source.name)) {
-                names.push(source.name);
-                sourceFolders.push(oldFolder);
-            } else if (source.type === 'staged' && stagingName.test(source.name) && stagedNames.includes(source.name)) {
-                let staged = stageObjects.get(source.name);
-                if (!staged) {
-                    staged = await env.BUCKET.get(`${root}/${source.name}`);
-                    if (!staged || staged.customMetadata?.owner !== actor.uid) fail(400, 'Staged chapter image unavailable');
-                    stageObjects.set(source.name, staged);
-                }
-                names.push(source.name);
-                sourceFolders.push(root);
-            } else fail(400, "Invalid chapter image source");
-        }
+                return { ...source, sourceFolder: oldFolder };
+            }
+            if (source.type === 'staged' && stagingName.test(source.name) && stagedNames.includes(source.name)) {
+                return { ...source, sourceFolder: root };
+            }
+            fail(400, "Invalid chapter image source");
+        });
+        const stagedSources = sources.filter(source => source.type === 'staged');
+        await mapLimit(stagedSources, 3, async source => {
+            const staged = await bounded(() => env.BUCKET.head(`${root}/${source.name}`),
+                r2TimeoutMs, 'Staged image metadata validation');
+            if (!staged || staged.customMetadata?.owner !== actor.uid) fail(400, 'Staged chapter image unavailable');
+        });
+        const names = sources.map(source => source.name);
+        const sourceFolders = sources.map(source => source.sourceFolder);
+        trace('sources validated');
         Object.assign(manga, rawFlag(body));
         const finalNames = names.map((name, index) =>
             `${index + 1}.${name.split('.').pop().replace('jpeg', 'jpg')}`);
+        trace('lock acquisition started');
         const lockRelease = await acquireChapterEditLock(env.BUCKET, root);
         try {
+            trace('lock acquired');
+            trace('catalogue freshness check started');
             const latest = await getFile(env, "data.json");
             if (latest.sha !== result.sha) fail(409, "Catalogue changed while editing; reload the chapter and retry");
+            trace('catalogue freshness check finished');
             let destinationFolder;
             // A distinct immutable revision keeps the currently published pages intact until commit.
-            for (let attempt = 0; attempt < 1000; attempt++) {
-                const revision = Date.now() + attempt;
-                const candidate = `${root}/_revision-${revision}`;
-                if (!await env.BUCKET.head(`${candidate}/${finalNames[0]}`)) {
-                    destinationFolder = candidate;
-                    break;
-                }
+            const revision = `${Date.now()}-${crypto.getRandomValues(new Uint32Array(1))[0]}`;
+            const candidate = `${root}/_revision-${revision}`;
+            if (await bounded(() => env.BUCKET.head(`${candidate}/${finalNames[0]}`),
+                r2TimeoutMs, 'Chapter revision reservation')) {
+                fail(409, "Chapter revision collision; retry the edit");
             }
-            if (!destinationFolder) fail(409, "Could not reserve a chapter revision; retry");
+            destinationFolder = candidate;
 
+            trace('promotion started', { pages });
             const promotedNames = await promoteChapterPages(env.BUCKET, root, names, {
-                sourceFolders, destinationFolder
+                sourceFolders, destinationFolder, timeoutMs: r2TimeoutMs, concurrency: 4
             });
+            trace('promotion finished', { pages });
             Object.assign(chapter, {
                 title: body.title, createAt: body.createAt, pages, images: promotedNames,
                 folder: `${base}/${destinationFolder}`
             });
+            trace('catalogue save started');
             await saveData(env, result.data, result.sha, `Edit ${slug} chapter ${id}`);
+            trace('catalogue save finished');
 
+            trace('committed catalogue reread started');
             const committed = await getFile(env, "data.json");
             const saved = committed.data[slug]?.chapters?.find(item => Number(item.id) === id);
             if (!saved || saved.folder !== chapter.folder || saved.title !== chapter.title ||
@@ -400,36 +482,44 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 JSON.stringify(saved.images) !== JSON.stringify(chapter.images)) {
                 fail(409, "Committed chapter verification failed; old images retained");
             }
-            await promoteChapterPages(env.BUCKET, root, promotedNames, {
-                sourceFolders: promotedNames.map(() => destinationFolder), destinationFolder
-            });
-            try {
-                await cleanupEditedChapterSources(env.BUCKET, {
-                    root, oldFolder, oldNames, stagedNames, destinationFolder, finalNames: promotedNames,
-                    catalogue: committed.data, base, owner: actor.uid
+            trace('committed catalogue reread finished');
+            trace('cleanup started');
+            const cleanup = cleanupEditedChapterSources(env.BUCKET, {
+                    root, oldFolder, oldNames, stagedNames, destinationFolder,
+                    catalogue: committed.data, base, owner: actor.uid, timeoutMs: r2TimeoutMs
+                }).then(() => trace('cleanup finished')).catch(() => {
+                    trace('cleanup failed');
+                    log({ service: "r2", operation: "chapter-edit-cleanup", outcome: "retry-required" });
                 });
-            } catch {
-                log({ service: "r2", operation: "chapter-edit-cleanup", outcome: "retry-required" });
-            }
+            trace('cleanup scheduled');
+            if (typeof ctx?.waitUntil === 'function') ctx.waitUntil(cleanup);
+            else await cleanup;
+            trace('response ready');
             return { success: true, chapter: saved };
         } finally {
-            try { await lockRelease(); }
+            try { await bounded(lockRelease, r2TimeoutMs, 'Chapter edit lock release'); }
             catch { log({ service: "r2", operation: "chapter-edit-lock-release", outcome: "retry-required" }); }
         }
     }
 
-    async function mutate(path, request, env, actor) {
+    async function mutate(path, request, env, actor, ctx, trace = () => {}) {
         if (path === "/upload") return upload(request, env, actor);
         // Read the authoritative GitHub branch, not a browser snapshot/static CDN cache.
+        trace('catalogue load started');
         const result = await getFile(env, "data.json");
+        trace('catalogue loaded');
+        trace('team registry load started');
         const teams = validateRegistry((await getFile(env, "teams.json")).data);
+        trace('team registry loaded');
         if (actor.role === "team_leader") activeTeam(teams, actor.teamId);
         const body = await readBody(request);
+        trace('request body parsed');
         if (path === "/new-manga") return newManga(body, env, actor, result, teams);
         if (path === "/rename-images") return renameImages(body, env, actor, result.data, teams);
         const slug = safeSlug(path.endsWith("manga") ? body.slug : body.manga);
         const manga = authorizeManga(actor, result.data, slug, teams);
-        if (path === "/edit-chapter") return editChapter(body, env, actor, result, manga, slug);
+        trace('ownership validated');
+        if (path === "/edit-chapter") return editChapter(body, env, actor, result, manga, slug, ctx, trace);
         let response = { success: true };
         let message;
         let chapterCleanup;
@@ -517,8 +607,19 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
     }
 
     return {
-        async fetch(request, env) {
+        async fetch(request, env, ctx) {
             const path = new URL(request.url).pathname;
+            const startedAt = Date.now();
+            let lastTraceAt = startedAt;
+            const trace = (phase, details = {}) => {
+                if (path !== "/edit-chapter" || env.HELIUM_EDIT_DEBUG !== "true") return;
+                const now = Date.now();
+                log({
+                    route: path, operation: "phase-timing", phase,
+                    elapsedMs: now - startedAt, phaseMs: now - lastTraceAt, ...details
+                });
+                lastTraceAt = now;
+            };
             const isPublic = PUBLIC.has(path);
             const origin = request.headers.get("Origin");
             const headers = { "Content-Type": "application/json", "Vary": "Origin" };
@@ -545,11 +646,23 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     headers.Allow = "POST, OPTIONS";
                     fail(405, "Method not allowed");
                 }
+                trace('start');
                 const actor = await authenticate(request);
+                trace('auth ok');
                 if (origin && !ORIGINS.has(origin)) fail(403, "Origin not allowed");
-                return json(await mutate(path, request, env, actor));
+                const result = await mutate(path, request, env, actor, ctx, trace);
+                trace('response');
+                return json(result);
             } catch (error) {
                 if (error instanceof HttpError) return json({ success: false, error: error.message, message: error.message }, error.status);
+                if (error?.name === 'TimeoutError') {
+                    log({ route: path, operation: "request", outcome: "timeout" });
+                    return json({
+                        success: false,
+                        error: "Image storage timed out",
+                        message: "Image storage timed out; retry the chapter update"
+                    }, 503);
+                }
                 // No raw messages/stack traces, request bodies, tokens or env values in logs/responses.
                 log({ route: path, operation: "request", errorType: error?.name || "Error" });
                 return json({ success: false, error: "CMS operation failed", message: "CMS operation failed" }, 500);

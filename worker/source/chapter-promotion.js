@@ -2,6 +2,41 @@ import { fail, imageName, uploadFolder } from './cms-authorization.js';
 import { imageFormat } from './image-format.js';
 
 const digest = async bytes => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
+const DEFAULT_R2_TIMEOUT_MS = 30_000;
+
+function bounded(operation, timeoutMs, label) {
+    let timer;
+    return Promise.race([
+        Promise.resolve().then(operation),
+        new Promise((_, reject) => {
+            timer = setTimeout(() => {
+                const error = new Error(`${label} timed out`);
+                error.name = 'TimeoutError';
+                reject(error);
+            }, timeoutMs);
+        })
+    ]).finally(() => clearTimeout(timer));
+}
+
+async function mapLimit(values, limit, callback) {
+    const results = new Array(values.length);
+    let next = 0;
+    let failure;
+    await Promise.all(Array.from({ length: Math.min(limit, values.length) }, async () => {
+        while (true) {
+            if (failure) return;
+            const index = next++;
+            if (index >= values.length) return;
+            try {
+                results[index] = await callback(values[index], index);
+            } catch (error) {
+                failure ||= error;
+            }
+        }
+    }));
+    if (failure) throw failure;
+    return results;
+}
 
 // Final keys are immutable here: a failed publish can leave unreferenced objects,
 // but must never replace bytes used by the current or an older deployed catalogue.
@@ -15,7 +50,8 @@ function validateChapterObjectFolder(root, folder) {
 }
 
 export async function promoteChapterPages(bucket, folder, names, {
-    committed = false, sourceFolders, destinationFolder = folder
+    committed = false, sourceFolders, destinationFolder = folder,
+    timeoutMs = DEFAULT_R2_TIMEOUT_MS, concurrency = 4
 } = {}) {
     validateChapterObjectFolder(folder, folder);
     validateChapterObjectFolder(folder, destinationFolder);
@@ -33,36 +69,54 @@ export async function promoteChapterPages(bucket, folder, names, {
         };
     });
     async function read(key) {
-        const object = await bucket.get(key);
+        const object = await bounded(() => bucket.get(key), timeoutMs, 'R2 image read');
         if (!object) fail(409, 'Chapter image unavailable; reload before retrying');
-        const bytes = new Uint8Array(await new Response(object.body).arrayBuffer());
+        const bytes = new Uint8Array(await bounded(
+            () => new Response(object.body).arrayBuffer(), timeoutMs, 'R2 image body read'
+        ));
         const format = imageFormat(bytes.subarray(0, 32));
         const ext = key.split('.').pop().replace('jpeg', 'jpg');
         if (!bytes.length || bytes.length > 32 * 1024 * 1024 || !format || format[0] !== ext || object.httpMetadata?.contentType !== format[1]) fail(400, 'Invalid chapter image bytes or type');
         return { bytes, hash: await digest(bytes), httpMetadata: object.httpMetadata };
     }
-    // Validate every source and every collision before the first destination write.
-    // Retain hashes, not entire chapter buffers, to bound memory to one page.
-    for (const item of plan) {
-        const source = committed && !await bucket.head(item.source) ? await read(item.destination) : await read(item.source);
+    const concurrencyLimit = Math.max(1, Math.min(3, concurrency));
+    await mapLimit(plan, concurrencyLimit, async item => {
+        let source;
+        if (committed && !await bounded(() => bucket.head(item.source), timeoutMs, 'R2 image metadata read')) {
+            item.sourceKey = item.destination;
+            source = await read(item.destination);
+        } else {
+            item.sourceKey = item.source;
+            source = await read(item.source);
+        }
+        const current = await bounded(() => bucket.head(item.destination), timeoutMs, 'R2 image metadata read');
         item.hash = source.hash;
-        if (await bucket.head(item.destination)) {
-            if ((await read(item.destination)).hash !== item.hash) fail(409, 'Numbered page already exists with different content; published images retained');
+        if (current) {
+            const existing = item.sourceKey === item.destination ? source : await read(item.destination);
+            if (existing.hash !== source.hash) {
+                fail(409, 'Numbered page already exists with different content; published images retained');
+            }
             item.reuse = true;
         }
-    }
-    for (const item of plan) {
-        if (!item.reuse) {
-            const source = await read(item.source);
-            if (source.hash !== item.hash) fail(409, 'Chapter source changed during promotion');
-            const stored = await bucket.put(item.destination, source.bytes, {
-                httpMetadata: source.httpMetadata, onlyIf: { etagDoesNotMatch: '*' }
-            });
-            // R2 returns null when the create-only precondition loses a race.
-            if (!stored) fail(409, 'Numbered page changed during promotion; retry after reloading');
+    });
+
+    await mapLimit(plan, concurrencyLimit, async item => {
+        if (item.reuse) return;
+        const source = await read(item.sourceKey);
+        if (source.hash !== item.hash) fail(409, 'Chapter source changed during promotion');
+        const stored = await bounded(() => bucket.put(item.destination, source.bytes, {
+            httpMetadata: source.httpMetadata, onlyIf: { etagDoesNotMatch: '*' }
+        }), timeoutMs, 'R2 image write');
+        if (!stored) fail(409, 'Numbered page changed during promotion; retry after reloading');
+        const verified = await bounded(() => bucket.head(item.destination), timeoutMs, 'R2 image verification');
+        if (!verified || verified.size !== source.bytes.length ||
+            (stored.etag && verified.etag && stored.etag !== verified.etag)) {
+            fail(409, 'Numbered page verification failed');
         }
-        if ((await read(item.destination)).hash !== item.hash) fail(409, 'Numbered page verification failed');
-    }
+        if (!verified.etag || verified.size === undefined) {
+            if ((await read(item.destination)).hash !== source.hash) fail(409, 'Numbered page verification failed');
+        }
+    });
     return plan.map(item => item.destination.slice(destinationFolder.length + 1));
 }
 
@@ -98,14 +152,12 @@ export async function cleanupChapterSources(bucket, folder, names, catalogue, ba
 }
 
 export async function cleanupEditedChapterSources(bucket, {
-    root, oldFolder, oldNames, stagedNames, destinationFolder, finalNames, catalogue, base, owner
+    root, oldFolder, oldNames, stagedNames, destinationFolder, catalogue, base, owner,
+    timeoutMs = DEFAULT_R2_TIMEOUT_MS, maxListPages = 100
 }) {
     validateChapterObjectFolder(root, oldFolder);
     validateChapterObjectFolder(root, destinationFolder);
     const used = catalogueKeys(catalogue, base);
-    await promoteChapterPages(bucket, root, finalNames, {
-        sourceFolders: finalNames.map(() => destinationFolder), destinationFolder
-    });
     const stagedKeys = new Set(stagedNames.map(name => `${root}/${name}`));
     const candidateKeys = new Set([
         ...oldNames.filter(name => /^\d+\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(name))
@@ -113,15 +165,18 @@ export async function cleanupEditedChapterSources(bucket, {
         ...stagedKeys
     ]);
     let cursor;
+    let listPages = 0;
     do {
-        const page = await bucket.list({ prefix: `${root}/`, limit: 1000, cursor });
+        if (++listPages > maxListPages) throw new Error('Chapter object cleanup exceeded its page limit');
+        const page = await bounded(() => bucket.list({ prefix: `${root}/`, limit: 1000, cursor }), timeoutMs, 'R2 chapter listing');
+        if (!page || !Array.isArray(page.objects)) throw new Error('Chapter object listing returned an invalid page');
         for (const object of page.objects) {
             const relative = object.key.slice(root.length + 1);
             if (/^\d+\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(relative) ||
                 /^_revision-\d+(?:-\d+)?\/\d+\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(relative) ||
                 stagedKeys.has(object.key)) candidateKeys.add(object.key);
         }
-        if (!page.truncated) break;
+        if (!page.truncated || page.objects.length === 0) break;
         if (!page.cursor || page.cursor === cursor) throw new Error('Chapter object listing did not advance');
         cursor = page.cursor;
     } while (true);
@@ -129,10 +184,10 @@ export async function cleanupEditedChapterSources(bucket, {
     for (const key of candidateKeys) {
         if (key.startsWith(`${destinationFolder}/`) || used.has(key)) continue;
         if (stagedKeys.has(key)) {
-            const object = await bucket.get(key);
-            if (object?.customMetadata?.owner === owner) await bucket.delete(key);
+            const object = await bounded(() => bucket.head(key), timeoutMs, 'R2 staging metadata read');
+            if (object?.customMetadata?.owner === owner) await bounded(() => bucket.delete(key), timeoutMs, 'R2 staging delete');
         } else if (key.startsWith(`${root}/`)) {
-            await bucket.delete(key);
+            await bounded(() => bucket.delete(key), timeoutMs, 'R2 chapter image delete');
         }
     }
 }

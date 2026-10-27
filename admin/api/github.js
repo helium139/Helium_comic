@@ -1,6 +1,6 @@
 import { authenticatedFetch } from "./authenticated-fetch.js";
 
-async function post(path, body){
+async function post(path, body, requestOptions = {}){
 
     const res = await authenticatedFetch(
 
@@ -16,7 +16,9 @@ async function post(path, body){
 
             },
 
-            body:JSON.stringify(body)
+            body:JSON.stringify(body),
+
+            ...requestOptions
 
         }
 
@@ -113,14 +115,18 @@ export async function publishChapter(data){
 =========================== */
 
 export async function updateChapter(data){
-
-    return post(
-
-        "/edit-chapter",
-
-        data
-
-    );
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
+    try {
+        return await post("/edit-chapter", data, { signal: controller.signal });
+    } catch (error) {
+        if (controller.signal.aborted) {
+            throw new Error("Cập nhật chapter quá thời gian chờ. Hãy thử lưu lại; các ảnh đã tải lên sẽ được dùng lại.");
+        }
+        throw error;
+    } finally {
+        clearTimeout(timeout);
+    }
 
 }
 

@@ -6,19 +6,21 @@ import vm from 'node:vm';
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 const strip = source => source.replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
 const paths = ['/new-manga', '/edit-manga', '/delete-manga', '/new-chapter', '/edit-chapter', '/delete-chapter', '/upload', '/rename-images'];
-async function client({ user, response } = {}) {
+async function client({ user, response, fetchImpl, setTimeoutImpl, clearTimeoutImpl } = {}) {
     const calls = [];
     const context = {
         auth: { currentUser: user === undefined ? { getIdToken: async () => 'sdk-token' } : user },
-        Headers, FormData,
-        fetch: async (url, options) => {
+        Headers, FormData, AbortController, DOMException,
+        fetch: fetchImpl || (async (url, options) => {
             calls.push({ url, options });
             return response || new Response(JSON.stringify({
                 success: true, key: 'm/chap1/1-upload-id.jpg', url: 'https://images.test/m/chap1/1-upload-id.jpg'
             }), {
                 status: 200, headers: { 'Content-Type': 'application/json' }
             });
-        }
+        }),
+        setTimeout: setTimeoutImpl || setTimeout,
+        clearTimeout: clearTimeoutImpl || clearTimeout
     };
     vm.createContext(context);
     vm.runInContext(strip(await read('admin/api/image-conversion.js')), context);
@@ -61,6 +63,23 @@ test('all eight mutation wrappers attach SDK tokens and preserve payloads', asyn
     assert.equal(upload.body.get('folder'), 'm/chap1');
     assert.equal(upload.body.get('filename'), '1.jpg');
     assert.equal(calls[0].options.headers.get('Content-Type'), 'application/json');
+});
+
+test('chapter update aborts a pending request and reports a retryable timeout', async () => {
+    let sent;
+    const { context: c } = await client({
+        setTimeoutImpl: callback => { queueMicrotask(callback); return 1; },
+        clearTimeoutImpl: () => {},
+        fetchImpl: async (url, options) => {
+            sent = { url, options };
+            if (options.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+            return new Promise((_, reject) => options.signal.addEventListener('abort', () =>
+                reject(new DOMException('Aborted', 'AbortError'))));
+        }
+    });
+    await assert.rejects(c.updateChapter({ chapterId: 1 }), /quá thời gian chờ/i);
+    assert.equal(new URL(sent.url).pathname, '/edit-chapter');
+    assert.equal(sent.options.signal.aborted, true);
 });
 
 test('missing login or token acquisition failure never sends a mutation', async () => {
