@@ -1,5 +1,5 @@
 // Canvas encoders are feature-tested by their output MIME type. Fail closed on errors.
-export const MAX_CHAPTER_JPEG_CONVERSION_SIZE = 5 * 1024 * 1024;
+export const MAX_CHAPTER_JPEG_CONVERSION_SIZE = 4 * 1024 * 1024;
 
 export async function prepareImage(file, filename, quality = 0.85, { maxJpegConversionSize } = {}) {
     try {

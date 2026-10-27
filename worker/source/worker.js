@@ -1,7 +1,9 @@
 import { setPick } from "../../assets/js/admin-picks-order.mjs";
 import { verifyFirebaseToken } from "./firebase-auth.js";
 import { imageFormat } from "./image-format.js";
-import { promoteChapterPages, cleanupChapterSources } from "./chapter-promotion.js";
+import {
+    promoteChapterPages, cleanupChapterSources, cleanupEditedChapterSources, stagingName
+} from "./chapter-promotion.js";
 import {
     HttpError, fail, safeSlug, chapterNumber, pageCount, validateRegistry,
     activeTeam, authorizeManga, imageName, uploadFolder, metadata, editorial
@@ -25,6 +27,7 @@ const ORIGINS = new Set([
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
 const STAGING_TTL = 24 * 60 * 60 * 1000;
+const CHAPTER_EDIT_LOCK_TTL = 30 * 60 * 1000;
 
 function chapterImages(images, count) {
     if (!Array.isArray(images) || images.length !== count || new Set(images).size !== count) fail(400, "Invalid chapter image list");
@@ -193,7 +196,12 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         // Never overwrite a live page/cover before a separate catalogue save succeeds.
         const stem = chapterId === null ? 'cover' : filename.split(/[.-]/)[0];
         const key = `${folder}/${stem}-${crypto.randomUUID()}.${extension}`;
-        await env.BUCKET.put(key, file.stream(), { httpMetadata: { contentType } });
+        await env.BUCKET.put(key, file.stream(), {
+            httpMetadata: { contentType },
+            ...(chapterId !== null ? {
+                customMetadata: { owner: actor.uid, createdAt: String(Date.now()) }
+            } : {})
+        });
         return { success: true, key, url: `${publicBase(env)}/${key}` };
     }
 
@@ -273,6 +281,143 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return { success: true, images: plan.map(item => item.destination.slice(folder.length + 1)) };
     }
 
+    async function acquireChapterEditLock(bucket, root) {
+        const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(root)));
+        const lockId = Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('');
+        const key = `staging/chapter-edit-locks/${lockId}`;
+        const owner = crypto.randomUUID();
+        // R2 deletes are unconditional, so both acquisition and release use conditional puts.
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const current = await bucket.get(key);
+            if (current && current.customMetadata?.state === 'active') {
+                const createdAt = Number(current.customMetadata.createdAt);
+                if (!Number.isFinite(createdAt) || Date.now() - createdAt <= CHAPTER_EDIT_LOCK_TTL) {
+                    fail(409, 'Chapter edit already in progress; retry after it finishes');
+                }
+            }
+            const stored = await bucket.put(key, owner, {
+                onlyIf: current ? { etagMatches: current.etag } : { etagDoesNotMatch: '*' },
+                customMetadata: { owner, state: 'active', createdAt: String(Date.now()) }
+            });
+            if (stored) {
+                return async () => {
+                    const lock = await bucket.get(key);
+                    if (lock?.customMetadata?.owner === owner && lock.etag) {
+                        await bucket.put(key, 'released', {
+                            onlyIf: { etagMatches: lock.etag },
+                            customMetadata: { state: 'released', createdAt: String(Date.now()) }
+                        });
+                    }
+                };
+            }
+        }
+        fail(409, 'Chapter edit already in progress; retry after it finishes');
+    }
+
+    async function editChapter(body, env, actor, result, manga, slug) {
+        const id = chapterNumber(body.chapterId);
+        const chapter = manga.chapters.find(item => Number(item.id) === id);
+        if (!chapter) fail(404, "Chapter not found");
+        if (typeof body.title !== "string" || !body.title.trim() ||
+            typeof body.createAt !== "string" || !Number.isFinite(Date.parse(body.createAt))) fail(400, "Invalid chapter metadata");
+        const pages = pageCount(body.pages);
+        if (!Array.isArray(body.images) || body.images.length !== pages ||
+            new Set(body.images.map(item => item && typeof item === 'object' ? item.name : String(item))).size !== pages) {
+            fail(400, "Invalid chapter image list");
+        }
+
+        const root = `${slug}/chap${id}`;
+        const base = publicBase(env);
+        if (typeof chapter.folder !== "string" || !chapter.folder.startsWith(`${base}/`)) fail(400, "Invalid chapter folder");
+        const oldFolder = chapter.folder.slice(base.length + 1);
+        const revisionPrefix = `${root}/_revision-`;
+        const oldRevision = oldFolder.startsWith(revisionPrefix) ? oldFolder.slice(revisionPrefix.length) : '';
+        if (oldFolder !== root && !/^\d+(?:-\d+)?$/.test(oldRevision)) {
+            fail(400, "Invalid chapter folder");
+        }
+        const oldNames = chapter.images || Array.from({ length: pageCount(chapter.pages) }, (_, index) => `${index + 1}.jpg`);
+        if (!Array.isArray(oldNames) || new Set(oldNames).size !== oldNames.length) fail(400, "Invalid current chapter image list");
+        for (const name of oldNames) imageName(name);
+
+        const stagedNames = body.stagedImages === undefined ? [] : body.stagedImages;
+        if (!Array.isArray(stagedNames) || stagedNames.length > 10000 ||
+            new Set(stagedNames).size !== stagedNames.length ||
+            stagedNames.some(name => typeof name !== 'string' || !stagingName.test(name))) {
+            fail(400, "Invalid staged image list");
+        }
+        const names = [], sourceFolders = [], stageObjects = new Map();
+        for (const source of body.images) {
+            if (!source || typeof source !== 'object' || Array.isArray(source) ||
+                Object.keys(source).some(key => !['type', 'name'].includes(key)) ||
+                typeof source.name !== 'string') fail(400, "Invalid chapter image source");
+            imageName(source.name);
+            if (source.type === 'existing' && oldNames.includes(source.name)) {
+                names.push(source.name);
+                sourceFolders.push(oldFolder);
+            } else if (source.type === 'staged' && stagingName.test(source.name) && stagedNames.includes(source.name)) {
+                let staged = stageObjects.get(source.name);
+                if (!staged) {
+                    staged = await env.BUCKET.get(`${root}/${source.name}`);
+                    if (!staged || staged.customMetadata?.owner !== actor.uid) fail(400, 'Staged chapter image unavailable');
+                    stageObjects.set(source.name, staged);
+                }
+                names.push(source.name);
+                sourceFolders.push(root);
+            } else fail(400, "Invalid chapter image source");
+        }
+        Object.assign(manga, rawFlag(body));
+        const finalNames = names.map((name, index) =>
+            `${index + 1}.${name.split('.').pop().replace('jpeg', 'jpg')}`);
+        const lockRelease = await acquireChapterEditLock(env.BUCKET, root);
+        try {
+            const latest = await getFile(env, "data.json");
+            if (latest.sha !== result.sha) fail(409, "Catalogue changed while editing; reload the chapter and retry");
+            let destinationFolder;
+            // A distinct immutable revision keeps the currently published pages intact until commit.
+            for (let attempt = 0; attempt < 1000; attempt++) {
+                const revision = Date.now() + attempt;
+                const candidate = `${root}/_revision-${revision}`;
+                if (!await env.BUCKET.head(`${candidate}/${finalNames[0]}`)) {
+                    destinationFolder = candidate;
+                    break;
+                }
+            }
+            if (!destinationFolder) fail(409, "Could not reserve a chapter revision; retry");
+
+            const promotedNames = await promoteChapterPages(env.BUCKET, root, names, {
+                sourceFolders, destinationFolder
+            });
+            Object.assign(chapter, {
+                title: body.title, createAt: body.createAt, pages, images: promotedNames,
+                folder: `${base}/${destinationFolder}`
+            });
+            await saveData(env, result.data, result.sha, `Edit ${slug} chapter ${id}`);
+
+            const committed = await getFile(env, "data.json");
+            const saved = committed.data[slug]?.chapters?.find(item => Number(item.id) === id);
+            if (!saved || saved.folder !== chapter.folder || saved.title !== chapter.title ||
+                saved.createAt !== chapter.createAt || saved.pages !== chapter.pages ||
+                JSON.stringify(saved.images) !== JSON.stringify(chapter.images)) {
+                fail(409, "Committed chapter verification failed; old images retained");
+            }
+            await promoteChapterPages(env.BUCKET, root, promotedNames, {
+                sourceFolders: promotedNames.map(() => destinationFolder), destinationFolder
+            });
+            try {
+                await cleanupEditedChapterSources(env.BUCKET, {
+                    root, oldFolder, oldNames, stagedNames, destinationFolder, finalNames: promotedNames,
+                    catalogue: committed.data, base, owner: actor.uid
+                });
+            } catch {
+                log({ service: "r2", operation: "chapter-edit-cleanup", outcome: "retry-required" });
+            }
+            return { success: true, chapter: saved };
+        } finally {
+            try { await lockRelease(); }
+            catch { log({ service: "r2", operation: "chapter-edit-lock-release", outcome: "retry-required" }); }
+        }
+    }
+
     async function mutate(path, request, env, actor) {
         if (path === "/upload") return upload(request, env, actor);
         // Read the authoritative GitHub branch, not a browser snapshot/static CDN cache.
@@ -284,6 +429,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         if (path === "/rename-images") return renameImages(body, env, actor, result.data, teams);
         const slug = safeSlug(path.endsWith("manga") ? body.slug : body.manga);
         const manga = authorizeManga(actor, result.data, slug, teams);
+        if (path === "/edit-chapter") return editChapter(body, env, actor, result, manga, slug);
         let response = { success: true };
         let message;
         let chapterCleanup;
@@ -315,8 +461,22 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     const names = chapterImages(body.images, pageCount(body.imageCount));
                     const finals = names.map((name, i) => `${i + 1}.${name.split('.').pop().replace('jpeg', 'jpg')}`);
                     if (existing.title !== body.title || JSON.stringify(existing.images) !== JSON.stringify(finals)) fail(409, "Chapter already exists");
-                    await promoteChapterPages(env.BUCKET, `${slug}/chap${id}`, names, { committed: true });
-                    try { await cleanupChapterSources(env.BUCKET, `${slug}/chap${id}`, names, result.data, publicBase(env)); }
+                    const base = publicBase(env);
+                    const root = `${slug}/chap${id}`;
+                    if (typeof existing.folder !== 'string' || !existing.folder.startsWith(`${base}/`)) fail(400, 'Invalid chapter folder');
+                    const destinationFolder = existing.folder.slice(base.length + 1);
+                    const revisionPrefix = `${root}/_revision-`;
+                    const destinationRevision = destinationFolder.startsWith(revisionPrefix)
+                        ? destinationFolder.slice(revisionPrefix.length) : '';
+                    if (destinationFolder !== root && !/^\d+(?:-\d+)?$/.test(destinationRevision)) {
+                        fail(400, 'Invalid chapter folder');
+                    }
+                    await promoteChapterPages(env.BUCKET, root, names, {
+                        committed: true, destinationFolder
+                    });
+                    try {
+                        await cleanupChapterSources(env.BUCKET, root, names, result.data, base, destinationFolder);
+                    }
                     catch { log({ service: "r2", operation: "chapter-staging-cleanup", outcome: "retry-required" }); }
                     return { success: true, chapter: existing };
                 }
@@ -333,23 +493,6 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 manga.chapters.sort((a, b) => a.id - b.id);
                 response.chapter = chapter;
                 message = `Add ${slug} chapter ${id}`;
-                break;
-            }
-            case "/edit-chapter": {
-                Object.assign(manga, rawFlag(body));
-                const id = chapterNumber(body.chapterId);
-                const chapter = manga.chapters.find(chapter => Number(chapter.id) === id);
-                if (!chapter) fail(404, "Chapter not found");
-                if (typeof body.title !== "string" || !body.title.trim() ||
-                    typeof body.createAt !== "string" || !Number.isFinite(Date.parse(body.createAt))) fail(400, "Invalid chapter metadata");
-                const pages = pageCount(body.pages);
-                const images = body.images === undefined ? chapter.images : chapterImages(body.images, pages);
-                if (images && images.length !== pages) fail(400, "Image list does not match page count");
-                const names = images || Array.from({ length: pages }, (_, i) => `${i+1}.jpg`);
-                for (const name of names) if (!await env.BUCKET.head(`${slug}/chap${id}/${name}`)) fail(400, "Chapter image not uploaded");
-                Object.assign(chapter, { title: body.title, createAt: body.createAt, pages, ...(images ? { images } : {}) });
-                response.chapter = chapter;
-                message = `Edit ${slug} chapter ${id}`;
                 break;
             }
             case "/delete-chapter": {

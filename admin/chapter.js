@@ -6,8 +6,7 @@ import { bindUploadProgress, paintProgress, settleUploadProgress } from "./uploa
 import { uploadImage } from "./api/upload.js";
 import {
     publishChapter,
-    updateChapter,
-    renameImages
+    updateChapter
 } from "./api/github.js";
 
 const currentStaff = await requireStaff();
@@ -31,6 +30,8 @@ let newImages = [];
 let sortable = null;
 let previewObjectUrls = [];
 let pageOrder = [];
+const stagedEditImages = new Set();
+const stagedEditFiles = new Map();
 
 /* ===========================
         DOM
@@ -301,7 +302,9 @@ async function loadEditor(){
 
             name:chapter.images?.[i-1] || `${i}.jpg`,
 
-            url:`${chapter.folder}/${chapter.images?.[i-1] || `${i}.jpg`}`
+            url:`${chapter.folder}/${chapter.images?.[i-1] || `${i}.jpg`}`,
+
+            sourceType: "existing"
 
         });
 
@@ -621,7 +624,7 @@ function updateStats(){
 
 async function save(){
     if (uploadBtn.disabled) return;
-    uploadProgress.reset(mode === 'new' ? (pageOrder.length || newImages.length) : newImages.length);
+    uploadProgress.reset(pageOrder.length || newImages.length);
     uploadLog.textContent = '';
     document.getElementById('chapterLinkBox')?.classList.add('hidden');
 
@@ -809,69 +812,51 @@ const copyChapterLink = document.getElementById("copyChapterLink");
 async function saveChapter(isRawCaughtUp = false){
     assertCanManageManga(currentStaff, mangas[currentSlug]);
 
-    const folder = `${currentSlug}/chap${currentChapter}`;
-
+    const rootFolder = `${currentSlug}/chap${currentChapter}`;
+    const orderedImages = [...pageOrder];
+    if (!orderedImages.length) throw new Error('Chưa chọn ảnh chapter.');
+    if (new Set(orderedImages).size !== orderedImages.length ||
+        orderedImages.some(image => image.type === "remote"
+            ? !image.name || image.sourceType !== "existing"
+            : !image.name || typeof image.slice !== "function")) {
+        throw new Error('Danh sách ảnh chapter không hợp lệ.');
+    }
     uploadProgress.prepared();
     await paintProgress();
-    log("Upload ảnh mới...");
+    const sources = [];
+    for (let index = 0; index < orderedImages.length; index++) {
+        const image = orderedImages[index];
+        if (image.type === "remote") {
+            sources.push({ type: "existing", name: image.name });
+            uploadProgress.converted(index);
+            uploadProgress.uploaded(index);
+            continue;
+        }
 
-    const uploaded = new Map();
-
-    let nextIndex = existingImages.length + 1;
-
-    for(let i=0;i<newImages.length;i++){
-
-        const file = newImages[i];
-
-        const ext = file.name
-            .split(".")
-            .pop()
-            .toLowerCase();
-
-        const filename = `${nextIndex}.${ext}`;
-
-        const uploadedUrl = await uploadImage(
-            file,
-            folder,
-            filename,
-            uploadProgressOptions(i, file)
-        );
-
-        uploaded.set(file, {
-            name: uploadedUrl.split("/").pop(),
-            type: "remote",
-            url: `${mangas[currentSlug]
-                .chapters.find(c=>c.id===currentChapter)
-                .folder}/${uploadedUrl.split("/").pop()}`
-        });
-
-        nextIndex++;
-
-        log(`✔ ${uploadedUrl.split('/').pop()}`);
-
-    }
-
-    uploadProgress.publishing("Đang sắp xếp ảnh...");
-    await paintProgress();
-
-    const images = pageOrder.map(img => uploaded.get(img) || img);
-
-    
-    const renamed = await renameImages({
-
-        folder,
-
-        images: images.map(img=>img.name)
-
-    });
-    if (!Array.isArray(renamed.images) || renamed.images.length !== images.length) {
-        throw new Error('Worker did not return reordered filenames; reload after the Worker update.');
+        let stagingName = stagedEditFiles.get(image);
+        if (!stagingName) {
+            const extension = image.name.split(".").pop().toLowerCase();
+            const uploadedUrl = await uploadImage(
+                image,
+                rootFolder,
+                `${index + 1}.${extension}`,
+                uploadProgressOptions(index, image)
+            );
+            stagingName = uploadedUrl.split("/").pop();
+            stagedEditFiles.set(image, stagingName);
+            stagedEditImages.add(stagingName);
+            log(`✔ ${stagingName}`);
+        } else {
+            uploadProgress.converted(index);
+            uploadProgress.uploaded(index);
+        }
+        sources.push({ type: "staged", name: stagingName });
     }
 
     uploadProgress.reordered();
     await paintProgress();
 
-    await updateChapter({
+    const result = await updateChapter({
         isRawCaughtUp: isRawCaughtUp === true,
 
         manga: currentSlug,
@@ -883,20 +868,30 @@ async function saveChapter(isRawCaughtUp = false){
         createAt: new Date(chapterDate.value)
             .toISOString(),
 
-        pages: images.length,
-        images: renamed.images
+        pages: orderedImages.length,
+        images: sources,
+        stagedImages: [...stagedEditImages]
 
     });
 
     uploadProgress.published();
     await paintProgress();
 
-    existingImages = images.map((img, index) => {
-        const name = renamed.images[index];
-        return { ...img, name, url: `${mangas[currentSlug].chapters.find(c=>c.id===currentChapter).folder}/${name}` };
+    const updatedChapter = result.chapter;
+    if (!updatedChapter || !Array.isArray(updatedChapter.images) || updatedChapter.images.length !== sources.length) {
+        throw new Error('Worker did not return the committed chapter image list; reload before retrying.');
+    }
+    mangas[currentSlug].chapters = mangas[currentSlug].chapters.map(chapter =>
+        Number(chapter.id) === Number(currentChapter) ? updatedChapter : chapter);
+    existingImages = updatedChapter.images.map(name => {
+        const url = `${updatedChapter.folder}/${name}`;
+        return { type: "remote", sourceType: "existing", name, url };
     });
 
     newImages = [];
+    pageOrder = [...existingImages];
+    stagedEditImages.clear();
+    stagedEditFiles.clear();
 
     renderPreview();
 
@@ -939,6 +934,12 @@ function resetForm(){
     existingImages=[];
 
     newImages=[];
+
+    pageOrder=[];
+
+    stagedEditImages.clear();
+
+    stagedEditFiles.clear();
 
     preview.innerHTML="";
 
@@ -1015,9 +1016,9 @@ addImageBtn.onclick = () => {
 };
 
 function uploadProgressOptions(index, file) {
-    return { onProgress: async phase => {
+    return { onProgress: async (phase, details) => {
         if (phase === 'converting') uploadProgress.converting(index);
-        if (phase === 'preserved') log(`Giữ nguyên JPG: ${file.name}`);
+        if (phase === 'preserved') log(`Giữ nguyên JPG: ${details?.filename || file.name}`);
         if (phase === 'converted') uploadProgress.converted(index);
         if (phase === 'uploaded') uploadProgress.uploaded(index);
         await paintProgress();

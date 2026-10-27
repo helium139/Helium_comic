@@ -5,12 +5,32 @@ const digest = async bytes => Array.from(new Uint8Array(await crypto.subtle.dige
 
 // Final keys are immutable here: a failed publish can leave unreferenced objects,
 // but must never replace bytes used by the current or an older deployed catalogue.
-export async function promoteChapterPages(bucket, folder, names, { committed = false } = {}) {
-    if (uploadFolder(folder).chapterId === null) fail(400, 'Invalid chapter folder');
+function validateChapterObjectFolder(root, folder) {
+    const revisionPrefix = `${root}/_revision-`;
+    const revision = folder.startsWith(revisionPrefix) ? folder.slice(revisionPrefix.length) : '';
+    if (uploadFolder(root).chapterId === null ||
+        folder !== root && !/^\d+(?:-\d+)?$/.test(revision)) {
+        fail(400, 'Invalid chapter folder');
+    }
+}
+
+export async function promoteChapterPages(bucket, folder, names, {
+    committed = false, sourceFolders, destinationFolder = folder
+} = {}) {
+    validateChapterObjectFolder(folder, folder);
+    validateChapterObjectFolder(folder, destinationFolder);
+    if (sourceFolders && (!Array.isArray(sourceFolders) || sourceFolders.length !== names.length)) {
+        fail(400, 'Invalid chapter source folders');
+    }
     const plan = names.map((name, index) => {
         imageName(name);
         const extension = name.split('.').pop().replace('jpeg', 'jpg');
-        return { source: `${folder}/${name}`, destination: `${folder}/${index + 1}.${extension}` };
+        const sourceFolder = sourceFolders?.[index] || folder;
+        validateChapterObjectFolder(folder, sourceFolder);
+        return {
+            source: `${sourceFolder}/${name}`,
+            destination: `${destinationFolder}/${index + 1}.${extension}`
+        };
     });
     async function read(key) {
         const object = await bucket.get(key);
@@ -43,7 +63,7 @@ export async function promoteChapterPages(bucket, folder, names, { committed = f
         }
         if ((await read(item.destination)).hash !== item.hash) fail(409, 'Numbered page verification failed');
     }
-    return plan.map(item => item.destination.slice(folder.length + 1));
+    return plan.map(item => item.destination.slice(destinationFolder.length + 1));
 }
 
 export const stagingName = /^[1-9]\d*-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(?:webp|jpg|jpeg|png|gif|avif)$/;
@@ -67,12 +87,52 @@ export function catalogueKeys(data, base) {
     return used;
 }
 
-export async function cleanupChapterSources(bucket, folder, names, catalogue, base) {
+export async function cleanupChapterSources(bucket, folder, names, catalogue, base, destinationFolder = folder) {
     const used = catalogueKeys(catalogue, base);
     // Revalidate every surviving source against its final before any deletion.
-    await promoteChapterPages(bucket, folder, names, { committed: true });
+    await promoteChapterPages(bucket, folder, names, { committed: true, destinationFolder });
     for (const name of names) {
         const key = `${folder}/${name}`;
         if (stagingName.test(name) && !used.has(key) && !used.has(name)) await bucket.delete(key);
+    }
+}
+
+export async function cleanupEditedChapterSources(bucket, {
+    root, oldFolder, oldNames, stagedNames, destinationFolder, finalNames, catalogue, base, owner
+}) {
+    validateChapterObjectFolder(root, oldFolder);
+    validateChapterObjectFolder(root, destinationFolder);
+    const used = catalogueKeys(catalogue, base);
+    await promoteChapterPages(bucket, root, finalNames, {
+        sourceFolders: finalNames.map(() => destinationFolder), destinationFolder
+    });
+    const stagedKeys = new Set(stagedNames.map(name => `${root}/${name}`));
+    const candidateKeys = new Set([
+        ...oldNames.filter(name => /^\d+\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(name))
+            .map(name => `${oldFolder}/${name}`),
+        ...stagedKeys
+    ]);
+    let cursor;
+    do {
+        const page = await bucket.list({ prefix: `${root}/`, limit: 1000, cursor });
+        for (const object of page.objects) {
+            const relative = object.key.slice(root.length + 1);
+            if (/^\d+\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(relative) ||
+                /^_revision-\d+(?:-\d+)?\/\d+\.(?:jpg|jpeg|png|webp|gif|avif)$/.test(relative) ||
+                stagedKeys.has(object.key)) candidateKeys.add(object.key);
+        }
+        if (!page.truncated) break;
+        if (!page.cursor || page.cursor === cursor) throw new Error('Chapter object listing did not advance');
+        cursor = page.cursor;
+    } while (true);
+
+    for (const key of candidateKeys) {
+        if (key.startsWith(`${destinationFolder}/`) || used.has(key)) continue;
+        if (stagedKeys.has(key)) {
+            const object = await bucket.get(key);
+            if (object?.customMetadata?.owner === owner) await bucket.delete(key);
+        } else if (key.startsWith(`${root}/`)) {
+            await bucket.delete(key);
+        }
     }
 }

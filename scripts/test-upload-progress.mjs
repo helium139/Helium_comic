@@ -99,13 +99,19 @@ test('both chapter HTML entrypoints contain persistent progress IDs and chapter 
 });
 
 const uploadSource = await readFile(new URL('../admin/api/upload.js', import.meta.url), 'utf8');
+const conversionSource = await readFile(new URL('../admin/api/image-conversion.js', import.meta.url), 'utf8');
 for (const failure of [null, 'conversion', 'upload', 'response']) test(`upload callbacks follow completed work (${failure || 'success'})`, async () => {
     const events = [];
-    const context = { Blob, FormData, console, MAX_CHAPTER_JPEG_CONVERSION_SIZE: 5 * 1024 * 1024,
-        prepareImage: async file => { events.push('convert'); if (failure === 'conversion') throw new Error('convert failed'); return { file, filename: '1.webp' }; },
+    const context = { Blob, FormData, console,
         authenticatedFetch: async () => { events.push('request'); if (failure === 'upload') throw new Error('network'); return { json: async () => ({ success: failure !== 'response', url: 'https://images.test/m/chap1/1-id.webp' }) }; }
     };
     vm.createContext(context);
+    vm.runInContext(conversionSource.replace(/export /g, ''), context);
+    context.prepareImage = async file => {
+        events.push('convert');
+        if (failure === 'conversion') throw new Error('convert failed');
+        return { file, filename: '1.webp' };
+    };
     vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), context);
     const run = () => context.uploadImage(new Blob(['image']), 'm/chap1', '1.jpg', { onProgress: phase => events.push(phase) });
     if (failure) { await assert.rejects(run()); assert.ok(!events.includes('uploaded')); }
@@ -117,11 +123,7 @@ for (const failure of [null, 'conversion', 'upload', 'response']) test(`upload c
 
 test('oversized JPEG conversion skip advances through upload without reporting an error', async () => {
     const events = [];
-    const context = { Blob, FormData, console, MAX_CHAPTER_JPEG_CONVERSION_SIZE: 5 * 1024 * 1024,
-        prepareImage: async file => {
-            events.push('convert');
-            return { file, filename: '2.jpg', reason: 'oversized-jpeg' };
-        },
+    const context = { Blob, FormData, console,
         authenticatedFetch: async (_url, options) => {
             events.push('request');
             assert.equal(options.body.get('filename'), '2.jpg');
@@ -129,6 +131,11 @@ test('oversized JPEG conversion skip advances through upload without reporting a
         }
     };
     vm.createContext(context);
+    vm.runInContext(conversionSource.replace(/export /g, ''), context);
+    context.prepareImage = async file => {
+        events.push('convert');
+        return { file, filename: '2.jpg', reason: 'oversized-jpeg' };
+    };
     vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), context);
     const url = await context.uploadImage(new Blob(['large JPEG']), 'm/chap1', '2.jpeg', {
         onProgress: phase => events.push(phase)
@@ -149,10 +156,10 @@ test('skipped JPEG logs preservation and still completes conversion and upload p
     vm.runInContext(source.slice(source.indexOf('function uploadProgressOptions(')), context);
     const options = context.uploadProgressOptions(0, { name: '2.jpeg' });
     await options.onProgress('converting');
-    await options.onProgress('preserved');
+    await options.onProgress('preserved', { filename: '2.jpg' });
     await options.onProgress('converted');
     await options.onProgress('uploaded');
-    assert.deepEqual(messages, ['Giữ nguyên JPG: 2.jpeg']);
+    assert.deepEqual(messages, ['Giữ nguyên JPG: 2.jpg']);
     assert.equal(f.last().percent, 90);
     assert.equal(f.last().state, 'running');
 });

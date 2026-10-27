@@ -15,7 +15,11 @@ function browser({ type = 'image/webp', size = 20, fail = false } = {}) {
         }) }
     };
     vm.createContext(context); vm.runInContext(source.replace(/export /g, ''), context);
-    return { prepare: context.prepareImage, closed: () => closed, decoded: () => decoded, canvas: () => canvas, quality: () => quality };
+    return {
+        prepare: context.prepareImage,
+        threshold: () => vm.runInContext('MAX_CHAPTER_JPEG_CONVERSION_SIZE', context),
+        closed: () => closed, decoded: () => decoded, canvas: () => canvas, quality: () => quality
+    };
 }
 for (const ext of ['jpg', 'jpeg', 'png']) test(`browser ${ext} becomes WebP with correct name, type and quality`, async () => {
     const b = browser(); const input = new Blob(['x'.repeat(100)], { type: ext === 'png' ? 'image/png' : 'image/jpeg' });
@@ -26,16 +30,29 @@ for (const ext of ['jpg', 'jpeg', 'png']) test(`browser ${ext} becomes WebP with
 test('small JPEG still converts to WebP', async () => {
     const b = browser({ size: 1 });
     const input = new Blob([Uint8Array.of(255, 216, 255, 217), 'small JPEG'], { type: 'image/jpeg' });
-    const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: 5 * 1024 * 1024 });
+    const result = await b.prepare(input, '1.jpg', 0.85, { maxJpegConversionSize: b.threshold() });
     assert.equal(result.reason, 'converted');
     assert.equal(result.filename, '1.webp');
     assert.equal(result.file.type, 'image/webp');
     assert.equal(b.decoded(), 1);
 });
-test('oversized JPEG is preserved without decoding and .jpeg normalizes to .jpg', async () => {
+test('chapter JPEG conversion threshold is exactly 4 MiB', () => {
+    assert.equal(browser().threshold(), 4 * 1024 * 1024);
+});
+test('JPEG exactly 4 MiB still converts to WebP', async () => {
+    const b = browser({ size: 1 });
+    const limit = b.threshold();
+    const input = new Blob([Uint8Array.of(255, 216, 255, 217), new Uint8Array(limit - 4)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '2.jpg', 0.85, { maxJpegConversionSize: limit });
+    assert.equal(result.reason, 'converted');
+    assert.equal(result.filename, '2.webp');
+    assert.equal(b.decoded(), 1);
+});
+test('JPEG above 4 MiB is preserved without decoding and .jpeg normalizes to .jpg', async () => {
     const b = browser();
-    const input = new Blob([Uint8Array.of(255, 216, 255, 217), new Uint8Array(5 * 1024 * 1024)], { type: 'image/jpeg' });
-    const result = await b.prepare(input, '2.jpeg', 0.85, { maxJpegConversionSize: 5 * 1024 * 1024 });
+    const limit = b.threshold();
+    const input = new Blob([Uint8Array.of(255, 216, 255, 217), new Uint8Array(limit - 3)], { type: 'image/jpeg' });
+    const result = await b.prepare(input, '2.jpeg', 0.85, { maxJpegConversionSize: limit });
     assert.equal(result.file, input);
     assert.equal(result.filename, '2.jpg');
     assert.equal(result.reason, 'oversized-jpeg');
@@ -96,6 +113,8 @@ function withProgress(context) {
     context.uploadProgress = createUploadProgress();
     context.uploadProgress.reset(context.newImages?.length || 0);
     context.paintProgress = async () => {};
+    context.stagedEditImages ||= new Set();
+    context.stagedEditFiles ||= new Map();
     return context;
 }
 function chapterContext(context) {
@@ -150,15 +169,43 @@ test('dragging a new page between remote pages preserves the displayed order', (
     assert.deepEqual(Array.from(c.pageOrder, img => img.name), ['1.jpg', '10.jpg', '2.png']);
 });
 
-for (const rawValue of [undefined, false, true]) for (const failure of [undefined, 'upload', 'rename', 'update']) test(`chapter edit (raw=${rawValue}) ${failure ? failure + ' failure retains queue' : 'saves exact displayed order and returned filenames'}`, async () => {
-    const a = { type: 'remote', name: '1.jpg' }, b = { type: 'remote', name: '2.png' }, added = { name: '10.jpg' };
-    let renamedSources, saved;
+test('chapter edit manifest contains only the current tray after removing and reordering existing pages', async () => {
+    const first = { type: 'remote', sourceType: 'existing', name: '1.webp' };
+    const removed = { type: 'remote', sourceType: 'existing', name: '2.webp' };
+    const last = { type: 'remote', sourceType: 'existing', name: '3.jpg' };
+    let saved;
+    const c = { currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 2,
+        mangas: { m: { chapters: [{ id: 2, folder: 'https://img.test/m/chap2', pages: 3, images: ['1.webp', '2.webp', '3.jpg'] }] } },
+        existingImages: [first, removed, last], newImages: [], pageOrder: [last, first], log() {},
+        stagedEditImages: new Set(),
+        updateChapter: async body => {
+            saved = body;
+            return { chapter: { id: 2, pages: 2, folder: 'https://img.test/m/chap2/_revision-123', images: ['1.jpg', '2.webp'] } };
+        },
+        chapterTitle: { value: 'Edit' }, chapterDate: { value: '2026-01-01' }, renderPreview() {},
+        chapterUrl: () => '/', chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
+    };
+    chapterContext(c);
+    vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter('), chapterSource.indexOf('function resetForm(){')), c);
+    await c.saveChapter();
+    assert.deepEqual(Array.from(saved.images, image => image.name), ['3.jpg', '1.webp']);
+    assert.equal(saved.pages, 2);
+    assert.ok(!saved.images.some(image => image.name === removed.name));
+});
+
+for (const rawValue of [undefined, false, true]) for (const failure of [undefined, 'upload', 'update']) test(`chapter edit (raw=${rawValue}) ${failure ? failure + ' failure retains queue' : 'saves exact displayed order and returned filenames'}`, async () => {
+    const a = { type: 'remote', sourceType: 'existing', name: '1.jpg' }, b = { type: 'remote', sourceType: 'existing', name: '2.png' }, added = { name: '10.jpg', slice() {} };
+    let saved;
     const c = { currentStaff: {}, assertCanManageManga() {}, currentSlug: 'm', currentChapter: 0,
-        mangas: { m: { chapters: [{ id: 0, folder: 'https://img.test/m/chap0' }] } },
+        mangas: { m: { chapters: [{ id: 0, folder: 'https://img.test/m/chap0', pages: 2, images: ['1.jpg', '2.png'] }] } },
         existingImages: [a, b], newImages: [added], pageOrder: [a, added, b], progress: {}, log() {},
         uploadImage: async () => { if (failure === 'upload') throw Error('upload'); return 'https://img.test/m/chap0/3.webp'; },
-        renameImages: async body => { if (failure === 'rename') throw Error('rename'); renamedSources = body.images; return { images: ['1.webp', '2.webp', '3.png'] }; },
-        updateChapter: async body => { if (failure === 'update') throw Error('update'); saved = body; },
+        stagedEditImages: new Set(),
+        updateChapter: async body => {
+            if (failure === 'update') throw Error('update');
+            saved = body;
+            return { chapter: { id: 0, pages: 3, folder: 'https://img.test/m/chap0/_revision-123', images: ['1.jpg', '2.webp', '3.png'] } };
+        },
         chapterTitle: { value: 'Edit' }, chapterDate: { value: '2026-01-01' }, renderPreview() {},
         chapterUrl: () => '/', chapterLink: {}, chapterLinkBox: { classList: { remove() {} } }, document: { getElementById: () => ({}) }
     };
@@ -167,8 +214,10 @@ for (const rawValue of [undefined, false, true]) for (const failure of [undefine
         await assert.rejects(c.saveChapter(rawValue), new RegExp(failure));
         assert.equal(c.newImages[0], added); assert.equal(c.existingImages[0], a); assert.equal(saved, undefined);
     } else {
-        await c.saveChapter(rawValue); assert.deepEqual(Array.from(renamedSources), ['1.jpg', '3.webp', '2.png']);
-        assert.deepEqual(Array.from(saved.images), ['1.webp', '2.webp', '3.png']); assert.equal(saved.isRawCaughtUp, rawValue === true); assert.equal(c.newImages.length, 0);
+        await c.saveChapter(rawValue);
+        assert.deepEqual(Array.from(saved.images, source => `${source.type}:${source.name}`), ['existing:1.jpg', 'staged:3.webp', 'existing:2.png']);
+        assert.deepEqual(Array.from(saved.stagedImages), ['3.webp']);
+        assert.equal(saved.pages, 3); assert.equal(saved.isRawCaughtUp, rawValue === true); assert.equal(c.newImages.length, 0);
     }
 });
 

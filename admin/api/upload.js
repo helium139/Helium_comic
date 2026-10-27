@@ -45,7 +45,7 @@ export async function uploadImage(
         chapter ? { maxJpegConversionSize: MAX_CHAPTER_JPEG_CONVERSION_SIZE } : undefined);
     traceConversion(file, prepared);
     if (chapter && prepared.reason === 'oversized-jpeg') {
-        await onProgress('preserved', { filename: sourceName, reason: prepared.reason });
+        await onProgress('preserved', { filename: prepared.filename, reason: prepared.reason });
     }
     await onProgress('converted');
     file = prepared.file;
