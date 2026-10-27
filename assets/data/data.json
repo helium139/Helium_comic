@@ -3608,6 +3608,22 @@
                     "28-394aa2a1-6373-49d2-978c-716a99a54723.webp",
                     "29-e33ecb5e-43b3-42f7-be53-d8dced35e95f.webp"
                 ]
+            },
+            {
+                "id": 25,
+                "title": "Chap 25",
+                "createAt": "2026-10-27T08:51:14.095Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/chap25",
+                "pages": 7,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp"
+                ]
             }
         ],
         "isRawCaughtUp": true
