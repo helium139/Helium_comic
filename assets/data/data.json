@@ -2588,6 +2588,31 @@
                     "45-7acb0c6f-8dfd-4aa6-aa4e-4c2b69d528d0.webp",
                     "46-0edadede-9ff4-4060-932a-2121248052e2.webp"
                 ]
+            },
+            {
+                "id": 22,
+                "title": "Chap 22",
+                "createAt": "2026-10-27T10:33:59.931Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tro-tan/chap22",
+                "pages": 16,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp",
+                    "11.webp",
+                    "12.webp",
+                    "13.webp",
+                    "14.webp",
+                    "15.webp",
+                    "16.webp"
+                ]
             }
         ],
         "isRawCaughtUp": true
