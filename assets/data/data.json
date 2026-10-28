@@ -11637,7 +11637,7 @@
             "Không Che",
             "Bl"
         ],
-        "isRawCaughtUp": false,
+        "isRawCaughtUp": true,
         "teamId": "heliumtg",
         "team": "HeliumTG",
         "adminPick": true,
@@ -11663,6 +11663,27 @@
                     "11.webp",
                     "12.webp",
                     "13.webp"
+                ]
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2026-10-28T05:53:21.753Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/monster-in-the-closet-khong-che/chap2",
+                "pages": 12,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg"
                 ]
             }
         ],
