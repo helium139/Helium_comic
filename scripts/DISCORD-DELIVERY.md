@@ -1,3 +1,4 @@
+
 # Chapter delivery
 
 The previous workflow used the default single pending slot for `pages-release`.
@@ -22,8 +23,10 @@ slug order followed by numeric chapter ID order with a string tie-breaker.
 Receipts live in `discord-delivery.json` on the dedicated
 `discord-delivery-state` branch. The branch is created automatically on the first
 run with outstanding chapters, using the workflow token's `contents: write`
-permission. No new secret is required. This branch is separate from `main` and
-the Pages deployment. Do not delete it: deleting it loses delivery history.
+permission. No new secret is required. GitHub API failures include the method,
+endpoint, and GitHub error message; token values are redacted. This branch is
+separate from `main` and the Pages deployment. Do not delete it: deleting it
+loses delivery history.
 GitHub Contents API updates use the file SHA to reject conflicting writes.
 All callers must retain the shared workflow concurrency group.
 

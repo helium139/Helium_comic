@@ -111,9 +111,11 @@ test('transport errors are sanitized and are not automatically reposted', async 
 
 test('ledger bootstraps isolated branch, writes with CAS, and reloads deliveries', async () => {
     let stored, version = 0;
-    const methods = [];
+    const methods = [], requests = [];
     const request = async (url, init) => {
         methods.push(init.method);
+        requests.push({ url, method: init.method });
+        assert.equal(init.headers.Authorization, 'Bearer secret');
         if (url.includes('/git/ref/')) return new Response('', { status: 404 });
         if (url.endsWith('/git/refs')) return Response.json({});
         if (init.method === 'GET') return stored ? Response.json(stored) : new Response('', { status: 404 });
@@ -129,4 +131,31 @@ test('ledger bootstraps isolated branch, writes with CAS, and reloads deliveries
     const reloaded = await openLedger({ repository: 'owner/repo', token: 'secret', request });
     assert.equal(reloaded.state.delivered.chapter10, true);
     assert.equal(methods.filter(m => m === 'PUT').length, 2);
+    assert.ok(requests.some(({ url, method }) =>
+        method === 'POST' && url === 'https://api.github.com/repos/owner/repo/git/refs'));
+    assert.equal(requests.filter(({ url, method }) =>
+        method === 'PUT' && url === 'https://api.github.com/repos/owner/repo/contents/discord-delivery.json').length, 2);
+});
+
+test('ledger API 403 includes GitHub message and endpoint without exposing token', async () => {
+    const token = 'secret-do-not-log-123';
+    const requests = [];
+    await assert.rejects(openLedger({
+        repository: 'owner/repo',
+        token,
+        request: async (url, init) => {
+            requests.push({ url, method: init.method });
+            if (init.method === 'GET') return new Response('', { status: 404 });
+            return Response.json({ message: `Resource not accessible by integration: ${token}` }, { status: 403 });
+        }
+    }), error => {
+        assert.match(error.message, /POST \/git\/refs failed \(HTTP 403\)/);
+        assert.match(error.message, /Resource not accessible by integration/);
+        assert.doesNotMatch(error.message, /secret-do-not-log-123/);
+        return true;
+    });
+    assert.deepEqual(requests.map(({ url, method }) => [method, url]), [
+        ['GET', 'https://api.github.com/repos/owner/repo/git/ref/heads/discord-delivery-state'],
+        ['POST', 'https://api.github.com/repos/owner/repo/git/refs']
+    ]);
 });

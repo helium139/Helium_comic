@@ -74,7 +74,22 @@ export async function openLedger({ repository = process.env.GITHUB_REPOSITORY,
             });
         } catch { throw new Error('Discord ledger request failed.'); }
         if (response.status === 404 && method === 'GET') return null;
-        if (!response.ok) throw new Error(`Discord ledger ${method} failed (HTTP ${response.status}).`);
+        if (!response.ok) {
+            const responseBody = await response.text();
+            let message = '';
+            try {
+                const details = JSON.parse(responseBody);
+                if (typeof details.message === 'string') message = details.message;
+            } catch (error) {
+                if (!(error instanceof SyntaxError)) throw error;
+            }
+            message = message
+                .replaceAll(token, '[REDACTED]')
+                .replace(/\b(?:gh[pousr]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/g, '[REDACTED]')
+                .slice(0, 500);
+            const endpoint = route.split('?')[0];
+            throw new Error(`Discord ledger ${method} /${endpoint} failed (HTTP ${response.status})${message ? `: ${message}` : ''}.`);
+        }
         return response.json();
     };
     if (!await api(`git/ref/heads/${branch}`)) {
