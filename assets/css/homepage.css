@@ -23,6 +23,10 @@ main{
   --button-text: #333333;
   --button-text1: #483d8b;
   --text-color: #333333;
+  --manga-card-bg: #fff8f9;
+  --manga-card-border: rgba(220, 150, 165, 0.25);
+  --manga-card-shadow: 0 4px 14px rgba(70, 30, 40, 0.06);
+  --manga-chapter-bg: #fff0f2;
 }
 
 [data-theme="dark"] {
@@ -31,6 +35,10 @@ main{
   --button-text: #333333;
     --button-text1: #ffffff;
   --text-color: #ffffff;
+  --manga-card-bg: #282332;
+  --manga-card-border: rgba(180, 120, 145, 0.3);
+  --manga-card-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  --manga-chapter-bg: #392b38;
 }
 
 /* 2. CẤU HÌNH THẺ BODY KHÔNG CHỨA ẢNH TRỰC TIẾP */
@@ -537,6 +545,37 @@ body::before {
 /* Hiệu ứng nhấc nhẹ lên khi di chuột vào truyện */
 .comic-item:hover {
   transform: translateY(-5px);
+}
+
+/* Normal grid cards reuse the shared color rule with card-specific theme tokens. */
+.comics-grid > .comic-item {
+  --button-bg: var(--manga-card-bg);
+  --button-text: var(--text-color);
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid var(--manga-card-border);
+  border-radius: 18px;
+  box-shadow: var(--manga-card-shadow);
+}
+
+.comics-grid > .comic-item .comic-poster {
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.comics-grid > .comic-item .comic-poster img {
+  display: block;
+  border-radius: inherit;
+}
+
+.comics-grid > .comic-item .comic-name {
+  overflow-wrap: anywhere;
+}
+
+.comics-grid > .comic-item .comic-chapter {
+  --button-bg: var(--manga-chapter-bg);
+  border-radius: 0 0 17px 17px;
+  overflow-wrap: anywhere;
 }
 
 /* Khung bọc ảnh để xử lý bo góc */
