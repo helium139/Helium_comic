@@ -1,4 +1,5 @@
 import fs from "fs";
+import { baselineRef, chapterEvents, deliverEvents, openLedger, sendDiscord } from "./discord-delivery.mjs";
 import { waitForChapter } from "./wait-for-chapter.mjs";
 import { execFileSync } from "child_process";
 import { mangaUrl as mangaPath, chapterUrl as chapterPath } from "../assets/js/route-urls.mjs";
@@ -6,17 +7,6 @@ import { mangaUrl as mangaPath, chapterUrl as chapterPath } from "../assets/js/r
 const webhook = process.env.DISCORD_WEBHOOK;
 
 const dataPath = "assets/data/data.json";
-const pushBefore = process.env.PUSH_BEFORE;
-
-if (pushBefore && !/^[a-f0-9]{40}$/i.test(pushBefore)) {
-    throw new Error("PUSH_BEFORE must be a commit SHA.");
-}
-
-if (pushBefore === "0".repeat(40)) {
-    console.log("No previous push commit; skipping Discord notifications.");
-    process.exit(0);
-}
-
 function getJsonFromGit(ref) {
     try {
         const content = execFileSync(
@@ -38,31 +28,9 @@ const currentData = JSON.parse(
     fs.readFileSync(dataPath, "utf8")
 );
 
-const previousData = getJsonFromGit(pushBefore || "HEAD^");
-
-const newChapters = [];
+const previousData = getJsonFromGit(baselineRef);
+const newChapters = chapterEvents(currentData, previousData);
 const pushPayloads = [];
-
-for (const [slug, manga] of Object.entries(currentData)) {
-    const oldManga = previousData[slug];
-
-    const oldChapters = oldManga?.chapters || [];
-    const currentChapters = manga.chapters || [];
-
-    const oldIds = new Set(
-        oldChapters.map(chapter => String(chapter.id))
-    );
-
-    for (const chapter of currentChapters) {
-        if (!oldIds.has(String(chapter.id))) {
-            newChapters.push({
-                slug,
-                manga,
-                chapter
-            });
-        }
-    }
-}
 
 if (newChapters.length === 0) {
     console.log("No new chapters found.");
@@ -77,61 +45,48 @@ console.log(
     `Found ${newChapters.length} new chapter(s).`
 );
 
-for (const item of newChapters) {
-    const { slug, manga, chapter } = item;
+const ledger = await openLedger();
+const chapterAddress = item => 'https://heliumtg.com' + chapterPath(item.slug, item.chapter.id);
+await deliverEvents(newChapters, ledger.state, {
+    save: ledger.save,
+    ready: item => waitForChapter(chapterAddress(item)),
+    send: async item => {
+        const { slug, manga, chapter } = item;
+        const mangaUrl = 'https://heliumtg.com' + mangaPath(slug);
+        const chapterUrl = chapterAddress(item);
 
-    const mangaUrl =
-        `https://heliumtg.com${mangaPath(slug)}`;
+        const payload = {
+            content:
+                `@everyone\n\n` +
+                `✨ **[${manga.title}](<${mangaUrl}>)** vừa có chương mới nha các vịu ơ!\n\n` +
+                `💗 **[${chapter.title}](${chapterUrl})**\n\n` +
+                `🌸 Ghé website ủng hộ HeliumTG nhé!\n\n` +
+                chapterUrl,
 
-    const chapterUrl =
-        `https://heliumtg.com${chapterPath(slug, chapter.id)}`;
-
-    await waitForChapter(chapterUrl);
-
-    const payload = {
-        content:
-            `@everyone\n\n` +
-            `✨ **[${manga.title}](<${mangaUrl}>)** vừa có chương mới nha các vịu ơ!\n\n` +
-            `💗 **[${chapter.title}](${chapterUrl})**\n\n` +
-            `🌸 Ghé website ủng hộ HeliumTG nhé!\n\n` +
-            chapterUrl,
-
-        allowed_mentions: {
-            parse: ["everyone"]
-        }
-    };
-
-    const response = await fetch(webhook, {
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(payload)
-    });
-
-    if (!response.ok) {
-        const error = await response.text();
-
-        throw new Error(
-            `Discord error ${response.status}: ${error}`
-        );
-    }
-
-    console.log(
-        `Sent Discord notification: ${manga.title} - ${chapter.title}`
-    );
-
-    let cover = "";
-    if (typeof manga.cover === "string" && manga.cover.trim()) {
-        try {
-            const candidate = new URL(manga.cover, "https://heliumtg.com/");
-            if (candidate.protocol === "https:" && !candidate.username && !candidate.password &&
-                ["https://heliumtg.com", "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(candidate.origin)) {
-                cover = candidate.href;
+            allowed_mentions: {
+                parse: ["everyone"]
             }
-        } catch { /* Missing/invalid cover must not prevent chapter delivery. */ }
+        };
+
+        await sendDiscord(webhook, payload);
+
+        console.log(
+            `Sent Discord notification: ${manga.title} - ${chapter.title}`
+        );
+
+    },
+    onDelivered: async item => {
+        const { slug, manga, chapter } = item;
+        const chapterUrl = chapterAddress(item);
+        let cover = "";
+        if (typeof manga.cover === "string" && manga.cover.trim()) {
+            try {
+                const candidate = new URL(manga.cover, "https://heliumtg.com/");
+                if (candidate.protocol === "https:" && !candidate.username && !candidate.password &&
+                    ["https://heliumtg.com", "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(candidate.origin)) {
+                    cover = candidate.href;
+                }
+            } catch { /* Missing/invalid cover must not prevent chapter delivery. */ }
     }
     pushPayloads.push({
         mangaSlug: slug,
@@ -140,7 +95,8 @@ for (const item of newChapters) {
         url: chapterUrl,
         cover
     });
-}
+    }
+});
 
 // Hand off only after every chapter has passed readiness and Discord delivery.
 // The file lives in RUNNER_TEMP, outside the deployed website.
