@@ -317,13 +317,13 @@
       "image_sha256": "0593104f7fd9374bd6bca021ad68d0783f1b34cef6b66dcb0d06434407caaff8"
     },
     "nguoi-bao-ho-cua-toi": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-bao-ho-cua-toi/cover-44dd0477-aaa6-4e33-8747-1a6a8ea5f9ab.webp",
-      "etag": "\"075a57c2b249490b3836d61a93ddf409\"",
-      "last_modified": "Thu, 29 Oct 2026 15:37:22 GMT",
-      "cover_sha256": "192dedc9cb15b8eddb2f77503e0fc31e36c4d555a0681ccf14f25abd097d1f68",
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nguoi-bao-ho-cua-toi/cover-abc48a0e-1bc5-4587-b7c3-e9531aea2154.webp",
+      "etag": "\"fca845bf9f8854b964604651b924a84e\"",
+      "last_modified": "Thu, 29 Oct 2026 17:06:39 GMT",
+      "cover_sha256": "3b5c7b2dc9515346bdc03f17e41c7786031caf1ea3d80142dccfa39582434510",
       "cover_width": 720,
-      "cover_height": 330,
-      "image_sha256": "0e701b2e5f4afbfc49f378129814476e5a4de9bd7bb07f64584d0a21c0119ade"
+      "cover_height": 720,
+      "image_sha256": "b60d5306101f7d60a4bebd9e3535bc26047434cd1ea22f7ab684f46183ee1454"
     }
   }
 }
