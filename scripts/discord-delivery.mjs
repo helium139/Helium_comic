@@ -92,8 +92,9 @@ export async function openLedger({ repository = process.env.GITHUB_REPOSITORY,
         }
         return response.json();
     };
-    if (!await api(`git/ref/heads/${branch}`)) {
-        await api('git/refs', 'POST', { ref: `refs/heads/${branch}`, sha: baselineRef });
+    const branchRef = await api(`git/ref/heads/${branch}`);
+    if (!branchRef) {
+        throw new Error(`Discord delivery ledger branch "${branch}" does not exist. Create it manually once from main, then rerun the workflow.`);
     }
     const stored = await api(`contents/${file}?ref=${branch}`);
     let sha = stored?.sha;

@@ -21,12 +21,22 @@ detected, duplicate catalogue entries collapse, and delivery is sequential in
 slug order followed by numeric chapter ID order with a string tie-breaker.
 
 Receipts live in `discord-delivery.json` on the dedicated
-`discord-delivery-state` branch. The branch is created automatically on the first
-run with outstanding chapters, using the workflow token's `contents: write`
-permission. No new secret is required. GitHub API failures include the method,
-endpoint, and GitHub error message; token values are redacted. This branch is
-separate from `main` and the Pages deployment. Do not delete it: deleting it
-loses delivery history.
+`discord-delivery-state` branch. Create this branch once before running the
+notifier:
+
+1. In GitHub, create branch `discord-delivery-state`.
+2. Set its source to `main`.
+
+The branch is intentionally pre-created because GitHub Actions `GITHUB_TOKEN`
+may be unable to create refs in this workflow context. The notifier never creates
+a ref; if the branch is missing, it stops with setup instructions. On the first
+run after branch creation, if `discord-delivery.json` is missing, the notifier
+creates it on `discord-delivery-state` using the workflow token's existing
+`contents: write` permission. No new secret is required. The branch is separate
+from `main` and the Pages deployment. Do not delete it: deleting it loses
+delivery history.
+GitHub API failures include the method, endpoint, and GitHub error message; token
+values are redacted.
 GitHub Contents API updates use the file SHA to reject conflicting writes.
 All callers must retain the shared workflow concurrency group.
 

@@ -42,6 +42,25 @@ test('same event retry skips Discord but retains Firebase handoff', async () => 
     assert.equal(restarted.sent.length, 0);
 });
 
+test('successful Discord response is followed by receipt save; failed response is not recorded', async () => {
+    const events = chapterEvents(catalogue([10]), {});
+    const successful = harness(), order = [];
+    successful.options.send = async () => order.push('discord');
+    successful.options.save = async state => {
+        order.push('receipt');
+        successful.saved.push(structuredClone(state));
+    };
+    await successful.run(events);
+    assert.deepEqual(order, ['discord', 'receipt']);
+    assert.equal(successful.saved[0].delivered[events[0].key], true);
+
+    const failed = harness();
+    failed.options.send = async () => { throw Error('Discord rejected delivery'); };
+    await assert.rejects(failed.run(events), /Discord rejected delivery/);
+    assert.equal(failed.saved.length, 0);
+    assert.deepEqual(failed.state.delivered, {});
+});
+
 test('failed delivery remains retryable; partial success is preserved', async () => {
     const h = harness(), events = chapterEvents(catalogue([10, 11]), {});
     h.options.send = async e => { if (e.chapter.id === 11) throw Error('failed'); h.sent.push(e.key); };
@@ -109,15 +128,16 @@ test('transport errors are sanitized and are not automatically reposted', async 
     assert.equal(calls, 1);
 });
 
-test('ledger bootstraps isolated branch, writes with CAS, and reloads deliveries', async () => {
+test('existing ledger branch and file load and save with Contents API CAS', async () => {
     let stored, version = 0;
     const methods = [], requests = [];
     const request = async (url, init) => {
         methods.push(init.method);
         requests.push({ url, method: init.method });
         assert.equal(init.headers.Authorization, 'Bearer secret');
-        if (url.includes('/git/ref/')) return new Response('', { status: 404 });
-        if (url.endsWith('/git/refs')) return Response.json({});
+        if (url.endsWith('/git/ref/heads/discord-delivery-state')) {
+            return Response.json({ ref: 'refs/heads/discord-delivery-state' });
+        }
         if (init.method === 'GET') return stored ? Response.json(stored) : new Response('', { status: 404 });
         const body = JSON.parse(init.body);
         assert.equal(body.branch, 'discord-delivery-state');
@@ -131,10 +151,44 @@ test('ledger bootstraps isolated branch, writes with CAS, and reloads deliveries
     const reloaded = await openLedger({ repository: 'owner/repo', token: 'secret', request });
     assert.equal(reloaded.state.delivered.chapter10, true);
     assert.equal(methods.filter(m => m === 'PUT').length, 2);
-    assert.ok(requests.some(({ url, method }) =>
-        method === 'POST' && url === 'https://api.github.com/repos/owner/repo/git/refs'));
+    assert.ok(requests.every(({ url, method }) => !(method === 'POST' && url.endsWith('/git/refs'))));
     assert.equal(requests.filter(({ url, method }) =>
         method === 'PUT' && url === 'https://api.github.com/repos/owner/repo/contents/discord-delivery.json').length, 2);
+});
+
+test('existing ledger branch with missing file creates ledger on that branch', async () => {
+    const requests = [];
+    const request = async (url, init) => {
+        requests.push({ url, method: init.method, body: init.body });
+        if (url.endsWith('/git/ref/heads/discord-delivery-state')) {
+            return Response.json({ ref: 'refs/heads/discord-delivery-state' });
+        }
+        if (init.method === 'GET') return new Response('', { status: 404 });
+        return Response.json({ content: { sha: 'initial-ledger-sha' } });
+    };
+    const ledger = await openLedger({ repository: 'owner/repo', token: 'secret', request });
+    assert.deepEqual(ledger.state, { baseline: baselineRef, delivered: {} });
+    const createFile = requests.find(({ method }) => method === 'PUT');
+    assert.ok(createFile);
+    assert.equal(createFile.url, 'https://api.github.com/repos/owner/repo/contents/discord-delivery.json');
+    assert.equal(JSON.parse(createFile.body).branch, 'discord-delivery-state');
+    assert.ok(requests.every(({ url, method }) => !(method === 'POST' && url.endsWith('/git/refs'))));
+});
+
+test('missing ledger branch reports manual setup and never creates a ref', async () => {
+    const requests = [];
+    await assert.rejects(openLedger({
+        repository: 'owner/repo',
+        token: 'secret',
+        request: async (url, init) => {
+            requests.push({ url, method: init.method });
+            return new Response('', { status: 404 });
+        }
+    }), /Discord delivery ledger branch "discord-delivery-state" does not exist\. Create it manually once from main, then rerun the workflow\./);
+    assert.deepEqual(requests, [{
+        url: 'https://api.github.com/repos/owner/repo/git/ref/heads/discord-delivery-state',
+        method: 'GET'
+    }]);
 });
 
 test('ledger API 403 includes GitHub message and endpoint without exposing token', async () => {
@@ -145,17 +199,16 @@ test('ledger API 403 includes GitHub message and endpoint without exposing token
         token,
         request: async (url, init) => {
             requests.push({ url, method: init.method });
-            if (init.method === 'GET') return new Response('', { status: 404 });
             return Response.json({ message: `Resource not accessible by integration: ${token}` }, { status: 403 });
         }
     }), error => {
-        assert.match(error.message, /POST \/git\/refs failed \(HTTP 403\)/);
+        assert.match(error.message, /GET \/git\/ref\/heads\/discord-delivery-state failed \(HTTP 403\)/);
         assert.match(error.message, /Resource not accessible by integration/);
         assert.doesNotMatch(error.message, /secret-do-not-log-123/);
         return true;
     });
-    assert.deepEqual(requests.map(({ url, method }) => [method, url]), [
-        ['GET', 'https://api.github.com/repos/owner/repo/git/ref/heads/discord-delivery-state'],
-        ['POST', 'https://api.github.com/repos/owner/repo/git/refs']
-    ]);
+    assert.deepEqual(requests, [{
+        url: 'https://api.github.com/repos/owner/repo/git/ref/heads/discord-delivery-state',
+        method: 'GET'
+    }]);
 });
