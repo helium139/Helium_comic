@@ -237,11 +237,6 @@ body::before {
     gap: 15px;
   }
 
-  .comics-grid {
-    grid-template-columns: repeat(3, 1fr)!important;
-    gap: 12px;
-  }
-
   .comic-name {
     font-size: 12px;
   }
@@ -521,6 +516,12 @@ body::before {
   /* Tự động chia cột: mỗi cột rộng tối thiểu 160px, tối đa xếp đều màn hình (khoảng 6 cột trên PC) */
   grid-template-columns: repeat(6, minmax(160px, 1fr));
   gap: 25px 20px; /* Khoảng cách giữa các hàng là 25px, giữa các cột là 20px */
+}
+
+@media (min-width: 701px) and (max-width: 1100px) {
+    .comics-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 /* Từng block truyện */
@@ -1530,3 +1531,20 @@ footer p {
 }
 .search-cover { flex-shrink: 0; overflow: hidden; border-radius: 5px; }
 .search-cover .raw-caught-up-badge { top: 2px; left: 2px; max-width: calc(100% - 4px); padding: 2px 4px; font-size: 9px; }
+
+@media (max-width: 700px) {
+    .comics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .comics-grid > .comic-item {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .comic-info,
+    .comic-name {
+        min-width: 0;
+    }
+}

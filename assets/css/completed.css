@@ -6,8 +6,6 @@
 .completed-controls input, .completed-controls select { box-sizing: border-box; width: 100%; min-width: 0; padding: 12px; border: 1px solid #d89cb9; border-radius: 14px; background: #fff8fc; color: #513b47; font: inherit; }
 [data-theme="dark"] .completed-controls input, [data-theme="dark"] .completed-controls select { background: #2c2430; color: #f6e9f1; border-color: #886779; }
 .completed-page :is(a, input, select):focus-visible { outline: 3px solid #a73750; outline-offset: 4px; }
-.completed-page .comics-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .completed-page .comic-name, .completed-page .comic-chapter { color: var(--text-color); overflow-wrap: anywhere; }
 .completed-page #completed-status { line-height: 1.6; margin-bottom: 20px; }
-@media (max-width: 1100px) { .completed-page .comics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (max-width: 700px) { .completed-page .comics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .completed-page main { margin-left: 0; margin-right: 0; } }
