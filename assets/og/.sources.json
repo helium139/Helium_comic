@@ -324,6 +324,15 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "b60d5306101f7d60a4bebd9e3535bc26047434cd1ea22f7ab684f46183ee1454"
+    },
+    "shoegazing-khuc-ca-cui-au": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/shoegazing-khuc-ca-cui-au/cover-c69d4e11-60b4-43df-9435-b381df3ddb81.webp",
+      "etag": "\"f144af62f3295b83e255fdad58f580d0\"",
+      "last_modified": "Fri, 30 Oct 2026 10:31:10 GMT",
+      "cover_sha256": "ee3602d1daf2068b42757c3ba433dacb244e1d03b7f70a4510f0927e568b2066",
+      "cover_width": 480,
+      "cover_height": 696,
+      "image_sha256": "79759019ebb50b95c825eec8f6f99663864d23205bd27c86a901d68d143a88ec"
     }
   }
 }
