@@ -7721,6 +7721,41 @@
                     "31.webp",
                     "32.webp"
                 ]
+            },
+            {
+                "id": 13,
+                "title": "Chap 13",
+                "createAt": "2026-10-30T17:21:42.817Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoc-vien-nhan-giong/chap13",
+                "pages": 26,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.webp",
+                    "7.jpg",
+                    "8.webp",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.webp",
+                    "12.webp",
+                    "13.jpg",
+                    "14.jpg",
+                    "15.jpg",
+                    "16.webp",
+                    "17.webp",
+                    "18.jpg",
+                    "19.jpg",
+                    "20.jpg",
+                    "21.jpg",
+                    "22.jpg",
+                    "23.jpg",
+                    "24.webp",
+                    "25.webp",
+                    "26.webp"
+                ]
             }
         ],
         "isRawCaughtUp": false
