@@ -9110,7 +9110,7 @@
         ],
         "description": "⚠️ Tác phẩm có chứa các cảnh liên quan đến hiếp dâm, bạo lực, giết người và cưỡng hiếp tập thể, vì vậy xin hãy cân nhắc khi thưởng thức.\n⚠️ Ngoài ra, bối cảnh và thiết lập trong tác phẩm đều là hư cấu. Các địa danh, nhân vật, tổ chức, tên doanh nghiệp và những yếu tố khác hoàn toàn không có liên quan đến thực tế.\n\nThế kỷ 29, vương quốc của các vị thần do nhà tiên tri Ihwa cai trị và Usaguk, vương quốc của loài rắn, đã chìm trong chiến tranh suốt một thời gian dài.\n\nLee Hwan Mae, người chỉ huy đơn vị thảm sát tinh nhuệ nhất của vương quốc thần linh Maerangukjuk, phát hiện ra một tương lai được tiên tri từ Gwan Chang, một viên sĩ quan trẻ luôn âm thầm hạ mình, chỉ một lòng truy cầu con đường của bậc quân vương.\n\nThế nhưng, tương lai mà Ihwa nhìn thấy ở hắn lại chính là một thảm họa sẽ nhuộm máu toàn bộ lục địa phía Tây.\n\n“Ngươi là một con thiên nga đen.\nMột con thiên nga đen sẽ mang đến thảm hoạ mà không một ai có thể lường trước.\nĐó chính là ngươi.”\n\nĐể biến con đường dẫn đến cái chết thành con đường sống, Lee Hwan Mae giữ Gwan Chang, người đã trở thành tù binh, ở bên cạnh mình.\n\nTừ một người phiên dịch, đến đối tác kinh doanh, rồi dần dần trở thành…một tồn tại mà hắn không thể nào thoát khỏi.\n\n“Vậy nên, nghe lời ta cho kỹ, Gwan Chang.”\n\nMột người muốn xoay chuyển số mệnh, và một người vô thức bị cuốn theo bàn tay của kẻ ấy. Tương lai mà hai người cùng viết nên bắt đầu bùng cháy dữ dội hơn cả lời tiên tri.",
         "adminPick": true,
-        "pickOrder": 6,
+        "pickOrder": 5,
         "chapters": [
             {
                 "id": 1,
@@ -11053,7 +11053,7 @@
         ],
         "description": "Nam chính sinh ra trong một gia tộc pháp sư trừ tà nổi tiếng. Sau tám năm xa cách, anh gặp lại mối tình đầu Song Hyeon tại lễ cưới của anh ấy, đồng thời tái ngộ Seong Hwa, người em họ của Song Hyeon.\nSeong Hwa đã thầm yêu nam chính suốt nhiều năm. Biết anh vẫn chưa thể buông bỏ Song Hyeon, cậu quyết định lợi dụng gương mặt có nhiều nét tương đồng với người ấy để lên giường cùng anh.\nHai người dần bị đối phương thu hút, tình cảm cũng theo đó mà nảy nở. Thế nhưng, nam chính lại che giấu Seong Hwa một lý do chí mạng khiến cậu tuyệt đối không được phép yêu mình...",
         "adminPick": true,
-        "pickOrder": 8,
+        "pickOrder": 7,
         "chapters": [
             {
                 "id": 1,
@@ -11428,8 +11428,8 @@
         ],
         "teamId": "heliumtg",
         "team": "HeliumTG",
-        "adminPick": true,
-        "pickOrder": 5,
+        "adminPick": false,
+        "pickOrder": 999,
         "chapters": [
             {
                 "id": 1,
@@ -11900,7 +11900,7 @@
         "teamId": "heliumtg",
         "team": "HeliumTG",
         "adminPick": true,
-        "pickOrder": 7,
+        "pickOrder": 6,
         "chapters": [
             {
                 "id": 1,
@@ -12094,7 +12094,7 @@
         "teamId": "heliumtg",
         "team": "HeliumTG",
         "adminPick": true,
-        "pickOrder": 9,
+        "pickOrder": 8,
         "chapters": [
             {
                 "id": 1,
@@ -12310,7 +12310,7 @@
         "teamId": "heliumtg",
         "team": "HeliumTG",
         "adminPick": true,
-        "pickOrder": 10,
+        "pickOrder": 9,
         "chapters": [
             {
                 "id": 1,
