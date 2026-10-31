@@ -11388,9 +11388,46 @@
                     "9.webp",
                     "10.webp"
                 ]
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2026-10-31T07:52:11.234Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/ngay-mai-khong-he-ton-tai/chap5",
+                "pages": 28,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.webp",
+                    "14.jpg",
+                    "15.jpg",
+                    "16.jpg",
+                    "17.webp",
+                    "18.webp",
+                    "19.jpg",
+                    "20.webp",
+                    "21.jpg",
+                    "22.webp",
+                    "23.webp",
+                    "24.jpg",
+                    "25.jpg",
+                    "26.jpg",
+                    "27.jpg",
+                    "28.webp"
+                ]
             }
         ],
-        "isRawCaughtUp": false
+        "isRawCaughtUp": true
     },
     "oleander-on-the-moon": {
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/oleander-on-the-moon/cover.webp",
