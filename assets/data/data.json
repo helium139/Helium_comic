@@ -5163,6 +5163,32 @@
                     "15.webp",
                     "16.webp"
                 ]
+            },
+            {
+                "id": 25,
+                "title": "Chap 25",
+                "createAt": "2026-10-31T07:27:56.848Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chinh-la-toi/chap25",
+                "pages": 17,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.jpg",
+                    "9.webp",
+                    "10.webp",
+                    "11.webp",
+                    "12.webp",
+                    "13.jpg",
+                    "14.webp",
+                    "15.webp",
+                    "16.webp",
+                    "17.webp"
+                ]
             }
         ],
         "isRawCaughtUp": true
