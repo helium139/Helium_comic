@@ -5608,6 +5608,46 @@
                     "57.webp",
                     "58.webp"
                 ]
+            },
+            {
+                "id": 47,
+                "title": "Chap 47",
+                "createAt": "2026-10-31T07:39:58.780Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/hoan-hwan/chap47",
+                "pages": 31,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.webp",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.webp",
+                    "15.jpg",
+                    "16.jpg",
+                    "17.webp",
+                    "18.webp",
+                    "19.jpg",
+                    "20.jpg",
+                    "21.webp",
+                    "22.jpg",
+                    "23.webp",
+                    "24.webp",
+                    "25.jpg",
+                    "26.jpg",
+                    "27.jpg",
+                    "28.jpg",
+                    "29.jpg",
+                    "30.jpg",
+                    "31.webp"
+                ]
             }
         ],
         "isRawCaughtUp": true
