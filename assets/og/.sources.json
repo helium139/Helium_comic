@@ -333,6 +333,15 @@
       "cover_width": 480,
       "cover_height": 696,
       "image_sha256": "79759019ebb50b95c825eec8f6f99663864d23205bd27c86a901d68d143a88ec"
+    },
+    "rut-partner": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/rut-partner/cover-3ebbee99-d251-484f-bc55-61cdd32c4cad.webp",
+      "etag": "\"4a34dca3320f607fd6a309690fdbbb8e\"",
+      "last_modified": "Mon, 02 Nov 2026 17:23:57 GMT",
+      "cover_sha256": "5cf4317892c1277fabbb703efdce92f0e78e0fa5a9befeabd6b9f65be06faf96",
+      "cover_width": 480,
+      "cover_height": 694,
+      "image_sha256": "77a628369dc67126b325c8eb0b1eea0d840c4446686bdb552b40943ee752beb9"
     }
   }
 }
