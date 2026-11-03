@@ -10,7 +10,7 @@ let mangaData = {};
 let currentPage = 1;
 const perPage =
 window.innerWidth <= 768
-? 9
+? 10
 : 12;
 
 function renderComics() {
