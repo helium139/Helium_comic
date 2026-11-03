@@ -342,6 +342,15 @@
       "cover_width": 480,
       "cover_height": 694,
       "image_sha256": "77a628369dc67126b325c8eb0b1eea0d840c4446686bdb552b40943ee752beb9"
+    },
+    "xin-cuu-con-khoi-cai-ac": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xin-cuu-con-khoi-cai-ac/cover-f3c44a1f-5208-4e55-aa1b-e389b733ed48.webp",
+      "etag": "\"8710ce8fb257bb3514b58356d8b43d9e\"",
+      "last_modified": "Tue, 03 Nov 2026 18:15:28 GMT",
+      "cover_sha256": "76bb1d53342110b71db225af1c0e9a005914adbf0a06e85baf7c53054e2c0c0f",
+      "cover_width": 315,
+      "cover_height": 415,
+      "image_sha256": "8fff8cc1e684947a1505bb35619d7b83aa1f7f3688f7c1290b1d35e910785f57"
     }
   }
 }
