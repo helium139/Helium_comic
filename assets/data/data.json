@@ -6707,6 +6707,25 @@
                     "47.webp",
                     "48.webp"
                 ]
+            },
+            {
+                "id": 18,
+                "title": "Chap 18",
+                "createAt": "2026-11-03T18:34:32.757Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/chap18",
+                "pages": 10,
+                "images": [
+                    "1.png",
+                    "2.png",
+                    "3.png",
+                    "4.png",
+                    "5.png",
+                    "6.png",
+                    "7.png",
+                    "8.png",
+                    "9.png",
+                    "10.webp"
+                ]
             }
         ],
         "isRawCaughtUp": false
