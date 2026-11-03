@@ -6726,6 +6726,26 @@
                     "9.png",
                     "10.webp"
                 ]
+            },
+            {
+                "id": 19,
+                "title": "Chap 19",
+                "createAt": "2026-11-03T18:36:17.604Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/name-me/chap19",
+                "pages": 11,
+                "images": [
+                    "1.png",
+                    "2.png",
+                    "3.png",
+                    "4.png",
+                    "5.png",
+                    "6.png",
+                    "7.png",
+                    "8.png",
+                    "9.png",
+                    "10.png",
+                    "11.webp"
+                ]
             }
         ],
         "isRawCaughtUp": false
