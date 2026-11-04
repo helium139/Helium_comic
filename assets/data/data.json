@@ -13208,6 +13208,22 @@
                     "29.webp",
                     "30.webp"
                 ]
+            },
+            {
+                "id": 7,
+                "title": "Chap 7",
+                "createAt": "2026-11-04T06:07:15.326Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/shoegazing-khuc-ca-cui-au/chap7",
+                "pages": 7,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/shoegazing-khuc-ca-cui-au/cover-c69d4e11-60b4-43df-9435-b381df3ddb81.webp"
