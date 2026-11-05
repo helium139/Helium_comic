@@ -13745,9 +13745,9 @@
         "chapters": [
             {
                 "id": 1,
-                "title": "Chap 1",
-                "createAt": "2026-11-05T17:10:22.699Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/guild-member-next-door-ngoai-truyen/chap1",
+                "title": "Ngoại Truyện 1",
+                "createAt": "2026-11-05T00:00:00.000Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/guild-member-next-door-ngoai-truyen/chap1/_revision-1793899092300-1965734815",
                 "pages": 40,
                 "images": [
                     "1.webp",
