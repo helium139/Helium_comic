@@ -13641,7 +13641,49 @@
         "team": "HeliumTG",
         "adminPick": true,
         "pickOrder": 10,
-        "chapters": [],
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-11-05T12:22:29.751Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhat-ky-uoc-meo-hoang-chon-lam-chu/chap1",
+                "pages": 32,
+                "images": [
+                    "1.webp",
+                    "2.webp",
+                    "3.webp",
+                    "4.webp",
+                    "5.webp",
+                    "6.webp",
+                    "7.webp",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp",
+                    "11.webp",
+                    "12.webp",
+                    "13.webp",
+                    "14.webp",
+                    "15.webp",
+                    "16.webp",
+                    "17.webp",
+                    "18.webp",
+                    "19.webp",
+                    "20.webp",
+                    "21.webp",
+                    "22.webp",
+                    "23.webp",
+                    "24.webp",
+                    "25.webp",
+                    "26.webp",
+                    "27.webp",
+                    "28.webp",
+                    "29.webp",
+                    "30.webp",
+                    "31.webp",
+                    "32.webp"
+                ]
+            }
+        ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhat-ky-uoc-meo-hoang-chon-lam-chu/cover-3964b5ef-3c7e-4566-b244-1c9ce33bce79.webp"
     }
 }
