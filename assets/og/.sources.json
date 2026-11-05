@@ -360,6 +360,15 @@
       "cover_width": 315,
       "cover_height": 415,
       "image_sha256": "0b4271a51fad15edb0a17967187633ec6f6507440946fab2b38f80712a8647fb"
+    },
+    "guild-member-next-door-ngoai-truyen": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/guild-member-next-door-ngoai-truyen/cover-3cde3d8a-905f-4bd0-b5ad-6da7e8b0cebf.webp",
+      "etag": "\"61641a404c16172f065dd6c5a824af4b\"",
+      "last_modified": "Thu, 05 Nov 2026 17:08:23 GMT",
+      "cover_sha256": "8d84d81f6981e93a407c311d3861a1755ce02fa3b22cf57f201c26e35ef49c3e",
+      "cover_width": 720,
+      "cover_height": 720,
+      "image_sha256": "e4ce7cf4bc617051a4ab33ce6e73d30f4a07fafe044684f703dc572d5a58ac1c"
     }
   }
 }
