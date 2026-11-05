@@ -13412,6 +13412,32 @@
                     "39.webp",
                     "40.webp"
                 ]
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2026-11-05T06:01:56.885Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/rut-partner/chap2",
+                "pages": 17,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.jpg",
+                    "15.jpg",
+                    "16.jpg",
+                    "17.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/rut-partner/cover-3ebbee99-d251-484f-bc55-61cdd32c4cad.webp"
