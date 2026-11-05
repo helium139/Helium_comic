@@ -351,6 +351,15 @@
       "cover_width": 315,
       "cover_height": 415,
       "image_sha256": "8fff8cc1e684947a1505bb35619d7b83aa1f7f3688f7c1290b1d35e910785f57"
+    },
+    "nhat-ky-uoc-meo-hoang-chon-lam-chu": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhat-ky-uoc-meo-hoang-chon-lam-chu/cover-3964b5ef-3c7e-4566-b244-1c9ce33bce79.webp",
+      "etag": "\"98053bbe6460457a8afdf570ca906cb1\"",
+      "last_modified": "Thu, 05 Nov 2026 12:20:58 GMT",
+      "cover_sha256": "223139df654ee6b1746ff8b4a1474456355f4de8aa3aaab4b131c689ea9ea4d6",
+      "cover_width": 315,
+      "cover_height": 415,
+      "image_sha256": "0b4271a51fad15edb0a17967187633ec6f6507440946fab2b38f80712a8647fb"
     }
   }
 }
