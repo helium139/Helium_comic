@@ -13731,6 +13731,23 @@
                     "6.jpg",
                     "7.jpg"
                 ]
+            },
+            {
+                "id": 5,
+                "title": "Chap 5",
+                "createAt": "2026-11-06T17:27:43.033Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/rut-partner/chap5",
+                "pages": 8,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/rut-partner/cover-3ebbee99-d251-484f-bc55-61cdd32c4cad.webp"
