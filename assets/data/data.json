@@ -14669,6 +14669,22 @@
                     "35.webp",
                     "36.webp"
                 ]
+            },
+            {
+                "id": 2,
+                "title": "Chap 2",
+                "createAt": "2026-11-10T15:51:36.005Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xin-cuu-con-khoi-cai-ac/chap2",
+                "pages": 7,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/xin-cuu-con-khoi-cai-ac/cover-f3c44a1f-5208-4e55-aa1b-e389b733ed48.webp"
