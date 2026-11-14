@@ -5,6 +5,10 @@ import {resolveChapter} from "./catalogue.mjs";
 export function createViewService({db, timestamp, secret, catalogue, clock = Date.now}) {
   const ref = (path) => db.doc(path);
   const read = async (tx, path) => (await tx.get(ref(path))).data();
+  // A single transactional BatchGet RPC per independent read phase. Keep phases
+  // separate so rejected/duplicate requests do not read later accounting scopes.
+  const readMany = async (tx, paths) => (await tx.getAll(...paths.map(ref)))
+      .map((snapshot) => snapshot.data());
   function ratePaths(reader, type) {
     return [
       {key: reader.deviceHash, limit: "reader"},
@@ -32,8 +36,9 @@ export function createViewService({db, timestamp, secret, catalogue, clock = Dat
         return {sessionId, expiresAt: millis(previous.expiresAt), minimumActiveMs: p.minimumMs};
       }
       const rates = ratePaths(reader, "starts");
-      for (const rate of rates) {
-        rate.times = recent(await read(tx, rate.path), now);
+      const rateData = await readMany(tx, rates.map((rate) => rate.path));
+      for (const [index, rate] of rates.entries()) {
+        rate.times = recent(rateData[index], now);
         const limit = rate.limit === "reader" ? p.readerSessionHourlyLimit : p.networkSessionHourlyLimit;
         if (rate.times.length >= limit) deny("resource-exhausted", "View session rate limit reached");
       }
@@ -75,19 +80,18 @@ export function createViewService({db, timestamp, secret, catalogue, clock = Dat
       const chapter = resolveChapter(snapshot, session.mangaId, session.chapterId);
       if (chapter.teamId !== session.teamId) deny("failed-precondition", "Chapter ownership changed; start a new session");
       const keys = [reader.deviceHash, ...(reader.accountHash ? [reader.accountHash] : [])];
-      const dedups = [];
-      for (const key of keys) {
-        const path = `viewDedup/${hash(secret, "chapter-dedup-v1", key, session.mangaId, session.chapterId)}`;
-        dedups.push({path, data: await read(tx, path)});
-      }
+      const dedupPaths = keys.map((key) => `viewDedup/${hash(secret, "chapter-dedup-v1", key, session.mangaId, session.chapterId)}`);
+      const dedupData = await readMany(tx, dedupPaths);
+      const dedups = dedupPaths.map((path, index) => ({path, data: dedupData[index]}));
       const finish = (outcome) => {
         tx.update(ref(sessionPath), {consumed: true, consumedAt: timestamp(now), outcome});
         return outcome;
       };
       if (dedups.some((item) => millis(item.data?.nextEligibleAt) > now)) return finish({accepted: false, reason: "duplicate"});
       const rates = ratePaths(reader, "accepted");
-      for (const rate of rates) {
-        rate.times = recent(await read(tx, rate.path), now);
+      const rateData = await readMany(tx, rates.map((rate) => rate.path));
+      for (const [index, rate] of rates.entries()) {
+        rate.times = recent(rateData[index], now);
         const limit = rate.limit === "reader" ? p.readerHourlyLimit : p.networkHourlyLimit;
         if (rate.times.length >= limit) return finish({accepted: false, reason: "rate-limited"});
       }
@@ -96,10 +100,13 @@ export function createViewService({db, timestamp, secret, catalogue, clock = Dat
       for (const scope of scopeDescriptors(session.teamId, session.mangaId, session.chapterId)) {
         for (const period of ["all", month]) {
           const path = `analyticsScopes/${scope.scopeId}/periods/${period}`;
-          const previous = await read(tx, path);
-          aggregates.push({path, scope, period, previous});
+          aggregates.push({path, scope, period});
         }
       }
+      const aggregateData = await readMany(tx, aggregates.map((item) => item.path));
+      aggregates.forEach((item, index) => {
+        item.previous = aggregateData[index];
+      });
       // Every read above precedes every write. Firestore retries re-check dedup/rates/counters.
       const createdAt = timestamp(now);
       tx.create(ref(`chapterViewEvents/${sessionId}`), {

@@ -10,13 +10,18 @@ const clone = value => value instanceof Stamp ? new Stamp(value.value) : Array.i
 export function memoryDb() {
     const documents = new Map(); let tail = Promise.resolve();
     const db = {
-        documents, writes: 0,
+        documents, writes: 0, readCalls: [],
         doc(path) { return { path, get: async () => ({ data: () => clone(documents.get(path)) }) }; },
         runTransaction(operation) {
             const run = tail.then(async () => {
                 const pending = []; let writing = false;
                 const result = await operation({
-                    get: async ref => { assert.equal(writing, false, 'Firestore reads must precede writes'); return { data: () => clone(documents.get(ref.path)) }; },
+                    get: async ref => { assert.equal(writing, false, 'Firestore reads must precede writes'); db.readCalls.push([ref.path]); return { data: () => clone(documents.get(ref.path)) }; },
+                    getAll: async (...refs) => {
+                        assert.equal(writing, false, 'Firestore reads must precede writes');
+                        db.readCalls.push(refs.map(ref => ref.path));
+                        return refs.map(ref => ({ data: () => clone(documents.get(ref.path)) }));
+                    },
                     create(ref, data) { writing = true; assert.equal(documents.has(ref.path), false); pending.push([ref.path, data]); },
                     set(ref, data) { writing = true; pending.push([ref.path, data]); },
                     update(ref, data) { writing = true; pending.push([ref.path, { ...documents.get(ref.path), ...data }]); }
@@ -95,6 +100,57 @@ test('guests and authenticated readers create immutable events and eight aggrega
         assert.equal(h.db.writes, writes);
         assert.equal(JSON.stringify(h.db.documents.get(`chapterViewEvents/${session.sessionId}`)), snapshot);
     }
+});
+
+test('transaction batches independent reads but preserves early dedup and rate rejection phases', async () => {
+    for (const uid of [null, 'verified-user']) {
+        const h = harness(), actor = {uid, network: 'network'};
+        const session = await h.start(0, actor);
+        assert.deepEqual(h.db.readCalls.map(paths => paths.length), [1, 1, uid ? 3 : 2]);
+        h.db.readCalls.length = 0;
+        h.advance(10000);
+        assert.equal((await h.record(session, actor)).accepted, true);
+        assert.deepEqual(h.db.readCalls.map(paths => paths.length), [1, 1, uid ? 2 : 1, uid ? 3 : 2, 8]);
+        const duplicate = await h.start(0, actor);
+        h.advance(10000); h.db.readCalls.length = 0;
+        assert.deepEqual(await h.record(duplicate, actor), {accepted: false, reason: 'duplicate'});
+        assert.deepEqual(h.db.readCalls.map(paths => paths.length), [1, 1, uid ? 2 : 1]);
+        assert.equal(h.db.readCalls.flat().some(path => path.startsWith('analyticsScopes/')), false);
+    }
+});
+
+test('a failed transactional batch writes nothing and the same request can safely retry', async () => {
+    const h = harness(), session = await h.start();
+    h.advance(10000);
+    const original = h.db.runTransaction;
+    h.db.runTransaction = operation => original(tx => operation({...tx,
+        getAll: async (...refs) => {
+            if (refs.some(ref => ref.path.startsWith('analyticsScopes/'))) throw new Error('Batch unavailable');
+            return tx.getAll(...refs);
+        }}));
+    const before = h.db.writes;
+    await assert.rejects(h.record(session), /Batch unavailable/);
+    assert.equal(h.db.writes, before);
+    assert.equal(h.db.documents.get(`chapterViewSessions/${session.sessionId}`).consumed, false);
+    h.db.runTransaction = original;
+    assert.equal((await h.record(session)).accepted, true);
+    const writes = h.db.writes;
+    assert.equal((await h.record(session)).accepted, true);
+    assert.equal(h.db.writes, writes);
+});
+
+test('accepted-rate rejection consumes only the receipt and never reads or writes accounting aggregates', async () => {
+    const h = harness();
+    h.db.documents.get('viewSystem/config').readerHourlyLimit = 1;
+    const first = await h.start(0);
+    h.advance(10000); assert.equal((await h.record(first)).accepted, true);
+    const second = await h.start(1);
+    h.advance(10000); h.db.readCalls.length = 0;
+    const before = h.db.writes;
+    assert.deepEqual(await h.record(second), {accepted: false, reason: 'rate-limited'});
+    assert.equal(h.db.writes - before, 1);
+    assert.deepEqual(h.db.readCalls.map(paths => paths.length), [1, 1, 1, 2]);
+    assert.equal(h.db.readCalls.flat().some(path => path.startsWith('analyticsScopes/')), false);
 });
 
 test('refreshes/concurrent tabs dedup atomically; different chapters and exact rolling 24h remain eligible', async () => {
