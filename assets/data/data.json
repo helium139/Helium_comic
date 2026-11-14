@@ -15395,6 +15395,22 @@
                     "5.jpg",
                     "6.jpg"
                 ]
+            },
+            {
+                "id": 6,
+                "title": "Chap 6",
+                "createAt": "2026-11-14T11:24:35.965Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhat-ky-uoc-meo-hoang-chon-lam-chu/chap6",
+                "pages": 7,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhat-ky-uoc-meo-hoang-chon-lam-chu/cover-3964b5ef-3c7e-4566-b244-1c9ce33bce79.webp"
