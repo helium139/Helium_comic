@@ -2269,6 +2269,32 @@
                     "33.webp",
                     "34.webp"
                 ]
+            },
+            {
+                "id": 54,
+                "title": "Chap 54",
+                "createAt": "2026-11-15T13:37:18.352Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/toi-co-the-nhin-thay-thong-so-cua-cau/chap54",
+                "pages": 17,
+                "images": [
+                    "1.webp",
+                    "2.jpg",
+                    "3.webp",
+                    "4.jpg",
+                    "5.webp",
+                    "6.webp",
+                    "7.jpg",
+                    "8.webp",
+                    "9.webp",
+                    "10.webp",
+                    "11.jpg",
+                    "12.webp",
+                    "13.webp",
+                    "14.jpg",
+                    "15.webp",
+                    "16.webp",
+                    "17.webp"
+                ]
             }
         ],
         "isRawCaughtUp": false
