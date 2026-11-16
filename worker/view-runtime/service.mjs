@@ -30,8 +30,8 @@ export function createD1Views({db,secret,catalogue,clock=Date.now,onMetrics=()=>
   const id=hash(secret,'session-v1',r.deviceHash,r.uid,data.requestId,ch.mangaId,ch.chapterId);
   const now=clock(),c=await getConfig(),p=policy(c),a=activation(c,now);
   const args=[id,r.uid,r.deviceHash,r.accountHash,r.networkHash,ch.teamId,ch.mangaId,ch.chapterId,ch.catalogueRevision,a,p.policyVersion,now,now+p.sessionMs,now+172800000,now];
-  const rows=await batch([stmt('INSERT INTO sessions(id,uid,device,account,network,team,manga,chapter,revision,activation,version,started,expires,delete_after,at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',args),stmt('SELECT * FROM sessions WHERE id=?',[id])],'start');
-  const s=rows[1].results[0];
+  const rows=await batch([stmt('INSERT INTO sessions(id,uid,device,account,network,team,manga,chapter,revision,activation,version,started,expires,delete_after,at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING RETURNING id,expires',args)],'start');
+  const s=rows[0].results[0]||await one('SELECT id,expires FROM sessions WHERE id=?',[id],'start-replay');
   if(s.expires<=now) deny('deadline-exceeded','View session expired');
   return {sessionId:id,expiresAt:s.expires,minimumActiveMs:p.minimumMs};
  }
@@ -54,12 +54,11 @@ export function createD1Views({db,secret,catalogue,clock=Date.now,onMetrics=()=>
   // Parameter order: account twice (value + null guard), network, decision time.
   const now=clock(),rateArgs=[r.accountHash,r.accountHash,r.networkHash,now];
   const args=[now,r.accountHash,r.networkHash,ch.catalogueRevision,r.uid,...dedupIds,...dedupIds,now,...rateArgs,...dedupIds,now,...rateArgs,id];
-  const queries=[stmt(sql,args)];
+  const queries=[stmt(sql+' RETURNING id,accepted,reason',args)];
   if(failure('after-record')) queries.push(stmt('INSERT INTO deliberately_missing_table VALUES(1)'));
-  queries.push(stmt('SELECT * FROM sessions WHERE id=?',[id]));
   const result=await batch(queries,'record');
   if(failure('after-commit')) throw new Error('Synthetic response lost after commit');
-  return finish(result.at(-1).results[0]);
+  return finish(result[0].results[0]||await one('SELECT id,accepted,reason FROM sessions WHERE id=?',[id],'record-raced-replay'));
  }
  async function analytics(data,actor) {
   const scope=authorizeAnalytics(actor,data.scopeId),parts=data.scopeId.split(':');

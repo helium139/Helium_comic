@@ -1,5 +1,11 @@
 # Free-only migration candidate — not deployed
 
+Independent authority entry: authority-runtime.mjs (no view/Sheets tables/secrets).
+Review docs/authority-independent-review.md and docs/view-free-design-review.md
+for the separate A/B decisions and refined cleanup sizing. Google is the current
+writer, not an accepted final view architecture. authority-pilot-plan.json is the
+smaller standalone proposal; no resources have been approved or created.
+
 Production A remains the only writer. Workers/D1 **Free** are required. No Paid,
 Billing, subscription or existing R2 change is proposed. Never recreate retired push
 or health Functions. Frontend defaults and Google writer remain Google.

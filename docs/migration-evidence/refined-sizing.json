@@ -1,0 +1,100 @@
+{
+  "status": "sensitivity-not-accepted-view-normalization",
+  "source": "reused post-A saved windows; no collector or production telemetry",
+  "outcomeMixKnown": false,
+  "accountDailyD1UsageKnown": false,
+  "workersHTTPWithReportedExistingSensitivity": [
+    21763,
+    40536
+  ],
+  "scenarios": [
+    {
+      "scale": 1,
+      "authenticatedShareAssumption": 0,
+      "allRecordAcceptedForSizing": true,
+      "foregroundWrites": 40470,
+      "sessionDeletes": 6916,
+      "rateDeleteUpper": 20406,
+      "dedupDeleteUpper": 3287,
+      "writesWithAssumedReserve": [
+        52387,
+        76080
+      ],
+      "writesIfExpiredKeysKnown": null,
+      "remainingDailyWrites": [
+        23920,
+        47613
+      ],
+      "sharedWritesVerified": false,
+      "remainingReadQuota": null,
+      "headroom25Percent": "not-proven",
+      "cloudCPUVerified": false
+    },
+    {
+      "scale": 1,
+      "authenticatedShareAssumption": 1,
+      "allRecordAcceptedForSizing": true,
+      "foregroundWrites": 53960,
+      "sessionDeletes": 6916,
+      "rateDeleteUpper": 30609,
+      "dedupDeleteUpper": 6574,
+      "writesWithAssumedReserve": [
+        65877,
+        103060
+      ],
+      "writesIfExpiredKeysKnown": null,
+      "remainingDailyWrites": [
+        -3060,
+        34123
+      ],
+      "sharedWritesVerified": false,
+      "remainingReadQuota": null,
+      "headroom25Percent": "not-proven",
+      "cloudCPUVerified": false
+    },
+    {
+      "scale": 2,
+      "authenticatedShareAssumption": 0,
+      "allRecordAcceptedForSizing": true,
+      "foregroundWrites": 80940,
+      "sessionDeletes": 13832,
+      "rateDeleteUpper": 40812,
+      "dedupDeleteUpper": 6574,
+      "writesWithAssumedReserve": [
+        99773,
+        147159
+      ],
+      "writesIfExpiredKeysKnown": null,
+      "remainingDailyWrites": [
+        -47159,
+        227
+      ],
+      "sharedWritesVerified": false,
+      "remainingReadQuota": null,
+      "headroom25Percent": "not-proven",
+      "cloudCPUVerified": false
+    },
+    {
+      "scale": 2,
+      "authenticatedShareAssumption": 1,
+      "allRecordAcceptedForSizing": true,
+      "foregroundWrites": 107920,
+      "sessionDeletes": 13832,
+      "rateDeleteUpper": 61218,
+      "dedupDeleteUpper": 13148,
+      "writesWithAssumedReserve": [
+        126753,
+        201119
+      ],
+      "writesIfExpiredKeysKnown": null,
+      "remainingDailyWrites": [
+        -101119,
+        -26753
+      ],
+      "sharedWritesVerified": false,
+      "remainingReadQuota": null,
+      "headroom25Percent": "not-proven",
+      "cloudCPUVerified": false
+    }
+  ]
+}

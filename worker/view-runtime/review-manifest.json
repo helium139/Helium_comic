@@ -1,5 +1,9 @@
 {
-  "status": "local-tested-full-free-cutover-no-go",
+  "status": "draft-independent-authority-pilot-preparation-and-view-redesign-review",
+  "authorityDecision": "local package/plan ready; cloud CPU/account headroom/IAM unverified",
+  "viewDecision": "current full design no-go for guaranteed2x, retention and large reports; Google not accepted final architecture",
+  "independentAuthorityEntry": "authority-runtime.mjs",
+  "decisionDocuments": ["docs/authority-independent-review.md","docs/view-free-design-review.md"],
   "requiredWorkersPlan": "Free",
   "requiredD1Plan": "Free",
   "productionCutoverEnabled": false,

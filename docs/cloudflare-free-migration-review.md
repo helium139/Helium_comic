@@ -1,5 +1,10 @@
 # Free migration review — 16 November 2026
 
+The later independent decisions in authority-independent-review.md and
+view-free-design-review.md supersede this first single-point estimate. Google is
+the current production state, NOT an accepted final view architecture. Refined
+cleanup bounds and an independently testable authority entry point are provided.
+
 ## Release
 
 PR6 merge51ca9a9490f95a0a185c9207c2d1fe579662e51e is the branch base.
@@ -46,7 +51,7 @@ Current-schema Miniflare measurements (`test-migration-quota.mjs`):
 | Outcome |Guest reads/writes|Auth reads/writes|
 |---|---:|---:|
 |Start|6/3|6/4|
-|Start replay|4/0|4/0|
+|Start replay (before RETURNING revision)|4/0|4/0|
 |Accepted Record|11/6|11/8|
 |Consumed Record replay|1/0|1/0|
 |Duplicate Record|10/1|8/1|

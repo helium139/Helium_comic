@@ -1,5 +1,6 @@
 {
-  "status":"proposal-only-not-created",
+  "status":"view-pilot-not-ready-not-approved-or-created",
+  "independentAuthorityPilotPlan":"authority-pilot-plan.json",
   "approvalRequiredBeforeCreation":true,
   "workersPlan":"Free",
   "billingMutationAllowed":false,
