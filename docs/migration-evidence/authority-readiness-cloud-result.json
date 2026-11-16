@@ -1,0 +1,178 @@
+{
+  "at": "2026-11-16T21:03:05.414Z",
+  "commit": "bb9a5da5e0bb2444eab4d264991459763bfd5622",
+  "ci": {
+    "synthetic": "success",
+    "regression": "success"
+  },
+  "decision": "INCONCLUSIVE / not passed: one readiness journaled, no response captured",
+  "resources": {
+    "worker": "helium-authority-fixture-20261116",
+    "databaseId": "ee5d9c49-9db4-479a-92e2-22b8e19d22bc"
+  },
+  "workload": {
+    "readinessJournaled": 1,
+    "readinessResponsesCaptured": 0,
+    "readinessWireDelivery": "unverified",
+    "resolve": 0,
+    "set": 0,
+    "retries": 0
+  },
+  "request": {
+    "id": "readiness-bb9a5da5-once",
+    "issuedAt": "2026-11-16T20:56:28.845Z",
+    "httpStatus": null,
+    "contentType": null,
+    "redirectMetadata": null,
+    "sanitizedErrorBody": null
+  },
+  "artifact": {
+    "bundleSHA": "05fcdd7f7adf52e7e4198f23795b302e500ad9d20e1bc602546d747ea2dc5482",
+    "buildFingerprint": "b92119e2a82252ab0945f5ec0572ca92407be645df68cb421a31be1dcb8b29ef",
+    "uploadedAndActiveVersion": "200c526c-1e9f-41c0-86f8-03a725ee2f2a",
+    "activeDeploymentId": "327ff493-9f13-4bef-a47d-c71429d67188",
+    "legacyUploadId": "200c526c1e9f41c086f803a725ee2f2a",
+    "normalizedLegacyMatchesVersion": true,
+    "artifactHashMatchedLocal": true,
+    "runtimeVersionObserved": null,
+    "runtimeFingerprintObserved": null
+  },
+  "verifiedCause": {
+    "preflight": "Runner compared legacy upload version identifier to deployment object identifier; corrected and normalized upload matches active version",
+    "originalMissingMetrics": "still unknown",
+    "currentMissingResponse": "response capture did not complete; supervisor snapshot incorrectly said0 requests, later immutable issued journal established1. Exact termination/network cause unverified"
+  },
+  "endpoint": {
+    "workersDev": false,
+    "previews": false,
+    "verified": true,
+    "at": "2026-11-16T20:58:18.390Z"
+  },
+  "usage": {
+    "controlBefore": 44,
+    "controlAfter": 56,
+    "newControlIssued": 12,
+    "controlCap": 56,
+    "cap59AnnouncedButNotApplied": true,
+    "cumulativeWorkloadJournaled": 43,
+    "cumulativeControlPlusWorkload": 99,
+    "conservativeHTTP": 99,
+    "conservativeRowsRead": 892,
+    "conservativeRowsWritten": 401,
+    "previousRetainedRowsRead": 828,
+    "previousRetainedRowsWritten": 369,
+    "newUnknownReadinessReservation": {
+      "read": 64,
+      "write": 32
+    },
+    "readinessExpectedSQL": 0,
+    "actualNewSQL": "not measured; full64R/32W reserve held because runtime response/version unobserved",
+    "lastMeasuredDatabaseBytes": 57344,
+    "limits": {
+      "http": 250,
+      "read": 5000,
+      "write": 2000,
+      "bytes": 1048576
+    }
+  },
+  "journalProof": {
+    "originalUnchanged": true,
+    "originalSHA": "11bc756825c62c18bcbd8102c43d60b205b0e460b84e940faafd0ed8bab938a7",
+    "readinessSHA": "c2db4afa6dfd96757d8fd2ae0bc600c1d9c5aa8d89578ed62e51f67c24ff950a",
+    "allPriorReservationsHeld": true
+  },
+  "notes": [
+    "no additional readiness after issued journal discovered",
+    "log query failed; no provider CPU/HTTP evidence",
+    "no readiness CPU attributed to application",
+    "no subsequent request called true-cold",
+    "Workers Free/Billing/production/CMS/R2 unchanged; no new resource",
+    "no Google transport / benchmark / SET followup"
+  ],
+  "controlSequence": [
+    {
+      "method": "PUT",
+      "route": "workers/scripts/helium-authority-fixture-20261116",
+      "issuedAt": "2026-11-16T20:53:55.033Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/deployments",
+      "issuedAt": "2026-11-16T20:53:57.037Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:53:57.743Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:53:58.603Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/deployments",
+      "issuedAt": "2026-11-16T20:56:17.103Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:56:17.985Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:57:09.636Z",
+      "status": null,
+      "success": null
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:57:14.646Z",
+      "status": null,
+      "success": null
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:57:19.657Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:57:56.709Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "issuedAt": "2026-11-16T20:58:17.489Z",
+      "status": 200,
+      "success": true
+    },
+    {
+      "method": "POST",
+      "route": "workers/observability/telemetry/query",
+      "issuedAt": "2026-11-16T21:00:57.134Z",
+      "status": null,
+      "success": false
+    }
+  ]
+}

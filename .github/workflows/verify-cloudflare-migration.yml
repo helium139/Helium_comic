@@ -17,7 +17,7 @@ jobs:
       - name: Independent authority and revised view/archive sizing
         run: node --test scripts/test-authority-independent.mjs scripts/test-view-bounded-rate.mjs scripts/test-archive-local.mjs scripts/test-free-sizing.mjs
       - name: Authority pilot controller only, no cloud requests
-        run: node --test scripts/test-authority-pilot-control.mjs scripts/test-authority-cpu-candidate.mjs scripts/test-authority-pilot-diagnostics.mjs
+        run: node --test scripts/test-authority-pilot-control.mjs scripts/test-authority-cpu-candidate.mjs scripts/test-authority-pilot-diagnostics.mjs scripts/test-authority-pilot-cleanup.mjs
       - run: node --test scripts/test-cloudflare-view-migration.mjs scripts/test-migration-transfer.mjs scripts/test-migration-identity.mjs scripts/test-migration-bridge.mjs scripts/test-migration-quota.mjs scripts/test-migration-authority-rules.mjs scripts/test-worker-authorization.mjs scripts/test-staff-access.mjs
       - name: Candidate bundle correctness only (no cloud)
         run: |
