@@ -18,6 +18,7 @@ export async function runMeasurementClient({baseURL,approvedHost,steps,getSynthe
   const reserved={http:1,read:64,write:32};budget.reserve(reserved);
   await journal({id:step.id,state:'issued',reservation:reserved,budget:budget.snapshot()});
   const headers={'Content-Type':'application/json','X-Helium-Pilot-Key':pilotSecret,'X-Helium-Pilot-Crypto':step.cryptoCase};
+  if(step.scenario){if(!['disabled','revoked','fail-claims'].includes(step.scenario))throw Error('Invalid mock scenario');headers['X-Helium-Pilot-Scenario']=step.scenario;}
   if(method==='POST')headers.Authorization='Bearer '+await getSyntheticJWT(step);
   const started=now();let response;
   try{response=await fetchImpl(new URL(step.name+'?pilotCase='+step.id,base),{method,headers,body:method==='POST'?JSON.stringify({data:step.data||{}}):undefined,redirect:'error',signal:AbortSignal.timeout(15000)});}catch{await journal({id:step.id,state:'unknown-stop',budget:budget.snapshot()});throw Error('Unknown request outcome; reservation retained; no retry');}

@@ -28,7 +28,7 @@ export function createGoogleIdentityBridge({getAccessToken,fetchImpl=fetch,proje
  }
  return {
   getAccount,
-  async setClaims(uid,patch){const account=await getAccount(uid);const claims={...account.customClaims,role:patch.role,accessVersion:patch.accessVersion};if(patch.teamId)claims.teamId=patch.teamId;else delete claims.teamId;return request(`https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:update`,'POST',{localId:[uid],customAttributes:JSON.stringify(claims)});},
+  async setClaims(uid,patch){const account=await getAccount(uid);const claims={...account.customClaims,role:patch.role,accessVersion:patch.accessVersion};if(patch.teamId)claims.teamId=patch.teamId;else delete claims.teamId;return request(`https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:update`,'POST',{localId:uid,customAttributes:JSON.stringify(claims)});},
   patchProfile:(uid,row)=>patch('users',uid,{role:row.role,...(row.teamId?{teamId:row.teamId}:{})},['role','teamId']),
   patchMirror
  };

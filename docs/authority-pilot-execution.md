@@ -1,4 +1,9 @@
-# Approved isolated authority pilot — blocked before resource creation
+# Approved isolated authority pilot — preparation history
+
+LATEST: the user explicitly authorized proceeding on never-used-D1 attestation.
+The cloud pilot completed with a CPU NO-GO for the tested fixture. Current results,
+budgets and disabled-resource inventory are in authority-pilot-cloud-results.md.
+Everything below is historical pre-provisioning preparation, not current inventory.
 
 User approved one Workers Free service and one D1 Free, with synthetic data and
 Google transport mock; no R2, production route, Firebase credential or production

@@ -1,5 +1,9 @@
 # Next real transport proof and undecided revocation lease
 
+LATEST: mock cloud run completed; current instrumented package failed the<=10ms
+criterion. Real Google transport has NOT run. Review CPU design before proposing
+any further run; resources/permissions below still require separate approval.
+
 NOT authorized/executed by the mock pilot approval. No production Firebase access,
 credential, user, mirror, Rules, old writer or Function is changed. Mock CPU/control
 success cannot prove real IAM, OAuth, token revocation, CAS or API quota behavior.

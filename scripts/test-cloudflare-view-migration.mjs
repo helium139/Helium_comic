@@ -75,6 +75,7 @@ test('Cloudflare migration code: D1 reporting retries and authority gates',async
  await t.test('identity bridge preserves unrelated claims/profile fields and masks errors',async()=>{
   const calls=[];const bridge=createGoogleIdentityBridge({getAccessToken:async()=>'synthetic-backend-only',fetchImpl:async(url,options)=>{const body=JSON.parse(options.body);calls.push({url,body});return {ok:true,status:200,json:async()=>url.includes('accounts:lookup')?{users:[{localId:'target',customAttributes:JSON.stringify({role:'team_leader',teamId:'old-team',unrelated:true})}]}:{}};}});
   await bridge.setClaims('target',{role:'user',accessVersion:2});
+  assert.equal(calls.find(c=>c.url.includes('accounts:update')).body.localId,'target');
   const claims=JSON.parse(calls.find(c=>c.url.includes('accounts:update')).body.customAttributes);assert.equal(claims.role,'user');assert.equal(claims.teamId,undefined);assert.equal(claims.unrelated,true);assert.equal(claims.accessVersion,2);
   await bridge.patchProfile('target',{role:'user',teamId:null});const profile=calls.at(-1);assert.match(profile.url,/updateMask.fieldPaths=role/);assert.match(profile.url,/updateMask.fieldPaths=teamId/);assert.deepEqual(Object.keys(profile.body.fields),['role']);
   const mirrorCalls=[];const mirrorBridge=createGoogleIdentityBridge({getAccessToken:async()=>'synthetic',fetchImpl:async(url,options)=>{mirrorCalls.push({url,options});return options.method==='GET'?{ok:false,status:404}:{ok:true,status:200,json:async()=>({})};}});

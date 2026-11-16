@@ -9,6 +9,7 @@
     "jose": "^6.2.12"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "miniflare": "5.20261019.1-beta"
   }
 }
