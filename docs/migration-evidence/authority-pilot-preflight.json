@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-11-16T16:14:57.219Z",
+  "purpose": "approved isolated authority pilot prerequisite",
+  "mutations": false,
+  "requests": [
+    {
+      "label": "account identity",
+      "status": 403,
+      "success": false,
+      "errorCodes": [
+        9109
+      ]
+    }
+  ],
+  "accountVerified": false,
+  "freePlanVerified": false,
+  "remainingQuotaVerified": false,
+  "mayProvision": false,
+  "credentialSource": "local-wrangler",
+  "cachedAccountMatchesExpected": true,
+  "blocker": "Read-only account identity failed (403); no provisioning or further API requests"
+}

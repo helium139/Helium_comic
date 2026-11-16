@@ -1,12 +1,16 @@
 {
-  "status":"review-ready-plan-not-approved-or-created",
+  "status":"conditionally-approved-blocked-by-account-preflight-403-9109",
+  "userApprovalReceived":true,
+  "prerequisitesVerified":false,
+  "resourcesCreated":false,
+  "pilotRun":false,
   "scope":"independent multi-team authority only",
   "entry":"authority-runtime.mjs",
   "workersPlan":"Free",
   "d1Plan":"Free",
   "billingOrR2ChangeAllowed":false,
-  "proposedWorker":"helium-authority-fixture",
-  "proposedD1":"helium-authority-fixture",
+  "proposedWorker":"helium-authority-fixture-20261116",
+  "proposedD1":"helium-authority-fixture-20261116",
   "maxBytes":1048576,
   "maxHTTPIncludingOptions":250,
   "maxRowsRead":5000,
@@ -18,7 +22,7 @@
   "passCriteria":{"maxCPUmsPerInvocation":10,"targetP95CPUms":7,"CPUExceededErrors":0,"correctnessFailures":0},
   "subscriptionIncrementUSD":0,
   "costCondition":"only within verified remaining shared Free allowance",
-  "requiresBeforeExecution":["separate provision approval","shared UTC quota headroom","fixture-only key/transport isolation","exact resource identity and cleanup review"],
+  "requiresBeforeExecution":["verified account identity/Free plan","shared UTC quota headroom","working scoped Cloudflare deployment credential","fixture-only key/transport isolation","durable journal and bounded deployed fixture adapter","exact resource identity and cleanup review"],
   "fullIntegrationStillRequires":["real Google IAM/OAuth mirror/revocation proof in separately approved isolated context"],
-  "cleanupCommandsNotExecuted":["npx wrangler delete --name helium-authority-fixture","npx wrangler d1 delete helium-authority-fixture"]
+  "cleanupCommandsNotExecuted":["npx wrangler delete --name helium-authority-fixture-20261116","npx wrangler d1 delete helium-authority-fixture-20261116"]
 }
