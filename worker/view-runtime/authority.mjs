@@ -37,7 +37,11 @@ export function createAuthority({db,bridge,catalogue,clock=Date.now}){
   if(!currentActor)fail('permission-denied','Current admin required');
   if(typeof data.uid!=='string'||!data.uid||data.uid.length>128||/[\\/]/.test(data.uid)||!['user','admin','team_leader'].includes(data.role))fail('invalid-argument','Invalid access change');
   const team=data.role==='team_leader'?data.teamId:null;
-  if(data.role==='team_leader'&&(!validSlug(team)||!(await catalogue()).teams.some(t=>t.id===team&&t.active)))fail('invalid-argument','Active team required');
+  if(data.role==='team_leader'){
+   if(!validSlug(team))fail('invalid-argument','Active team required');
+   const entry=catalogue.getTeam?await catalogue.getTeam(team):(await catalogue()).teams.find(t=>t.id===team);
+   if(!entry?.active)fail('invalid-argument','Active team required');
+  }
   const target=await q('SELECT * FROM access_rows WHERE uid=?',[data.uid]).first();
   if(!target)fail('failed-precondition','Import/verify target authority first');
   if(target.state==='active'&&target.role===data.role&&target.team_id===team)return {ok:true,alreadyApplied:true,version:target.version};
