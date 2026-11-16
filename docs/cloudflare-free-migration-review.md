@@ -54,7 +54,9 @@ Current-schema Miniflare measurements (`test-migration-quota.mjs`):
 Metadata already includes trigger/index writes: receipt1+ledger/index2+dedup1/2+
 rates2/3. Do not add indexes again. Transients use WITHOUT ROWID primary keys;
 cleanup deletion costs writes. Restore adds2 transfer-mode writes +1 batch receipt
-per<=25 rows plus inserts/indexes; collision/gate SELECTs add reads. No epoch index
+per<=20 rows plus inserts/indexes; collision/gate SELECTs add reads. A20-row import
+uses44 batch statements+3 preflight queries, below Free's50-query invocation limit.
+No epoch index
 or temporary ledger copy was added. Rollback scans<=25 PK rows/page then filters.
 Prior21,606-row Start was already fixed to22 in its saved hot fixture; no repeat
 prototype audit. Exact timestamp histories remain bounded10000, not approximate.
@@ -114,7 +116,7 @@ Firestore counters after D1 accepts views and still claim complete reports.
 4. Future view cutover: explicitly pause BOTH writers; privately export full ledger,
    active sessions/receipts,24h dedup, rate history, immutable snapshots/chunks,
    Sheets IDs/jobs/audit, config and coverage. Operator-sign the manifest; a content
-   hash alone is not trusted-origin proof. Restore<=25rows/batch with gate closed;
+   hash alone is not trusted-origin proof. Restore<=20rows/batch with gate closed;
    reconcile month/team/manga/chapter counts and hashes to originals. Same HMAC,
    policy, activation/catalogue and unique writer epoch are required.
 5. Switch Start+Record together to ONE writer. Signed Google bridge preserves old

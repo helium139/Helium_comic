@@ -13,10 +13,11 @@ const columns={
 };
 const keys={events:['id'],sessions:['id'],rates:['id'],dedup:['id'],reports:['month'],report_chunks:['month','part'],accounting_coverage:['month'],export_jobs:['month'],export_attempts:['id'],access_rows:['uid'],access_audit:['id']};
 export async function installTransfer(db){await db.prepare('CREATE TABLE transfer_batches(id TEXT PRIMARY KEY,hash TEXT NOT NULL,rows INTEGER NOT NULL) WITHOUT ROWID').run();}
-export function sealedBatch(id,table,rows){if(!columns[table]||!Array.isArray(rows)||rows.length>25)throw Error('Bounded known table required');const payload={id,table,rows};return {...payload,hash:sha(canonical(payload))};}
+// <=20 rows =>44 batched statements +3 preflight reads <=47, under Free's50.
+export function sealedBatch(id,table,rows){if(!columns[table]||!Array.isArray(rows)||rows.length>20)throw Error('Bounded known table required');const payload={id,table,rows};return {...payload,hash:sha(canonical(payload))};}
 export async function restoreBatch(db,batch){
  if(batch.hash!==sha(canonical({id:batch.id,table:batch.table,rows:batch.rows})))throw Error('Transfer hash mismatch');
- const cols=columns[batch.table];if(!cols||batch.rows.length>25)throw Error('Unknown/oversized transfer batch');
+ const cols=columns[batch.table];if(!cols||batch.rows.length>20)throw Error('Unknown/oversized transfer batch');
  const gate=await db.prepare('SELECT verified FROM migration_gate WHERE id=1').first();if(gate?.verified!==0)throw Error('Restore forbidden after writer activation');
  const previous=await db.prepare('SELECT hash FROM transfer_batches WHERE id=?').bind(batch.id).first();
  if(previous){if(previous.hash!==batch.hash)throw Error('Transfer ID collision');return {rows:0,replayed:true};}

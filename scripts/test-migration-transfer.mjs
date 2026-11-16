@@ -15,6 +15,7 @@ const secret='synthetic-only-'.repeat(4);
 test('synthetic import/restore, old sessions, atomic views and bounded rollback',async t=>{
  const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:'export default {fetch(){return new Response("local")}}',compatibilityDate:'2026-10-26',d1Databases:{DB:'synthetic-transfer'}}));t.after(()=>mf.dispose());
  const db=await mf.getD1Database('DB');await installSchema(db);await installReportJobs(db);await installTransfer(db);
+ assert.throws(()=>sealedBatch('oversized','dedup',Array(21).fill({})),/Bounded/);
  let now=Date.parse('2026-11-30T23:59:40Z');
  await db.prepare('INSERT INTO config VALUES(1,1,?,?,?,?,?,?)').bind(1,'valid-views-v1',120,2400,360,7200).run();
  const metrics=[],views=createD1Views({db,secret,catalogue:async()=>catalogue,clock:()=>now,onMetrics:m=>metrics.push(m)});
