@@ -3,6 +3,7 @@ const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {defineSecret, defineString, defineBoolean} = require("firebase-functions/params");
 const {Timestamp} = require("firebase-admin/firestore");
 const {logger} = require("firebase-functions");
+const {enforceCurrentAuthority} = require("../authority-config.js");
 const clientId = defineSecret("GOOGLE_REPORT_CLIENT_ID");
 const clientSecret = defineSecret("GOOGLE_REPORT_CLIENT_SECRET");
 const refreshToken = defineSecret("GOOGLE_REPORT_REFRESH_TOKEN");
@@ -51,15 +52,18 @@ exports.createReportEndpoints = (db) => {
       throw new HttpsError("unavailable", "Report service temporarily unavailable");
     }
   };
-  const actor = (request) => ({uid: request.auth?.uid || null, role: request.auth?.token?.role, teamId: request.auth?.token?.teamId});
+  const actor = async (request) => {
+    const {currentActor} = await import("../views/authority-mirror.mjs");
+    return currentActor(db, request, {strict: enforceCurrentAuthority.value()});
+  };
   return {
     getMonthlyViewDashboard: onCall(options, (request) => safe(async () => {
       const {getMonthlyDashboard} = await import("./dashboard.mjs");
-      return getMonthlyDashboard(request.data, actor(request), {db});
+      return getMonthlyDashboard(request.data, await actor(request), {db});
     })),
-    getMonthlyViewReports: onCall(options, (request) => safe(async () => (await service()).history(request.data, actor(request)))),
-    generateMonthlyViewReport: onCall({...options, secrets, timeoutSeconds: 540, memory: "512MiB", concurrency: 1}, (request) => safe(async () => (await service()).generate(request.data, actor(request)))),
-    retryMonthlyViewReport: onCall({...options, secrets, timeoutSeconds: 540, memory: "512MiB", concurrency: 1}, (request) => safe(async () => (await service()).retry(request.data, actor(request)))),
+    getMonthlyViewReports: onCall(options, (request) => safe(async () => (await service()).history(request.data, await actor(request)))),
+    generateMonthlyViewReport: onCall({...options, secrets, timeoutSeconds: 540, memory: "512MiB", concurrency: 1}, (request) => safe(async () => (await service()).generate(request.data, await actor(request)))),
+    retryMonthlyViewReport: onCall({...options, secrets, timeoutSeconds: 540, memory: "512MiB", concurrency: 1}, (request) => safe(async () => (await service()).retry(request.data, await actor(request)))),
     closeMonthlyViewReport: onSchedule({region: "us-central1", schedule: "10 0 1 * *", timeZone: "UTC", secrets,
       retryCount: 5, minBackoffSeconds: 60, maxBackoffSeconds: 3600, maxRetrySeconds: 86400,
       timeoutSeconds: 540, memory: "512MiB", maxInstances: 1, concurrency: 1}, async (event) => {

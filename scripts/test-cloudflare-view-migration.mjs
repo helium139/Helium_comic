@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
-import {readdir} from 'node:fs/promises';
-import path from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {installSchema} from '../worker/view-runtime/schema.mjs';
 import {createD1Views} from '../worker/view-runtime/service.mjs';
@@ -10,9 +8,8 @@ import {installReportJobs,createD1ReportJobs} from '../worker/view-runtime/repor
 import {createMigrationRuntime} from '../worker/view-runtime/runtime.mjs';
 import {installAuthority,createAuthority} from '../worker/view-runtime/authority.mjs';
 import {createGoogleIdentityBridge} from '../worker/view-runtime/google-identity-bridge.mjs';
-const require=createRequire(import.meta.url);let lib;
-for(const entry of await readdir(path.join(process.env.LOCALAPPDATA,'npm-cache/_npx'))){try{lib=require(path.join(process.env.LOCALAPPDATA,'npm-cache/_npx',entry,'node_modules/miniflare'));break;}catch{}}
-if(!lib)throw Error('Existing local Miniflare required; no cloud fallback');
+const require=createRequire(new URL('../worker/package.json',import.meta.url));
+const lib=require('miniflare');
 const cat={revision:'fixture-v1',teams:[{id:'team-a',active:true,name:'A'},{id:'team-b',active:true,name:'B'}],data:{manga:{title:'Fixture',teamId:'team-a',chapters:[{id:'1',pages:1,folder:'https://example.invalid/'}]}}};
 const admin={uid:'fixture-admin',role:'admin'};
 test('Cloudflare migration code: D1 reporting retries and authority gates',async t=>{
@@ -50,7 +47,7 @@ test('Cloudflare migration code: D1 reporting retries and authority gates',async
   const env={DB:db,VIEW_READER_HMAC_KEY:secret,GOOGLE_REPORT_FOLDER_ID:'fixture_folder_123'};
   assert.equal((await runtime.fetch(request(),env)).status,503);
   assert.equal((await runtime.fetch(request(),{...env,CUTOVER_ENABLED:'true'})).status,400);
-  await db.prepare('UPDATE migration_gate SET verified=1,evidence_hash=? WHERE id=1').bind('f'.repeat(64)).run();
+  await db.prepare('UPDATE migration_gate SET verified=1,evidence_hash=?,free_features=?,free_expires=? WHERE id=1').bind('f'.repeat(64),JSON.stringify(['views','reports','analytics','authority']),now+3600000).run();
   const response=await runtime.fetch(request(),{...env,CUTOVER_ENABLED:'true'});assert.equal(response.status,200);assert.equal((await response.json()).result.total,1);
  });
  await t.test('fresh server authority overrides stale admin claims and denies foreign team access',async()=>{
@@ -59,7 +56,7 @@ test('Cloudflare migration code: D1 reporting retries and authority gates',async
   const request=new Request('https://fixture.invalid/getChapterViewAnalytics',{method:'POST',headers:{authorization:'Bearer synthetic'},body:JSON.stringify({data:{scopeId:'team:team-a'}})});
   assert.equal((await runtime.fetch(request,env)).status,403);
   const noAuthority=createMigrationRuntime({catalogue:async()=>cat,verifyToken:async()=>admin,exporterFactory:()=>exporter,clock:()=>now});
-  const request2=new Request('https://fixture.invalid/setUserAccess',{method:'POST',headers:{authorization:'Bearer synthetic'},body:JSON.stringify({data:{uid:'other',role:'admin'}})});assert.equal((await noAuthority.fetch(request2,env)).status,400);
+  const request2=new Request('https://fixture.invalid/setUserAccess',{method:'POST',headers:{authorization:'Bearer synthetic'},body:JSON.stringify({data:{uid:'other',role:'admin'}})});assert.equal((await noAuthority.fetch(request2,env)).status,503);
  });
  await t.test('D1 authority denies pending/revoked access and protects last admin; mirrors retry finitely',async()=>{
   await installAuthority(db);
@@ -80,7 +77,9 @@ test('Cloudflare migration code: D1 reporting retries and authority gates',async
   await bridge.setClaims('target',{role:'user',accessVersion:2});
   const claims=JSON.parse(calls.find(c=>c.url.includes('accounts:update')).body.customAttributes);assert.equal(claims.role,'user');assert.equal(claims.teamId,undefined);assert.equal(claims.unrelated,true);assert.equal(claims.accessVersion,2);
   await bridge.patchProfile('target',{role:'user',teamId:null});const profile=calls.at(-1);assert.match(profile.url,/updateMask.fieldPaths=role/);assert.match(profile.url,/updateMask.fieldPaths=teamId/);assert.deepEqual(Object.keys(profile.body.fields),['role']);
-  await bridge.patchMirror('target',{role:'user',teamId:null,version:2,state:'active',leaseUntil:123});assert.equal(calls.at(-1).body.fields.leaseUntilMs.integerValue,'123');
+  const mirrorCalls=[];const mirrorBridge=createGoogleIdentityBridge({getAccessToken:async()=>'synthetic',fetchImpl:async(url,options)=>{mirrorCalls.push({url,options});return options.method==='GET'?{ok:false,status:404}:{ok:true,status:200,json:async()=>({})};}});
+  await mirrorBridge.patchMirror('target',{role:'user',teamId:null,version:2,state:'pending',leaseUntil:123},{mode:'prepare'});assert.equal(JSON.parse(mirrorCalls.at(-1).options.body).fields.leaseUntilMs.integerValue,'123');assert.match(mirrorCalls.at(-1).url,/currentDocument.exists=false/);
+  await assert.rejects(mirrorBridge.patchMirror('target',{role:'admin',version:1},{mode:'renew'}),/Stale mirror/);
   const before=calls.length;await assert.rejects(bridge.getAccount('bad/path'),/Invalid UID/);assert.equal(calls.length,before);
   const denied=createGoogleIdentityBridge({getAccessToken:async()=>'synthetic',fetchImpl:async()=>({ok:false,status:403})});await assert.rejects(denied.getAccount('target'),/Identity synchronization failed/);
  });

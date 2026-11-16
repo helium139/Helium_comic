@@ -1,0 +1,205 @@
+{
+  "checkedAt": "2026-11-16T15:03:20.908Z",
+  "PR6": {
+    "merged": true,
+    "mergeCommit": "51ca9a9490f95a0a185c9207c2d1fe579662e51e"
+  },
+  "main": "51ca9a9490f95a0a185c9207c2d1fe579662e51e",
+  "runs": [
+    {
+      "id": 43891644241,
+      "sha": "51ca9a9490f95a0a185c9207c2d1fe579662e51e",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43891644241"
+    },
+    {
+      "id": 43890341103,
+      "sha": "3b96c17695112fbdf017b501311969b9af893d37",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43890341103"
+    },
+    {
+      "id": 43890004607,
+      "sha": "45261a0c2f78dd13d1539bbf5faaa0de2a2b5786",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43890004607"
+    },
+    {
+      "id": 43885030990,
+      "sha": "90a54f0166ca810ef3968ffd8d75c6ad1594fce1",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43885030990"
+    },
+    {
+      "id": 43871218013,
+      "sha": "0f9a666c9bd2623c31e7b3c7a4469ebca800c634",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43871218013"
+    },
+    {
+      "id": 43857553164,
+      "sha": "0dbc2559413e29edde96f35784921ba415149384",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43857553164"
+    },
+    {
+      "id": 43732421772,
+      "sha": "7117b3fdb03a6f1c1d123d5d20868d6741240966",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43732421772"
+    },
+    {
+      "id": 43720213965,
+      "sha": "fa7c8a12d325c4a01db20420591edd6acd26c24e",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/helium139/Helium_comic/actions/runs/43720213965"
+    }
+  ],
+  "jobs": [
+    {
+      "id": 133384133245,
+      "name": "update",
+      "status": "completed",
+      "conclusion": "success",
+      "failedSteps": []
+    },
+    {
+      "id": 133385193947,
+      "name": "deploy",
+      "status": "completed",
+      "conclusion": "success",
+      "failedSteps": []
+    },
+    {
+      "id": 133385336893,
+      "name": "discord",
+      "status": "completed",
+      "conclusion": "success",
+      "failedSteps": []
+    }
+  ],
+  "served": [
+    {
+      "path": "/",
+      "status": 200,
+      "sha256": "62e48c9103207c5b40fe428755a10265ea456377e8a4fce6517a51c68d8847ab",
+      "notificationButton": false,
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    },
+    {
+      "path": "/assets/js/auth.js",
+      "status": 200,
+      "sha256": "983296df90d2d9c70bc0405a34d22b169564e5f5452a93a44059b0f04104f1ab",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false,
+      "retirement": true
+    },
+    {
+      "path": "/assets/js/notifications.js",
+      "status": 200,
+      "sha256": "399520544f2bbb6bc8bbe1e1e2a3aa04c3f3cb2069e642bb1ed5a44694f6ee6a",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    },
+    {
+      "path": "/assets/js/retire-chapter-push.js",
+      "status": 200,
+      "sha256": "d1863bb10a049f5acdd0e6c0dd0e62765f8d62a4726f0f59b52a530da65342a6",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    },
+    {
+      "path": "/firebase-messaging-sw.js",
+      "status": 200,
+      "sha256": "7bd754ebc0bd4fa317faa982b623ed61745116594eb960286b950777fa1aea9f",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false,
+      "retirement": true
+    },
+    {
+      "path": "/sw.js",
+      "status": 200,
+      "sha256": "e74665ea931f275d50eca9bf914eda54932367c8fc0ef289a256738c7965d007",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    },
+    {
+      "path": "/assets/js/comment.js",
+      "status": 200,
+      "sha256": "64a03deea41779fa94e678a5d0c94848acadecdfba2e2188b0949b8298433ec5",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    },
+    {
+      "path": "/assets/js/chapter-views.js",
+      "status": 200,
+      "sha256": "9047a2169a0a2b9526877336582b06c49f60c133b576553a09838854337aef8b",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    },
+    {
+      "path": "/login/",
+      "status": 200,
+      "sha256": "50b01d7e8dd8aea1fd3fa9bda82720f0a9a9a97ac3c66c0a251b0b09ac074c80",
+      "messagingSDK": false,
+      "requestsPermission": false,
+      "pushEndpoint": false
+    }
+  ],
+  "selectedRun": 43891644241,
+  "assetMatches": [
+    {
+      "path": "index.html",
+      "match": true
+    },
+    {
+      "path": "assets/js/auth.js",
+      "match": true
+    },
+    {
+      "path": "assets/js/notifications.js",
+      "match": true
+    },
+    {
+      "path": "assets/js/retire-chapter-push.js",
+      "match": true
+    },
+    {
+      "path": "firebase-messaging-sw.js",
+      "match": true
+    },
+    {
+      "path": "sw.js",
+      "match": true
+    },
+    {
+      "path": "assets/js/comment.js",
+      "match": true
+    },
+    {
+      "path": "assets/js/chapter-views.js",
+      "match": true
+    },
+    {
+      "path": "login/index.html",
+      "match": true
+    }
+  ]
+}

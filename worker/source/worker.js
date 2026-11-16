@@ -75,6 +75,7 @@ function chapterImages(images, count) {
 
 // Dependency injection is code-level only; request/env data cannot replace verification.
 export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
+    resolveActor,
     log = (details) => console.error("CMS operation failed", details),
     githubTimeoutMs = DEFAULT_GITHUB_TIMEOUT_MS, r2TimeoutMs = DEFAULT_R2_TIMEOUT_MS } = {}) {
 
@@ -195,11 +196,25 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return body;
     }
 
-    async function authenticate(request) {
+    async function authenticate(request, env) {
         const match = /^Bearer ([^\s]+)$/i.exec(request.headers.get("Authorization") || "");
         if (!match || match[1].length > 16384) fail(401, "Authentication required");
         let actor;
         try { actor = await verifyToken(match[1]); } catch { fail(401, "Invalid authentication token"); }
+        if (env.CURRENT_AUTHORITY_MODE && !['google','d1'].includes(env.CURRENT_AUTHORITY_MODE)) fail(403, 'Unknown authority mode');
+        if (env.CURRENT_AUTHORITY_MODE === 'd1') {
+            try {
+                if (resolveActor) actor = await resolveActor(actor, match[1], env);
+                else {
+                    const { boundAuthority, requireFreeCapacity } = await import('../view-runtime/bindings.mjs');
+                    await requireFreeCapacity(env.DB, ['authority']);
+                    actor = await boundAuthority(env, { catalogue: async () => {
+                        const [data, teams] = await Promise.all([getFile(env, "data.json"), getFile(env, "teams.json")]);
+                        return {data: data.data, teams: validateRegistry(teams.data)};
+                    }, fetchImpl }).resolve(actor, match[1]);
+                }
+            } catch { fail(403, 'Current access verification failed'); }
+        }
         if (!["admin", "team_leader"].includes(actor.role)) fail(403, "Permission denied");
         return actor;
     }
@@ -647,7 +662,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                     fail(405, "Method not allowed");
                 }
                 trace('start');
-                const actor = await authenticate(request);
+                const actor = await authenticate(request, env);
                 trace('auth ok');
                 if (origin && !ORIGINS.has(origin)) fail(403, "Origin not allowed");
                 const result = await mutate(path, request, env, actor, ctx, trace);

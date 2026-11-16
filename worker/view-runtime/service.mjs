@@ -2,6 +2,7 @@ import {identity, uuid, hash, deny, policy, activation, authorizeAnalytics} from
 import {resolveChapter} from '../../functions/lib/views/catalogue.mjs';
 import {buildSnapshot, requireAdmin} from '../../functions/lib/reports/accounting.mjs';
 import {rateExceeded} from './schema.mjs';
+import {createHash} from 'node:crypto';
 
 export function createD1Views({db,secret,catalogue,clock=Date.now,onMetrics=()=>{},failure=()=>false}) {
  const stmt=(sql,args=[])=>db.prepare(sql).bind(...args);
@@ -44,12 +45,15 @@ export function createD1Views({db,secret,catalogue,clock=Date.now,onMetrics=()=>
   const ch=resolveChapter(await catalogue(),s.manga,s.chapter);
   if(ch.teamId!==s.team) deny('failed-precondition','Ownership changed');
   // UPDATE computes the outcome from current transactional state, never from stale JS reads.
-  const duplicate=`EXISTS(SELECT 1 FROM dedup WHERE id IN (?||':'||manga||':'||chapter,?||':'||manga||':'||chapter) AND eligible>?)`;
+  // Preserve A's hashed keys. Legacy dedup docs contain no reversible chapter/
+  // identity fields, so concatenated SQL keys would lose the imported24h barrier.
+  const dedupIds=[hash(secret,'chapter-dedup-v1',r.deviceHash,s.manga,s.chapter),r.accountHash?hash(secret,'chapter-dedup-v1',r.accountHash,s.manga,s.chapter):null];
+  const duplicate='EXISTS(SELECT 1 FROM dedup WHERE id IN (?,?) AND eligible>?)';
   const limited=rateExceeded('accepted','s');
-  const sql=`UPDATE sessions AS s SET consumed=1,at=?,account=?,network=?,record_revision=?,record_uid=?,reason=CASE WHEN ${duplicate} THEN 'duplicate' WHEN ${limited.replaceAll('s.at','?').replaceAll('s.account','?').replaceAll('s.network','?')} THEN 'rate-limited' ELSE NULL END,accepted=CASE WHEN ${duplicate} OR ${limited.replaceAll('s.at','?').replaceAll('s.account','?').replaceAll('s.network','?')} THEN 0 ELSE 1 END WHERE id=? AND consumed=0`;
+  const sql=`UPDATE sessions AS s SET consumed=1,at=?,account=?,network=?,record_revision=?,record_uid=?,device_dedup=?,account_dedup=?,reason=CASE WHEN ${duplicate} THEN 'duplicate' WHEN ${limited.replaceAll('s.at','?').replaceAll('s.account','?').replaceAll('s.network','?')} THEN 'rate-limited' ELSE NULL END,accepted=CASE WHEN ${duplicate} OR ${limited.replaceAll('s.at','?').replaceAll('s.account','?').replaceAll('s.network','?')} THEN 0 ELSE 1 END WHERE id=? AND consumed=0`;
   // Parameter order: account twice (value + null guard), network, decision time.
   const now=clock(),rateArgs=[r.accountHash,r.accountHash,r.networkHash,now];
-  const args=[now,r.accountHash,r.networkHash,ch.catalogueRevision,r.uid,r.deviceHash,r.accountHash,now,...rateArgs,r.deviceHash,r.accountHash,now,...rateArgs,id];
+  const args=[now,r.accountHash,r.networkHash,ch.catalogueRevision,r.uid,...dedupIds,...dedupIds,now,...rateArgs,...dedupIds,now,...rateArgs,id];
   const queries=[stmt(sql,args)];
   if(failure('after-record')) queries.push(stmt('INSERT INTO deliberately_missing_table VALUES(1)'));
   queries.push(stmt('SELECT * FROM sessions WHERE id=?',[id]));
@@ -75,11 +79,24 @@ export function createD1Views({db,secret,catalogue,clock=Date.now,onMetrics=()=>
   const c=await getConfig();
   if(coverage.start!==Math.max(end,c.activation)||coverage.verifiedAt<coverage.end||coverage.verifiedAt>clock()) deny('failed-precondition','Coverage window invalid');
   const previous=await one('SELECT snapshot FROM reports WHERE month=?',[month],'report-replay');
-  if(previous) return JSON.parse(previous.snapshot);
+  if(previous) {
+   const saved=JSON.parse(previous.snapshot);
+   if(saved.storage==='chunked-v1'){
+    if(saved.bytes>131072)deny('resource-exhausted','Full report exceeds verified Free envelope; use retained Google exporter');
+    const chunks=(await batch([stmt('SELECT part,body FROM report_chunks WHERE month=? ORDER BY part',[month])],'report-chunks'))[0].results;
+    if(chunks.length!==saved.parts||chunks.some((c,i)=>c.part!==i))deny('failed-precondition','Snapshot chunks incomplete');
+    const text=chunks.map(c=>c.body).join('');
+    if(createHash('sha256').update(text).digest('hex')!==saved.contentHash)deny('failed-precondition','Snapshot hash mismatch');
+    return JSON.parse(text);
+   }
+   return saved;
+  }
   const cat=await catalogue();
-  const rows=(await batch([stmt('SELECT team,manga,count(*) AS n FROM events WHERE month=? GROUP BY team,manga',[month])],'report-group'))[0].results;
+  const rows=(await batch([stmt('SELECT team,manga,count(*) AS n FROM events WHERE month=? GROUP BY team,manga LIMIT 201',[month])],'report-group'))[0].results;
+  if(rows.length>200)deny('resource-exhausted','Report requires retained Google exporter; no totals truncated');
   const teams=new Map();for(const row of rows) teams.set(row.team,(teams.get(row.team)||0)+row.n);
   const snapshot=buildSnapshot(month,cat,{validViews:rows.reduce((n,r)=>n+r.n,0)},[...teams].map(([teamId,validViews])=>({teamId,validViews,scopeId:`team:${teamId}`,kind:'team',period:month,parentScopeId:'site'})),rows.map(r=>({teamId:r.team,mangaId:r.manga,validViews:r.n,scopeId:`manga:${r.team}:${r.manga}`,parentScopeId:`team:${r.team}`,kind:'manga',period:month})),coverage);
+  if(Buffer.byteLength(JSON.stringify(snapshot))>131072)deny('resource-exhausted','Report exceeds local Free size guard; Google/offline exporter required');
   const saved=await batch([stmt('INSERT INTO reports VALUES(?,?,?) ON CONFLICT(month) DO NOTHING',[month,snapshot.snapshotHash,JSON.stringify(snapshot)]),stmt('SELECT snapshot FROM reports WHERE month=?',[month])],'report-save');
   return JSON.parse(saved[1].results[0].snapshot);
  }

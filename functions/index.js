@@ -2,6 +2,7 @@ const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {initializeApp} = require("firebase-admin/app");
 const {getAuth} = require("firebase-admin/auth");
 const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {enforceCurrentAuthority} = require("./lib/authority-config.js");
 
 initializeApp();
 const db = getFirestore();
@@ -21,6 +22,12 @@ exports.setUserAccess = onCall(
       region: REGION,
     },
     async (request) => {
+      if (enforceCurrentAuthority.value()) {
+        throw new HttpsError(
+            "failed-precondition",
+            "Access changes moved to the current authority endpoint.",
+        );
+      }
       /*
        * Must be logged in.
        */

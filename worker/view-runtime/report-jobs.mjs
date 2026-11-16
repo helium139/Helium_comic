@@ -4,7 +4,7 @@ import {monthEnd,utcMonths} from '../../functions/lib/reports/utc-months.mjs';
 
 export async function installReportJobs(db) {
  for(const sql of [
-  "CREATE TABLE migration_gate(id INTEGER PRIMARY KEY CHECK(id=1),verified INTEGER NOT NULL DEFAULT 0,evidence_hash TEXT)",
+  "CREATE TABLE migration_gate(id INTEGER PRIMARY KEY CHECK(id=1),verified INTEGER NOT NULL DEFAULT 0,evidence_hash TEXT,free_features TEXT NOT NULL DEFAULT '[]',free_expires INTEGER NOT NULL DEFAULT 0)",
   'INSERT INTO migration_gate(id,verified) VALUES(1,0)',
   'CREATE TABLE accounting_coverage(month TEXT PRIMARY KEY,body TEXT NOT NULL) WITHOUT ROWID',
   `CREATE TABLE export_jobs(month TEXT PRIMARY KEY,status TEXT NOT NULL,owner TEXT,lease_until INTEGER NOT NULL DEFAULT 0,attempts INTEGER NOT NULL DEFAULT 0,creation_state TEXT NOT NULL DEFAULT 'not_started',spreadsheet_id TEXT,spreadsheet_url TEXT,export_key TEXT NOT NULL,folder TEXT NOT NULL,error_code TEXT,next_retry INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID`,
@@ -71,6 +71,11 @@ export function createD1ReportJobs({db,views,exporter,folderId,clock=Date.now}) 
   }
  }
  async function history(data,actor){requireAdmin(actor);const cursor=data?.cursor||'9999-99';if(!/^\d{4}-\d{2}$/.test(cursor))fail('invalid-argument','Invalid cursor');const r=await q('SELECT month,status,attempts,spreadsheet_url AS spreadsheetUrl,error_code AS errorCode FROM export_jobs WHERE month<? ORDER BY month DESC LIMIT 26',[cursor]).all();return {reports:r.results.slice(0,25),nextCursor:r.results.length>25?r.results[24].month:null};}
- async function scheduled(){const period=utcMonths(clock()).previousPeriod;const result=[];try{result.push(await run(period,{},{scheduled:true}));}catch(error){result.push({month:period,error:error.code||'unavailable'});}const jobs=await q("SELECT month FROM export_jobs WHERE status='failed' AND attempts<3 AND next_retry<=? AND month<>? ORDER BY month LIMIT 10",[clock(),period]).all();for(const row of jobs.results){try{result.push(await run(row.month,{},{scheduled:true}));}catch(error){result.push({month:row.month,error:error.code||'unavailable'});}}return result;}
+ async function scheduled(){
+  // One job per invocation: ten closes/retries could exceed Free's50 DB queries.
+  const due=await q("SELECT month FROM export_jobs WHERE status='failed' AND attempts<3 AND next_retry<=? ORDER BY month LIMIT 1",[clock()]).first();
+  const month=due?.month||utcMonths(clock()).previousPeriod;
+  try{return [await run(month,{},{scheduled:true})];}catch(error){return [{month,error:error.code||'unavailable'}];}
+ }
  return {generate:(data,actor)=>{if(!data||Object.keys(data).length!==1||!data.month)fail('invalid-argument','Only month accepted');return run(data.month,actor);},retry:(data,actor)=>run(data?.month,actor,{retry:true}),history,scheduled};
 }

@@ -2,6 +2,7 @@ const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const {defineBoolean} = require("firebase-functions/params");
 const {Timestamp, FieldValue} = require("firebase-admin/firestore");
 const {logger} = require("firebase-functions");
+const {enforceCurrentAuthority} = require("../authority-config.js");
 const enforceAppCheck = defineBoolean("ENFORCE_COMMENT_APP_CHECK", {default: false});
 exports.createCommentEndpoints = (db) => {
   const endpoint = (method) => onCall({region: "us-central1", enforceAppCheck,
@@ -10,9 +11,10 @@ exports.createCommentEndpoints = (db) => {
     const {CommentError, createCommentService} = await import("./service.mjs");
     try {
       const {publishedCatalogue} = await import("../views/catalogue.mjs");
+      const {currentActor} = await import("../views/authority-mirror.mjs");
+      const actor = await currentActor(db, request, {strict: enforceCurrentAuthority.value()});
       return await createCommentService({db, catalogue: publishedCatalogue, serverTimestamp: () => FieldValue.serverTimestamp(),
-        timestampFromParts: (parts) => new Timestamp(parts.seconds, parts.nanoseconds), fieldDelete: () => FieldValue.delete()})[method](request.data, {uid: request.auth?.uid || null,
-        role: request.auth?.token?.role, teamId: request.auth?.token?.teamId});
+        timestampFromParts: (parts) => new Timestamp(parts.seconds, parts.nanoseconds), fieldDelete: () => FieldValue.delete()})[method](request.data, actor);
     } catch (error) {
       if (error instanceof CommentError) throw new HttpsError(error.code, error.message);
       logger.error("Comment operation failed", {operation: method, errorType: error?.name || "Error"});

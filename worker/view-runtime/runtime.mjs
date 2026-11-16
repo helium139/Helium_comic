@@ -6,14 +6,17 @@ import {utcMonths} from '../../functions/lib/reports/utc-months.mjs';
 import {verifyFirebaseToken} from '../source/firebase-auth.js';
 import {publishedCatalogue} from '../../functions/lib/views/catalogue.mjs';
 import {createGoogleExporter} from '../../functions/lib/reports/google.mjs';
+import {boundAuthority,requireFreeCapacity} from './bindings.mjs';
+import {verifyAppCheck} from './app-check.mjs';
+import {verifyBridge} from '../../functions/lib/views/migration-bridge.mjs';
 
 const origins=new Set(['https://heliumtg.com','https://www.heliumtg.com','http://localhost:8000','http://127.0.0.1:8000']);
-const names=new Set(['startChapterViewSession','recordChapterView','getChapterViewAnalytics','getMonthlyViewDashboard','getMonthlyViewReports','generateMonthlyViewReport','retryMonthlyViewReport','setUserAccess']);
+const names=new Set(['startChapterViewSession','recordChapterView','getChapterViewAnalytics','getMonthlyViewDashboard','getMonthlyViewReports','generateMonthlyViewReport','retryMonthlyViewReport','setUserAccess','getCurrentAccess']);
 
 // A separate entry point: not wired into the deployed CMS or reader routing.
 // Privileged authority is code-injected and must resolve current server authority,
 // never a browser role. No default adapter silently falls back to stale claims.
-export function createMigrationRuntime({verifyToken=verifyFirebaseToken,catalogue=publishedCatalogue,authority,exporterFactory,clock=Date.now}={}) {
+export function createMigrationRuntime({verifyToken=verifyFirebaseToken,catalogue=publishedCatalogue,authority,exporterFactory,appCheck=verifyAppCheck,clock=Date.now}={}) {
  const services=env=>{
   const views=createD1Views({db:env.DB,secret:env.VIEW_READER_HMAC_KEY,catalogue,clock});
   const exporter=exporterFactory?exporterFactory(env):createGoogleExporter({clientId:env.GOOGLE_REPORT_CLIENT_ID,clientSecret:env.GOOGLE_REPORT_CLIENT_SECRET,refreshToken:env.GOOGLE_REPORT_REFRESH_TOKEN});
@@ -40,11 +43,11 @@ export function createMigrationRuntime({verifyToken=verifyFirebaseToken,catalogu
   }
   return {scopeId:data.scopeId,period:data.period||'all',month:months.currentPeriod,total:total.validViews,monthly:monthly.validViews,active:!!config?.enabled&&config.activation<=clock(),activationAt:config?.activation??null,children,nextCursor};
  }
- async function freshActor(request){
+ async function freshActor(request,env){
   const header=request.headers.get('authorization');if(!header?.startsWith('Bearer '))deny('unauthenticated','Sign in required');
   const verified=await verifyToken(header.slice(7));
-  if(!authority?.resolve)deny('failed-precondition','Current authority adapter is not configured');
-  const actor=await authority.resolve(verified,header.slice(7));
+  const provider=authority||boundAuthority(env,{catalogue,clock});
+  const actor=await provider.resolve(verified,header.slice(7));
   if(!actor||actor.uid!==verified.uid||actor.disabled)deny('permission-denied','Current access denied');
   return actor;
  }
@@ -53,23 +56,28 @@ export function createMigrationRuntime({verifyToken=verifyFirebaseToken,catalogu
    if(env.CUTOVER_ENABLED!=='true')return Response.json({error:{status:'UNAVAILABLE',message:'Migration routing disabled'}},{status:503});
    const origin=request.headers.get('origin');if(origin&&!origins.has(origin))return new Response('Origin denied',{status:403});
    const headers=origin?{'Access-Control-Allow-Origin':origin,'Vary':'Origin'}:{};
-   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'Access-Control-Allow-Headers':'Authorization, Content-Type','Access-Control-Allow-Methods':'POST'}});
+   if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'Access-Control-Allow-Headers':'Authorization, Content-Type, X-Firebase-AppCheck','Access-Control-Allow-Methods':'POST'}});
    if(request.method!=='POST')return new Response('Method not allowed',{status:405});
    try{
-    const gate=await env.DB.prepare('SELECT verified,evidence_hash FROM migration_gate WHERE id=1').first();
-    if(gate?.verified!==1||!/^[a-f0-9]{64}$/.test(gate.evidence_hash||''))deny('failed-precondition','Restore/reconciliation checkpoint unverified');
     const name=new URL(request.url).pathname.split('/').at(-1);if(!names.has(name))return new Response('Not found',{status:404});
+    const feature=['startChapterViewSession','recordChapterView'].includes(name)?'views':name.includes('Report')?'reports':name==='setUserAccess'||name==='getCurrentAccess'?'authority':'analytics';
+    await requireFreeCapacity(env.DB,feature==='views'?['views']:[feature,'authority'],clock);
+    if(env.ENFORCE_APP_CHECK==='true')try{await appCheck(request.headers.get('X-Firebase-AppCheck'),{projectNumber:env.FIREBASE_PROJECT_NUMBER,appId:env.FIREBASE_APP_ID});}catch{deny('unauthenticated','App Check required');}
     // A staging-only injection is not enough: the real deployment also needs a
     // reviewed/imported migration checkpoint before this flag may be enabled.
-    const body=await request.json();if(!body||Object.keys(body).some(k=>k!=='data'))deny('invalid-argument','Callable data required');
+    const rawBody=await request.text();if(rawBody.length>16384)deny('invalid-argument','Callable payload too large');
+    const body=JSON.parse(rawBody);if(!body||Object.keys(body).some(k=>k!=='data'))deny('invalid-argument','Callable data required');
     const data=body.data||{}, {views,reports}=services(env);let result;
     if(name==='startChapterViewSession'||name==='recordChapterView'){
      const bearer=request.headers.get('authorization');const actor=bearer?await verifyToken(bearer.replace(/^Bearer /,'')):{};
-     const network=request.headers.get('CF-Connecting-IP');
+     const bridge=verifyBridge(env.VIEW_READER_HMAC_KEY,name,rawBody,request.headers,clock());
+     if(bridge&&(bridge.uid||null)!==(actor.uid||null))deny('unauthenticated','Bridge identity mismatch');
+     const network=bridge?.network||request.headers.get('CF-Connecting-IP');
      if(!network)deny('failed-precondition','Trusted edge IP missing');
      result=await views[name==='startChapterViewSession'?'start':'record'](data,{...actor,network:network.toLowerCase().replace(/^::ffff:/,'')});
     }else{
-     const actor=await freshActor(request);
+     const actor=await freshActor(request,env);
+     if(name==='getCurrentAccess')result=actor;
      if(name==='getChapterViewAnalytics')result=await analytics(data,actor,env,views);
      if(name==='getMonthlyViewDashboard'){
       const scopeId=actor.role==='team_leader'?`team:${actor.teamId}`:data.scopeId;
@@ -86,14 +94,13 @@ export function createMigrationRuntime({verifyToken=verifyFirebaseToken,catalogu
       requireAdmin(actor);
       if(!data.uid||!['user','admin','team_leader'].includes(data.role)||Object.keys(data).some(k=>!['uid','role','teamId'].includes(k)))deny('invalid-argument','Invalid access change');
       if(data.role==='team_leader'&&(!validSlug(data.teamId)||!(await catalogue()).teams.some(t=>t.id===data.teamId&&t.active)))deny('invalid-argument','Invalid active team');
-      if(!authority.changeAccess)deny('failed-precondition','Access synchronization adapter is not configured');
-      result=await authority.changeAccess(data,actor);
+      result=await (authority||boundAuthority(env,{catalogue,clock})).changeAccess(data,actor);
      }
     }
     return Response.json({result},{headers});
    }catch(error){const code=error.code||'unavailable';return Response.json({error:{status:code.replaceAll('-','_').toUpperCase(),message:'Operation failed: '+code}},{status:code==='unauthenticated'?401:code==='permission-denied'?403:code==='unavailable'?503:400,headers});}
   },
-  async scheduled(controller,env,ctx){if(env.CUTOVER_ENABLED!=='true')return;const gate=await env.DB.prepare('SELECT verified,evidence_hash FROM migration_gate WHERE id=1').first();if(gate?.verified!==1||!/^[a-f0-9]{64}$/.test(gate.evidence_hash||''))return;ctx.waitUntil(services(env).reports.scheduled());}
+  async scheduled(controller,env,ctx){if(env.CUTOVER_ENABLED!=='true')return;try{await requireFreeCapacity(env.DB,['reports'],clock);}catch{return;}ctx.waitUntil(services(env).reports.scheduled());}
  };
 }
 export default createMigrationRuntime();

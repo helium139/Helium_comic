@@ -1,9 +1,10 @@
 import {requireAdmin,fail} from '../../functions/lib/reports/accounting.mjs';
 import {validSlug} from '../../functions/lib/views/policy.mjs';
+import {randomUUID} from 'node:crypto';
 
 export async function installAuthority(db){
  for(const sql of [
-  "CREATE TABLE access_rows(uid TEXT PRIMARY KEY,role TEXT NOT NULL CHECK(role IN ('user','admin','team_leader')),team_id TEXT,version INTEGER NOT NULL DEFAULT 1,state TEXT NOT NULL DEFAULT 'active',next_role TEXT,next_team TEXT,attempts INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID",
+  "CREATE TABLE access_rows(uid TEXT PRIMARY KEY,role TEXT NOT NULL CHECK(role IN ('user','admin','team_leader')),team_id TEXT,version INTEGER NOT NULL DEFAULT 1,state TEXT NOT NULL DEFAULT 'active',next_role TEXT,next_team TEXT,attempts INTEGER NOT NULL DEFAULT 0,sync_owner TEXT,sync_until INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID",
   'CREATE TABLE access_audit(id TEXT PRIMARY KEY,actor TEXT NOT NULL,target TEXT NOT NULL,version INTEGER NOT NULL,outcome TEXT NOT NULL,at INTEGER NOT NULL) WITHOUT ROWID',
   "CREATE TRIGGER keep_one_admin BEFORE UPDATE ON access_rows WHEN OLD.role='admin' AND OLD.state='active' AND (NEW.role<>'admin' OR NEW.state<>'active') AND NOT EXISTS(SELECT 1 FROM access_rows WHERE uid<>OLD.uid AND role='admin' AND state='active') BEGIN SELECT RAISE(ABORT,'last-admin'); END",
   "CREATE TRIGGER access_audit_no_update BEFORE UPDATE ON access_audit BEGIN SELECT RAISE(ABORT,'immutable-access-audit'); END",
@@ -23,7 +24,10 @@ export function createAuthority({db,bridge,catalogue,clock=Date.now}){
   // rawToken has already passed signature/audience/issuer checks in runtime/CMS.
   const claims=JSON.parse(Buffer.from(rawToken.split('.')[1],'base64url').toString());
   if(claims.sub!==verified.uid||!Number.isFinite(claims.auth_time)||claims.auth_time<Number(account.validSince||0))fail('unauthenticated','Sign in again');
-  await bridge.patchMirror(row.uid,{role:row.role,teamId:row.team_id,version:row.version,state:'active',leaseUntil:clock()+300000});
+  const unchanged=async()=>{const current=await q('SELECT version,state FROM access_rows WHERE uid=?',[row.uid]).first();if(current?.version!==row.version||current.state!=='active')fail('permission-denied','Access changed during verification');};
+  await unchanged();
+  await bridge.patchMirror(row.uid,{role:row.role,teamId:row.team_id,version:row.version,state:'active',leaseUntil:clock()+300000},{mode:'renew'});
+  await unchanged();
   return {uid:row.uid,role:row.role,teamId:row.team_id,accessVersion:row.version};
  }
  async function changeAccess(data,actor){
@@ -43,19 +47,26 @@ export function createAuthority({db,bridge,catalogue,clock=Date.now}){
    const claimed=await q("UPDATE access_rows SET state='pending',version=?,next_role=?,next_team=?,attempts=0 WHERE uid=? AND state='active' AND version=?",[version,data.role,team,data.uid,target.version]).run();
    if(claimed.meta.changes!==1)fail('aborted','Access changed concurrently');
   }
-  await q("UPDATE access_rows SET attempts=attempts+1 WHERE uid=? AND state='pending' AND version=?",[data.uid,version]).run();
+  const owner=randomUUID();
+  const lock=await q("UPDATE access_rows SET attempts=attempts+1,sync_owner=?,sync_until=? WHERE uid=? AND state='pending' AND version=? AND attempts<3 AND sync_until<=?",[owner,clock()+120000,data.uid,version,clock()]).run();
+  if(lock.meta.changes!==1)fail('aborted','Access synchronization already running or exhausted');
+  const fence=async()=>{const result=await q("UPDATE access_rows SET sync_until=? WHERE uid=? AND state='pending' AND version=? AND sync_owner=? AND sync_until>?",[clock()+120000,data.uid,version,owner,clock()]).run();if(result.meta.changes!==1)fail('aborted','Access synchronization lease lost');};
   const id=data.uid+':'+version;
   await q('INSERT INTO access_audit VALUES(?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',[id+':start',actor.uid,data.uid,version,'pending',clock()]).run();
   try{
-   await bridge.patchMirror(data.uid,{role:data.role,teamId:team,version,state:'pending',leaseUntil:clock()});
+   await fence();
+   await bridge.patchMirror(data.uid,{role:data.role,teamId:team,version,state:'pending',leaseUntil:clock()},{mode:'prepare'});
+   await fence();
    await bridge.setClaims(data.uid,{role:data.role,teamId:team,accessVersion:version});
-   await bridge.patchProfile(data.uid,{role:data.role,teamId:team});
-   await bridge.patchMirror(data.uid,{role:data.role,teamId:team,version,state:'active',leaseUntil:clock()+300000});
-   const result=await q("UPDATE access_rows SET role=?,team_id=?,state='active',next_role=NULL,next_team=NULL WHERE uid=? AND version=? AND state='pending'",[data.role,team,data.uid,version]).run();
+   await fence();
+   await bridge.patchProfile(data.uid,{role:data.role,teamId:team,accessVersion:version});
+   await fence();
+   await bridge.patchMirror(data.uid,{role:data.role,teamId:team,version,state:'active',leaseUntil:clock()+300000},{mode:'commit'});
+   const result=await q("UPDATE access_rows SET role=?,team_id=?,state='active',next_role=NULL,next_team=NULL,sync_owner=NULL,sync_until=0 WHERE uid=? AND version=? AND state='pending' AND sync_owner=? AND sync_until>?",[data.role,team,data.uid,version,owner,clock()]).run();
    if(result.meta.changes!==1)fail('aborted','Access sync changed');
    await q('INSERT INTO access_audit VALUES(?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',[id+':finish',actor.uid,data.uid,version,'active',clock()]).run();
    return {ok:true,version};
-  }catch{fail('unavailable','Access sync incomplete; privilege remains pending until retry');}
+  }catch{await q('UPDATE access_rows SET sync_until=0,sync_owner=NULL WHERE uid=? AND version=? AND sync_owner=?',[data.uid,version,owner]).run();fail('unavailable','Access sync incomplete; privilege remains pending until retry');}
  }
  return {resolve,changeAccess};
 }

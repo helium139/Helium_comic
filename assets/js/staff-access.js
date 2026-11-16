@@ -1,10 +1,11 @@
 import { resolveStaffContext } from "./user-profile.js";
 import { getTeamById } from "./teams.js";
+import { currentStaffClaims } from "./migration-staff.js";
 
 // Frontend scope only. The Worker independently verifies the token on every mutation.
 export async function getStaffContext(user, profile) {
-    const result = await user.getIdTokenResult();
-    const context = resolveStaffContext(user.uid, profile, result.claims);
+    const claims = await currentStaffClaims(user);
+    const context = resolveStaffContext(user.uid, profile, claims);
     if (context.role === "team_leader") {
         const team = await getTeamById(context.teamId);
         if (!team.active) throw new Error("Nhóm của bạn hiện không hoạt động. Vui lòng liên hệ quản trị viên.");

@@ -7,5 +7,8 @@
   },
   "dependencies": {
     "jose": "^6.2.12"
+  },
+  "devDependencies": {
+    "miniflare": "5.20261019.1-beta"
   }
 }
