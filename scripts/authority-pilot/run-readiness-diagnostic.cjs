@@ -1,3 +1,4 @@
+throw Error('Retired historical cloud runner: do not replay. Use local-runner.mjs for local verification only.');
 // HISTORICAL ONE-SHOT. Ledger guards prohibit replay. Corrected ID comparison after first control-only stop.
 ﻿// One-shot approved diagnostic. No provisioning, SQL, resolve, SET, benchmark or logs API.
 const fs=require('fs'),path=require('path'),crypto=require('crypto');

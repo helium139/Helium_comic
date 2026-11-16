@@ -1,0 +1,165 @@
+{
+  "scope": "localhost only; no cloud, credentials, SQL or historical reservations",
+  "cases": [
+    {
+      "case": "json",
+      "state": "response-saved",
+      "status": 200,
+      "exitCode": 0
+    },
+    {
+      "case": "large-html",
+      "state": "response-saved",
+      "status": 200,
+      "exitCode": 0
+    },
+    {
+      "case": "html",
+      "state": "response-saved",
+      "status": 200,
+      "exitCode": 0
+    },
+    {
+      "case": "redirect",
+      "state": "response-saved",
+      "status": 302,
+      "exitCode": 0
+    },
+    {
+      "case": "http-401",
+      "state": "response-saved",
+      "status": 401,
+      "exitCode": 0
+    },
+    {
+      "case": "http-403",
+      "state": "response-saved",
+      "status": 403,
+      "exitCode": 0
+    },
+    {
+      "case": "http-404",
+      "state": "response-saved",
+      "status": 404,
+      "exitCode": 0
+    },
+    {
+      "case": "http-500",
+      "state": "response-saved",
+      "status": 500,
+      "exitCode": 0
+    },
+    {
+      "case": "http-503",
+      "state": "response-saved",
+      "status": 503,
+      "exitCode": 0
+    },
+    {
+      "case": "slow-success",
+      "state": "response-saved",
+      "status": 200,
+      "exitCode": 0
+    },
+    {
+      "case": "connection-loss",
+      "state": "transport-error",
+      "status": null,
+      "exitCode": 2
+    },
+    {
+      "case": "body-loss",
+      "state": "transport-error",
+      "status": 200,
+      "exitCode": 2
+    },
+    {
+      "case": "timeout-headers",
+      "state": "timeout",
+      "status": null,
+      "exitCode": 2
+    },
+    {
+      "case": "timeout-body",
+      "state": "timeout",
+      "status": 200,
+      "exitCode": 2
+    },
+    {
+      "case": "inflight-read-and-no-replay",
+      "passed": true
+    },
+    {
+      "case": "hard-kill",
+      "state": "interrupted-unknown"
+    },
+    {
+      "case": "graceful-SIGTERM-handler-via-test-IPC",
+      "state": "interrupted-unknown"
+    },
+    {
+      "case": "storage-prepared",
+      "state": "no-journal",
+      "requests": 0
+    },
+    {
+      "case": "storage-issued",
+      "state": "not-issued",
+      "requests": 0
+    },
+    {
+      "case": "storage-headers-received",
+      "state": "interrupted-unknown",
+      "requests": 1
+    },
+    {
+      "case": "storage-response-saved",
+      "state": "interrupted-unknown",
+      "requests": 1
+    },
+    {
+      "case": "storage-projection",
+      "state": "response-saved",
+      "requests": 1
+    },
+    {
+      "case": "POST-timeout-no-replay",
+      "writes": 1,
+      "state": "timeout"
+    },
+    {
+      "case": "fail-terminal",
+      "state": "interrupted-unknown",
+      "exitCode": 74
+    },
+    {
+      "case": "fail-projection",
+      "state": "response-saved",
+      "exitCode": 74
+    },
+    {
+      "case": "metadata-fixtures",
+      "passed": true
+    }
+  ],
+  "before": {
+    "nodeExitCode": 0,
+    "serverResponse": 200,
+    "phase": "inspect-clone",
+    "finallyRan": false,
+    "responseSaved": false
+  },
+  "allPassed": true,
+  "nodeVersion": "v24.13.0",
+  "targetedLifecycleTests": 30,
+  "consecutivePasses": 3,
+  "relatedDiagnosticsAndCleanupCombinedPass": 56,
+  "accounting": {
+    "newLocalRequestSQL": {
+      "read": 0,
+      "write": 0
+    },
+    "historicalReservationsModified": false,
+    "historicalRowsAreNotMeasuredUsage": true
+  }
+}

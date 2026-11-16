@@ -1,3 +1,4 @@
+throw Error('Retired historical cloud runner: do not replay. Use local-runner.mjs for local verification only.');
 ﻿const fs=require('fs'),path=require('path'),crypto=require('crypto');
 const root=path.resolve(__dirname,'../../'),dir=process.argv[2],source=path.resolve(dir),out=path.join(source,'candidate-c3fa39f4'),name='helium-authority-fixture-20261116';
 const ledgerPath=path.join(source,'cloud-ledger.json'),ledger=JSON.parse(fs.readFileSync(ledgerPath)),previous=JSON.parse(fs.readFileSync(path.join(root,'docs/migration-evidence/authority-pilot-cloud-result.json'))),secret=JSON.parse(fs.readFileSync(path.join(source,'synthetic-secrets.private.json'))),setup=JSON.parse(fs.readFileSync(path.join(source,'setup.private.json')));

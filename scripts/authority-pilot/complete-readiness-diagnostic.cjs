@@ -1,3 +1,4 @@
+throw Error('Retired historical cloud runner: do not replay. Use local-runner.mjs for local verification only.');
 ﻿// One-shot approved diagnostic. No provisioning, SQL, resolve, SET, benchmark or logs API.
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
 const root=path.resolve(__dirname,'../../'),dir=path.resolve(process.argv[2]),name='helium-authority-fixture-20261116',lp=path.join(dir,'cloud-ledger.json'),ledger=JSON.parse(fs.readFileSync(lp)),plan=JSON.parse(fs.readFileSync(path.join(root,'docs/migration-evidence/authority-readiness-diagnostic-plan.json'))),privateData=JSON.parse(fs.readFileSync(path.join(dir,'synthetic-secrets.private.json'))),out=path.join(dir,'readiness-bb9a5da5-completion');

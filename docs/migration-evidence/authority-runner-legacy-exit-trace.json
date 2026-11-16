@@ -1,0 +1,31 @@
+{
+  "scope": "localhost reproduction, no cloud",
+  "nodeVersion": "v24.13.0",
+  "events": [
+    {
+      "pid": 6832,
+      "state": "issued",
+      "outcome": "unknown"
+    },
+    {
+      "pid": 6832,
+      "state": "headers",
+      "status": 200,
+      "phase": "inspect-clone"
+    },
+    {
+      "pid": 6832,
+      "state": "before-exit",
+      "code": 0,
+      "phase": "inspect-clone",
+      "finished": false
+    },
+    {
+      "pid": 6832,
+      "state": "exit",
+      "code": 0,
+      "phase": "inspect-clone",
+      "finished": false
+    }
+  ]
+}
