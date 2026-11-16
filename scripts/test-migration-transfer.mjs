@@ -71,4 +71,6 @@ test('callable adapter preserves IDs, credentials, errors and makes no fallback 
  assert.deepEqual(await call(payload),{accepted:true,eventId:'fixture'});assert.deepEqual(JSON.parse(calls[0].options.body),{data:payload});assert.equal(calls[0].options.headers.Authorization,'Bearer fake-id');assert.equal(calls[0].options.headers['X-Firebase-AppCheck'],'fake-app');
  let attempts=0;const denied=migrationCallable({baseURL:'https://worker.invalid',name:'recordChapterView',getIdToken:async()=>null,getAppCheckToken:async()=>null,fetchImpl:async()=>{attempts++;return Response.json({error:{status:'RESOURCE_EXHAUSTED',message:'Quota'}},{status:429});}});
  await assert.rejects(denied(payload),e=>e.code==='functions/resource-exhausted');assert.equal(attempts,1);
+ const changed=migrationCallable({baseURL:'https://worker.invalid',name:'recordChapterView',getIdToken:async()=>'fake-old',getAppCheckToken:async()=>null,isCurrentIdentity:()=>false,fetchImpl:async()=>{throw Error('Must not send');}});
+ await assert.rejects(changed(payload),e=>e.code==='functions/cancelled');
 });

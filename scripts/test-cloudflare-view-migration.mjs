@@ -83,4 +83,16 @@ test('Cloudflare migration code: D1 reporting retries and authority gates',async
   const before=calls.length;await assert.rejects(bridge.getAccount('bad/path'),/Invalid UID/);assert.equal(calls.length,before);
   const denied=createGoogleIdentityBridge({getAccessToken:async()=>'synthetic',fetchImpl:async()=>({ok:false,status:403})});await assert.rejects(denied.getAccount('target'),/Identity synchronization failed/);
  });
+ await t.test('authority rejects revocation during lookup and serializes concurrent role projection',async()=>{
+  let mirrors=0;
+  const revoked=createAuthority({db,catalogue:async()=>cat,clock:()=>now,bridge:{getAccount:async()=>{await db.prepare("UPDATE access_rows SET state='pending',version=version+1 WHERE uid='leader'").run();return {disabled:false};},patchMirror:async()=>mirrors++}});
+  const raw='fixture.'+Buffer.from(JSON.stringify({sub:'leader',auth_time:1})).toString('base64url')+'.fixture';
+  await assert.rejects(revoked.resolve({uid:'leader'},raw),e=>e.code==='permission-denied');assert.equal(mirrors,0);
+  await db.prepare("INSERT INTO access_rows(uid,role) VALUES('concurrent','user')").run();
+  let release,entered;const started=new Promise(resolve=>entered=resolve),blocked=new Promise(resolve=>release=resolve);let claims=0;
+  const authority=createAuthority({db,catalogue:async()=>cat,clock:()=>now,bridge:{patchMirror:async()=>{},setClaims:async()=>{claims++;entered();await blocked;},patchProfile:async()=>{}}});
+  const first=authority.changeAccess({uid:'concurrent',role:'admin'},{uid:'owner',role:'admin'});await started;
+  await assert.rejects(authority.changeAccess({uid:'concurrent',role:'admin'},{uid:'owner',role:'admin'}),e=>e.code==='aborted');
+  release();assert.equal((await first).ok,true);assert.equal(claims,1);
+ });
 });

@@ -1,7 +1,7 @@
 {
   "date": "2026-11-16",
   "productionMutations": false,
-  "regression": {"files":19,"tests":148,"passed":147,"failed":0,"skipped":1,"skipReason":"Firestore mirror test requires emulator; separately passed there"},
+  "regression": {"files":19,"tests":149,"passed":148,"failed":0,"skipped":1,"skipReason":"Firestore mirror test requires emulator; separately passed there"},
   "firestoreEmulatorExistingAndMirror": {"tests":28,"passed":28,"failed":0,"skipped":0},
   "firestoreEmulatorMirrorAndRollback": {"tests":3,"passed":3,"failed":0,"skipped":0},
   "functionsLint": "passed",
