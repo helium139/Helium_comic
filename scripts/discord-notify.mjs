@@ -30,7 +30,6 @@ const currentData = JSON.parse(
 
 const previousData = getJsonFromGit(baselineRef);
 const newChapters = chapterEvents(currentData, previousData);
-const pushPayloads = [];
 
 if (newChapters.length === 0) {
     console.log("No new chapters found.");
@@ -74,32 +73,5 @@ await deliverEvents(newChapters, ledger.state, {
             `Sent Discord notification: ${manga.title} - ${chapter.title}`
         );
 
-    },
-    onDelivered: async item => {
-        const { slug, manga, chapter } = item;
-        const chapterUrl = chapterAddress(item);
-        let cover = "";
-        if (typeof manga.cover === "string" && manga.cover.trim()) {
-            try {
-                const candidate = new URL(manga.cover, "https://heliumtg.com/");
-                if (candidate.protocol === "https:" && !candidate.username && !candidate.password &&
-                    ["https://heliumtg.com", "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(candidate.origin)) {
-                    cover = candidate.href;
-                }
-            } catch { /* Missing/invalid cover must not prevent chapter delivery. */ }
-    }
-    pushPayloads.push({
-        mangaSlug: slug,
-        mangaTitle: manga.title,
-        chapterTitle: chapter.title,
-        url: chapterUrl,
-        cover
-    });
     }
 });
-
-// Hand off only after every chapter has passed readiness and Discord delivery.
-// The file lives in RUNNER_TEMP, outside the deployed website.
-if (process.env.PUSH_PAYLOAD_FILE) {
-    fs.writeFileSync(process.env.PUSH_PAYLOAD_FILE, JSON.stringify(pushPayloads));
-}

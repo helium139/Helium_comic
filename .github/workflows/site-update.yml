@@ -54,8 +54,8 @@ jobs:
       - name: Test WebP conversion, migration and rollback without production requests
         run: node --test scripts/test-image-conversion.mjs scripts/test-chapter-promotion.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs scripts/webp/test-cleanup-originals.mjs
 
-      - name: Test public pages, carousel, notifications and reading progress
-        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-push-notifications.mjs scripts/test-popularity-cache.mjs
+      - name: Test public pages, carousel, push retirement and reading progress
+        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-push-retirement.mjs scripts/test-popularity-cache.mjs
 
       - name: Test scoped dashboard statistics
         run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
@@ -238,30 +238,4 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           GITHUB_TOKEN: ${{ github.token }}
-          PUSH_PAYLOAD_FILE: ${{ runner.temp }}/chapter-push-${{ github.run_id }}-${{ github.run_attempt }}.json
         run: node scripts/discord-notify.mjs
-
-      - name: Notify Firebase push backend
-        shell: bash
-        env:
-          PUSH_FUNCTION_URL: ${{ secrets.PUSH_FUNCTION_URL }}
-          CHAPTER_NOTIFY_SECRET: ${{ secrets.CHAPTER_NOTIFY_SECRET }}
-          PUSH_PAYLOAD_FILE: ${{ runner.temp }}/chapter-push-${{ github.run_id }}-${{ github.run_attempt }}.json
-        run: |
-          if [ ! -f "$PUSH_PAYLOAD_FILE" ]; then
-            echo "No new chapters to notify."
-            exit 0
-          fi
-
-          : "${PUSH_FUNCTION_URL:?PUSH_FUNCTION_URL secret is required}"
-          : "${CHAPTER_NOTIFY_SECRET:?CHAPTER_NOTIFY_SECRET secret is required}"
-
-          jq -c '.[]' "$PUSH_PAYLOAD_FILE" | while IFS= read -r payload; do
-            curl --fail-with-body --silent --show-error \
-              --proto '=https' --connect-timeout 10 --max-time 60 \
-              --request POST \
-              --header 'Content-Type: application/json' \
-              --header "x-helium-secret: $CHAPTER_NOTIFY_SECRET" \
-              --data-binary "$payload" \
-              "$PUSH_FUNCTION_URL"
-          done

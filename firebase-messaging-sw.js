@@ -1,71 +1,14 @@
-/* Classic worker: compat avoids introducing a bundler into this static site. */
-function chapterTarget(value) {
+// Retirement at the old push-only URL. The independent /sw.js is unchanged.
+self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
+self.addEventListener('activate', event => event.waitUntil((async () => {
+    const ownURL = new URL('/firebase-messaging-sw.js', self.location.origin).href;
+    const scopes = ['/firebase-cloud-messaging-push-scope/', '/firebase-cloud-messaging-push-scope'].map(path => new URL(path, self.location.origin).href);
+    if (self.location.href !== ownURL || !scopes.includes(self.registration.scope)) return;
+    const workers = [self.registration.active, self.registration.waiting, self.registration.installing].filter(Boolean);
+    if (!workers.length || workers.some(worker => worker.scriptURL !== ownURL)) return;
     try {
-        const url = new URL(value, self.location.origin);
-        if (url.origin === self.location.origin && /^\/manga\/[^/]+\/chapter\/[^/]+\/$/.test(url.pathname)) {
-            url.search = "";
-            url.hash = "";
-            return url.href;
-        }
-    } catch { /* Ignore malformed targets. */ }
-    return null;
-}
-
-// Register before FCM so our handler owns navigation for our notifications.
-self.addEventListener("notificationclick", event => {
-    const data = event.notification.data || {};
-    const target = chapterTarget(data.url || data.FCM_MSG?.data?.url || data.FCM_MSG?.fcmOptions?.link);
-    if (!target) return;
-    event.stopImmediatePropagation();
-    event.notification.close();
-    event.waitUntil((async () => {
-        const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-        const sameOrigin = windows.filter(client => new URL(client.url).origin === self.location.origin);
-        const existing = sameOrigin.find(client => client.url === target) || sameOrigin[0];
-        if (existing) {
-            try {
-                const navigated = await existing.navigate(target);
-                if (navigated) return await navigated.focus();
-            } catch { /* The old tab may have closed; open a new one. */ }
-        }
-        return self.clients.openWindow(target);
-    })());
-});
-
-importScripts(
-    "/assets/js/firebase-config.js",
-    "https://www.gstatic.com/firebasejs/12.1.0/firebase-app-compat.js",
-    "https://www.gstatic.com/firebasejs/12.1.0/firebase-messaging-compat.js"
-);
-// Workers have a separate JS context; the page's existing app is not reinitialized.
-firebase.initializeApp(self.HELIUM_FIREBASE_CONFIG);
-const messaging = firebase.messaging();
-messaging.onBackgroundMessage(payload => {
-    // FCM automatically displays notification payloads. Never display a second one.
-    if (payload.notification) return;
-    const data = payload.data || {};
-    const target = chapterTarget(data.url);
-    if (!target) return;
-    const mangaTitle = data.mangaTitle || "Truyện bạn theo dõi";
-    const chapterTitle = data.chapterTitle || "Chương mới";
-    const title = data.title || `${mangaTitle} có chương mới!`;
-    const options = {
-        body: data.body || `${chapterTitle} vừa được đăng trên Hắc Âm Chi Các.`,
-        icon: new URL("/assets/icons/icon-192.png", self.location.origin).href,
-        badge: new URL("/assets/icons/notification-badge.png", self.location.origin).href,
-        tag: data.eventId || target,
-        data: { url: target }
-    };
-    // Only the current manga cover may be the large image. Missing/invalid covers
-    // leave a normal text notification; never substitute a generic OG image.
-    if (data.cover) {
-        try {
-            const cover = new URL(data.cover);
-            if (cover.protocol === "https:" && !cover.username && !cover.password &&
-                [self.location.origin, "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev"].includes(cover.origin)) {
-                options.image = cover.href;
-            }
-        } catch { /* The site icon remains available. */ }
-    }
-    return self.registration.showNotification(title, options);
-});
+        const subscription = await self.registration.pushManager.getSubscription();
+        if (subscription) await subscription.unsubscribe();
+    } catch { /* Still retire this exact push registration. */ }
+    await self.registration.unregister();
+})()));

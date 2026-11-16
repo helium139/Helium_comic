@@ -18,7 +18,7 @@ test('shared auth dispatch and profile reads preserve freshness and retry after 
         getDoc(uid) { reads++; return new Promise((resolve, reject) => { settle = { resolve, reject }; }); }
     };
     const source = (await readFile(new URL('../assets/js/firebase-session.js', import.meta.url), 'utf8'))
-        .replace(/^import .*;\n/gm, '')
+        .replace(/^import .*;\r?\n/gm, '')
         .replace('export const auth = getAuth(app);', 'export const auth = globalThis.__firebaseTest.auth;');
     const prelude = 'const { app, db, observeAuth, doc, getDoc } = globalThis.__firebaseTest;\n';
     try {
