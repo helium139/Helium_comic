@@ -1,0 +1,52 @@
+{
+  "scope": "local exact bundle; no cloud",
+  "cases": 10,
+  "allPassed": true,
+  "buildId": "b92119e2a82252ab0945f5ec0572ca92407be645df68cb421a31be1dcb8b29ef",
+  "bundleHash": "05fcdd7f7adf52e7e4198f23795b302e500ad9d20e1bc602546d747ea2dc5482",
+  "dbUnchanged": true,
+  "readinessSQLQueries": 0,
+  "readinessWarmsIsolate": true,
+  "results": [
+    {
+      "id": "first",
+      "status": 200
+    },
+    {
+      "id": "second",
+      "status": 200
+    },
+    {
+      "id": "wrong-key",
+      "status": 403
+    },
+    {
+      "id": "missing-jwt",
+      "status": 401
+    },
+    {
+      "id": "future-iat",
+      "status": 401
+    },
+    {
+      "id": "future-auth",
+      "status": 401
+    },
+    {
+      "id": "empty-sub",
+      "status": 401
+    },
+    {
+      "id": "wrong-method",
+      "status": 405
+    },
+    {
+      "id": "write-blocked",
+      "status": 403
+    },
+    {
+      "id": "resolve-blocked",
+      "status": 403
+    }
+  ]
+}

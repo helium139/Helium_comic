@@ -5,14 +5,14 @@ import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
 const output=path.resolve(process.argv[2]),require=createRequire(new URL('../../worker/package.json',import.meta.url)),{Miniflare,convertV4MiniflareOptions,Log,LogLevel}=require('miniflare');
 const {SignJWT,importPKCS8}=await import(pathToFileURL(require.resolve('jose'))),privateData=JSON.parse(await readFile(path.join(output,'synthetic-secrets.private.json'))),setup=JSON.parse(await readFile(path.join(output,'setup.private.json')));
-const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:await readFile(path.join(output,'index.mjs'),'utf8'),compatibilityDate:'2026-10-19',compatibilityFlags:['nodejs_compat'],bindings:{...privateData.secrets,PILOT_REGISTRY_MODE:process.argv[3]||'validator'},d1Databases:{DB:'isolated-fixture-local'},log:new Log(LogLevel.NONE)}));
+const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:await readFile(path.join(output,'index.mjs'),'utf8'),compatibilityDate:'2026-10-19',compatibilityFlags:['nodejs_compat'],bindings:{...privateData.secrets,PILOT_REGISTRY_MODE:process.argv[3]||'validator',PILOT_READY_UNTIL:String(setup.expires),CF_VERSION_METADATA:{id:'00000000-0000-4000-8000-000000000001'}},d1Databases:{DB:'isolated-fixture-local'},log:new Log(LogLevel.NONE)}));
 const results=[];
 try{
  const db=await mf.getD1Database('DB');for(const q of setup.queries)await db.prepare(q.sql).bind(...q.params).run();
  const key=await importPKCS8(privateData.privatePEM,'RS256'),now=Math.floor(Date.now()/1000);
  const token=async uid=>new SignJWT({sub:uid,role:'admin',teamId:'stale',accessVersion:0,auth_time:now-60}).setProtectedHeader({alg:'RS256',kid:'fixture'}).setIssuer('https://authority-fixture.invalid').setAudience('authority-pilot').setIssuedAt(now).setExpirationTime(now+3600).sign(key);
  async function call(id,uid,name,data,status,expected={},scenario='',cold=false){
-  const r=await mf.dispatchFetch('https://fixture.invalid/'+name+'?pilotCase='+id,{method:'POST',headers:{Authorization:'Bearer '+await token(uid),'X-Helium-Pilot-Key':privateData.secrets.PILOT_KEY,'X-Helium-Pilot-Scenario':scenario,'X-Helium-Pilot-Crypto':cold?'forced-key-cold':'warm'},body:JSON.stringify({data})});
+  const r=await mf.dispatchFetch('https://fixture.invalid/'+name+'?pilotCase='+id,{method:'POST',headers:{Authorization:'Bearer '+await token(uid),'X-Helium-Pilot-Key':privateData.secrets.PILOT_KEY,'X-Helium-Pilot-Scenario':scenario,'X-Helium-Pilot-Crypto':cold?'forced-key-cold':'warm','X-Helium-Pilot-Version':'00000000-0000-4000-8000-000000000001','X-Helium-Pilot-Build':setup.buildId||''},body:JSON.stringify({data})});
   const body=await r.json(),meta=JSON.parse(r.headers.get('X-Helium-Pilot-Metrics'));assert.equal(r.status,status,id+': '+JSON.stringify(body));for(const [k,v]of Object.entries(expected))assert.equal(body.result?.[k],v,id+': '+k);assert.ok(meta.rowsRead<=64&&meta.rowsWritten<=32&&meta.databaseBytes<=1048576);results.push({id,status,rowsRead:meta.rowsRead,rowsWritten:meta.rowsWritten,bytes:meta.databaseBytes});
  }
  await call('cold-resolve','leader','getCurrentAccess',{},200,{teamId:'a'},'',true);

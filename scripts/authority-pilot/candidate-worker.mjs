@@ -4,10 +4,18 @@ import {createAuthority} from '../../worker/view-runtime/authority.mjs';
 import {createAuthorityRuntime} from '../../worker/view-runtime/authority-runtime.mjs';
 import {createGoogleIdentityBridge} from '../../worker/view-runtime/google-identity-bridge.mjs';
 import {googleAccessTokenSupplier} from '../../worker/view-runtime/google-access-token.mjs';
+import {readinessResponse,deploymentIdentity} from './readiness-handler.mjs';
 import {teamRegistry} from '../../worker/view-runtime/team-registry.mjs';
 // Fixture deployment only; never import this entry from the CMS/production Worker.
 globalThis.fetch=async()=>{throw Error('External network disabled in isolated mock fixture');};
 let isolateTag,seen=0,keys,oauth,catalogue,registryText;
+const buildId=typeof __PILOT_BUILD_ID__==='string'?__PILOT_BUILD_ID__:null;
+async function verifyFixtureToken(token,env){
+ keys ||= createLocalJWKSet({keys:[JSON.parse(env.FIXTURE_PUBLIC_JWK)]});
+   const {payload,protectedHeader}=await jwtVerify(token,keys,{algorithms:['RS256'],issuer:'https://authority-fixture.invalid',audience:'authority-pilot',requiredClaims:['sub','iat','exp','auth_time']});const now=Math.floor(Date.now()/1000);
+   if(typeof protectedHeader.kid!=='string'||!protectedHeader.kid||payload.aud!=='authority-pilot'||typeof payload.sub!=='string'||!payload.sub.trim()||payload.sub.length>128||!Number.isFinite(payload.iat)||payload.iat<0||payload.iat>now||!Number.isFinite(payload.auth_time)||payload.auth_time<0||payload.auth_time>now||payload.auth_time>payload.iat||payload.exp<=payload.iat)throw Error('Invalid fixture ID token claims');
+   return {uid:payload.sub,role:payload.role,teamId:payload.teamId,accessVersion:payload.accessVersion};
+}
 function candidateCatalogue(mode){
  if(mode==='full'){
   const text=JSON.stringify(Array.from({length:200},(_,i)=>({id:i===0?'a':i===1?'b':'team-'+i,active:true}))).padEnd(65536,' ');
@@ -26,11 +34,18 @@ function trackedDB(raw,metrics){
  return {prepare:sql=>wrap(raw.prepare(sql))};
 }
 export default {async fetch(request,env){
- if(!env.PILOT_KEY||request.headers.get('X-Helium-Pilot-Key')!==env.PILOT_KEY)return new Response('Denied',{status:403});
  isolateTag ||= crypto.randomUUID();
+ const isolateFirst=seen++===0;
+ if(!env.PILOT_KEY||request.headers.get('X-Helium-Pilot-Key')!==env.PILOT_KEY)return new Response('Denied',{status:403});
  const url=new URL(request.url),caseId=url.searchParams.get('pilotCase');
  if(!/^[a-z0-9-]{1,64}$/.test(caseId||''))return new Response('Invalid fixture case',{status:400});
- const metrics={caseId,rowsRead:0,rowsWritten:0,databaseBytes:0,isolateTag,isolateFirst:seen++===0,cryptoCase:request.headers.get('X-Helium-Pilot-Crypto')||'warm',mockCalls:0};
+ if(url.pathname==='/__pilot/ready')return readinessResponse(request,env,{buildId,caseId,isolateTag,isolateFirst,verifyToken:token=>verifyFixtureToken(token,env)});
+ if(env.PILOT_DIAGNOSTIC_ONLY==='true')return Response.json({error:{status:'PERMISSION_DENIED'}},{status:403});
+ if(url.pathname==='/setUserAccess'&&request.method==='POST'){
+  const identity=deploymentIdentity(env,buildId);
+  if(!identity||request.headers.get('X-Helium-Pilot-Version')!==identity.versionId||request.headers.get('X-Helium-Pilot-Build')!==identity.buildId)return Response.json({error:{status:'FAILED_PRECONDITION'}},{status:412});
+ }
+ const metrics={caseId,rowsRead:0,rowsWritten:0,databaseBytes:0,isolateTag,isolateFirst,cryptoCase:request.headers.get('X-Helium-Pilot-Crypto')||'warm',mockCalls:0};
  const db=trackedDB(env.DB,metrics),isSet=url.pathname==='/setUserAccess';
  const reservation=await db.prepare('UPDATE fixture_budget SET requests=requests+1,reserved_read=reserved_read+64,reserved_write=reserved_write+32,sets=sets+? WHERE id=1 AND requests<250 AND reserved_read+64<=5000 AND reserved_write+32<=2000 AND sets+?<=12 AND expires>? RETURNING id').bind(isSet?1:0,isSet?1:0,Date.now()).all();
  if(!reservation.results.length)return new Response('Fixture budget/expiry exhausted',{status:429});
@@ -65,9 +80,7 @@ export default {async fetch(request,env){
   const catalogue=candidateCatalogue(env.PILOT_REGISTRY_MODE||'validator');
   const authority=createAuthority({db,bridge,catalogue});
   const runtime=createAuthorityRuntime({authority,catalogue,verifyToken:async token=>{
-   const {payload,protectedHeader}=await jwtVerify(token,keys,{algorithms:['RS256'],issuer:'https://authority-fixture.invalid',audience:'authority-pilot',requiredClaims:['sub','iat','exp','auth_time']});const now=Math.floor(Date.now()/1000);
-   if(typeof protectedHeader.kid!=='string'||!protectedHeader.kid||payload.aud!=='authority-pilot'||typeof payload.sub!=='string'||!payload.sub.trim()||payload.sub.length>128||!Number.isFinite(payload.iat)||payload.iat<0||payload.iat>now||!Number.isFinite(payload.auth_time)||payload.auth_time<0||payload.auth_time>now||payload.auth_time>payload.iat||payload.exp<=payload.iat)throw Error('Invalid fixture ID token claims');
-   return {uid:payload.sub,role:payload.role,teamId:payload.teamId,accessVersion:payload.accessVersion};
+   return verifyFixtureToken(token,env);
   }});
   response=await runtime.fetch(request,{DB:db,AUTHORITY_ENABLED:'true'});
  }catch{response=Response.json({error:{status:'UNAVAILABLE',message:'Fixture failure'}},{status:503});}

@@ -16,7 +16,7 @@ test('pilot controller enforces reservation/journal/host limits and never substi
  await assert.rejects(runMeasurementClient({...config,baseURL:'https://heliumtg.com/'}),/fixture host/);
  const budget=pilotBudget({http:250,read:0,write:0});await assert.rejects(runMeasurementClient({...config,budget}),/budget/);assert.equal(calls,1);
  await assert.rejects(runMeasurementClient({...config,fetchImpl:async()=>{throw Error('synthetic network failure');}}),/no retry/);assert.equal(journal.at(-1).state,'unknown-stop');
- const options=await runMeasurementClient({...config,steps:[{id:'options',name:'getCurrentAccess',method:'OPTIONS',cryptoCase:'warm',expectStatus:204}],fetchImpl:async(url,init)=>{assert.equal(init.method,'OPTIONS');assert.equal(init.body,undefined);assert.equal(init.headers.Authorization,undefined);return new Response(null,{status:204,headers:{'X-Helium-Pilot-Metrics':JSON.stringify({caseId:'options',rowsRead:0,rowsWritten:0,databaseBytes:65536,isolateTag:'fixture'})}});}});
+ const options=await runMeasurementClient({...config,steps:[{id:'options',name:'getCurrentAccess',method:'OPTIONS',cryptoCase:'warm',expectStatus:204}],fetchImpl:async(url,init)=>{assert.equal(init.method,'OPTIONS');assert.equal(init.body,undefined);assert.equal(init.headers.Authorization,undefined);return new Response(null,{status:204,headers:{'X-Helium-Pilot-Metrics':JSON.stringify({caseId:'options',rowsRead:0,rowsWritten:0,databaseBytes:65536,isolateTag:'fixture',isolateFirst:false})}});}});
  assert.equal(options.records[0].operation,'OPTIONS');
 });
 test('authority source graph excludes view SQL/rate histories',async()=>{
@@ -38,6 +38,6 @@ test('largest authority JSON paths:200teams/64KiB and callable boundary, not a v
 });
 test('nonfixture response is durably journaled without body/secrets and never retried',async()=>{
  const rows=[];let calls=0;
- await assert.rejects(runMeasurementClient({baseURL:'https://helium-authority-fixture-local.example.workers.dev/',approvedHost:'helium-authority-fixture-local.example.workers.dev',pilotSecret:'synthetic-secret',journal:async r=>rows.push(r),steps:[{id:'first-set',name:'setUserAccess',cryptoCase:'warm',expectStatus:200}],getSyntheticJWT:async()=>'synthetic-token',fetchImpl:async()=>{calls++;return new Response('not exported response body',{status:404,headers:{'Content-Type':'text/html'}});}}),/STOP/);
+ await assert.rejects(runMeasurementClient({baseURL:'https://helium-authority-fixture-local.example.workers.dev/',approvedHost:'helium-authority-fixture-local.example.workers.dev',pilotSecret:'synthetic-secret',journal:async r=>rows.push(r),steps:[{id:'first-resolve',name:'getCurrentAccess',cryptoCase:'warm',expectStatus:200}],getSyntheticJWT:async()=>'synthetic-token',fetchImpl:async()=>{calls++;return new Response('not exported response body',{status:404,headers:{'Content-Type':'text/html'}});}}),/STOP/);
  assert.equal(calls,1);assert.equal(rows.at(-1).state,'unverified-response-stop');assert.equal(rows.at(-1).status,404);assert.equal(rows.at(-1).budget.read,128);assert.equal(rows.at(-1).budget.write,160);assert.ok(!JSON.stringify(rows).includes('not exported'));
 });

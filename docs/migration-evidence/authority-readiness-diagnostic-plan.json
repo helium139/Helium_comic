@@ -1,0 +1,91 @@
+{
+  "status": "PREPARED ONLY; NOT AUTHORIZED OR EXECUTED",
+  "name": "readiness-diagnostic-v2",
+  "worker": "helium-authority-fixture-20261116",
+  "databaseId": "ee5d9c49-9db4-479a-92e2-22b8e19d22bc",
+  "url": "https://helium-authority-fixture-20261116.mylengoctra06.workers.dev/__pilot/ready",
+  "parent": {
+    "journal": "candidate-c3fa39f4/journal.private.jsonl",
+    "sha256": "11bc756825c62c18bcbd8102c43d60b205b0e460b84e940faafd0ed8bab938a7",
+    "caseId": "full-first-set",
+    "state": "unresolved-response",
+    "reservationHeld": {
+      "http": 1,
+      "read": 64,
+      "write": 32
+    }
+  },
+  "bundle": {
+    "hash": "05fcdd7f7adf52e7e4198f23795b302e500ad9d20e1bc602546d747ea2dc5482",
+    "buildId": "b92119e2a82252ab0945f5ec0572ca92407be645df68cb421a31be1dcb8b29ef"
+  },
+  "limits": {
+    "http": 250,
+    "read": 5000,
+    "write": 2000,
+    "bytes": 1048576,
+    "controlHTTP": 50
+  },
+  "cumulativeBefore": {
+    "conservativeHTTP": 92,
+    "conservativeRead": 828,
+    "conservativeWrite": 369,
+    "controlHTTP": 44,
+    "databaseBytes": 57344
+  },
+  "requestPlan": {
+    "readiness": 1,
+    "resolve": 0,
+    "set": 0,
+    "automaticRetries": 0
+  },
+  "controlPlan": [
+    "upload diagnostic-only fixture (same Worker, existing D1 and synthetic bindings; add version_metadata)",
+    "GET active deployment and require one version at100%",
+    "enable workers.dev without previews",
+    "disable workers.dev in finally",
+    "GET workers.dev and verify disabled",
+    "one bounded invocation-log query after disable"
+  ],
+  "maxAddedControlHTTP": 6,
+  "maxAddedWorkloadHTTP": 1,
+  "maxAddedRowsRead": 0,
+  "maxAddedRowsWritten": 0,
+  "cumulativeCeiling": {
+    "conservativeHTTP": 93,
+    "conservativeRead": 828,
+    "conservativeWrite": 369,
+    "controlHTTP": 50
+  },
+  "requiredBindings": [
+    {
+      "type": "version_metadata",
+      "name": "CF_VERSION_METADATA"
+    },
+    {
+      "type": "plain_text",
+      "name": "PILOT_DIAGNOSTIC_ONLY",
+      "text": "true"
+    },
+    {
+      "type": "plain_text",
+      "name": "PILOT_REGISTRY_MODE",
+      "text": "full"
+    },
+    {
+      "type": "plain_text",
+      "name": "PILOT_READY_UNTIL",
+      "text": "1794865849073"
+    }
+  ],
+  "noReset": true,
+  "noProduction": true,
+  "noNewResources": true,
+  "guardNotes": [
+    "original D1 expiry unchanged; readiness deadline copies it exactly, never extends it",
+    "if expired, transport identity may be observed but no valid SET receipt is issued",
+    "readiness does not prove D1 capacity, live authority or real Google transport",
+    "control50 reservation was already counted in conservativeHTTP92; do not double count or refund unknown request",
+    "new journal must use exclusive creation and link immutable parent SHA; stop if cumulative ledger differs; no implicit execution from manifest"
+  ]
+}
