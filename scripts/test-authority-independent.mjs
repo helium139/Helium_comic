@@ -1,0 +1,57 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {createAuthorityRuntime,installAuthorityPackage} from '../worker/view-runtime/authority-runtime.mjs';
+import {createAuthority} from '../worker/view-runtime/authority.mjs';
+import {planAuthorityRollback,executeAuthorityRollback} from '../worker/view-runtime/authority-rollback.mjs';
+import {teamRegistry} from '../worker/view-runtime/team-registry.mjs';
+import {currentActor} from '../functions/lib/views/authority-mirror.mjs';
+const {Miniflare,convertV4MiniflareOptions}=createRequire(new URL('../worker/package.json',import.meta.url))('miniflare');
+test('authority-only DB: revocation, old token, cross-team, monotonic rollback and usage',async t=>{
+ const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:'export default {fetch(){return new Response("local")}}',compatibilityDate:'2026-10-26',d1Databases:{DB:'authority-only'}}));t.after(()=>mf.dispose());
+ const raw=await mf.getD1Database('DB');await installAuthorityPackage(raw);
+ assert.equal(await raw.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='events'").first(),null);
+ await raw.prepare("INSERT INTO access_rows(uid,role,team_id) VALUES('owner','admin',NULL),('leader','team_leader','a')").run();
+ let counters={queries:0,read:0,write:0},projection=new Map(),calls=[];
+ const wrap=stmt=>({bind:(...a)=>wrap(stmt.bind(...a)),run:async()=>record(await stmt.run()),first:async()=>record(await stmt.all()).results[0]||null,all:async()=>record(await stmt.all())});
+ function record(result){counters.queries++;counters.read+=result.meta.rows_read;counters.write+=result.meta.rows_written;return result;}
+ const db={prepare:sql=>wrap(raw.prepare(sql))};
+ const bridge={getAccount:async()=>{calls.push('Auth.lookup');return {disabled:false,validSince:0};},patchMirror:async(uid,row)=>{calls.push('mirror.GET+CAS');projection.set(uid,row);},setClaims:async(uid,row)=>{calls.push('Auth.lookup+update');},patchProfile:async()=>calls.push('profile.PATCH')};
+ const authority=createAuthority({db,bridge,catalogue:async()=>({teams:[{id:'a',active:true},{id:'b',active:true}]}),clock:()=>1000000});
+ const token=uid=>'fake.'+Buffer.from(JSON.stringify({sub:uid,auth_time:1,role:'admin',teamId:'old',accessVersion:0})).toString('base64url')+'.fake';
+ const baseline=[{uid:'owner',role:'admin',teamId:null},{uid:'leader',role:'team_leader',teamId:'a'}];
+ counters={queries:0,read:0,write:0};const before=await authority.resolve({uid:'leader',role:'admin'},token('leader'));assert.equal(before.teamId,'a');const resolveUsage={...counters};
+ counters={queries:0,read:0,write:0};await authority.changeAccess({uid:'leader',role:'team_leader',teamId:'b'},{uid:'owner',role:'admin'});const changeUsage={...counters};
+ assert.equal((await authority.resolve({uid:'leader',role:'admin',teamId:'a'},token('leader'))).teamId,'b');
+ await assert.rejects(authority.changeAccess({uid:'owner',role:'user'},{uid:'leader',role:'team_leader',teamId:'b'}),e=>e.code==='permission-denied');
+ const runtime=createAuthorityRuntime({authority,verifyToken:async()=>({uid:'leader',role:'admin',teamId:'a'}),clock:()=>1000000}),env={DB:raw,AUTHORITY_ENABLED:'true'};
+ const req=(name,data={})=>new Request('https://authority.invalid/'+name,{method:'POST',headers:{authorization:'Bearer '+token('leader')},body:JSON.stringify({data})});
+ assert.equal((await runtime.fetch(req('getCurrentAccess'),env)).status,412);
+ await raw.prepare('UPDATE migration_gate SET verified=1,evidence_hash=?,free_features=?,free_expires=?').bind('a'.repeat(64),'["authority"]',2000000).run();
+ const access=await runtime.fetch(req('getCurrentAccess'),env);assert.equal(access.status,200);assert.equal((await access.json()).result.teamId,'b');
+ const invalid=createAuthorityRuntime({verifyToken:async()=>{throw Error('synthetic expired JWT');}});
+ assert.equal((await invalid.fetch(req('getCurrentAccess'),{AUTHORITY_ENABLED:'true'})).status,401);
+ assert.equal((await runtime.fetch(req('recordChapterView'),env)).status,404);
+ const current=(await raw.prepare('SELECT uid,role,team_id AS teamId,state,version FROM access_rows').all()).results;
+ const plan=planAuthorityRollback(current,baseline,{operatorUid:'owner'});assert.equal(plan[0].minimumNewVersion,3);
+ const restored=await executeAuthorityRollback(plan,{authority,operator:{uid:'owner',role:'admin'},assertQuiesced:async()=>{}});assert.equal(restored.mayDisableStrictGuards,false);
+ assert.equal(projection.get('leader').version,3);assert.equal((await authority.resolve({uid:'leader'},token('leader'))).teamId,'a');
+ const mirrorDB={doc:()=>({get:async()=>({data:()=>{const row=projection.get('leader');return {...row,leaseUntilMs:row.leaseUntil};}})})};
+ for(const [version,team,expected]of [[1,'a','user'],[2,'b','user'],[3,'a','team_leader']])assert.equal((await currentActor(mirrorDB,{auth:{uid:'leader',token:{role:'team_leader',teamId:team,accessVersion:version}}},{strict:true,clock:()=>1000000})).role,expected);
+ await authority.changeAccess({uid:'leader',role:'user'},{uid:'owner',role:'admin'});
+ assert.equal((await authority.resolve({uid:'leader',role:'admin'},token('leader'))).role,'user');
+ assert.throws(()=>planAuthorityRollback(current,[{uid:'owner',role:'user'}],{operatorUid:'owner'}),/Trusted/);
+ t.diagnostic(JSON.stringify({measurement:'local D1 metadata incl admin index, not cloud CPU',resolveUsage,changeUsage,googleTransportCalls:calls.length}));
+});
+test('authority registry is bounded and never fetches manga data',async()=>{
+ const urls=[];const catalogue=teamRegistry({fetchImpl:async url=>{urls.push(url);return Response.json([{id:'a',active:true}]);}});
+ assert.equal((await catalogue()).teams[0].id,'a');assert.equal(urls.length,1);assert.match(urls[0],/teams.json$/);
+ await assert.rejects(teamRegistry({fetchImpl:async()=>new Response(' '.repeat(65537))})(),/envelope/);
+});
+test('admin revoked during team-registry fetch cannot start a role change',async t=>{
+ const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:'export default {fetch(){return new Response("local")}}',compatibilityDate:'2026-10-26',d1Databases:{DB:'revoked-actor'}}));t.after(()=>mf.dispose());const db=await mf.getD1Database('DB');await installAuthorityPackage(db);
+ await db.prepare("INSERT INTO access_rows(uid,role,team_id) VALUES('owner','admin',NULL),('backup','admin',NULL),('leader','team_leader','a')").run();
+ let calls=0;const authority=createAuthority({db,bridge:{patchMirror:async()=>calls++},catalogue:async()=>{await db.prepare("UPDATE access_rows SET role='user',version=version+1 WHERE uid='owner'").run();return {teams:[{id:'b',active:true}]};}});
+ await assert.rejects(authority.changeAccess({uid:'leader',role:'team_leader',teamId:'b'},{uid:'owner',role:'admin'}),e=>e.code==='aborted');
+ assert.equal(calls,0);assert.deepEqual(await db.prepare("SELECT state,version,team_id FROM access_rows WHERE uid='leader'").first(),{state:'active',version:1,team_id:'a'});
+});

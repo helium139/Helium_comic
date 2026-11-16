@@ -5,6 +5,7 @@ import {randomUUID} from 'node:crypto';
 export async function installAuthority(db){
  for(const sql of [
   "CREATE TABLE access_rows(uid TEXT PRIMARY KEY,role TEXT NOT NULL CHECK(role IN ('user','admin','team_leader')),team_id TEXT,version INTEGER NOT NULL DEFAULT 1,state TEXT NOT NULL DEFAULT 'active',next_role TEXT,next_team TEXT,attempts INTEGER NOT NULL DEFAULT 0,sync_owner TEXT,sync_until INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID",
+  'CREATE INDEX access_active_admin ON access_rows(role,state)',
   'CREATE TABLE access_audit(id TEXT PRIMARY KEY,actor TEXT NOT NULL,target TEXT NOT NULL,version INTEGER NOT NULL,outcome TEXT NOT NULL,at INTEGER NOT NULL) WITHOUT ROWID',
   "CREATE TRIGGER keep_one_admin BEFORE UPDATE ON access_rows WHEN OLD.role='admin' AND OLD.state='active' AND (NEW.role<>'admin' OR NEW.state<>'active') AND NOT EXISTS(SELECT 1 FROM access_rows WHERE uid<>OLD.uid AND role='admin' AND state='active') BEGIN SELECT RAISE(ABORT,'last-admin'); END",
   "CREATE TRIGGER access_audit_no_update BEFORE UPDATE ON access_audit BEGIN SELECT RAISE(ABORT,'immutable-access-audit'); END",
@@ -44,13 +45,13 @@ export function createAuthority({db,bridge,catalogue,clock=Date.now}){
   if(target.attempts>=3&&target.state==='pending')fail('resource-exhausted','Access sync requires owner review');
   const version=target.state==='pending'?target.version:target.version+1;
   if(target.state==='active'){
-   const claimed=await q("UPDATE access_rows SET state='pending',version=?,next_role=?,next_team=?,attempts=0 WHERE uid=? AND state='active' AND version=?",[version,data.role,team,data.uid,target.version]).run();
+   const claimed=await q("UPDATE access_rows SET state='pending',version=?,next_role=?,next_team=?,attempts=0 WHERE uid=? AND state='active' AND version=? AND EXISTS(SELECT 1 FROM access_rows WHERE uid=? AND role='admin' AND state='active')",[version,data.role,team,data.uid,target.version,actor.uid]).run();
    if(claimed.meta.changes!==1)fail('aborted','Access changed concurrently');
   }
   const owner=randomUUID();
-  const lock=await q("UPDATE access_rows SET attempts=attempts+1,sync_owner=?,sync_until=? WHERE uid=? AND state='pending' AND version=? AND attempts<3 AND sync_until<=?",[owner,clock()+120000,data.uid,version,clock()]).run();
+  const lock=await q("UPDATE access_rows SET attempts=attempts+1,sync_owner=?,sync_until=? WHERE uid=? AND state='pending' AND version=? AND attempts<3 AND sync_until<=? AND EXISTS(SELECT 1 FROM access_rows WHERE uid=? AND role='admin' AND (state='active' OR uid=?))",[owner,clock()+120000,data.uid,version,clock(),actor.uid,data.uid]).run();
   if(lock.meta.changes!==1)fail('aborted','Access synchronization already running or exhausted');
-  const fence=async()=>{const result=await q("UPDATE access_rows SET sync_until=? WHERE uid=? AND state='pending' AND version=? AND sync_owner=? AND sync_until>?",[clock()+120000,data.uid,version,owner,clock()]).run();if(result.meta.changes!==1)fail('aborted','Access synchronization lease lost');};
+  const fence=async()=>{const result=await q("UPDATE access_rows SET sync_until=? WHERE uid=? AND state='pending' AND version=? AND sync_owner=? AND sync_until>? AND EXISTS(SELECT 1 FROM access_rows WHERE uid=? AND role='admin' AND (state='active' OR uid=?))",[clock()+120000,data.uid,version,owner,clock(),actor.uid,data.uid]).run();if(result.meta.changes!==1)fail('aborted','Access synchronization lease or admin authority lost');};
   const id=data.uid+':'+version;
   await q('INSERT INTO access_audit VALUES(?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',[id+':start',actor.uid,data.uid,version,'pending',clock()]).run();
   try{
