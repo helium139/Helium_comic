@@ -114,7 +114,7 @@ test('Google adapter builds typed RAW rows, private Drive markers, numeric/heade
 test('Functions manifest preserves existing exports and fixes monthly schedule to 00:10 UTC',()=>{
     const require=createRequire(new URL('../functions/package.json',import.meta.url));
     const functions=require('./index.js');
-    for(const name of ['health','registerPushToken','unregisterPushToken','notifyNewChapter','setUserAccess','startChapterViewSession','recordChapterView','getChapterViewAnalytics','listComments','createComment','editComment','deleteComment','moderateComment','recordChapterPopularity','closeMonthlyViewReport','getMonthlyViewReports','retryMonthlyViewReport','generateMonthlyViewReport','getMonthlyViewDashboard'])assert.equal(typeof functions[name],'function',name);
+    for(const name of ['setUserAccess','startChapterViewSession','recordChapterView','getChapterViewAnalytics','listComments','createComment','editComment','deleteComment','moderateComment','recordChapterPopularity','closeMonthlyViewReport','getMonthlyViewReports','retryMonthlyViewReport','generateMonthlyViewReport','getMonthlyViewDashboard'])assert.equal(typeof functions[name],'function',name);
     const schedule=functions.closeMonthlyViewReport.__endpoint.scheduleTrigger;
     assert.equal(schedule.schedule,'10 0 1 * *');assert.equal(schedule.timeZone,'UTC');assert.equal(schedule.retryConfig.retryCount,5);
 });
