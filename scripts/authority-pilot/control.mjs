@@ -23,7 +23,7 @@ export async function runMeasurementClient({baseURL,approvedHost,steps,getSynthe
   const started=now();let response;
   try{response=await fetchImpl(new URL(step.name+'?pilotCase='+step.id,base),{method,headers,body:method==='POST'?JSON.stringify({data:step.data||{}}):undefined,redirect:'error',signal:AbortSignal.timeout(15000)});}catch{await journal({id:step.id,state:'unknown-stop',budget:budget.snapshot()});throw Error('Unknown request outcome; reservation retained; no retry');}
   const latencyMs=now()-started;let meta,body;
-  try{meta=JSON.parse(response.headers.get('X-Helium-Pilot-Metrics'));body=response.status===204?{}:await response.json();}catch{throw Error('Missing fixture metrics; reservation retained; STOP');}
+  try{meta=JSON.parse(response.headers.get('X-Helium-Pilot-Metrics'));body=response.status===204?{}:await response.json();}catch{await journal({id:step.id,state:'unverified-response-stop',status:response.status,contentType:response.headers.get('content-type'),budget:budget.snapshot()});throw Error('Missing fixture metrics; reservation retained; STOP');}
   if(meta?.caseId!==step.id)throw Error('Fixture correlation mismatch; STOP');
   budget.settle(reserved,{read:meta.rowsRead,write:meta.rowsWritten,bytes:meta.databaseBytes});
   const correct=response.status===step.expectStatus&&(!step.expectResult||Object.entries(step.expectResult).every(([k,v])=>body.result?.[k]===v));

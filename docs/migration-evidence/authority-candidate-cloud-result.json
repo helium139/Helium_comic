@@ -1,0 +1,93 @@
+{
+  "at": "2026-11-16T20:34:02.941Z",
+  "commit": "c3fa39f4275e7eeedd3cfcdd5ca68182c974dadf",
+  "bundleHash": "12cdd5bc9c11bb6f3f9e07d8513e63288945be5f7a9f109a9edde37f422b0fd6",
+  "ci": {
+    "regression": "success",
+    "synthetic": "success"
+  },
+  "draft": true,
+  "decision": "INCONCLUSIVE: first response failed fixture protocol; controller stopped without retry",
+  "resources": {
+    "worker": "helium-authority-fixture-20261116",
+    "databaseId": "ee5d9c49-9db4-479a-92e2-22b8e19d22bc"
+  },
+  "currentVariant": "full",
+  "workersDevDisabledVerifiedAt": "2026-11-16T20:31:37.982Z",
+  "plan": "Workers Free unchanged",
+  "samples": [
+    {
+      "id": "full-first-set",
+      "mode": "full",
+      "operation": "setUserAccess",
+      "issued": true,
+      "httpStatus": null,
+      "cpuTimeMs": null,
+      "providerOutcome": null,
+      "isolateTag": null,
+      "isolateFirst": null,
+      "conclusion": "No fixture metrics or matching invocation logs; no cold-state proof"
+    }
+  ],
+  "notRun": [
+    "full warm SET",
+    "full resolve x4",
+    "validator first SET",
+    "validator warm SET",
+    "validator resolve x4"
+  ],
+  "matrixLimit": "Four SET attempts reserved; prioritize cold/warm SET in each variant. No deliberate true-cold resolve. No retries or extra workload after stop.",
+  "usage": {
+    "newWorkloadIssued": 1,
+    "newWorkloadObserved": 0,
+    "newControlHTTP": 8,
+    "cumulativeControlHTTP": 44,
+    "cumulativeWorkloadIssued": 42,
+    "cumulativeObservedControlPlusIssuedWorkload": 86,
+    "conservativeHTTP": 92,
+    "rowsReadMetadata": 578,
+    "rowsWrittenMetadata": 212,
+    "conservativeRowsRead": 828,
+    "conservativeRowsWritten": 369,
+    "controlReadReservation": 128,
+    "actualNewControlReads": 28,
+    "databaseBytes": 57344,
+    "limits": {
+      "http": 250,
+      "read": 5000,
+      "write": 2000,
+      "bytes": 1048576
+    },
+    "serverBudget": {
+      "requests": 91,
+      "reserved_read": 585,
+      "reserved_write": 308,
+      "sets": 8,
+      "expires": 1794865849073
+    }
+  },
+  "state": {
+    "leader": {
+      "uid": "leader",
+      "role": "team_leader",
+      "team_id": "a",
+      "version": 4,
+      "state": "active"
+    },
+    "auditRows": 8
+  },
+  "logs": {
+    "queries": 2,
+    "matchingInvocations": 0
+  },
+  "GoogleTransport": "mock only",
+  "realGoogleCalls": 0,
+  "productionChanged": false,
+  "newResources": 0,
+  "limitations": [
+    "HTTP status/body were not persisted by the original parser; logging fixed locally, no retry",
+    "Empty logs do not prove zero CPU or absence of every edge invocation",
+    "No attribution of CPU to registry or other overhead",
+    "No new Free go/no-go evidence; previous fixture no-go remains unrebutted"
+  ]
+}

@@ -36,3 +36,8 @@ test('largest authority JSON paths:200teams/64KiB and callable boundary, not a v
  assert.equal((await runtime.fetch(request(JSON.stringify({data:{rateHistory:Array(10000).fill(1000000)}})),env)).status,400);
  assert.equal(resolutions,1);
 });
+test('nonfixture response is durably journaled without body/secrets and never retried',async()=>{
+ const rows=[];let calls=0;
+ await assert.rejects(runMeasurementClient({baseURL:'https://helium-authority-fixture-local.example.workers.dev/',approvedHost:'helium-authority-fixture-local.example.workers.dev',pilotSecret:'synthetic-secret',journal:async r=>rows.push(r),steps:[{id:'first-set',name:'setUserAccess',cryptoCase:'warm',expectStatus:200}],getSyntheticJWT:async()=>'synthetic-token',fetchImpl:async()=>{calls++;return new Response('not exported response body',{status:404,headers:{'Content-Type':'text/html'}});}}),/STOP/);
+ assert.equal(calls,1);assert.equal(rows.at(-1).state,'unverified-response-stop');assert.equal(rows.at(-1).status,404);assert.equal(rows.at(-1).budget.read,128);assert.equal(rows.at(-1).budget.write,160);assert.ok(!JSON.stringify(rows).includes('not exported'));
+});
