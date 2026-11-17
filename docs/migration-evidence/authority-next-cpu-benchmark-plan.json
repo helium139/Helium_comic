@@ -1,0 +1,110 @@
+{
+  "status": "PROPOSED_ONLY_NO_CLOUD_EXECUTION",
+  "name": "authority-cpu-session-next",
+  "scope": "Workers/D1 Free; validator fixture only; synthetic Google transport",
+  "base": {
+    "reviewedApplicationCandidate": "c3fa39f4 with reviewed registry/JWT tooling corrections",
+    "currentRuntimeVersion": "200c526c-1e9f-41c0-86f8-03a725ee2f2a",
+    "currentBundleSHA": "05fcdd7f7adf52e7e4198f23795b302e500ad9d20e1bc602546d747ea2dc5482",
+    "newBenchmarkSHA": null,
+    "note": "Current diagnostic-only artifact and expired legacy gates cannot execute business benchmark. Fixture-only new-session routing and exact endpoint runner adapter must pass local review/CI and SHA pinning before cloud approval is executable. Application authorization, JWT/OAuth, audit, version, retry and mock unchanged."
+  },
+  "preflight": {
+    "cloudReadsNow": 0,
+    "boundedFutureSQLCalls": 1,
+    "selects": [
+      "fixture_budget counters/expiry (one PK row)",
+      "migration_gate evidence/expiry (one PK row)",
+      "synthetic target/owner access rows and bounded audit/projection reconciliation"
+    ],
+    "lastObservedSETS": 8,
+    "historicalSETCap": 12,
+    "conditionalNewSETAttempts": 4,
+    "onDifferentCounterOrPendingRole": "STOP; no automatic extra SET, budget expansion or replay"
+  },
+  "newSessionGuard": {
+    "ttlMinutes": 15,
+    "businessWindowSecondsAfterReadiness": 30,
+    "requestTimeoutSeconds": 5,
+    "initialState": "disabled until exact version and evidence match",
+    "newSessionRowOnly": true,
+    "oldGuardExpiryOrCountersUpdated": false,
+    "cumulativeSETCeiling": 12,
+    "readiness": 1,
+    "businessRequests": 12,
+    "setAttempts": 4,
+    "D1ReservationPerBusinessRequest": {
+      "read": 64,
+      "write": 32
+    },
+    "adminSQLReservation": {
+      "read": 256,
+      "write": 64
+    },
+    "readinessSQLReservation": {
+      "read": 0,
+      "write": 0
+    },
+    "databaseBytesCap": 1048576,
+    "retention": "Keep old journals and new immutable audit; no auto-delete, counter reset or reservation refund. Separate measured metadata from held ceilings.",
+    "gateRouting": "Fresh fixture-session gate only, namespace-isolated from expired fixture_budget/migration_gate rows; exact mapping must be reviewed/tested locally before SHA pinning. No application authorization gate bypass."
+  },
+  "matrix": {
+    "variant": "validator only; no new full/control A/B in this session",
+    "resolveWarmup": 2,
+    "resolveWarmMeasuredTarget": 3,
+    "resolveForcedKeyColdMeasuredTarget": 3,
+    "setRegistryFirst": 1,
+    "setWarmTarget": 2,
+    "setForcedKeyColdTarget": 1,
+    "setOrder": [
+      "registry-first a→b",
+      "warm b→a",
+      "forced-key-cold a→b",
+      "warm b→a"
+    ],
+    "trueCold": "Opportunistic only within existing request budget, using isolateFirst+tag/version evidence. Readiness warms an isolate; no promised cold cells or extra deploy to force them.",
+    "statistics": "Individual samples/range, no reliable p95; no subtraction across unequal isolate/cache states"
+  },
+  "controlCalls": {
+    "normal": 10,
+    "steps": [
+      "GET endpoint disabled",
+      "one bounded preflight D1 query",
+      "one atomic fixture guard/schema+session seed call",
+      "one benchmark fixture upload",
+      "GET active version",
+      "enable",
+      "one bounded post-run SQL snapshot",
+      "disable",
+      "GET verify disabled",
+      "one bounded invocation CPU logs query after closure"
+    ],
+    "cleanupSpare": 2,
+    "totalNewCap": 12,
+    "counterBefore": 61,
+    "proposedCap": 73,
+    "previousCap": 63,
+    "noAutomaticLogPolling": true
+  },
+  "cumulativeCeilings": {
+    "HTTP": 130,
+    "D1Read": 1916,
+    "D1Write": 849,
+    "bytes": 1048576,
+    "calculation": "HTTP=73 control cap+44 historical workload+13 new; reads=892 historical holds+12*64+256; writes=401 historical holds+12*32+64. Caps are not measured/billed usage or account-wide daily remainder."
+  },
+  "evidenceAndStops": {
+    "CPU": "Cloudflare invocation cpuTimeMs joined by case and runtime version; latency separate; missing trace=inconclusive",
+    "stop": [
+      "any quota/exceededCpu/provider error, timeout, unknown outcome, correctness/version/audit mismatch",
+      "any invocation cpuTimeMs>10ms under existing pilot criterion",
+      "any declared per-request/session/global cap exceeded or unverifiable",
+      "guard or readiness lease expires; no auto-renew",
+      "missing CPU after one bounded logs query =>inconclusive, no extra probes"
+    ],
+    "cleanup": "Finally disable and GET-verify workers.dev=false/previews=false, up to one additional disable+verify pair; report immediately if unverified",
+    "noFollowup": "No Google transport, production cutover, benchmark rerun or CPU configuration change",
+    "CPUDecisionTiming": "cpuTimeMs is evaluated after the single post-closure logs query; >10ms is a session no-go, not a promised real-time abort."
+  }
+}

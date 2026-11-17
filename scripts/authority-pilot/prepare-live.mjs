@@ -5,11 +5,11 @@ import {createHash,generateKeyPairSync,randomBytes} from 'node:crypto';
 import {installAuthorityPackage} from '../../worker/view-runtime/authority-runtime.mjs';
 import {fileURLToPath} from 'node:url';
 const output=path.resolve(process.argv[2]);await mkdir(output,{recursive:true});
-const candidate=process.argv[3]==='--candidate';
+const benchmark=process.argv[3]==='--benchmark',candidate=benchmark||process.argv[3]==='--candidate';
 if(process.argv[3]&&!candidate)throw Error('Unknown build variant');
 try{await access(path.join(output,'cloud-ledger.json'));throw Error('Existing cloud run: do not regenerate its fixture keys/setup');}catch(e){if(e.code!=='ENOENT')throw e;}
 const require=createRequire(new URL('../../worker/package.json',import.meta.url)),esbuild=require('esbuild');
-const buildOptions={entryPoints:[fileURLToPath(new URL(candidate?'./candidate-worker.mjs':'./fixture-worker.mjs',import.meta.url))],nodePaths:[fileURLToPath(new URL('../../worker/node_modules',import.meta.url))],tsconfigRaw:{},bundle:true,format:'esm',platform:'browser',target:'es2022',external:['node:*']};
+const buildOptions={entryPoints:[fileURLToPath(new URL(benchmark?'./benchmark-worker.mjs':candidate?'./candidate-worker.mjs':'./fixture-worker.mjs',import.meta.url))],nodePaths:[fileURLToPath(new URL('../../worker/node_modules',import.meta.url))],tsconfigRaw:{},bundle:true,format:'esm',platform:'browser',target:'es2022',external:['node:*']};
 // Hash the complete pre-identity bundle, including dependencies, then embed it.
 const preliminary=candidate?await esbuild.build({...buildOptions,write:false,define:{__PILOT_BUILD_ID__:JSON.stringify('unbound')}}):null;
 const buildId=preliminary?createHash('sha256').update(preliminary.outputFiles[0].contents).digest('hex'):null;
