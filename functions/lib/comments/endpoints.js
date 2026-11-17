@@ -9,12 +9,14 @@ exports.createCommentEndpoints = (db) => {
     maxInstances: 20, timeoutSeconds: 30}, async (request) => {
     const {CommentError, createCommentService} = await import("./service.mjs");
     try {
+      const {currentActor, actorFromAuth} = await import("../access/policy.mjs");
+      const actor = method === "moderate" || ["admin", "team_leader"].includes(request.auth?.token?.role) ?
+        await currentActor(db, request.auth) : actorFromAuth(request.auth);
       const {publishedCatalogue} = await import("../views/catalogue.mjs");
       return await createCommentService({db, catalogue: publishedCatalogue, serverTimestamp: () => FieldValue.serverTimestamp(),
-        timestampFromParts: (parts) => new Timestamp(parts.seconds, parts.nanoseconds), fieldDelete: () => FieldValue.delete()})[method](request.data, {uid: request.auth?.uid || null,
-        role: request.auth?.token?.role, teamId: request.auth?.token?.teamId});
+        timestampFromParts: (parts) => new Timestamp(parts.seconds, parts.nanoseconds), fieldDelete: () => FieldValue.delete()})[method](request.data, actor);
     } catch (error) {
-      if (error instanceof CommentError) throw new HttpsError(error.code, error.message);
+      if (error instanceof CommentError || ["permission-denied", "unauthenticated"].includes(error.code)) throw new HttpsError(error.code, error.message);
       logger.error("Comment operation failed", {operation: method, errorType: error?.name || "Error"});
       throw new HttpsError("unavailable", "Comments temporarily unavailable");
     }

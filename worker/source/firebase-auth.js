@@ -24,5 +24,5 @@ export async function verifyFirebaseToken(token, keys = signingKeys) {
         throw new Error("Invalid Firebase ID token claims");
     }
     // Only verified identity/authorization claims leave this module.
-    return Object.freeze({ uid: payload.sub, role: payload.role, teamId: payload.teamId });
+    return Object.freeze({ uid: payload.sub, role: payload.role, teamId: payload.teamId, accessVersion: payload.accessVersion });
 }

@@ -17,15 +17,40 @@ service cloud.firestore {
              request.auth.uid == userId;
     }
 
+    function currentStaff() {
+      let path = /databases/$(database)/documents/staffAccess/$(request.auth.uid);
+      return exists(path) && get(path).data.state == "active" &&
+             request.auth.token.get("accessVersion", -1) is int &&
+             request.auth.token.get("accessVersion", -1) > 0 &&
+             request.auth.token.get("accessVersion", -1) == get(path).data.version &&
+             request.auth.token.get("role", "user") == get(path).data.role &&
+             request.auth.token.get("teamId", null) == get(path).data.get("teamId", null);
+    }
+
+    // Read own state using the ID token; no Worker service-account credentials.
+    match /staffAccess/{uid} {
+      allow get: if isOwner(uid);
+      allow list, create, update, delete: if false;
+    }
+    match /staffAccessChanges/{id} {
+      allow read, write: if false;
+    }
+    match /staffAccessAudit/{id} {
+      allow read, write: if false;
+    }
+    match /teamLeaderSlots/{id} {
+      allow read, write: if false;
+    }
+
     function isAdmin() {
       return signedIn() &&
-             request.auth.token.role == "admin";
+             request.auth.token.role == "admin" && currentStaff();
     }
 
     function isTeamLeader() {
       return signedIn() &&
              request.auth.token.role == "team_leader" &&
-             request.auth.token.teamId != null;
+             request.auth.token.teamId != null && currentStaff();
     }
 
     function isStaff() {
@@ -73,7 +98,7 @@ service cloud.firestore {
              !request.resource.data.keys().hasAny(["role"]) ||
              request.resource.data.role == "user"
            ) &&
-           !request.resource.data.keys().hasAny(["teamId"]);
+           !request.resource.data.keys().hasAny(["teamId", "accessVersion"]);
 
 
       /*
@@ -97,7 +122,8 @@ service cloud.firestore {
              .affectedKeys()
              .hasAny([
                "role",
-               "teamId"
+               "teamId",
+               "accessVersion"
              ]);
 
 

@@ -238,3 +238,14 @@ test('start retries are idempotent and network ceilings cover different device i
     h.advance(10000); assert.equal((await h.record(second, h.context, another)).reason, 'rate-limited');
     assert.equal(h.db.documents.get('analyticsScopes/site/periods/all').validViews, 1);
 });
+
+
+test('ownership transfer preserves historical event and aggregate attribution',async()=>{
+ const h=harness(),old=await h.start(0);h.advance(10000);await h.record(old);
+ h.catalogue.data.m.teamId='other';const fresh=await h.start(1);h.advance(10000);await h.record(fresh);
+ assert.equal(h.db.documents.get('chapterViewEvents/'+old.sessionId).teamId,'heliumtg');
+ assert.equal(h.db.documents.get('chapterViewEvents/'+fresh.sessionId).teamId,'other');
+ assert.equal(h.db.documents.get('analyticsScopes/team:heliumtg/periods/all').validViews,1);
+ assert.equal(h.db.documents.get('analyticsScopes/team:other/periods/all').validViews,1);
+ assert.equal(h.db.documents.get('analyticsScopes/site/periods/all').validViews,2);
+});

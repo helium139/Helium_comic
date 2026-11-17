@@ -25,6 +25,13 @@ jobs:
           scripts/test-comments.mjs scripts/test-view-service.mjs
           scripts/test-chapter-views.mjs scripts/test-cms-auth.mjs
           scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs
-          scripts/test-staff-access.mjs
+          scripts/test-staff-access.mjs scripts/test-current-staff-access.mjs
       - name: Lint Functions
         run: npm --prefix functions run lint
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Verify current access with local Firestore
+        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-current-staff-firestore.mjs scripts/test-view-rules.mjs"
