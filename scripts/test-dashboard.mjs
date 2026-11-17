@@ -123,8 +123,9 @@ const editLink = row => row.children.at(-1).children[0];
 test('admin selector updates both cards and table locally without additional requests', async () => {
     const d = await dashboard(admin);
     assert.equal(d.errors.length, 0);
-    assert.equal(d.get('total-manga').textContent, '2');
-    assert.equal(d.get('monthly-chapters').textContent, '2');
+    assert.equal(d.get('total-manga').textContent, '1');
+    assert.equal(d.get('monthly-chapters').textContent, '1');
+    assert.equal(d.get('dashboard-team').value, 'heliumtg');
     assert.equal(d.get('team-filter-container').hidden, false);
     assert.equal(d.get('dashboard-team').children.length, 4);
     assert.equal(d.get('dashboard-team').children[0].textContent, 'All Teams');
@@ -182,6 +183,8 @@ test('guard/fetch failures do not display misleading zero counts; placeholders d
 test('dashboard paginates scoped catalogue; team changes reset to first page', async () => {
     const data = Object.fromEntries(Array.from({length:33}, (_,i) => [`m${i}`, {title:`Manga ${String(i).padStart(2,'0')}`,teamId:i<23?'heliumtg':'testteam',chapters:[]}]));
     const d = await dashboard(admin,{data});
+    assert.match(d.get('manga-results').textContent,/of 23 manga/);
+    const all=d.get('dashboard-team');all.value='all';all.events.change();
     assert.equal(d.get('manga-list').children.length,MANGA_PAGE_SIZE);
     assert.match(d.get('manga-results').textContent,new RegExp(`Showing 1–${MANGA_PAGE_SIZE} of 33`));
     assert.equal(d.get('manga-pagination').children[0].disabled,true);

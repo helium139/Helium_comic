@@ -1,4 +1,6 @@
 import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
+import { getTeams } from "../assets/js/teams.js";
+import { defaultTeamView, inTeamView, renderTeamView } from "./team-view.mjs";
 import { chapterUrl } from "../assets/js/routes.js";
 import { requireStaff } from "../assets/js/adminGuard.js";
 import { getMangas } from "./api/manga.js";
@@ -16,6 +18,9 @@ const currentStaff = await requireStaff();
 =========================== */
 
 let mangas = {};
+let teams = [];
+let viewTeam;
+const teamView = document.getElementById("teamView");
 
 let mode = "new";
 
@@ -80,10 +85,15 @@ await init().catch(showStaffAccessError);
 async function init(){
 
     mangas = scopeMangas(currentStaff, await getMangas());
+    teams = await getTeams();
 
     parseQuery();
     const requestedManga = new URLSearchParams(location.search).get("manga");
     if (requestedManga) assertCanManageManga(currentStaff, mangas[requestedManga]);
+    viewTeam = defaultTeamView(currentStaff, teams, mangas[requestedManga]);
+    renderTeamView(teamView, currentStaff, teams, viewTeam);
+    // An existing chapter stays bound to its manga while editing.
+    teamView.disabled = mode === "edit";
 
     renderMangaList();
     if (requestedManga) mangaSelect.value = requestedManga;
@@ -138,6 +148,18 @@ function parseQuery(){
 =========================== */
 
 function bindEvents(){
+    teamView.onchange = () => {
+        if (mode === "edit" || uploadBtn.disabled) { teamView.value = viewTeam; return; }
+        if (newImages.length && !confirm("Đổi team sẽ bỏ danh sách ảnh chưa lưu. Tiếp tục?")) {
+            teamView.value = viewTeam; return;
+        }
+        newImages = [];
+        currentSlug = "";
+        viewTeam = teamView.value;
+        renderMangaList();
+        updateNextChapter();
+        renderPreview();
+    };
 
     mangaSelect.onchange = ()=>{
 
@@ -198,6 +220,7 @@ function renderMangaList(){
     
 
     Object.entries(mangas)
+    .filter(([, manga]) => inTeamView(currentStaff, manga, teams, viewTeam))
 
     .sort((a,b)=>
 
@@ -214,13 +237,10 @@ function renderMangaList(){
         if (slug === currentSlug || manga.status !== "Hiatus" && manga.status !== "Completed")
     {
 
-        mangaSelect.innerHTML +=
-
-        `<option value="${slug}">
-
-            ${manga.title}
-
-        </option>`;
+        const option = document.createElement("option");
+        option.value = slug;
+        option.textContent = manga.title;
+        mangaSelect.appendChild(option);
         }
 
     });
@@ -233,7 +253,11 @@ function updateNextChapter(){
     const manga = mangas[mangaSelect.value];
     rawCaughtUp.checked = manga?.isRawCaughtUp === true;
 
-    if(!manga) return;
+    if(!manga) {
+        chapterNumber.value = "";
+        chapterTitle.value = "";
+        return;
+    }
 
     const next = manga.chapters.length + 1;
 

@@ -1,4 +1,5 @@
 import { paginateMangas, renderPagination } from "./pagination.mjs";
+import { defaultTeamView, inTeamView, renderTeamView } from "./team-view.mjs";
 import { scopeMangas, assertCanManageManga, showStaffAccessError } from "../assets/js/staff-access.js";
 import { getTeams, resolveMangaTeam, getTeamById } from "../assets/js/teams.js";
 import { requireStaff } from "../assets/js/adminGuard.js";
@@ -24,6 +25,8 @@ const currentStaff = await requireStaff();
 
 let mangas = {};
 let mangaPage = 1;
+let viewTeam;
+const teamView = document.getElementById("teamView");
 
 let currentSlug = null;
 
@@ -122,6 +125,8 @@ async function init(){
 
     const requestedManga = new URLSearchParams(location.search).get("manga");
     if (requestedManga) assertCanManageManga(currentStaff, mangas[requestedManga]);
+    viewTeam = defaultTeamView(currentStaff, teams, mangas[requestedManga]);
+    renderTeamView(teamView, currentStaff, teams, viewTeam);
     renderMangas();
     bindEvents();
     if (requestedManga) openEditor(requestedManga);
@@ -129,6 +134,16 @@ async function init(){
 }
 
 function bindEvents(){
+    teamView.onchange = () => {
+        if (saveBtn.disabled) { teamView.value = viewTeam; return; }
+        if (!editor.classList.contains("hidden") && !confirm("Đổi team sẽ đóng phần chỉnh sửa chưa lưu. Tiếp tục?")) {
+            teamView.value = viewTeam; return;
+        }
+        closePanel();
+        viewTeam = teamView.value;
+        mangaPage = 1;
+        renderMangas();
+    };
 
     searchInput.oninput=()=>{
         mangaPage = 1;
@@ -174,6 +189,7 @@ function renderMangas(keyword=searchInput.value){
     mangaGrid.replaceChildren();
 
     const filteredMangas = Object.entries(scopeMangas(currentStaff, mangas))
+    .filter(([, manga]) => inTeamView(currentStaff, manga, teams, viewTeam))
 
     .filter(([slug,manga])=>{
 
@@ -356,7 +372,7 @@ function openNew(){
 
     teamSelect.value = currentStaff.role === "team_leader"
         ? currentStaff.teamId
-        : teams.find(team => team.active)?.id || "";
+        : viewTeam;
 
     status.value = "Ongoing";
 
