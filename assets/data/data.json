@@ -15933,12 +15933,12 @@
             {
                 "id": 1,
                 "title": "Chap 1",
-                "createAt": "2026-11-17T14:54:01.474Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/chap1",
+                "createAt": "2026-11-17T00:00:00.000Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/chap1/_revision-1794927743899-2211037294",
                 "pages": 2,
                 "images": [
                     "1.webp",
-                    "2.webp"
+                    "2.jpg"
                 ]
             }
         ],
