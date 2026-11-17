@@ -15913,5 +15913,24 @@
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/guild-member-next-door-ngoai-truyen/cover-3cde3d8a-905f-4bd0-b5ad-6da7e8b0cebf.webp"
+    },
+    "tet-truyen-chut": {
+        "title": "tét truyện chút",
+        "original_title": "tét",
+        "author": "test",
+        "status": "Ongoing",
+        "description": "tét truyện chút.\nthêm 1 dòng nè\nthêm 1 dòng nữa nè\nbla bla",
+        "tags": [
+            "Tét",
+            "Truyện",
+            "Chút"
+        ],
+        "isRawCaughtUp": true,
+        "teamId": "testeam2",
+        "team": "Test Team 2",
+        "adminPick": false,
+        "pickOrder": 999,
+        "chapters": [],
+        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/cover-9007afba-722e-4587-8198-609f9c146f2b.webp"
     }
 }
