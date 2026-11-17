@@ -16,6 +16,8 @@ test('actual merged rules deny view collections and preserve existing site permi
     try {
         await environment.withSecurityRulesDisabled(async context => {
             const db = context.firestore();
+            await setDoc(doc(db, 'staffAccess/l'), {state:'active',role:'team_leader',teamId:'heliumtg',version:1});
+            await setDoc(doc(db, 'staffAccess/a'), {state:'active',role:'admin',teamId:null,version:1});
             await setDoc(doc(db, 'users/u'), { role: 'user', name: 'Reader' });
             await setDoc(doc(db, 'mangaStats/m'), { views: 99, likes: 0, follows: 0 });
             await setDoc(doc(db, 'mangaOwnership/m'), { teamId: 'heliumtg' });
@@ -23,8 +25,8 @@ test('actual merged rules deny view collections and preserve existing site permi
             await setDoc(doc(db, 'analyticsScopes/team:other/periods/all'), { validViews: 10, teamId: 'other' });
         });
         const users = [environment.unauthenticatedContext(), environment.authenticatedContext('u', { role: 'user' }),
-            environment.authenticatedContext('a', { role: 'admin' }),
-            environment.authenticatedContext('l', { role: 'team_leader', teamId: 'heliumtg' })];
+            environment.authenticatedContext('a', { role: 'admin', accessVersion:1 }),
+            environment.authenticatedContext('l', { role: 'team_leader', teamId: 'heliumtg', accessVersion:1 })];
         for (const context of users) {
             const db = context.firestore();
             for (const path of ['chapterViewSessions/s', 'chapterViewEvents/e', 'viewDedup/d', 'viewRateLimits/r',

@@ -19,18 +19,23 @@ exports.createViewEndpoints = (db) => {
   const endpoint = (method) => onCall(options, async (request) => {
     const {ViewError} = await import("./policy.mjs");
     try {
+      let staff = null;
+      if (method === "analytics") {
+        const {currentActor} = await import("../access/policy.mjs");
+        staff = await currentActor(db, request.auth);
+      }
       const {createViewService} = await import("./view-service.mjs");
       const {publishedCatalogue} = await import("./catalogue.mjs");
       const service = createViewService({db, timestamp: (ms) => Timestamp.fromMillis(ms),
         secret: readerKey.value(), catalogue: publishedCatalogue});
       return await service[method](request.data, {
         uid: request.auth?.uid || null,
-        role: request.auth?.token?.role,
-        teamId: request.auth?.token?.teamId,
+        role: staff?.role ?? request.auth?.token?.role,
+        teamId: staff?.teamId ?? request.auth?.token?.teamId,
         network: request.rawRequest.ip?.toLowerCase().replace(/^::ffff:/, "") || "unavailable",
       });
     } catch (error) {
-      if (error instanceof ViewError) throw new HttpsError(error.code, error.message);
+      if (error instanceof ViewError || ["permission-denied", "unauthenticated"].includes(error.code)) throw new HttpsError(error.code, error.message);
       logger.error("Trusted view operation failed", {operation: method, errorType: error?.name || "Error"});
       throw new HttpsError("unavailable", "View service temporarily unavailable");
     }

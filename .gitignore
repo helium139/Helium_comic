@@ -4,3 +4,8 @@ webp-*.jsonl.catalogue.json
 .env.webp
 
 docs/push-retirement-*.local.json
+.local-cms-build/
+.local-emulator-config/
+*.local.log
+firebase-debug.log
+firestore-debug.log

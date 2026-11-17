@@ -1,0 +1,85 @@
+{
+  "baselineCommit": "4955c7ca",
+  "candidateRuntimeCommit": "b486a0292c61bd438ac5731c78bede6a2318e6e0",
+  "hash": "SHA256 UTF8 normalized LF; not raw bundle hash",
+  "liveDeploymentVersion": "385be4b3",
+  "liveSourceVerified": true,
+  "rows": [
+    {
+      "file": "worker/source/worker.js",
+      "baselineSHA256": "7b924d7bce5832a2e2ae18243b54ffef600809f73b0102d952484f66c4d55c59",
+      "candidateSHA256": "d5a95928fedb3a5eaf886464bcf96c2c7ed5e3b8b6e2b02307e5479084f390ed",
+      "change": "changed"
+    },
+    {
+      "file": "worker/source/firebase-auth.js",
+      "baselineSHA256": "423c9b6209ccf334e3f04a5866652c841efc53824620dfd20f575983847faccd",
+      "candidateSHA256": "830308e9614523cd909f3be9b19c6bedc184e9d47cb2e66ed496a8f0992dca6e",
+      "change": "changed"
+    },
+    {
+      "file": "worker/source/current-access.js",
+      "baselineSHA256": null,
+      "candidateSHA256": "34dfc5d8dbba0b3d6b8ac641f6790fb2ee3cddb8119023bdb5e742fc650d0fbe",
+      "change": "added"
+    },
+    {
+      "file": "worker/source/chapter-promotion.js",
+      "baselineSHA256": "8f4681daeb817d8e4c9b4e00e9033e4a09bec49089cf13242f32b7f0567cabe8",
+      "candidateSHA256": "8f4681daeb817d8e4c9b4e00e9033e4a09bec49089cf13242f32b7f0567cabe8",
+      "change": "unchanged"
+    },
+    {
+      "file": "worker/source/cms-authorization.js",
+      "baselineSHA256": "ef90d331481bd45ac2effc590c97165f3c21a9daa06f8e91bc02fe98edb560cd",
+      "candidateSHA256": "ef90d331481bd45ac2effc590c97165f3c21a9daa06f8e91bc02fe98edb560cd",
+      "change": "unchanged"
+    },
+    {
+      "file": "worker/source/image-format.js",
+      "baselineSHA256": "080fe70882d4ba3af8d9b5ed3e9052e0fa92a553cb50cbf0450210fe673ab6e6",
+      "candidateSHA256": "080fe70882d4ba3af8d9b5ed3e9052e0fa92a553cb50cbf0450210fe673ab6e6",
+      "change": "unchanged"
+    },
+    {
+      "file": "assets/js/admin-picks-order.mjs",
+      "baselineSHA256": "4f3a6a2c9862b0ceddcf3ec4e3fe64a3d09a23a28823d79f635c5018c3cfdf32",
+      "candidateSHA256": "4f3a6a2c9862b0ceddcf3ec4e3fe64a3d09a23a28823d79f635c5018c3cfdf32",
+      "change": "unchanged"
+    },
+    {
+      "file": "functions/lib/access/policy.mjs",
+      "baselineSHA256": null,
+      "candidateSHA256": "5a108487851aca7b4a087a7678e221723699c788cefe8ba3ccd0c85dd835385c",
+      "change": "added"
+    },
+    {
+      "file": "worker/source/wrangler.toml",
+      "baselineSHA256": "09e4c5d6a9559d2fcedbbc8999557f4d61efd97e8439a93f739b24c439990d22",
+      "candidateSHA256": "09e4c5d6a9559d2fcedbbc8999557f4d61efd97e8439a93f739b24c439990d22",
+      "change": "unchanged"
+    },
+    {
+      "file": "worker/package.json",
+      "baselineSHA256": "111a4c123cdf7eab6994471237f2306742e975c04857339846f29296a280edbd",
+      "candidateSHA256": "111a4c123cdf7eab6994471237f2306742e975c04857339846f29296a280edbd",
+      "change": "unchanged"
+    },
+    {
+      "file": "worker/package-lock.json",
+      "baselineSHA256": "6426397519696264c8f54554e48cf33a0536143015ada4cec8159816ec4241fa",
+      "candidateSHA256": "6426397519696264c8f54554e48cf33a0536143015ada4cec8159816ec4241fa",
+      "change": "unchanged"
+    }
+  ],
+  "liveVerificationScope": "Provided export matches baseline executable AST and exact code after LF/whole-line comments normalization",
+  "deploymentMetadata": {
+    "worker": "helium-cms",
+    "versionPrefix": "385be4b3",
+    "fullVersionId": null,
+    "trafficPercent": 100,
+    "checkedDate": "2026-11-17",
+    "source": "user supplied; not independently queried via API"
+  },
+  "liveComparisonReport": "cms-live-comparison.json"
+}

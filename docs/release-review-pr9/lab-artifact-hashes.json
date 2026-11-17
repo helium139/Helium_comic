@@ -1,0 +1,18 @@
+{
+  "runtime": "b486a0292c61bd438ac5731c78bede6a2318e6e0",
+  "files": [
+    {
+      "file": "candidate.bundle.mjs",
+      "bytes": 85636,
+      "sha256": "9bee7254930efde3edd104d0a3c09d82be29d4607f33993244fdf53bcc911c8b",
+      "gzipBytes": 22167
+    },
+    {
+      "file": "provider.bundle.mjs",
+      "bytes": 4637,
+      "sha256": "eb900d2c5b4ec9b146677364b6fd1bf322d1a195e602d1bb776606acd46c1e0c",
+      "gzipBytes": 1771
+    }
+  ],
+  "actualCloudDeploymentVersion": null
+}

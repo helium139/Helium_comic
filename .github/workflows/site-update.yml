@@ -63,6 +63,9 @@ jobs:
       - name: Test scoped dashboard statistics
         run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
 
+      - name: Test current staff access fence and recovery
+        run: node --test scripts/test-current-staff-access.mjs scripts/test-staff-bootstrap-dry-run.mjs scripts/test-cms-cpu-lab.mjs scripts/test-cms-export-compare.mjs scripts/test-staff-browser-session.mjs
+
       - name: Lint Firebase Functions
         run: npm --prefix functions run lint
 
@@ -82,7 +85,7 @@ jobs:
           java-version: '21'
 
       - name: Test Firestore view and comment rules and transactions
-        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs scripts/test-comment-firestore.mjs scripts/test-monthly-report-firestore.mjs"
+        run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs scripts/test-comment-firestore.mjs scripts/test-monthly-report-firestore.mjs scripts/test-current-staff-firestore.mjs"
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs

@@ -15,7 +15,7 @@ const keys = createLocalJWKSet({ keys: [jwk] });
 const now = () => Math.floor(Date.now() / 1000);
 async function token(claims = {}, header = {}) {
     return new SignJWT({
-        sub: 'reader', role: 'admin', aud: FIREBASE_PROJECT,
+        sub: 'reader', role: 'admin', accessVersion: 1, aud: FIREBASE_PROJECT,
         iss: `https://securetoken.google.com/${FIREBASE_PROJECT}`,
         iat: now(), auth_time: now() - 60, exp: now() + 3600, ...claims
     }).setProtectedHeader({ alg: 'RS256', kid: 'test-key', ...header }).sign(privateKey);
@@ -42,6 +42,7 @@ function harness({ failList = false, fetchMode, githubTimeoutMs = 30_000, r2Time
     let catalogue = { own: manga('heliumtg'), other: manga('other-team'), legacy: { ...manga('heliumtg'), teamId: undefined } };
     const objects = new Map();
     const operations = [], commits = [], logs = [], requests = [];
+    const access = {reads:0, grants:{reader:{role:'admin'},leader:{role:'team_leader',teamId:'heliumtg'},other:{role:'team_leader',teamId:'other-team'}}};
     let rejectSave = false, failDelete = false, revision = 1;
     let objectRevision = 0;
     const r2Calls = { get: 0, head: 0, put: 0, list: 0, delete: 0 };
@@ -95,6 +96,13 @@ function harness({ failList = false, fetchMode, githubTimeoutMs = 30_000, r2Time
         githubTimeoutMs, r2TimeoutMs,
         log: details => logs.push(details),
         fetchImpl: async (url, options) => {
+            if (new URL(url).hostname === 'firestore.googleapis.com') {
+                const uid = decodeURIComponent(new URL(url).pathname.split('/').at(-1));
+                access.reads++; access.beforeRead?.(access);
+                const grant = access.grants[uid];
+                return grant ? Response.json({fields:{state:{stringValue:grant.state || 'active'},role:{stringValue:grant.role},
+                    teamId:grant.teamId?{stringValue:grant.teamId}:{nullValue:null},version:{integerValue:String(grant.version || 1)}}}) : new Response('',{status:403});
+            }
             requests.push({ url, method: options.method });
             if (fetchMode === 'hang' && options.method !== 'PUT') return new Promise(() => {});
             if (options.method === 'PUT') {
@@ -126,7 +134,7 @@ function harness({ failList = false, fetchMode, githubTimeoutMs = 30_000, r2Time
             body: ['GET', 'HEAD', 'OPTIONS'].includes(method) ? undefined : multipart ? body : JSON.stringify(body)
         }), env, ctx);
     }
-    return { call, BUCKET, objects, operations, commits, logs, requests, r2Calls, env,
+    return { call, BUCKET, objects, operations, commits, logs, requests, r2Calls, env, access,
         catalogue: () => catalogue, rejectSave: () => { rejectSave = true; },
         setRejectSave: value => { rejectSave = value; }, failDelete: () => { failDelete = true; } };
 }
@@ -882,4 +890,36 @@ test('failed final verification retains staging and does not commit', async () =
     assert.ok(h.objects.has(page.key));
     assert.equal(h.commits.length, 0);
     assert.equal(h.operations.some(([op]) => op === 'delete'), false);
+});
+
+
+test('revoked leader old JWT and old tab fail every mutation before storage; no grant cache',async()=>{
+ const h=harness();assert.equal((await h.call('/edit-manga',input(),leader)).status,200);
+ h.access.grants.leader={role:'user',version:2};const before=h.operations.length,commits=h.commits.length;
+ for(const path of routes)assert.equal((await h.call(path,path==='/upload'?upload('own/chap1'):input(),leader)).status,403);
+ assert.equal(h.operations.length,before);assert.equal(h.commits.length,commits);
+ assert.equal(h.access.reads,10,'two reads for initial catalogue mutation, one for each denied route');
+});
+test('team transfer rejects old token on both teams; only matching new version can act',async()=>{
+ const h=harness();h.access.grants.other={role:'user',version:2};
+ h.access.grants.leader={role:'team_leader',teamId:'other-team',version:2};
+ for(const slug of ['own','other'])assert.equal((await h.call('/edit-manga',input(slug),leader)).status,403);
+ const fresh=await token({sub:'leader',role:'team_leader',teamId:'other-team',accessVersion:2});
+ assert.equal((await h.call('/edit-manga',input('own'),fresh)).status,403);
+ assert.equal((await h.call('/edit-manga',input('other'),fresh)).status,200);
+});
+test('revocation during preparation is rechecked before GitHub catalogue commit',async()=>{
+ const h=harness();h.access.beforeRead=a=>{if(a.reads===2)a.grants.leader.state='pending';};
+ assert.equal((await h.call('/edit-manga',input(),leader)).status,403);
+ assert.equal(h.commits.length,0);
+});
+test('two current leaders upload/publish concurrently without losing committed chapters',async()=>{
+ const h=harness();const uploads=await Promise.all([h.call('/upload',upload('own/chap1'),leader),h.call('/upload',upload('other/chap1'),otherLeader)]);
+ assert.ok(uploads.every(r=>r.status===200));const images=await Promise.all(uploads.map(r=>r.json()));
+ const bodies=['own','other'].map((manga,i)=>({manga,chapterNumber:1,title:'New',imageCount:1,images:[images[i].key.split('/').pop()]}));
+ const actors=[leader,otherLeader];const responses=await Promise.all(bodies.map((b,i)=>h.call('/new-chapter',b,actors[i])));
+ assert.deepEqual(responses.map(r=>r.status).sort(),[200,409]);const loser=responses.findIndex(r=>r.status===409);
+ assert.equal(h.objects.has(images[loser].key),true);
+ assert.equal((await h.call('/new-chapter',bodies[loser],actors[loser])).status,200);
+ for(const b of bodies)assert.equal(h.catalogue()[b.manga].chapters.filter(c=>c.id===1).length,1);
 });

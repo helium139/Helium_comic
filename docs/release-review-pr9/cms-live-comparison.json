@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "parseOnly": true,
+  "live": {
+    "bytes": 86436,
+    "sha256": "266e2fd39377f9835cc0d82a4f905b272040485333ee45de670c90136d92ec50",
+    "crlfCount": 1876,
+    "topLevelStatements": 214,
+    "executableASTSHA256": "3626042ae8f2fd6464859ef5a005e96ca45222ac6d2722908e1e81140d3f9b4e"
+  },
+  "baseline": {
+    "bytes": 84717,
+    "sha256": "6b37da98df33ca4bdad33f609869cc6d71c4a60ddf2ac625058a7a52bf8c0fa1",
+    "topLevelStatements": 214,
+    "executableASTSHA256": "3626042ae8f2fd6464859ef5a005e96ca45222ac6d2722908e1e81140d3f9b4e"
+  },
+  "executableASTEqual": true,
+  "equalAfterLFAndWholeLineCommentRemoval": true,
+  "differingASTPaths": [],
+  "normalization": "Ignore source positions and Literal.raw spelling; preserve literal values, regex patterns/flags, directives and tagged-template raw strings"
+}

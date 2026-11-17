@@ -63,6 +63,7 @@ test('50 sequential uploads reuse only ETag-verified ownership and stream each i
         async list() { forbiddenBucketCalls++; throw new Error('Unexpected R2 listing'); }
     };
     const worker = createWorker({
+        verifyAccess: async () => {}, // This fixture measures catalogue/R2 orchestration; security gate has dedicated tests.
         verifyToken: async () => {
             verifyCalls++;
             return { uid: 'leader-user', role: 'team_leader', teamId: 'heliumtg' };

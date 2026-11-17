@@ -1,3 +1,4 @@
+import { verifyCurrentAccess } from "./current-access.js";
 import { setPick } from "../../assets/js/admin-picks-order.mjs";
 import { verifyFirebaseToken } from "./firebase-auth.js";
 import { imageFormat } from "./image-format.js";
@@ -74,7 +75,7 @@ function chapterImages(images, count) {
 }
 
 // Dependency injection is code-level only; request/env data cannot replace verification.
-export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (...args) => fetch(...args),
+export function createWorker({ verifyToken = verifyFirebaseToken, verifyAccess = verifyCurrentAccess, fetchImpl = (...args) => fetch(...args),
     log = (details) => console.error("CMS operation failed", details),
     githubTimeoutMs = DEFAULT_GITHUB_TIMEOUT_MS, r2TimeoutMs = DEFAULT_R2_TIMEOUT_MS } = {}) {
 
@@ -178,7 +179,8 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         return manga;
     }
 
-    async function saveData(env, data, sha, message) {
+    async function saveData(env, data, sha, message, actor) {
+        await actor.revalidate();
         const bytes = new TextEncoder().encode(JSON.stringify(data, null, 4));
         let binary = "";
         for (const byte of bytes) binary += String.fromCharCode(byte);
@@ -201,7 +203,9 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         let actor;
         try { actor = await verifyToken(match[1]); } catch { fail(401, "Invalid authentication token"); }
         if (!["admin", "team_leader"].includes(actor.role)) fail(403, "Permission denied");
-        return actor;
+        const revalidate = () => verifyAccess(actor, match[1], fetchImpl);
+        await revalidate();
+        return Object.freeze({ ...actor, revalidate });
     }
 
     function publicBase(env) {
@@ -298,7 +302,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
         if (actor.role === "admin" && Object.hasOwn(body, "adminPick")) setPick(result.data, slug, body.adminPick);
         // A failed response can be ambiguous: retain the unique final object in case GitHub committed.
         // Staging and any orphaned final cover can be reconciled by the documented cleanup job.
-        await saveData(env, result.data, result.sha, `Create manga ${slug}`);
+        await saveData(env, result.data, result.sha, `Create manga ${slug}`, actor);
         if (stageKey) {
             try { await env.BUCKET.delete(stageKey); }
             catch { log({ service: "r2", operation: "staging-cleanup", outcome: "retry-required" }); }
@@ -471,7 +475,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 folder: `${base}/${destinationFolder}`
             });
             trace('catalogue save started');
-            await saveData(env, result.data, result.sha, `Edit ${slug} chapter ${id}`);
+            await saveData(env, result.data, result.sha, `Edit ${slug} chapter ${id}`, actor);
             trace('catalogue save finished');
 
             trace('committed catalogue reread started');
@@ -594,7 +598,7 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 break;
             }
         }
-        await saveData(env, result.data, result.sha, message);
+        await saveData(env, result.data, result.sha, message, actor);
         if (chapterCleanup) {
             try {
                 const committed = await getFile(env, "data.json");
