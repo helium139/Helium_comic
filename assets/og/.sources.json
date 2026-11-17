@@ -371,13 +371,13 @@
       "image_sha256": "e4ce7cf4bc617051a4ab33ce6e73d30f4a07fafe044684f703dc572d5a58ac1c"
     },
     "tet-truyen-chut": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/cover-9007afba-722e-4587-8198-609f9c146f2b.webp",
-      "etag": "\"dcec65a859f0711879bfd000ec637fdd\"",
-      "last_modified": "Tue, 17 Nov 2026 14:53:24 GMT",
-      "cover_sha256": "67e4c980c78c25200d5a26a3fe0ebc960908fbd34d9f95ac17dbc8c0b95638f0",
-      "cover_width": 400,
-      "cover_height": 533,
-      "image_sha256": "b56e2a40618d10bb2a1d730e107672e29236d1b9a4693b8bc340d8911d2cf717"
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/cover-b4d2f3af-193f-4f63-be30-6fd2666d2fee.webp",
+      "etag": "\"0c892099f3a421946a0c5c853ecf38b9\"",
+      "last_modified": "Tue, 17 Nov 2026 15:01:29 GMT",
+      "cover_sha256": "68713ec36a5e969262c0e6ac461d2f345306df0a389055c3168248f60c70317f",
+      "cover_width": 480,
+      "cover_height": 696,
+      "image_sha256": "3487dc439cd78c5c3032ffe0d7cdfdfdb189acd87fe279f9f7d732bd4d261a2d"
     }
   }
 }
