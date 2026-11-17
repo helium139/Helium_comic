@@ -369,15 +369,6 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "e4ce7cf4bc617051a4ab33ce6e73d30f4a07fafe044684f703dc572d5a58ac1c"
-    },
-    "tet-truyen-chut": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/cover-b4d2f3af-193f-4f63-be30-6fd2666d2fee.webp",
-      "etag": "\"0c892099f3a421946a0c5c853ecf38b9\"",
-      "last_modified": "Tue, 17 Nov 2026 15:01:29 GMT",
-      "cover_sha256": "68713ec36a5e969262c0e6ac461d2f345306df0a389055c3168248f60c70317f",
-      "cover_width": 480,
-      "cover_height": 696,
-      "image_sha256": "3487dc439cd78c5c3032ffe0d7cdfdfdb189acd87fe279f9f7d732bd4d261a2d"
     }
   }
 }
