@@ -16,29 +16,36 @@ function writeRates(type, prefix) {
 }
 export const schema = `
 PRAGMA foreign_keys=ON;
+CREATE TABLE transfer_mode(id INTEGER PRIMARY KEY CHECK(id=1),enabled INTEGER NOT NULL CHECK(enabled IN (0,1)));
+INSERT INTO transfer_mode VALUES(1,0);
+CREATE TABLE view_writer(id INTEGER PRIMARY KEY CHECK(id=1),epoch TEXT NOT NULL);
+INSERT INTO view_writer VALUES(1,'cloudflare-staging');
 CREATE TABLE config(id INTEGER PRIMARY KEY CHECK(id=1), enabled INTEGER NOT NULL, activation INTEGER NOT NULL, version TEXT NOT NULL, readerHourlyLimit INTEGER NOT NULL, networkHourlyLimit INTEGER NOT NULL, readerSessionHourlyLimit INTEGER NOT NULL, networkSessionHourlyLimit INTEGER NOT NULL, CHECK(readerHourlyLimit BETWEEN 1 AND 10000 AND networkHourlyLimit BETWEEN 1 AND 10000 AND readerSessionHourlyLimit BETWEEN 1 AND 10000 AND networkSessionHourlyLimit BETWEEN 1 AND 10000));
-CREATE TABLE sessions(id TEXT PRIMARY KEY, uid TEXT, device TEXT NOT NULL, account TEXT, network TEXT NOT NULL, team TEXT NOT NULL,manga TEXT NOT NULL,chapter TEXT NOT NULL,revision TEXT NOT NULL, activation INTEGER NOT NULL, version TEXT NOT NULL, started INTEGER NOT NULL, expires INTEGER NOT NULL, delete_after INTEGER NOT NULL, at INTEGER NOT NULL, consumed INTEGER NOT NULL DEFAULT 0, accepted INTEGER, reason TEXT, record_revision TEXT, record_uid TEXT) WITHOUT ROWID;
+CREATE TABLE sessions(id TEXT PRIMARY KEY, uid TEXT, device TEXT NOT NULL, account TEXT, network TEXT NOT NULL, team TEXT NOT NULL,manga TEXT NOT NULL,chapter TEXT NOT NULL,revision TEXT NOT NULL, activation INTEGER NOT NULL, version TEXT NOT NULL, started INTEGER NOT NULL, expires INTEGER NOT NULL, delete_after INTEGER NOT NULL, at INTEGER NOT NULL, consumed INTEGER NOT NULL DEFAULT 0, accepted INTEGER, reason TEXT, record_revision TEXT, record_uid TEXT,device_dedup TEXT,account_dedup TEXT) WITHOUT ROWID;
 CREATE TABLE rates(id TEXT PRIMARY KEY, times TEXT NOT NULL CHECK(json_valid(times) AND json_type(times)='array' AND json_array_length(times) BETWEEN 1 AND 10000), delete_after INTEGER NOT NULL) WITHOUT ROWID;
 CREATE TABLE dedup(id TEXT PRIMARY KEY, eligible INTEGER NOT NULL, delete_after INTEGER NOT NULL) WITHOUT ROWID;
-CREATE TABLE events(id TEXT PRIMARY KEY, team TEXT NOT NULL,manga TEXT NOT NULL,chapter TEXT NOT NULL,uid TEXT,device TEXT NOT NULL,at INTEGER NOT NULL,month TEXT NOT NULL,activation INTEGER NOT NULL,version TEXT NOT NULL,revision TEXT NOT NULL,session_revision TEXT NOT NULL,valid INTEGER NOT NULL CHECK(valid=1)) WITHOUT ROWID;
+CREATE TABLE events(id TEXT PRIMARY KEY, team TEXT NOT NULL,manga TEXT NOT NULL,chapter TEXT NOT NULL,uid TEXT,device TEXT NOT NULL,at INTEGER NOT NULL,month TEXT NOT NULL,activation INTEGER NOT NULL,version TEXT NOT NULL,revision TEXT NOT NULL,session_revision TEXT NOT NULL,valid INTEGER NOT NULL CHECK(valid=1),epoch TEXT NOT NULL) WITHOUT ROWID;
 CREATE INDEX event_month ON events(month);
 CREATE TRIGGER immutable_events_update BEFORE UPDATE ON events BEGIN SELECT RAISE(ABORT,'immutable-event'); END;
 CREATE TRIGGER immutable_events_delete BEFORE DELETE ON events BEGIN SELECT RAISE(ABORT,'immutable-event'); END;
 CREATE TABLE reports(month TEXT PRIMARY KEY, hash TEXT NOT NULL, snapshot TEXT NOT NULL) WITHOUT ROWID;
+CREATE TABLE report_chunks(month TEXT NOT NULL,part INTEGER NOT NULL,body TEXT NOT NULL,PRIMARY KEY(month,part)) WITHOUT ROWID;
+CREATE TRIGGER immutable_chunks_update BEFORE UPDATE ON report_chunks BEGIN SELECT RAISE(ABORT,'immutable-report-chunk'); END;
+CREATE TRIGGER immutable_chunks_delete BEFORE DELETE ON report_chunks BEGIN SELECT RAISE(ABORT,'immutable-report-chunk'); END;
 CREATE TRIGGER immutable_reports_update BEFORE UPDATE ON reports BEGIN SELECT RAISE(ABORT,'immutable-report'); END;
 CREATE TRIGGER immutable_reports_delete BEFORE DELETE ON reports BEGIN SELECT RAISE(ABORT,'immutable-report'); END;
-CREATE TRIGGER start_check BEFORE INSERT ON sessions WHEN NOT EXISTS(SELECT 1 FROM sessions WHERE id=NEW.id) BEGIN
+CREATE TRIGGER start_check BEFORE INSERT ON sessions WHEN (SELECT enabled FROM transfer_mode WHERE id=1)=0 AND NOT EXISTS(SELECT 1 FROM sessions WHERE id=NEW.id) BEGIN
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM config WHERE id=1 AND enabled=1 AND activation<=NEW.at AND activation=NEW.activation AND version=NEW.version) THEN RAISE(ABORT,'policy-changed') END;
  SELECT CASE WHEN ${rateExceeded('starts','NEW',true)} THEN RAISE(ABORT,'start-rate-limited') END;
 END;
-CREATE TRIGGER start_rates AFTER INSERT ON sessions BEGIN ${writeRates('starts','NEW')} END;
+CREATE TRIGGER start_rates AFTER INSERT ON sessions WHEN (SELECT enabled FROM transfer_mode WHERE id=1)=0 BEGIN ${writeRates('starts','NEW')} END;
 CREATE TRIGGER record_check BEFORE UPDATE OF consumed ON sessions WHEN OLD.consumed=0 AND NEW.consumed=1 BEGIN
  SELECT CASE WHEN OLD.expires<=NEW.at THEN RAISE(ABORT,'expired') WHEN NEW.at-OLD.started<10000 THEN RAISE(ABORT,'too-early') END;
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM config WHERE id=1 AND enabled=1 AND activation<=NEW.at AND activation=OLD.activation AND version=OLD.version) THEN RAISE(ABORT,'policy-changed') END;
 END;
 CREATE TRIGGER record_effects AFTER UPDATE OF consumed ON sessions WHEN OLD.consumed=0 AND NEW.consumed=1 AND NEW.accepted=1 BEGIN
- INSERT INTO events SELECT NEW.id,NEW.team,NEW.manga,NEW.chapter,NEW.record_uid,NEW.device,NEW.at,strftime('%Y-%m',NEW.at/1000,'unixepoch'),NEW.activation,NEW.version,NEW.record_revision,NEW.revision,1;
- INSERT INTO dedup(id,eligible,delete_after) SELECT k.k||':'||NEW.manga||':'||NEW.chapter,NEW.at+86400000,NEW.at+172800000 FROM (${keys('NEW')}) k WHERE k.kind='reader' AND k.k<>NEW.network ON CONFLICT(id) DO UPDATE SET eligible=excluded.eligible,delete_after=excluded.delete_after;
+ INSERT INTO events SELECT NEW.id,NEW.team,NEW.manga,NEW.chapter,NEW.record_uid,NEW.device,NEW.at,strftime('%Y-%m',NEW.at/1000,'unixepoch'),NEW.activation,NEW.version,NEW.record_revision,NEW.revision,1,(SELECT epoch FROM view_writer WHERE id=1);
+ INSERT INTO dedup(id,eligible,delete_after) SELECT k.id,NEW.at+86400000,NEW.at+172800000 FROM (SELECT NEW.device_dedup AS id UNION ALL SELECT NEW.account_dedup WHERE NEW.account_dedup IS NOT NULL) k WHERE true ON CONFLICT(id) DO UPDATE SET eligible=excluded.eligible,delete_after=excluded.delete_after;
  ${writeRates('accepted','NEW')}
 END;`;
 

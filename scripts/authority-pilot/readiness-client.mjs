@@ -1,0 +1,15 @@
+﻿import {inspectResponse} from './response-diagnostics.mjs';
+const receipts=new WeakSet();
+export function approvedBase(baseURL,approvedHost){const base=new URL(baseURL);if(base.protocol!=='https:'||base.host!==approvedHost||!/^helium-authority-fixture-[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev$/.test(base.hostname)||base.pathname!=='/'||base.search||base.hash||base.username||base.password)throw Error('Isolated approved fixture host required');return base;}
+export function requireReadiness(receipt,{host,deployment,clock=Date.now}){if(!receipt||!receipts.has(receipt)||receipt.host!==host||clock()<receipt.at||clock()-receipt.at>30000||!deployment||['versionId','buildId','mode'].some(k=>deployment[k]!==receipt.deployment[k]))throw Error('Fresh matching deployment readiness required before SET');}
+export async function checkReadiness({baseURL,approvedHost,deployment,id,pilotSecret,getSyntheticJWT,journal,budget,fetchImpl=fetch,clock=Date.now}){
+ const base=approvedBase(baseURL,approvedHost);
+ if(!/^[a-z0-9-]{1,64}$/.test(id||'')||!pilotSecret||typeof journal!=='function'||!/^[a-f0-9]{64}$/.test(deployment?.buildId||'')||!/^[a-f0-9-]{36}$/.test(deployment?.versionId||'')||!['full','validator'].includes(deployment?.mode))throw Error('Exact readiness deployment and journal required');
+ budget.reserve({http:1,read:0,write:0});const url=new URL('__pilot/ready?pilotCase='+id,base);
+ await journal({id,state:'readiness-issued',method:'GET',url:url.href,deployment,budget:budget.snapshot()});
+ let r;try{r=await fetchImpl(url,{method:'GET',headers:{Authorization:'Bearer '+await getSyntheticJWT(),'X-Helium-Pilot-Key':pilotSecret},redirect:'manual',signal:AbortSignal.timeout(15000)});}catch{await journal({id,state:'readiness-stop',failure:'response-loss',budget:budget.snapshot()});throw Error('Readiness outcome unknown; STOP; no retry');}
+ const result=await inspectResponse(r,{url:url.href,id,metrics:false}),b=result.body;
+ if(!result.ok||r.status!==200||b?.protocol!=='authority-pilot/v2'||b.caseId!==id||b.scope!=='transport-only'||b.guardUnexpired!==true||b.d1Checked!==false||b.rowsRead!==0||b.rowsWritten!==0||typeof b.isolateFirst!=='boolean'||!/^[a-zA-Z0-9-]{1,128}$/.test(b.isolateTag||'')||['versionId','buildId','mode'].some(k=>b.deployment?.[k]!==deployment[k])){await journal({id,state:'readiness-stop',failure:result.ok?'readiness-schema-or-deployment':result.kind,diagnostic:result.diagnostic,verification:result.ok?{protocolMatches:b?.protocol==='authority-pilot/v2',caseMatches:b?.caseId===id,identityMatches:['versionId','buildId','mode'].every(k=>b?.deployment?.[k]===deployment[k]),guardUnexpired:b?.guardUnexpired===true}:undefined,budget:budget.snapshot()});throw Error('Readiness protocol/deployment not verified; STOP');}
+ const receipt=Object.freeze({host:base.host,deployment:Object.freeze({...deployment}),at:clock(),isolateTag:b.isolateTag});receipts.add(receipt);
+ await journal({id,state:'readiness-verified',deployment,protocol:b.protocol,isolateTag:b.isolateTag,isolateFirst:b.isolateFirst,budget:budget.snapshot()});return receipt;
+}

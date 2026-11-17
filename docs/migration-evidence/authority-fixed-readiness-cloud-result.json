@@ -1,0 +1,170 @@
+{
+  "date": "2026-11-17T05:50:16.997Z",
+  "decision": "PASS transport/protocol/version only; stop after1 readiness",
+  "toolingCommit": "6fc256d888a6238a1356fe23997b4d14c1f563ce",
+  "requestedCommit": "5f73f0691237c4032cf95591ef6a141cbe5057b5",
+  "ci": {
+    "requested": "both checks success",
+    "adapter": "both checks success"
+  },
+  "workload": {
+    "readiness": 1,
+    "resolve": 0,
+    "set": 0,
+    "retries": 0
+  },
+  "workloadJournaled": 1,
+  "response": {
+    "state": "response-saved",
+    "outcome": "response-observed",
+    "protocolOK": true,
+    "httpOK": true,
+    "failure": null,
+    "diagnostic": {
+      "status": 200,
+      "contentType": "application/json",
+      "redirected": false,
+      "responseURL": {
+        "origin": "https://helium-authority-fixture-20261116.mylengoctra06.workers.dev",
+        "path": "/__pilot/ready",
+        "hasQuery": true,
+        "hasCredentials": false
+      },
+      "location": null,
+      "cfRay": "a5bc74f17c795438-TLL",
+      "bodyBytes": 393,
+      "bodyTruncated": false,
+      "format": "json",
+      "body": "{\"otherFields\":\"[redacted]\"}",
+      "httpClass": "success"
+    },
+    "identity": {
+      "protocolMatches": true,
+      "versionMatches": true,
+      "fingerprintMatches": true,
+      "modeMatches": true,
+      "caseMatches": true,
+      "scopeMatches": true,
+      "zeroSQLDeclared": true
+    },
+    "observedIdentity": {
+      "versionId": "200c526c-1e9f-41c0-86f8-03a725ee2f2a",
+      "fingerprint": "b92119e2a82252ab0945f5ec0572ca92407be645df68cb421a31be1dcb8b29ef",
+      "mode": "full",
+      "guardUnexpired": false
+    }
+  },
+  "activeDeployment": {
+    "deploymentId": "327ff493-9f13-4bef-a47d-c71429d67188",
+    "created_on": "2026-11-16T20:53:56.101757Z",
+    "versionId": "200c526c-1e9f-41c0-86f8-03a725ee2f2a",
+    "percentage": 100,
+    "legacyUploadMatchesVersion": true
+  },
+  "cleanup": {
+    "verified": true,
+    "attempts": [
+      {
+        "action": "disable",
+        "ok": true
+      },
+      {
+        "action": "verify",
+        "ok": true,
+        "enabled": false,
+        "previews_enabled": false
+      }
+    ]
+  },
+  "endpointDisabledVerifiedAt": "2026-11-17T05:50:16.997Z",
+  "usage": {
+    "controlBefore": 56,
+    "controlAfter": 61,
+    "controlCap": 63,
+    "newControlCalls": 5,
+    "newReadinessHTTP": 1,
+    "totalHTTPJournaled": 105,
+    "conservativeHTTPCeiling": 107,
+    "historicalRowsReadCeiling": 892,
+    "historicalRowsWrittenCeiling": 401,
+    "newReadinessSQL": {
+      "read": 0,
+      "write": 0,
+      "basis": "identity-matched readiness handler, no DB path; not a fresh provider SQL measurement"
+    },
+    "newSQLReservation": {
+      "read": 0,
+      "write": 0
+    },
+    "limits": {
+      "http": 250,
+      "read": 5000,
+      "write": 2000,
+      "bytes": 1048576
+    }
+  },
+  "history": [
+    {
+      "file": "candidate-c3fa39f4/journal.private.jsonl",
+      "sha256": "11bc756825c62c18bcbd8102c43d60b205b0e460b84e940faafd0ed8bab938a7"
+    },
+    {
+      "file": "readiness-bb9a5da5/journal.private.jsonl",
+      "sha256": "f658cf0705124e5d54e1d042fe02df796e50a7cc938e3cca0abb138827181ee5"
+    },
+    {
+      "file": "readiness-bb9a5da5-completion/journal.private.jsonl",
+      "sha256": "c2db4afa6dfd96757d8fd2ae0bc600c1d9c5aa8d89578ed62e51f67c24ff950a"
+    }
+  ],
+  "historyUnchanged": true,
+  "controls": [
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "status": 200,
+      "success": true,
+      "issuedAt": "2026-11-17T05:50:11.456Z",
+      "completedAt": "2026-11-17T05:50:12.508Z"
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/deployments",
+      "status": 200,
+      "success": true,
+      "issuedAt": "2026-11-17T05:50:12.512Z",
+      "completedAt": "2026-11-17T05:50:13.232Z"
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "status": 200,
+      "success": true,
+      "issuedAt": "2026-11-17T05:50:13.344Z",
+      "completedAt": "2026-11-17T05:50:14.156Z"
+    },
+    {
+      "method": "POST",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "status": 200,
+      "success": true,
+      "issuedAt": "2026-11-17T05:50:15.402Z",
+      "completedAt": "2026-11-17T05:50:16.243Z"
+    },
+    {
+      "method": "GET",
+      "route": "workers/scripts/helium-authority-fixture-20261116/subdomain",
+      "status": 200,
+      "success": true,
+      "issuedAt": "2026-11-17T05:50:16.249Z",
+      "completedAt": "2026-11-17T05:50:16.990Z"
+    }
+  ],
+  "limits": [
+    "old guard expiry unchanged and expired; readiness pass does not authorize workload",
+    "one sample establishes no application latency/CPU conclusion",
+    "real Google transport, IAM/OAuth, resolve/set CPU not tested",
+    "all historical unknown reservations retained; no ledger or data migration",
+    "Workers Free/Billing/CMS/R2/production unchanged; no new resources or uploads"
+  ]
+}

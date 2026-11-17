@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createLedgerArchive,verifyLedgerArchive} from '../worker/view-runtime/archive-local.mjs';
+import {createRequire} from 'node:module';
+import {installSchema} from '../worker/view-runtime/schema.mjs';
+import {installReportJobs} from '../worker/view-runtime/report-jobs.mjs';
+import {installTransfer,sealedBatch,restoreBatch,reconcileLedger} from '../worker/view-runtime/transfer.mjs';
+test('segmented private ledger copy: immutable objects, signatures, corruption, restore and report parity',async t=>{
+ const objects=new Map(),store={putImmutable:async(id,text)=>{if(objects.has(id)&&objects.get(id)!==text)throw Error('Immutable collision');objects.set(id,text);},get:async id=>objects.get(id)};
+ const rows=Array.from({length:2101},(_,i)=>({id:i.toString(16).padStart(64,'0'),valid:1,month:'2026-11',team:'team-'+i%3,manga:'manga-'+i%5,chapter:String(i%7),epoch:'synthetic'}));
+ const source=async function*(){for(let i=0;i<rows.length;i+=100)yield rows.slice(i,i+100);};let frozenChecks=0;
+ const seal=await createLedgerArchive({source:source(),store,month:'2026-11',signingKey:'offline-fixture-only',assertFrozen:async()=>frozenChecks++});assert.equal(frozenChecks,2);
+ let restored=0;const totals=new Map();const result=await verifyLedgerArchive({seal,store,signingKey:'offline-fixture-only',onVerifiedSegment:async(batch,partials)=>{assert.ok(batch.length<=100);restored+=batch.length;for(const [key,n]of partials)totals.set(key,(totals.get(key)||0)+n);}});
+ assert.equal(result.count,2101);assert.equal(restored,2101);assert.equal(result.manifests,2);assert.equal(result.ledgerDeleted,false);assert.equal([...totals.values()].reduce((a,b)=>a+b,0),2101);
+ const expected=new Map();for(const row of rows){const key=JSON.stringify([row.month,row.team,row.manga,row.chapter]);expected.set(key,(expected.get(key)||0)+1);}assert.deepEqual([...totals].sort(),[...expected].sort());
+ await assert.rejects(verifyLedgerArchive({seal,store,signingKey:'wrong'}),/signature/);
+ const segment=[...objects].find(([,text])=>JSON.parse(text).type==='ledger-v1'),original=segment[1];objects.set(segment[0],original+' ');let callbacks=0;
+ await assert.rejects(verifyLedgerArchive({seal,store,signingKey:'offline-fixture-only',onVerifiedSegment:async()=>callbacks++}),/corrupt/);assert.equal(callbacks,0);objects.set(segment[0],original);
+ const replay=await createLedgerArchive({source:source(),store,month:'2026-11',signingKey:'offline-fixture-only',assertFrozen:async()=>{}});assert.deepEqual(replay,seal);
+ t.diagnostic(JSON.stringify({events:rows.length,segments:result.segments,manifests:result.manifests,bytes:[...objects.values()].reduce((n,s)=>n+Buffer.byteLength(s),0),restoreReadsPerObject:2,ledgerDeleted:false,cloudCPU:'not measured; offline reference only'}));
+});
+test('full archived event schema restores into local D1 once, with month index and report reconciliation',async t=>{
+ const {Miniflare,convertV4MiniflareOptions}=createRequire(new URL('../worker/package.json',import.meta.url))('miniflare');
+ const mf=new Miniflare(convertV4MiniflareOptions({modules:true,script:'export default {fetch(){return new Response("local")}}',compatibilityDate:'2026-10-26',d1Databases:{DB:'archive-restore'}}));t.after(()=>mf.dispose());const db=await mf.getD1Database('DB');await installSchema(db);await installReportJobs(db);await installTransfer(db);
+ const rows=Array.from({length:55},(_,i)=>({id:i.toString(16).padStart(64,'0'),team:'a',manga:'m',chapter:'1',uid:null,device:'b'.repeat(64),at:Date.parse('2026-11-20T12:00:00Z'),month:'2026-11',activation:1,version:'valid-views-v1',revision:'fixture',session_revision:'fixture',valid:1,epoch:'google-a'}));
+ const objects=new Map(),store={putImmutable:async(id,text)=>objects.set(id,text),get:async id=>objects.get(id)},source=async function*(){yield rows.slice(0,50);yield rows.slice(50);};
+ const seal=await createLedgerArchive({source:source(),store,month:'2026-11',signingKey:'offline-only',assertFrozen:async()=>{}});
+ const restore=async batch=>{for(let i=0;i<batch.length;i+=20){const part=batch.slice(i,i+20);await restoreBatch(db,sealedBatch('archive:'+part[0].id,'events',part));}};
+ await verifyLedgerArchive({seal,store,signingKey:'offline-only',onVerifiedSegment:restore});
+ await verifyLedgerArchive({seal,store,signingKey:'offline-only',onVerifiedSegment:restore});
+ assert.equal((await reconcileLedger(db,[{month:'2026-11',team:'a',manga:'m',chapter:'1',n:55}])).views,55);
+ assert.equal((await db.prepare('SELECT count(*) n FROM events WHERE month=?').bind('2026-11').first()).n,55);
+});

@@ -1,0 +1,133 @@
+{
+  "scope": "bundled fixture local only, no cloud CPU claim",
+  "variant": "validator",
+  "cases": 17,
+  "allPassed": true,
+  "maxRead": 40,
+  "maxWrite": 18,
+  "maxBytes": 53248,
+  "results": [
+    {
+      "id": "cold-resolve",
+      "status": 200,
+      "rowsRead": 11,
+      "rowsWritten": 3,
+      "bytes": 53248
+    },
+    {
+      "id": "transfer",
+      "status": 200,
+      "rowsRead": 38,
+      "rowsWritten": 18,
+      "bytes": 53248
+    },
+    {
+      "id": "old-token",
+      "status": 200,
+      "rowsRead": 11,
+      "rowsWritten": 3,
+      "bytes": 53248
+    },
+    {
+      "id": "foreign-admin",
+      "status": 403,
+      "rowsRead": 11,
+      "rowsWritten": 3,
+      "bytes": 53248
+    },
+    {
+      "id": "failed-revoke",
+      "status": 503,
+      "rowsRead": 26,
+      "rowsWritten": 11,
+      "bytes": 53248
+    },
+    {
+      "id": "pending-denied",
+      "status": 403,
+      "rowsRead": 5,
+      "rowsWritten": 2,
+      "bytes": 53248
+    },
+    {
+      "id": "retry-revoke",
+      "status": 200,
+      "rowsRead": 36,
+      "rowsWritten": 15,
+      "bytes": 53248
+    },
+    {
+      "id": "revoked-role",
+      "status": 200,
+      "rowsRead": 11,
+      "rowsWritten": 3,
+      "bytes": 53248
+    },
+    {
+      "id": "rollback",
+      "status": 200,
+      "rowsRead": 38,
+      "rowsWritten": 18,
+      "bytes": 53248
+    },
+    {
+      "id": "rollback-version",
+      "status": 200,
+      "rowsRead": 11,
+      "rowsWritten": 3,
+      "bytes": 53248
+    },
+    {
+      "id": "disabled",
+      "status": 403,
+      "rowsRead": 6,
+      "rowsWritten": 2,
+      "bytes": 53248
+    },
+    {
+      "id": "session-revoked",
+      "status": 401,
+      "rowsRead": 6,
+      "rowsWritten": 2,
+      "bytes": 53248
+    },
+    {
+      "id": "remove-backup",
+      "status": 200,
+      "rowsRead": 40,
+      "rowsWritten": 18,
+      "bytes": 53248
+    },
+    {
+      "id": "last-admin",
+      "status": 503,
+      "rowsRead": 13,
+      "rowsWritten": 3,
+      "bytes": 53248
+    },
+    {
+      "id": "future-auth",
+      "status": 401,
+      "rowsRead": 3,
+      "rowsWritten": 2,
+      "bytes": 53248,
+      "jwtNegative": true
+    },
+    {
+      "id": "future-iat",
+      "status": 401,
+      "rowsRead": 3,
+      "rowsWritten": 2,
+      "bytes": 53248,
+      "jwtNegative": true
+    },
+    {
+      "id": "empty-sub",
+      "status": 401,
+      "rowsRead": 3,
+      "rowsWritten": 2,
+      "bytes": 53248,
+      "jwtNegative": true
+    }
+  ]
+}

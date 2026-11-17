@@ -23,15 +23,24 @@ const fixtures = {
 function identity(role, teamId) {
     return { uid: role, getIdTokenResult: async () => ({ claims: { role, ...(teamId ? { teamId } : {}) } }) };
 }
-const helpersContext = { serverTimestamp() {}, getTeamById: async id => {
+const helpersContext = { MIGRATION_ROUTING:{authority:'google'}, serverTimestamp() {}, getTeamById: async id => {
     const team = registry.find(team => team.id === id);
     if (!team) throw new Error('Unknown team ownership');
     return team;
 } };
 vm.createContext(helpersContext);
 vm.runInContext(strip(await read('assets/js/user-profile.js')), helpersContext);
+vm.runInContext(strip(await read('assets/js/migration-staff.js')), helpersContext);
 vm.runInContext(strip(await read('assets/js/staff-access.js')), helpersContext);
 const helpers = helpersContext;
+
+test('D1 staff adapter refreshes changed claims and rejects versions still pending',async()=>{
+ const context={MIGRATION_ROUTING:{authority:'cloudflare'},viewCallable:()=>async()=>({uid:'u',role:'admin',accessVersion:2})};vm.createContext(context);
+ vm.runInContext(strip(await read('assets/js/migration-staff.js')),context);
+ const forced=[];const user={uid:'u',getIdTokenResult:async force=>{forced.push(force);return {claims:{role:'admin',accessVersion:force?2:1}};}};
+ assert.equal((await context.currentStaffClaims(user)).accessVersion,2);assert.deepEqual(forced,[undefined,true]);
+ user.getIdTokenResult=async()=>({claims:{role:'admin',accessVersion:1}});await assert.rejects(context.currentStaffClaims(user),/pending/);
+});
 
 function dom() {
     const nodes = new Map();

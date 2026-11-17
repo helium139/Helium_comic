@@ -1,0 +1,38 @@
+﻿// Explicitly approved one-shot pilot diagnostic. One process, no clones, no provisioning/SQL.
+import fs from 'node:fs';import path from 'node:path';import {createHash,randomBytes} from 'node:crypto';import {createRequire} from 'node:module';import {pathToFileURL} from 'node:url';
+import {disk,runPilotReadinessRequest} from './local-request.mjs';import {identifyActiveVersion} from './active-version.mjs';import {closePilotPairs} from './close-pilot-pairs.mjs';
+// Resolve Windows spaces with fileURLToPath, not decoded URL pathname.
+const {fileURLToPath}=await import('node:url');const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),dir=path.resolve(process.argv[2]);
+const ledgerFile=path.join(dir,'cloud-ledger.json'),ledger=JSON.parse(fs.readFileSync(ledgerFile)),previous=JSON.parse(fs.readFileSync(path.join(repo,'docs/migration-evidence/authority-readiness-cloud-result.json'))),name='helium-authority-fixture-20261116';
+if(ledger.http!==56||ledger.controlHTTPCap!==56||ledger.account!==process.env.CLOUDFLARE_ACCOUNT_ID||!process.env.CLOUDFLARE_API_TOKEN||ledger.resources.worker!==name||ledger.resources.databaseId!==previous.resources.databaseId||!ledger.workersDevDisabledVerified)throw Error('Exact pilot ledger/account preconditions failed');
+const out=path.join(dir,'readiness-fixed-runner-20261117');fs.mkdirSync(out);const audit=path.join(out,'control-journal.jsonl'),rf=path.join(out,'run.json');
+const history=['candidate-c3fa39f4/journal.private.jsonl','readiness-bb9a5da5/journal.private.jsonl','readiness-bb9a5da5-completion/journal.private.jsonl'].map(file=>({file,sha256:createHash('sha256').update(fs.readFileSync(path.join(dir,file))).digest('hex')}));
+const report={pid:process.pid,started:new Date().toISOString(),history,controls:[],request:null,readinessPass:false,controlBefore:56,controlCap:63,cleanupSpare:2,workloadLimit:{readiness:1,resolve:0,set:0,retries:0},historicalBudget:{http:99,read:892,write:401},newSQLReservation:{read:0,write:0},deadlinePolicy:'Historical guard expiry unchanged; transport validation only'};
+const save=()=>disk.replace(rf,report),saveLedger=()=>disk.replace(ledgerFile,ledger),event=row=>disk.append(audit,{at:new Date().toISOString(),pid:process.pid,...row});
+ledger.controlBudgetAdjustments ||= [];ledger.controlBudgetAdjustments.push({at:new Date().toISOString(),from:56,to:63,counterUnchanged:56,reason:'Announced before cloud:5 normal calls+2 cleanup spare; one readiness, no SQL or reservation refunds'});ledger.controlHTTPCap=63;saveLedger();save();event({state:'prepared',history,controlCap:63});
+let stopping=false;const stop=()=>{stopping=true;};process.on('SIGINT',stop);process.on('SIGTERM',stop);
+async function api(method,route,body){
+ if(ledger.http>=63)throw Error('Control cap63 reached');ledger.http++;const record={method,route,issuedAt:new Date().toISOString(),fixedReadiness:true};ledger.requests.push(record);report.controls.push(record);saveLedger();save();event({state:'control-issued',...record});
+ const controller=new AbortController();let timer;const deadline=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('Control timeout'));},20000);});
+ try{const result=await Promise.race([(async()=>{const r=await fetch('https://api.cloudflare.com/client/v4/accounts/'+ledger.account+'/'+route,{method,headers:{Authorization:'Bearer '+process.env.CLOUDFLARE_API_TOKEN,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,redirect:'manual',signal:controller.signal});record.status=r.status;let b;try{b=await r.json();}catch{throw Error('Control response parse failure');}record.success=b.success===true;if(!r.ok||!b.success)throw Error('Control HTTP '+r.status);return b.result;})(),deadline]);record.completedAt=new Date().toISOString();saveLedger();save();event({state:'control-complete',...record});return result;}catch(error){record.failure=error.message;saveLedger();save();event({state:'control-error',...record});throw error;}finally{clearTimeout(timer);controller.abort();}
+}
+try{
+ const sub=await api('GET','workers/scripts/'+name+'/subdomain');if(sub.enabled!==false||sub.previews_enabled!==false)throw Error('Pilot was not closed at preflight');
+ const active=identifyActiveVersion(await api('GET','workers/scripts/'+name+'/deployments'),previous.artifact.legacyUploadId);report.active=active;save();
+ const require=createRequire(path.join(repo,'worker/package.json')),{SignJWT,importPKCS8}=await import(pathToFileURL(require.resolve('jose'))),fake=JSON.parse(fs.readFileSync(path.join(dir,'synthetic-secrets.private.json'))),key=await importPKCS8(fake.privatePEM,'RS256'),now=Math.floor(Date.now()/1000);
+ const jwt=await new SignJWT({sub:'reader',iat:now,exp:now+3600,auth_time:now-60}).setProtectedHeader({alg:'RS256',kid:'fixture'}).setIssuer('https://authority-fixture.invalid').setAudience('authority-pilot').sign(key);
+ if(stopping)throw Error('Interrupted before enable');if(63-ledger.http<5)throw Error('Cleanup reserve missing');
+ ledger.workersDevDisabledVerified=false;saveLedger();await api('POST','workers/scripts/'+name+'/subdomain',{enabled:true,previews_enabled:false});
+ await new Promise(resolve=>setTimeout(resolve,1000));if(stopping)throw Error('Interrupted before request');
+ const id='fixed-ready-'+randomBytes(6).toString('hex'),url=ledger.resources.url+'/__pilot/ready?pilotCase='+id,expectedIdentity={versionId:active.versionId,buildId:previous.artifact.buildFingerprint,mode:'full'};
+ report.request=await runPilotReadinessRequest({url,id,dir:path.join(out,'request'),timeoutMs:5000,headers:{Authorization:'Bearer '+jwt,'X-Helium-Pilot-Key':fake.secrets.PILOT_KEY},expectedIdentity});save();
+ report.readinessPass=report.request.state==='response-saved'&&report.request.httpOK&&report.request.protocolOK&&Object.values(report.request.identity||{}).length===7&&Object.values(report.request.identity).every(Boolean);save();
+}catch(error){report.error=error.message;save();}
+finally{
+ event({state:'cleanup-start'});report.cleanup=await closePilotPairs({api,name});ledger.workersDevDisabled=report.cleanup.verified;ledger.workersDevDisabledVerified=report.cleanup.verified;
+ report.completed=new Date().toISOString();report.finalControlHTTP=ledger.http;report.historyUnchanged=history.every(h=>createHash('sha256').update(fs.readFileSync(path.join(dir,h.file))).digest('hex')===h.sha256);
+ const requestJournal=path.join(out,'request/journal.jsonl');report.workloadJournaled=fs.existsSync(requestJournal)?fs.readFileSync(requestJournal,'utf8').split('\n').filter(Boolean).map(JSON.parse).filter(r=>r.state==='issued').length:0;
+ report.cumulativeBudget={http:ledger.http+43+report.workloadJournaled,conservativeHTTPCeiling:63+43+report.workloadJournaled,read:892,write:401};ledger.fixedReadiness={pass:report.readinessPass,workloadJournaled:report.workloadJournaled,endpointDisabledVerified:report.cleanup.verified,completed:report.completed,cumulativeBudget:report.cumulativeBudget};saveLedger();save();event({state:'completed',readinessPass:report.readinessPass,endpointDisabledVerified:report.cleanup.verified});process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);
+ console.log(JSON.stringify({readinessPass:report.readinessPass,error:report.error,request:report.request,active:report.active,cleanup:report.cleanup,workloadJournaled:report.workloadJournaled,historyUnchanged:report.historyUnchanged,budget:report.cumulativeBudget,controlHTTP:ledger.http}));
+ if(!report.cleanup.verified){console.error('URGENT: endpoint disable not verified');process.exitCode=2;}
+}

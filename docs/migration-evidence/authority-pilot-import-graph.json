@@ -1,0 +1,25 @@
+{
+  "entry": "authority-runtime.mjs",
+  "files": [
+    "functions/lib/reports/accounting.mjs",
+    "functions/lib/views/policy.mjs",
+    "worker/source/firebase-auth.js",
+    "worker/view-runtime/authority-runtime.mjs",
+    "worker/view-runtime/authority.mjs",
+    "worker/view-runtime/bindings.mjs",
+    "worker/view-runtime/google-access-token.mjs",
+    "worker/view-runtime/google-identity-bridge.mjs",
+    "worker/view-runtime/team-registry.mjs"
+  ],
+  "external": [
+    "jose",
+    "node:crypto"
+  ],
+  "rateHistoryReachable": false,
+  "largeJSONPaths": [
+    "team registry <=64KiB/200 teams",
+    "callable body <=2048 chars",
+    "Auth customAttributes from mocked transport"
+  ],
+  "note": "Source import graph, not final bundled CPU/size proof"
+}

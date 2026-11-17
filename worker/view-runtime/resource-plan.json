@@ -1,0 +1,18 @@
+{
+  "status":"view-pilot-not-ready-not-approved-or-created",
+  "independentAuthorityPilotPlan":"authority-pilot-plan.json",
+  "approvalRequiredBeforeCreation":true,
+  "workersPlan":"Free",
+  "billingMutationAllowed":false,
+  "r2MutationAllowed":false,
+  "worker":{"proposedName":"helium-view-migration-fixture","route":null,"cron":null},
+  "database":{"proposedName":"helium-view-migration-fixture","id":null,"plan":"Free","maxFixtureBytes":10000000},
+  "fixtureLimits":{"httpRequestsIncludingPreflight":1000,"rowsRead":250000,"rowsWritten":20000},
+  "incrementalSubscriptionUSD":0,
+  "costAssumption":"Zero only within VERIFIED remaining account Free quota; no Google or real Sheets writes in first fixture",
+  "secretsCreated":false,
+  "archiveBucket":null,
+  "cleanupAfterApprovalOnly":["npx wrangler delete --name helium-view-migration-fixture","npx wrangler d1 delete helium-view-migration-fixture"],
+  "cleanupPrerequisites":["Confirm dedicated fixture identity/IDs", "Verify private synthetic backup/reconciliation", "Do not target CMS or existing R2 resources"],
+  "noAutomaticProvisioningOrCleanup":true
+}

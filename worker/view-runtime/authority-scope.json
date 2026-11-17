@@ -1,0 +1,14 @@
+{
+  "scope":"A independently reviewable authority package inside draft PR7",
+  "entry":"authority-runtime.mjs",
+  "newRuntimeFiles":["authority-runtime.mjs","authority-rollback.mjs","team-registry.mjs"],
+  "sharedBackendFiles":["authority.mjs","bindings.mjs","google-identity-bridge.mjs","google-access-token.mjs","../source/firebase-auth.js"],
+  "retainedGoogleGuardFiles":["functions/lib/authority-config.js","functions/lib/views/authority-mirror.mjs","functions/lib/comments/endpoints.js","functions/lib/reports/endpoints.js","functions/index.js"],
+  "sharedHunksOnly":["CMS current-authority hunk in worker/source/worker.js","analytics authority hunk in functions/lib/views/endpoints.js","staff callable/refresh hunk in assets/js/view-callables.js"],
+  "rules":"firestore.rules",
+  "client":["assets/js/migration-staff.js","assets/js/staff-access.js"],
+  "requiredD1Tables":["access_rows","access_audit","migration_gate"],
+  "forbiddenDependencies":["events","sessions","rates","dedup","reports","Sheets credentials","view HMAC"],
+  "newGoogleSyncFunctionsRequired":[],
+  "productionChangeApproved":false
+}

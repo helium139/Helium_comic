@@ -17,13 +17,30 @@ service cloud.firestore {
              request.auth.uid == userId;
     }
 
+    // Operator-only switch. Missing config preserves the current deployment.
+    // Claims alone stop granting staff access once D1 authority is enabled.
+    function currentAuthority() {
+      let config = /databases/$(database)/documents/roleSystem/config;
+      let mirror = /databases/$(database)/documents/authzMirrors/$(request.auth.uid);
+      return !exists(config) || get(config).data.enforceCurrentAuthority != true ||
+        (exists(mirror) &&
+         get(mirror).data.state == 'active' &&
+         get(mirror).data.version == request.auth.token.accessVersion &&
+         get(mirror).data.role == request.auth.token.role &&
+         (request.auth.token.role != 'team_leader' ||
+          get(mirror).data.teamId == request.auth.token.teamId) &&
+         get(mirror).data.leaseUntilMs > request.time.toMillis());
+    }
+
     function isAdmin() {
       return signedIn() &&
+             currentAuthority() &&
              request.auth.token.role == "admin";
     }
 
     function isTeamLeader() {
       return signedIn() &&
+             currentAuthority() &&
              request.auth.token.role == "team_leader" &&
              request.auth.token.teamId != null;
     }
@@ -73,7 +90,7 @@ service cloud.firestore {
              !request.resource.data.keys().hasAny(["role"]) ||
              request.resource.data.role == "user"
            ) &&
-           !request.resource.data.keys().hasAny(["teamId"]);
+           !request.resource.data.keys().hasAny(["teamId", "accessVersion"]);
 
 
       /*
@@ -97,7 +114,8 @@ service cloud.firestore {
              .affectedKeys()
              .hasAny([
                "role",
-               "teamId"
+               "teamId",
+               "accessVersion"
              ]);
 
 
@@ -140,6 +158,13 @@ service cloud.firestore {
 
       }
 
+    }
+
+    match /authzMirrors/{uid} {
+      allow read, write: if false;
+    }
+    match /roleSystem/{id} {
+      allow read, write: if false;
     }
 
 

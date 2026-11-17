@@ -1,0 +1,11 @@
+{
+  "date": "2026-11-16",
+  "productionMutations": false,
+  "regression": {"files":19,"tests":149,"passed":148,"failed":0,"skipped":1,"skipReason":"Firestore mirror test requires emulator; separately passed there"},
+  "firestoreEmulatorExistingAndMirror": {"tests":28,"passed":28,"failed":0,"skipped":0},
+  "firestoreEmulatorMirrorAndRollback": {"tests":3,"passed":3,"failed":0,"skipped":0},
+  "functionsLint": "passed",
+  "d1Runtime": "local Miniflare pinned in worker lockfile",
+  "realCloudCPUOrPricingBenchmark": false,
+  "notes": ["Emulator transaction contention generated expected retry warnings; assertions all passed", "No production authenticated write smoke test", "Counts overlap between test runs; do not add them as unique tests", "Full production import/report-job conversion not verified"]
+}

@@ -4,3 +4,6 @@ webp-*.jsonl.catalogue.json
 .env.webp
 
 docs/push-retirement-*.local.json
+
+# Local synthetic pilot bundles and private test keys
+.local/

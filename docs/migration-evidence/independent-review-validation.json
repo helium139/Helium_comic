@@ -1,0 +1,17 @@
+{
+  "date":"2026-11-16",
+  "scope":"only new/changed authority, D1 service, archive and sizing paths",
+  "distinctLocalTestsPassed":18,
+  "runs":"incremental targeted runs; not one repeated whole-site audit",
+  "unchangedFirestoreRulesEmulatorRepeatedManually":false,
+  "authorityResolveLocal":{"queries":3,"rowsRead":3,"rowsWritten":0},
+  "authorityTeamChangeLocal":{"queries":11,"rowsRead":16,"rowsWritten":11,"adminIndexAlreadyIncluded":true},
+  "rateFullHistoryLocal":{"histories":3,"entriesEach":10000,"rowsRead":60,"queries":2,"exactReferenceMatch":true},
+  "archiveLocal":{"syntheticEvents":2101,"segments":22,"manifestPages":2,"bytes":463529,"corruptionRejectedBeforeRestore":true,"signatureVerified":true,"reportParity":true,"ledgerDeleted":false},
+  "fullSchemaArchiveD1Restore":{"events":55,"replayedRestoreCreatesDuplicateEvents":false,"reconciledViews":55},
+  "cloudCPUVerified":false,
+  "accountDailyD1RemainderVerified":false,
+  "resourceCreated":false,
+  "productionMutation":false,
+  "workersPaidOrBillingOrR2Change":false
+}
