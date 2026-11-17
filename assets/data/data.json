@@ -15913,34 +15913,5 @@
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/guild-member-next-door-ngoai-truyen/cover-3cde3d8a-905f-4bd0-b5ad-6da7e8b0cebf.webp"
-    },
-    "tet-truyen-chut": {
-        "title": "tét truyện",
-        "original_title": "té",
-        "author": "tes",
-        "status": "Ongoing",
-        "description": "tét truyện chút.\nthêm 1 dòng nè\nthêm 1 dòng nữa nè",
-        "tags": [
-            "Tét",
-            "Truyện"
-        ],
-        "isRawCaughtUp": true,
-        "teamId": "testeam2",
-        "team": "Test Team 2",
-        "adminPick": false,
-        "pickOrder": 999,
-        "chapters": [
-            {
-                "id": 1,
-                "title": "Chap 1",
-                "createAt": "2026-11-17T00:00:00.000Z",
-                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/chap1/_revision-1794928732499-2870531710",
-                "pages": 1,
-                "images": [
-                    "1.webp"
-                ]
-            }
-        ],
-        "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/cover-b4d2f3af-193f-4f63-be30-6fd2666d2fee.webp"
     }
 }
