@@ -74,7 +74,7 @@ test('manga editor handles legacy Worker data and saves both stable ID and legac
     const elements = new Map();
     const el = id => {
         if (!elements.has(id)) elements.set(id, {
-            value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} },
+            parentElement: {}, value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} },
             replaceChildren() {}, appendChild() {}, addEventListener() {}, setAttribute() {}
         });
         return elements.get(id);
@@ -82,6 +82,7 @@ test('manga editor handles legacy Worker data and saves both stable ID and legac
     let saved;
     const catalogue = { sample: { title: 'Sample', team: 'Renamed Team', cover: 'cover', chapters: [], tags: [] } };
     const context = {
+        defaultTeamView, inTeamView, renderTeamView: (select, actor, teams, selected) => renderTeamView(select, actor, teams, selected, context.document),
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ uid: 'a', role: 'admin' }),
         URLSearchParams, location: { search: '' },
@@ -108,7 +109,7 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
     const elements = new Map();
     const el = id => {
         if (!elements.has(id)) elements.set(id, {
-            value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} },
+            parentElement: {}, value: '', style: {}, dataset: {}, classList: { add() {}, remove() {} },
             replaceChildren() {}, appendChild() {}, addEventListener() {}, setAttribute() {}
         });
         return elements.get(id);
@@ -116,6 +117,7 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
     const calls = [];
     const catalogue = { sample: { title: 'Sample', teamId: 'heliumtg', cover: 'old-cover', chapters: [{ id: 0, title: 'Prologue', createAt: '2026-01-01' }], tags: [] } };
     const context = {
+        defaultTeamView, inTeamView, renderTeamView: (select, actor, teams, selected) => renderTeamView(select, actor, teams, selected, context.document),
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ uid: 'a', role: 'admin' }),
         URLSearchParams, location: { search: '' },
@@ -163,6 +165,7 @@ test('editor stages new covers, keeps existing-cover uploads, and deletes chapte
 test('chapter editor recognizes chapter zero in a direct edit URL', async () => {
     const source = stripImports(await read('admin/chapter.js')).replace('\nawait init().catch(showStaffAccessError);', '\n');
     const context = {
+        defaultTeamView, inTeamView, renderTeamView: (select, actor, teams, selected) => renderTeamView(select, actor, teams, selected, context.document),
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, context.document),
         requireStaff: async () => ({ role: 'admin' }),
         bindUploadProgress: () => createUploadProgress(),
@@ -175,3 +178,4 @@ test('chapter editor recognizes chapter zero in a direct edit URL', async () => 
     assert.equal(result.currentSlug, 'own');
     assert.equal(result.currentChapter, 0);
 });
+import {defaultTeamView, inTeamView, renderTeamView} from '../admin/team-view.mjs';
