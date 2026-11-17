@@ -45,7 +45,9 @@ async function main() {
         const cfg = JSON.parse(await readFile('.local-cms-build/production-release/browser-test-identity.private.json', 'utf8'));
         if (typeof cfg.testUid === 'string' && ![expected.admin, expected.owner].includes(cfg.testUid)) expected.test = cfg.testUid;
     } catch (error) { if (error.code !== 'ENOENT') throw Error('Invalid test identity config'); }
-    const profile = resolve('.local-cms-build/browser-smoke-profile');
+    // A unique profile prevents reconnecting to a stale DevToolsActivePort after
+    // the previous dedicated browser was closed. No existing user profile is read.
+    const profile = resolve(`.local-cms-build/browser-smoke-profile-${process.pid}-${Date.now()}`);
     await mkdir(profile, {recursive: true});
     const chrome = spawn('C:/Program Files/Google/Chrome/Application/chrome.exe', [
         '--remote-debugging-port=0', '--remote-debugging-address=127.0.0.1',
