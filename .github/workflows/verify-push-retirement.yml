@@ -1,7 +1,10 @@
-name: Verify push retirement
+name: Verify application regressions
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - assets/data/data.json
+      - assets/data/version.js
 permissions:
   contents: read
 jobs:
@@ -19,7 +22,7 @@ jobs:
       - name: Verify retirement, login, reading, comments, reports, CMS and publishing
         run: >-
           node --test
-          scripts/test-push-retirement.mjs scripts/test-discord-delivery.mjs
+          scripts/test-service-worker-retirement.mjs scripts/test-discord-delivery.mjs
           scripts/test-chapter-readiness.mjs scripts/test-firebase-session.mjs
           scripts/test-monthly-reports.mjs scripts/test-reading-progress.mjs
           scripts/test-comments.mjs scripts/test-view-service.mjs
