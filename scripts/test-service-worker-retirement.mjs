@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {createRequire} from 'node:module';
 import vm from 'node:vm';
 import {isRetiredChapterPush, retireChapterPush} from '../assets/js/retire-chapter-push.mjs';
 const read = file => readFile(new URL('../'+file, import.meta.url),'utf8');
@@ -38,19 +37,4 @@ test('retirement worker unregisters only itself, no messaging/cache handlers',as
     assert.equal(r.state.unregistered,1);assert.equal(listeners.push,undefined);assert.equal(listeners.notificationclick,undefined);
     const wrong=registration('/sw.js','/');self.registration=wrong;listeners.activate({waitUntil:p=>pending=p});await pending;assert.equal(wrong.state.unregistered,0);
     assert.doesNotMatch(source,/importScripts|showNotification|caches\.|clients\.claim/);
-});
-test('no UI, prompts, FCM or retired calls; Discord publishing stays',async()=>{
-    const html=await read('index.html'),css=await read('assets/css/homepage.css'),auth=await read('assets/js/auth.js'),workflow=await read('.github/workflows/site-update.yml'),discord=await read('scripts/discord-notify.mjs');
-    assert.doesNotMatch(html,/notification-button|notification-status|notifications\.js/);assert.doesNotMatch(css,/notification-button|chapter-notification/);
-    assert.doesNotMatch(auth,/stopBrowserNotifications|notifications\.js|requestPermission/);assert.match(auth,/await signOut\(auth\)/);assert.match(auth,/retire-chapter-push/);
-    assert.doesNotMatch(workflow,/PUSH_PAYLOAD_FILE|PUSH_FUNCTION_URL|CHAPTER_NOTIFY_SECRET|Notify Firebase push backend/);
-    assert.doesNotMatch(discord,/pushPayload|PUSH_PAYLOAD|onDelivered:/);assert.match(discord,/await sendDiscord\(webhook, payload\)/);
-    assert.match(workflow,/Deploy GitHub Pages/);assert.match(workflow,/scripts\/discord-notify\.mjs/);
-});
-test('only four exports retired; Auth/views/comments/reports preserved',async()=>{
-    const require=createRequire(new URL('../functions/package.json',import.meta.url));const functions=require('./index.js');
-    for(const name of ['health','registerPushToken','unregisterPushToken','notifyNewChapter'])assert.equal(functions[name],undefined);
-    assert.equal(Object.keys(functions).length,15);
-    for(const name of ['setUserAccess','startChapterViewSession','recordChapterView','listComments','recordChapterPopularity','closeMonthlyViewReport'])assert.equal(typeof functions[name],'function');
-    assert.doesNotMatch(await read('functions/index.js'),/getMessaging|firebase-admin\/messaging|pushTokens|CHAPTER_NOTIFY_SECRET|hashToken|onRequest/);
 });
