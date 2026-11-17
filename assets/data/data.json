@@ -15930,7 +15930,19 @@
         "team": "Test Team 2",
         "adminPick": false,
         "pickOrder": 999,
-        "chapters": [],
+        "chapters": [
+            {
+                "id": 1,
+                "title": "Chap 1",
+                "createAt": "2026-11-17T14:54:01.474Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/chap1",
+                "pages": 2,
+                "images": [
+                    "1.webp",
+                    "2.webp"
+                ]
+            }
+        ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/tet-truyen-chut/cover-9007afba-722e-4587-8198-609f9c146f2b.webp"
     }
 }
