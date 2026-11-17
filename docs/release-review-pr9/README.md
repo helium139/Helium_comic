@@ -6,15 +6,20 @@ journal/reservation. MongoDB đã hủy. Chưa merge/deploy, tạo lab hoặc gh
 
 ## 1. CMS source/version
 
-**Chưa có export active CMS.** Lần đọc GET script helium-cms đã trả 403 với token
-preflight; không có thay đổi credential được thông báo, nên không gọi lặp lại cùng
-request. Không thay token CMS/R2 hay yêu cầu quyền edit để làm bước đối chiếu này.
-Version ID, traffic versions, preview URLs và sự khác biệt live-vs-baseline còn
-CHƯA XÁC MINH. Không được dùng trạng thái Pages success để thay bằng chứng này.
+**Đã nhận và đối chiếu export CMS ngày 17/11/2026.** Người dùng cung cấp Worker
+helium-cms, version prefix 385be4b3, traffic100%. Bundle được parse như dữ liệu,
+không import/eval. So sánh AST thực thi với baseline4955c7ca đã tái dựng: KHỚP cả
+214 statements; sau chuẩn hóa LF và bỏ comment toàn dòng, code cũng giống hệt.
+Không còn khác biệt logic live-export/baseline chưa giải thích. Chi tiết/hash:
+cms-live-comparison.json và cms-live-comparison.md.
+
+Metadata version/traffic là xác nhận từ người dùng, chưa query độc lập bằng API;
+prefix8 ký tự chưa thay thế full version UUID. Export code không xác minh bindings,
+env/routes hoặc preview URLs. Không thay token CMS/R2 hoặc yêu cầu secrets.
 
 `cms-source-manifest.json` liệt kê SHA256 của toàn bộ module ứng dụng và dependency
 lock/config liên quan. Hash source chuẩn hóa LF, khác hash raw export/bundle.
-Đây là **repository baseline → candidate**, không phải đã xác nhận live:
+Đây là **baseline đã khớp export → candidate**, các thay đổi chủ ý chưa deploy:
 
 | File | Khác biệt |
 |---|---|
@@ -25,8 +30,9 @@ lock/config liên quan. Hash source chuẩn hóa LF, khác hash raw export/bundl
 | chapter-promotion, cms-authorization, image-format, admin-picks-order | Không đổi |
 | worker package/lock và wrangler.toml | Không đổi; không nâng plan/binding R2 |
 
-Chưa thể liệt kê mọi khác biệt của **live** khi chưa có source đó. Đây là blocker,
-không phải kết luận live chỉ khác bốn file trên.
+Tái dựng dùng esbuild0.28.2, keepNames và define navigator.userAgent là
+Cloudflare-Workers để khớp build môi trường. Không khẳng định đây là version build
+tool gốc; đầu ra thực thi đã đối chiếu trực tiếp, không chỉ dựa các flags.
 
 ### Lấy export đúng từ dashboard
 
@@ -232,7 +238,8 @@ CMS hoặc dữ liệu dùng chung. Không tài nguyên nào trong đề xuất 
 
 ## 5. Điều kiện còn thiếu
 
-1. Export/version/traffic/routing CMS live và diff đã giải thích đầy đủ.
+1. Source gate đã đạt. Trước phát hành production, giữ export/hash và bổ sung full
+   version ID, routing/bindings nếu cần để đối chiếu target deployment chính xác.
 2. Roster đã kiểm kê hết; giữ preconditions snapshot và ý định repair riêng. Cần
    duyệt manifest/execution trước bootstrap; chưa ghi/apply dù dry-run đã đạt.
 3. Operator/manifest/bootstrap và maintenance/rollback package được duyệt.

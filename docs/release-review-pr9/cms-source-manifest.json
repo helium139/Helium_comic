@@ -2,8 +2,8 @@
   "baselineCommit": "4955c7ca",
   "candidateRuntimeCommit": "b486a0292c61bd438ac5731c78bede6a2318e6e0",
   "hash": "SHA256 UTF8 normalized LF; not raw bundle hash",
-  "liveDeploymentVersion": null,
-  "liveSourceVerified": false,
+  "liveDeploymentVersion": "385be4b3",
+  "liveSourceVerified": true,
   "rows": [
     {
       "file": "worker/source/worker.js",
@@ -71,5 +71,15 @@
       "candidateSHA256": "6426397519696264c8f54554e48cf33a0536143015ada4cec8159816ec4241fa",
       "change": "unchanged"
     }
-  ]
+  ],
+  "liveVerificationScope": "Provided export matches baseline executable AST and exact code after LF/whole-line comments normalization",
+  "deploymentMetadata": {
+    "worker": "helium-cms",
+    "versionPrefix": "385be4b3",
+    "fullVersionId": null,
+    "trafficPercent": 100,
+    "checkedDate": "2026-11-17",
+    "source": "user supplied; not independently queried via API"
+  },
+  "liveComparisonReport": "cms-live-comparison.json"
 }
