@@ -25,7 +25,7 @@ test('single-process lifecycle against actual localhost HTTP, including former l
   if(route==='/redirect'){res.writeHead(302,{Location:'https://outside.invalid/private?token=synthetic-private'});res.end();return;}
   if(route.startsWith('/http-')){res.writeHead(Number(route.slice(6)),{'Content-Type':'application/json'});res.end('{"error":{"status":"UNAVAILABLE","message":"synthetic-private"}}');return;}
   if(route==='/large'||route==='/html'){res.writeHead(200,{'Content-Type':'text/html',Connection:'close'});res.end('<html>'+('synthetic-private '.repeat(route==='/large'?1000:2))+'</html>');return;}
-  if(route==='/identity'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({protocol:'authority-pilot/v2',deployment:{versionId:'200c526c-1e9f-41c0-86f8-03a725ee2f2a',buildId:'a'.repeat(64),mode:'full'}}));return;}
+  if(route==='/identity'){res.writeHead(200,{'Content-Type':'application/json'});res.end(JSON.stringify({protocol:'authority-pilot/v2',caseId:'local-once',scope:'transport-only',rowsRead:0,rowsWritten:0,d1Checked:false,deployment:{versionId:'200c526c-1e9f-41c0-86f8-03a725ee2f2a',buildId:'a'.repeat(64),mode:'full'}}));return;}
   res.writeHead(200,{'Content-Type':'application/json',Connection:'close'});res.end('{"result":{"ok":true}}');
  });await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`;
  t.after(async()=>{for(const timer of timers)clearTimeout(timer);server.closeAllConnections();await new Promise(r=>server.close(r));});
