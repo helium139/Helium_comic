@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-11-17T11:32:52.011Z",
+  "readOnly": true,
+  "complete": true,
+  "pages": 1,
+  "pageSize": 1000,
+  "recordsInspected": 317,
+  "readerRecordsRetained": 0,
+  "staffClaimCounts": {
+    "admin": 1,
+    "team_leader": 1
+  },
+  "additionalStaff": 0,
+  "duplicateStaffUIDs": 0,
+  "bootstrapReviewReady": true,
+  "plannedAdminCount": 2,
+  "productionWrites": 0,
+  "releaseApproved": false,
+  "exactUIDManifest": "local private, excluded from Git"
+}

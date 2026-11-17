@@ -46,11 +46,12 @@ không phải kết luận live chỉ khác bốn file trên.
 
 ## 2. Bootstrap dry-run (private evidence, zero production writes)
 
-Đã đọc một trang Auth tối đa 200 records, chỉ giữ staff UID/role/team/version/
-disabled; không giữ email, token hay dữ liệu người đọc. Có nextPageToken nên chưa
-chứng minh không có claim-only staff ngoài trang đó. Query profile staff tối đa 21
-trả ba UID, chưa chạm giới hạn. Một UID được lookup Auth trực tiếp để đối soát,
-không tiếp tục phân trang user. Grants của ba UID và slot team liên quan đều 404.
+Theo quyền chỉ đọc mới, đã hoàn tất Auth pagination: 317 records, API page size
+1000 trả hết trong một trang, không còn nextPageToken. Chỉ giữ/xuất staff UID/role/
+team; không lưu email, token hoặc record người đọc. Không phát hiện staff bổ sung:
+claims thực tế vẫn một admin và một leader testteam, không trùng leader. Đã đọc
+lại profile/grant của đúng roster đã biết và lookup UID owner để xác minh, không
+tự suy quyền từ profile. Grants ba UID và leader slot testteam đều chưa tồn tại.
 
 Private files (Git ignored, không commit UID thật):
 - `.local-cms-build/staff-observed.private.json`: snapshot chỉ đọc, thời điểm UTC.
@@ -68,11 +69,10 @@ version1, gắn cờ cần duyệt thay quyền riêng; không coi đây đã l�
 trước ACK. Không có hai leader testteam trong roster đã xác minh. Dự kiến sau repair
 có hai admin, hiện chỉ một admin có claims đã xác minh. Không tạo tài khoản mới.
 
-Dry-run **chưa ready** vì phạm vi Auth chưa đóng. Ý định repair được ghi riêng,
-không sửa Auth quan sát. Cần xác nhận roster đầy đủ hoặc UID staff còn thiếu để lookup đích;
-không cần gửi secrets hoặc scan events. Ngoài allowlist sẽ mặc định không có grant
-khi guards mới hoạt động; phải chấp nhận rõ ảnh hưởng này trước bootstrap.
-Không sửa dữ liệu quan sát để giả vờ Auth pagination đã hoàn tất.
+Dry-run hiện **readyForBootstrapReview=true**, plannedAdmins=2, blockers=0,
+productionWrites=0 và releaseApproved=false. Ý định repair vẫn tách khỏi Auth quan
+sát. Đây là snapshot không nguyên tử giữa hai dịch vụ; trước bootstrap phải đọc
+lại preconditions theo UID để tránh ghi đè thay đổi mới. Không có quyền apply.
 
 Planner chặn: mất admin, tài khoản disabled, team inactive/không tồn tại, hai leader
 cùng team, slot đã có owner khác, quyền hiện có pending/không nhất quán hoặc version
@@ -168,8 +168,10 @@ Fixture current mô phỏng 41 manga/599 chapters/591,478 byte bằng nội dung
 Sau 30 ngày: +600 chương cho tổng bốn team →1199; 2x +1200→1799. Giả định thêm
 9 manga cho ba team mới, 50 tổng; catalogue tối thiểu 1.25MB/1.9MB. Đây là mô hình,
 không phải đã đo nội dung thực. Mỗi chương 30 ảnh 0.8MiB; purge/verify dữ liệu lab
-giữa phases để peak <=512MiB. Chưa chạy mới các test catalogue/upload ngoài phạm
-vi thay đổi này; correctness CMS/view hiện có và PR CI trước đó đã đạt.
+giữa phases để peak <=512MiB. Đã thêm local correctness tests cho publish song song
+4 và 8 requests trên catalogue mở rộng; các tests đồng thời dùng ảnh giả nhỏ để
+kiểm chứng CAS/chapter integrity, KHÔNG chứng minh memory/CPU của ảnh 0.8MiB.
+Artifact cloud dùng đúng 838,861 byte/ảnh, 30 ảnh/chương theo plan.
 
 Ngân sách đề xuất: <=230 Worker invocations cộng cả provider (30+200), <=36 control
 calls, trong đó 7 dự phòng cleanup; R2 <=1500 Class A, <=4000 Class B, <=1000 objects,
@@ -231,8 +233,8 @@ CMS hoặc dữ liệu dùng chung. Không tài nguyên nào trong đề xuất 
 ## 5. Điều kiện còn thiếu
 
 1. Export/version/traffic/routing CMS live và diff đã giải thích đầy đủ.
-2. Xác nhận roster allowlist đầy đủ. Ý định repair admin đã ghi nhận nhưng thực thi
-   vẫn cần duyệt; manifest còn BLOCKED do coverage, chưa có quyền ghi/apply.
+2. Roster đã kiểm kê hết; giữ preconditions snapshot và ý định repair riêng. Cần
+   duyệt manifest/execution trước bootstrap; chưa ghi/apply dù dry-run đã đạt.
 3. Operator/manifest/bootstrap và maintenance/rollback package được duyệt.
 4. Daily quota/logs/account Free preflight cho lab, quyền lab scoped và gói tài
    nguyên/workload/chi phí được duyệt; chưa chạy CPU cloud.
