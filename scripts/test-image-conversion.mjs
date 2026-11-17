@@ -5,10 +5,15 @@ import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 const source = await readFile(new URL('../admin/api/image-conversion.js', import.meta.url), 'utf8');
 
-function browser({ type = 'image/webp', size = 20, fail = false, width = 800, height = 1200, canvasLimit = Infinity, canvasFailure = false } = {}) {
+function browser({ type = 'image/webp', size = 20, fail = false, width = 800, height = 1200, canvasLimit = Infinity, canvasFailure = false, encodedWidth = width, encodedHeight = height, encodedFailure = false } = {}) {
     let closed = 0, decoded = 0, canvas, quality, drawn;
     const context = { Uint8Array, DataView,
-        createImageBitmap: async () => { decoded++; return { width, height, close: () => closed++ }; },
+        createImageBitmap: async blob => {
+            decoded++;
+            if (blob.type === 'image/webp' && encodedFailure) throw Error('Cannot decode encoded WebP');
+            return {width: blob.type === 'image/webp' ? encodedWidth : width,
+                height: blob.type === 'image/webp' ? encodedHeight : height, close: () => closed++};
+        },
         document: { createElement: () => {
             let canvasWidth = 0, canvasHeight = 0;
             return (canvas = {
@@ -38,7 +43,7 @@ for (const ext of ['jpg', 'jpeg', 'png']) test(`browser ${ext} becomes WebP with
     const b = browser(); const input = new Blob(['x'.repeat(100)], { type: ext === 'png' ? 'image/png' : 'image/jpeg' });
     const result = await b.prepare(input, `001.${ext}`);
     assert.equal(result.filename, '001.webp'); assert.equal(result.file.type, 'image/webp');
-    assert.equal(b.quality(), 0.85); assert.equal(b.closed(), 1); assert.equal(b.canvas().width, 0);
+    assert.equal(b.quality(), 0.85); assert.equal(b.closed(), 2); assert.equal(b.canvas().width, 0);
 });
 test('small JPEG still converts to WebP', async () => {
     const b = browser({ size: 1 });
@@ -47,7 +52,7 @@ test('small JPEG still converts to WebP', async () => {
     assert.equal(result.reason, 'converted');
     assert.equal(result.filename, '1.webp');
     assert.equal(result.file.type, 'image/webp');
-    assert.equal(b.decoded(), 1);
+    assert.equal(b.decoded(), 2);
 });
 test('chapter JPEG conversion threshold is exactly 2 MiB', () => {
     assert.equal(browser().threshold(), 2 * 1024 * 1024);
@@ -59,7 +64,7 @@ test('JPEG exactly 2 MiB still converts to WebP', async () => {
     const result = await b.prepare(input, '2.jpg', 0.85, { maxJpegConversionSize: limit });
     assert.equal(result.reason, 'converted');
     assert.equal(result.filename, '2.webp');
-    assert.equal(b.decoded(), 1);
+    assert.equal(b.decoded(), 2);
 });
 test('JPEG below 2 MiB converts to WebP', async () => {
     const b = browser({ size: 1 });
@@ -88,6 +93,19 @@ test('tall portrait JPEG keeps full dimensions and draws the entire source bitma
     assert.deepEqual(b.drawn().slice(1), [0, 0, 800, 12000, 800, 12000]);
     assert.equal(b.drawn()[0].width / b.drawn()[0].height, 800 / 12000);
 });
+
+for (const mismatch of [{encodedWidth: 799}, {encodedHeight: 1199}, {encodedFailure: true}]) {
+    test(`invalid encoded WebP keeps the entire original: ${JSON.stringify(mismatch)}`, async () => {
+        const b = browser({size: 1, ...mismatch});
+        const input = new Blob([jpegBytes(800, 1200, 100)], {type: 'image/jpeg'});
+        const result = await b.prepare(input, 'page.jpg', 0.85, {maxJpegConversionSize: b.threshold()});
+        assert.equal(result.file, input);
+        assert.equal(result.filename, 'page.jpg');
+        assert.equal(result.reason, 'unsafe-canvas-dimensions');
+        assert.equal(b.canvas().width, 0);
+        assert.equal(b.closed(), mismatch.encodedFailure ? 1 : 2);
+    });
+}
 test('unsafe tall JPEG dimensions preserve original bytes without decoding or canvas allocation', async () => {
     const b = browser();
     const input = new Blob([jpegBytes(1000, 18000)], { type: 'image/jpeg' });

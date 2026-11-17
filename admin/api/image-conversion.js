@@ -1,4 +1,5 @@
 // Canvas encoders are feature-tested by their output MIME type. Fail closed on errors.
+// Inclusive 2 MiB input limit. Larger/unsafe pages retain their original bytes.
 export const MAX_CHAPTER_JPEG_CONVERSION_SIZE = 2 * 1024 * 1024;
 
 const MAX_SAFE_CANVAS_DIMENSION = 16_384;
@@ -94,11 +95,37 @@ async function convertImage(file, filename, quality, maxJpegConversionSize) {
         const candidate = { type: blob.type, size: blob.size };
         if (blob.type !== 'image/webp') return { ...preserve('encoder-unsupported'), candidate };
         if (blob.size >= file.size) return { ...preserve('not-smaller'), candidate };
+        // Validate the encoded page too; never upload a dimension-truncated WebP.
+        if (!await hasFullEncodedDimensions(blob, bitmap.width, bitmap.height)) {
+            return preserve('unsafe-canvas-dimensions');
+        }
         return { file: blob, filename: filename.replace(/\.[^.]+$/, '.webp'), candidate, reason: 'converted' };
     } finally {
         bitmap?.close?.();
         if (objectUrl) URL.revokeObjectURL(objectUrl);
         if (canvas) canvas.width = canvas.height = 0;
+    }
+}
+
+async function hasFullEncodedDimensions(blob, width, height) {
+    let decoded, url;
+    try {
+        if (typeof createImageBitmap === 'function') decoded = await createImageBitmap(blob);
+        else {
+            url = URL.createObjectURL(blob);
+            decoded = await new Promise((resolve, reject) => {
+                const image = new Image();
+                image.onload = () => resolve(image);
+                image.onerror = reject;
+                image.src = url;
+            });
+        }
+        return decoded.width === width && decoded.height === height;
+    } catch {
+        return false;
+    } finally {
+        decoded?.close?.();
+        if (url) URL.revokeObjectURL(url);
     }
 }
 
