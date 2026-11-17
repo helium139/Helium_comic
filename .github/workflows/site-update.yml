@@ -61,7 +61,7 @@ jobs:
         run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-push-retirement.mjs scripts/test-popularity-cache.mjs
 
       - name: Test scoped dashboard statistics
-        run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
+        run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs scripts/test-admin-team-view.mjs scripts/test-chapter-edit-frontend.mjs
 
       - name: Lint Firebase Functions
         run: npm --prefix functions run lint
