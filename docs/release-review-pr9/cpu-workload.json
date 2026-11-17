@@ -1,0 +1,156 @@
+{
+  "status": "proposal-only-not-authorized-to-run",
+  "candidateRuntimeCommit": "b486a0292c61bd438ac5731c78bede6a2318e6e0",
+  "workersPlan": "Free mandatory for both Workers",
+  "resourcesProposed": {
+    "candidateWorker": "helium-cms-access-cpu-lab-20261117",
+    "fixtureWorker": "helium-cms-access-fixture-20261117",
+    "isolatedR2Bucket": "helium-cms-access-cpu-lab-20261117",
+    "productionRoutes": [],
+    "fixtureWorkerPublicEndpoint": false,
+    "D1": 0,
+    "GoogleResources": 0,
+    "productionCredentials": false,
+    "existingR2BucketOrBillingChanges": false
+  },
+  "limitsProposed": {
+    "candidateHTTPRequestAttempts": 30,
+    "fixtureInvocationAttempts": 200,
+    "combinedWorkerInvocationAttempts": 230,
+    "controlPlaneCallsIncludingCleanupReserve": 36,
+    "cleanupReserveCalls": 7,
+    "R2ClassAOperations": 1500,
+    "R2ClassBOperations": 4000,
+    "R2DeleteOperations": 1500,
+    "R2ObjectsAtOnce": 1000,
+    "R2PeakBytes": 536870912,
+    "durationAfterOpeningMinutes": 20,
+    "automaticWorkloadRetries": 0,
+    "makeUpSamples": 0,
+    "existingPilotJournalsOrReservationsReset": false,
+    "oneTimeCostReserveUSDExcludingTaxAndFX": 0.05
+  },
+  "fixtures": {
+    "imageBytes": 838861,
+    "imagesPerChapter": 30,
+    "currentCatalogue": {
+      "manga": 41,
+      "chapters": 599,
+      "referenceBytes": 591478
+    },
+    "after30DaysFourTeams": {
+      "mangaAssumption": 50,
+      "chapters": 1199,
+      "minimumFixtureBytes": 1250000
+    },
+    "after30DaysTwiceLoad": {
+      "mangaAssumption": 50,
+      "chapters": 1799,
+      "minimumFixtureBytes": 1900000
+    },
+    "dailyNormal": {
+      "teams": 4,
+      "chapters": 20,
+      "images": 600,
+      "uploadMiB": 480
+    },
+    "dailyTwice": {
+      "teams": 4,
+      "chapters": 40,
+      "images": 1200,
+      "uploadMiB": 960
+    },
+    "subjects": "4 synthetic leaders, exactly one per team; 2x concurrency uses two tabs per leader, not eight leaders",
+    "GoogleFirestoreAndGitHub": "isolated fixture Worker, no outbound production calls",
+    "R2ImagePath": "real isolated bucket binding, never helium-comic",
+    "JWT": "synthetic RS256 keys/tokens; preserve issuer/audience/expiry/signature and role/team/version checks",
+    "reseed": "purge and verify only lab prefixes between phases; abort if cleanup is not confirmed"
+  },
+  "phases": [
+    {
+      "id": "upload-serial",
+      "requests": 3,
+      "version": "candidate-v1",
+      "concurrency": 1,
+      "catalogue": "current",
+      "cases": [
+        "first upload after deployment",
+        "warm upload 1",
+        "warm upload 2"
+      ]
+    },
+    {
+      "id": "publish-serial",
+      "requests": 3,
+      "version": "candidate-v2-same-runtime-code",
+      "concurrency": 1,
+      "catalogue": "current",
+      "cases": [
+        "first 30-page publish after deployment",
+        "warm publish 1",
+        "warm publish 2"
+      ]
+    },
+    {
+      "id": "four-teams",
+      "requests": 8,
+      "concurrency": 4,
+      "catalogue": "after30DaysFourTeams",
+      "cases": [
+        "4 parallel uploads",
+        "4 parallel publishes of distinct chapters"
+      ]
+    },
+    {
+      "id": "twice-load",
+      "requests": 16,
+      "concurrency": 8,
+      "catalogue": "after30DaysTwiceLoad",
+      "cases": [
+        "8 parallel uploads, 2 tabs per leader",
+        "8 parallel publishes of distinct chapters"
+      ]
+    }
+  ],
+  "requiredEvidence": [
+    "matching provider invocation cpuTimeMs for EVERY candidate sample",
+    "provider CPU separately, never subtract unmatched isolates/cache states",
+    "versionId, runtime fingerprint, caseId/requestId, isolate tag and firstInvocation flag",
+    "key-cache cold is not isolate cold; provider true-cold remains unknown unless evidenced",
+    "HTTP status/outcome, latency separately from CPU, R2 operation/byte counters",
+    "CAS conflicts expected; correct 409 is not lost data or a sample to replace",
+    "100 percent effective invocation log sampling verified; missing traces => inconclusive"
+  ],
+  "stopBeforeNextPhase": [
+    "any candidate sample cpuTimeMs >= 10; report branch and stop, no Paid upgrade",
+    "missing CPU trace or version/fingerprint mismatch",
+    "quota, provider fixture CPU failure, unclassified transport outcome or correctness failure",
+    "any workload/control/storage/operation budget exhausted or 20-minute deadline",
+    "cleanup of previous phase not verified",
+    "serial phase fails 5ms warm / 7ms cold headroom targets; do not spend concurrency workload to hide it"
+  ],
+  "notProvenByThisPilot": [
+    "real Firebase Auth/App Check/Firestore transport and IAM compatibility",
+    "production daily account quota/headroom",
+    "reliable p95 or full-day sustained throughput",
+    "true platform cold start without provider evidence"
+  ],
+  "controlPlaneBreakdown": {
+    "preflightAccountPlanQuotaAndNameChecks": 4,
+    "createLabBucket": 1,
+    "uploadProviderAndTwoCandidateVersions": 3,
+    "effectiveLogSettingsAndVersionMetadata": 6,
+    "providerEndpointDisableAndVerify": 2,
+    "candidateEnable": 1,
+    "boundedCPUQueries": 4,
+    "candidateFinallyDisableAndVerify": 2,
+    "deleteTwoWorkersAndBucketAndVerifyExactIDs": 6,
+    "cleanupFailureReserve": 7
+  },
+  "qualityTargets": {
+    "warmCPUPerSampleMaxMs": 5,
+    "coldOrLargeBranchCPUPerSampleMaxMs": 7,
+    "accountDailyTargetMaxRequests": 70000,
+    "percentilesClaimed": false
+  }
+}

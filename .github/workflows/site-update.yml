@@ -64,7 +64,7 @@ jobs:
         run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
 
       - name: Test current staff access fence and recovery
-        run: node --test scripts/test-current-staff-access.mjs
+        run: node --test scripts/test-current-staff-access.mjs scripts/test-staff-bootstrap-dry-run.mjs
 
       - name: Lint Firebase Functions
         run: npm --prefix functions run lint

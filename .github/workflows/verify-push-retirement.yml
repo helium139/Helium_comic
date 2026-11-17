@@ -25,7 +25,7 @@ jobs:
           scripts/test-comments.mjs scripts/test-view-service.mjs
           scripts/test-chapter-views.mjs scripts/test-cms-auth.mjs
           scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs
-          scripts/test-staff-access.mjs scripts/test-current-staff-access.mjs
+          scripts/test-staff-access.mjs scripts/test-current-staff-access.mjs scripts/test-staff-bootstrap-dry-run.mjs
       - name: Lint Functions
         run: npm --prefix functions run lint
 
