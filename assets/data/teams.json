@@ -11,5 +11,12 @@
     "name": "Test Team",
     "slug": "testteam",
     "active": true
+  },
+  {
+    "id": "testeam2",
+    "name": "Test Team 2",
+    "slug": "testeam2",
+    "active": true,
+    "avatar": "/assets/images/helium_logo.webp"
   }
 ]
