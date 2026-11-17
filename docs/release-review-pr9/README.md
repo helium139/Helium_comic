@@ -86,6 +86,13 @@ cùng team, slot đã có owner khác, quyền hiện có pending/không nhất 
 
 ## 3. Thứ tự triển khai cần duyệt riêng
 
+**Cập nhật phê duyệt:** người dùng đã duyệt phát hành có điều kiện sau final checks,
+staff maintenance và kiểm thử quyền. CPU lab tạm hoãn. Kiểm thử dùng đăng nhập
+Firebase thông thường, không cấp signBlob/custom token; quy trình và giới hạn tại
+[browser-login-smoke.md](browser-login-smoke.md). Leader testteam đã được xác nhận
+là tài khoản test riêng; không thu hồi hoặc chuyển team hai admin thật.
+Chưa bootstrap/deploy chỉ vì đã có phê duyệt; phải hoàn tất các gate bên dưới.
+
 0. Đóng provenance CMS, roster, Free CPU/transport gates, backup metadata và artifact
    của từng surface. Chốt IAM operator có khả năng phục hồi admin. Lên staff-only
    maintenance, ngừng thay quyền và không nhận upload/publish mới. Cô lập mọi CMS
