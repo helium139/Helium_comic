@@ -107,12 +107,15 @@ test('failed reads evict pending cache; failed transactions propagate without fa
 });
 
 const flush = () => new Promise(resolve => setImmediate(resolve));
-test('reader waits for image success and auth; duplicate callbacks and guest visits do not write', async () => {
+test('reader waits for age confirmation, image success and auth; duplicate callbacks and guest visits do not write', async () => {
     const readerSource = (await readFile(new URL('../assets/js/comicchap.js', import.meta.url), 'utf8'))
         .replace(/^import[\s\S]*?from\s*"[^"]+";\s*/gm, '');
     let authChanged;
     let imageLoaded;
     let writes = 0;
+    let releaseAge;
+    let fetches = 0;
+    const ageReady = new Promise(resolve => { releaseAge = resolve; });
     const image = { complete: false, addEventListener(type, callback) { imageLoaded = callback; } };
     const elements = new Map();
     const element = id => {
@@ -126,12 +129,13 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
         { id: 10.5, title: 'Decimal', createAt: '2026-10-18T00:00:00Z', pages: 2, folder: 'images' }
     ] };
     const context = {
+        heliumAgeGateReady: ageReady,
         auth: {}, db: {},
         onAuthStateChanged(auth, callback) { authChanged = callback; },
         getRouteParams: () => new URLSearchParams('id=m&chap=10.5'),
         mangaUrl: () => '/manga/m/', rawBadge, chapterUrl: () => '/manga/m/chapter/10.5/',
         localStorage: { getItem: () => '1', setItem() {} },
-        fetch: async () => ({ json: async () => ({ m: chapterManga }) }),
+        fetch: async () => { fetches++; return { json: async () => ({ m: chapterManga }) }; },
         document: { getElementById: element, querySelector: () => ({}), documentElement: { removeAttribute() {} } },
         location: { href: '/manga/m/chapter/10.5/', origin: 'https://example.com' },
         window: { addEventListener() {} },
@@ -145,6 +149,11 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
     vm.runInNewContext(readerSource, context);
     await authChanged({ uid: 'u' });
     await flush();
+    assert.equal(fetches, 0);
+    assert.equal(writes, 0);
+    releaseAge();
+    await flush();
+    assert.equal(fetches, 1);
     assert.equal(writes, 0);
     imageLoaded();
     await flush();

@@ -32,7 +32,9 @@ onAuthStateChanged(auth, user => {
     return saveProgress();
 });
 
-fetch("/assets/data/data.json")
+// Do not initialize chapter images/progress/views behind the age confirmation.
+Promise.resolve(globalThis.heliumAgeGateReady)
+.then(() => fetch("/assets/data/data.json"))
 .then(res => res.json())
 .then(data => {
 
