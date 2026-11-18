@@ -1,10 +1,16 @@
 (() => {
     const key = 'helium:age-confirmation:v1';
-    const duration = 24 * 60 * 60 * 1000;
+    const eligiblePage = ['/', '/index.html', '/manga.html', '/chapter.html'].includes(location.pathname) ||
+        /^\/manga\/[^/]+(?:\/chapter\/[^/]+)?\/?$/.test(location.pathname);
+    if (!eligiblePage) {
+        globalThis.heliumAgeGateReady = Promise.resolve();
+        return;
+    }
     let confirmed = false;
     try {
-        const until = Number(localStorage.getItem(key));
-        confirmed = until > Date.now() && until <= Date.now() + duration;
+        const saved = localStorage.getItem(key);
+        // Keep a previous unexpired confirmation if this replaces an older build.
+        confirmed = saved === 'accepted' || Number(saved) > Date.now();
     } catch { /* Storage may be unavailable; still allow a deliberate confirmation. */ }
     if (confirmed) {
         globalThis.heliumAgeGateReady = Promise.resolve();
@@ -34,7 +40,7 @@
             dialog.addEventListener('cancel', event => event.preventDefault());
             dialog.querySelector('[data-age-accept]').addEventListener('click', event => {
                 event.stopPropagation();
-                try { localStorage.setItem(key, String(Date.now() + duration)); } catch { /* Current page still works. */ }
+                try { localStorage.setItem(key, 'accepted'); } catch { /* Current page still works. */ }
                 dialog.close();
                 dialog.remove();
                 document.documentElement.classList.remove('age-gate-open');
