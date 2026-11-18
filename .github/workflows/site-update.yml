@@ -86,7 +86,7 @@ jobs:
 
       - name: Test public pages, carousel, push retirement and reading progress
         if: steps.verification.outputs.run_tests == 'true'
-        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-service-worker-retirement.mjs scripts/test-popularity-cache.mjs
+        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-service-worker-retirement.mjs scripts/test-popularity-cache.mjs scripts/test-age-gate.mjs
 
       - name: Test scoped dashboard statistics
         if: steps.verification.outputs.run_tests == 'true'

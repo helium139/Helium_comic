@@ -32,5 +32,6 @@ jobs:
           scripts/test-admin-team-view.mjs scripts/test-dashboard.mjs
           scripts/test-admin-pagination.mjs scripts/test-chapter-edit-frontend.mjs
           scripts/test-image-conversion.mjs
+          scripts/test-age-gate.mjs
       - name: Lint Functions
         run: npm --prefix functions run lint
