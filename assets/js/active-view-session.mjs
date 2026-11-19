@@ -4,7 +4,8 @@ export function createActiveViewSession({ doc, win, now, wallNow, schedule, canc
     let identityKnown = false, identity, ready = false, suspended = false, disposed = false;
     let generation = 0, requestId, session, activeMs = 0, visibleSince = null;
     let timer = null, busy = false, done = false, failures = 0;
-    const visible = () => !suspended && doc.visibilityState === 'visible';
+    const visible = () => !suspended && doc.visibilityState === 'visible' &&
+        !doc.documentElement?.classList?.contains('age-gate-open');
     const clearTimer = () => { if (timer !== null) cancel(timer); timer = null; };
     function accumulate() {
         if (visibleSince !== null) activeMs += Math.max(0, now() - visibleSince);
@@ -66,10 +67,12 @@ export function createActiveViewSession({ doc, win, now, wallNow, schedule, canc
     function dispose() {
         disposed = true; ++generation; clearTimer();
         doc.removeEventListener('visibilitychange', visibilityChanged);
+        doc.removeEventListener('helium-age-gate-change', visibilityChanged);
         win.removeEventListener('pagehide', pagehide);
         win.removeEventListener('pageshow', pageshow);
     }
     doc.addEventListener('visibilitychange', visibilityChanged);
+    doc.addEventListener('helium-age-gate-change', visibilityChanged);
     win.addEventListener('pagehide', pagehide);
     win.addEventListener('pageshow', pageshow);
     return {

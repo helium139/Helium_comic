@@ -1,22 +1,23 @@
 (() => {
-    const key = 'helium:age-confirmation:v1';
+    const key = 'helium:age-session:v2';
+    const inactivityMs = 30 * 60 * 1000;
+    let lastActive = 0, gateOpen = false;
     const eligiblePage = ['/', '/index.html', '/manga.html', '/chapter.html'].includes(location.pathname) ||
         /^\/manga\/[^/]+(?:\/chapter\/[^/]+)?\/?$/.test(location.pathname);
     if (!eligiblePage) {
         globalThis.heliumAgeGateReady = Promise.resolve();
         return;
     }
-    let confirmed = false;
-    try {
-        const saved = localStorage.getItem(key);
-        // Keep a previous unexpired confirmation if this replaces an older build.
-        confirmed = saved === 'accepted' || Number(saved) > Date.now();
-    } catch { /* Storage may be unavailable; still allow a deliberate confirmation. */ }
-    if (confirmed) {
-        globalThis.heliumAgeGateReady = Promise.resolve();
-        return;
-    }
-    globalThis.heliumAgeGateReady = new Promise(resolve => {
+    try { lastActive = Number(sessionStorage.getItem(key)) || 0; } catch { /* Memory fallback. */ }
+    const recent = () => lastActive > 0 && Date.now() >= lastActive && Date.now() - lastActive < inactivityMs;
+    const remember = () => {
+        lastActive = Date.now();
+        try { sessionStorage.setItem(key, String(lastActive)); } catch { /* Current page still works. */ }
+    };
+    function requestConfirmation() {
+        if (gateOpen) return;
+        gateOpen = true;
+        globalThis.heliumAgeGateReady = new Promise(resolve => {
         const show = () => {
             const dialog = document.createElement('dialog');
             dialog.className = 'age-gate';
@@ -40,10 +41,12 @@
             dialog.addEventListener('cancel', event => event.preventDefault());
             dialog.querySelector('[data-age-accept]').addEventListener('click', event => {
                 event.stopPropagation();
-                try { localStorage.setItem(key, 'accepted'); } catch { /* Current page still works. */ }
+                remember();
                 dialog.close();
                 dialog.remove();
                 document.documentElement.classList.remove('age-gate-open');
+                gateOpen = false;
+                document.dispatchEvent(new Event('helium-age-gate-change'));
                 resolve();
             });
             dialog.querySelector('[data-age-decline]').addEventListener('click', event => {
@@ -52,9 +55,27 @@
             });
             document.body.appendChild(dialog);
             document.documentElement.classList.add('age-gate-open');
+            document.dispatchEvent(new Event('helium-age-gate-change'));
             dialog.showModal();
         };
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show, {once: true});
         else show();
+        });
+    }
+    function activity() {
+        if (gateOpen || document.visibilityState === 'hidden') return;
+        if (!recent()) requestConfirmation();
+        else if (Date.now() - lastActive >= 15000) remember();
+    }
+    for (const event of ['pointerdown', 'keydown', 'scroll', 'touchstart']) {
+        document.addEventListener(event, activity, {passive: true});
+    }
+    document.addEventListener('visibilitychange', activity);
+    globalThis.addEventListener('pageshow', activity);
+    globalThis.addEventListener('focus', activity);
+    globalThis.addEventListener('pagehide', () => {
+        if (!gateOpen && recent() && document.visibilityState !== 'hidden') remember();
     });
+    if (recent()) globalThis.heliumAgeGateReady = Promise.resolve();
+    else requestConfirmation();
 })();
