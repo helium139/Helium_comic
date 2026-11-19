@@ -59,8 +59,19 @@ test('bfcache resumes active accumulation without stacking listeners or timers',
     h.win.emit('pageshow', { persisted: true }); await h.advance(4000);
     assert.equal(h.records.length, 1);
     h.win.emit('pageshow', { persisted: true }); await h.advance(10000);
-    assert.equal(h.records.length, 1); assert.equal(h.doc.events.size, 1);
+    assert.equal(h.records.length, 1); assert.equal(h.doc.events.size, 2);
     h.tracker.dispose(); assert.equal(h.doc.events.size, 0); assert.equal(h.win.events.size, 0);
+});
+
+test('age popup pauses active reading time without creating or replaying a session', async () => {
+    const h=harness();let open=false;
+    h.doc.documentElement={classList:{contains:()=>open}};
+    await h.ready();await h.advance(6000);
+    open=true;h.doc.emit('helium-age-gate-change');await h.advance(30000);
+    assert.equal(h.records.length,0);
+    open=false;h.doc.emit('helium-age-gate-change');await h.advance(4000);
+    assert.equal(h.records.length,1);assert.equal(h.starts.length,1);
+    h.tracker.dispose();assert.equal(h.doc.events.size,0);
 });
 
 test('network retries use the same session and start retries use the same request ID', async () => {

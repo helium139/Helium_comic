@@ -281,10 +281,10 @@ let lightOff = localStorage.getItem("lightOffState") === "true";
 function applyLightSettings() {
     if (lightOff) {
         overlay.classList.add("active");
-        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> Bật đèn';
+        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> <span class="toolbar-label">Bật đèn</span>';
     } else {
         overlay.classList.remove("active");
-        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> Tắt đèn';
+        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> <span class="toolbar-label">Tắt đèn</span>';
     }
 }
 

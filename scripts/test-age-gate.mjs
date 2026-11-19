@@ -7,19 +7,21 @@ const source = await readFile(new URL('../assets/js/age-gate.js', import.meta.ur
 function fixture({saved = null, blocked = false, loading = false, pathname = '/'} = {}) {
     const handlers = {}, classes = new Set(), writes = [];
     let appended = 0, opened = 0, closed = 0, removed = 0, destination;
+    let now = Date.now();
     const button = id => ({addEventListener(type, callback) {handlers[id] = callback;}});
     const dialog = {setAttribute() {}, addEventListener(type, fn) {handlers[type] = fn;},
         querySelector: button, showModal() {opened++;}, close() {closed++;}, remove() {removed++;}};
-    const context = {Promise, Date, localStorage: {
+    const context = {Promise, Event, Date: {now: () => now}, addEventListener(type, fn) {handlers[type] = fn;}, sessionStorage: {
         getItem() {if(blocked)throw Error('blocked');return saved;},
         setItem(key,value) {if(blocked)throw Error('blocked');writes.push({key,value});}},
         location: {pathname, replace(url) {destination = url;}},
         document: {readyState: loading ? 'loading' : 'complete',createElement: () => dialog,
+            visibilityState: 'visible', dispatchEvent() {},
             addEventListener(type, fn) {handlers[type] = fn;},
             documentElement: {classList: {add: c => classes.add(c),remove: c => classes.delete(c)}},
             body: {appendChild() {appended++;}}}};
     vm.createContext(context);vm.runInContext(source,context);
-    return {context, handlers, classes, writes, dialog, state:()=>({appended,opened,closed,removed,destination})};
+    return {context, handlers, classes, writes, dialog, advance(ms) {now += ms;}, state:()=>({appended,opened,closed,removed,destination})};
 }
 test('first visit blocks reader readiness until explicit acceptance, then remembers confirmation',async()=>{
     const f=fixture();let ready=false;f.context.heliumAgeGateReady.then(()=>ready=true);
@@ -29,7 +31,7 @@ test('first visit blocks reader readiness until explicit acceptance, then rememb
     await f.context.heliumAgeGateReady;
     assert.equal(f.state().closed,1);assert.equal(f.state().removed,1);
     assert.equal(f.classes.size,0);assert.equal(f.writes.length,1);
-    assert.equal(f.writes[0].value,'accepted');
+    assert.ok(Number(f.writes[0].value) > 0);
 });
 test('accepted confirmation skips home, manga and chapter dialogs across page loads',async()=>{
     const home=fixture();home.handlers['[data-age-accept]']({stopPropagation(){}});
@@ -38,10 +40,23 @@ test('accepted confirmation skips home, manga and chapter dialogs across page lo
         const f=fixture({saved,pathname});await f.context.heliumAgeGateReady;assert.equal(f.state().opened,0);
     }
 });
-test('unexpired old confirmation is respected; expired and invalid values require confirmation',async()=>{
-    const f=fixture({saved:String(Date.now()+3600000)});await f.context.heliumAgeGateReady;
+test('recent session skips dialog; permanent old acceptance, expired and invalid values do not',async()=>{
+    const f=fixture({saved:String(Date.now()-1000)});await f.context.heliumAgeGateReady;
     assert.equal(f.state().appended,0);
-    for(const saved of ['bad','0',String(Date.now()-1)])assert.equal(fixture({saved}).state().opened,1);
+    for(const saved of ['accepted','bad','0',String(Date.now()-1800001),String(Date.now()+3600000)])assert.equal(fixture({saved}).state().opened,1);
+});
+test('return after 30 idle minutes prompts again; active reading refreshes the same session',()=>{
+    const f=fixture({saved:String(Date.now()-1000)});
+    f.advance(20*60000);f.handlers.scroll();assert.equal(f.state().opened,0);
+    f.advance(20*60000);f.handlers.focus();assert.equal(f.state().opened,0);
+    f.advance(30*60000);f.handlers.visibilitychange();assert.equal(f.state().opened,1);
+    f.handlers.focus();assert.equal(f.state().opened,1);
+});
+test('new browser session asks even if a previous build saved permanent local confirmation',()=>{
+    assert.equal(fixture().state().opened,1);
+    const f=fixture({saved:String(Date.now()-1000)});f.context.document.visibilityState='hidden';
+    f.advance(31*60000);f.handlers.scroll();assert.equal(f.state().opened,0);
+    f.context.document.visibilityState='visible';f.handlers.focus();assert.equal(f.state().opened,1);
 });
 test('direct manga/chapter entry asks once, while other site pages never ask',()=>{
     for(const pathname of ['/manga/story/','/manga/story/chapter/1/','/chapter.html','/manga.html'])assert.equal(fixture({pathname}).state().opened,1);
@@ -60,7 +75,7 @@ test('blocked storage still allows explicit confirmation; head script waits for 
 test('ad notice is static text and gate does not generate or count advertising clicks',()=>{
     const f=fixture();assert.match(f.dialog.innerHTML,/CLICK vào vị trí bất kỳ 3 lần/);
     assert.match(f.dialog.innerHTML,/LOAD hết quảng cáo/);
-    assert.doesNotMatch(source,/window\.open|dispatchEvent|\.click\(|fetch\(/);
+    assert.doesNotMatch(source,/window\.open|MouseEvent|\.click\(|fetch\(/);
 });
 test('public source templates include gate assets before the reader module',async()=>{
     for(const page of ['index','manga','chapter']) {

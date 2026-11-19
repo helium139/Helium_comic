@@ -1075,6 +1075,9 @@ body::before {
 
 .toolbar-center {
   display: flex;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
   align-items: center;
   gap: 10px;
 }
@@ -1085,6 +1088,11 @@ body::before {
 
 /* Ô dropdown chọn chương */
 .chapter-select {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  max-width: 420px;
+  text-overflow: ellipsis;
   background-color: #ffffff;
   color: #333333;
   border: 1px solid #cccccc;
@@ -1099,6 +1107,23 @@ body::before {
 .toolbar-right {
   display: flex;
   gap: 20px;
+}
+
+.chapter-toolbar .toolbar-left,
+.chapter-toolbar .toolbar-right,
+.chapter-toolbar .btn-arrow { flex-shrink: 0; }
+.chapter-toolbar { gap: 12px; }
+.chapter-toolbar .toolbar-item { white-space: nowrap; }
+@media (max-width: 600px) {
+  .chapter-toolbar { padding: 0 8px; gap: 6px; }
+  .chapter-toolbar .toolbar-center { gap: 4px; }
+  .chapter-toolbar .toolbar-right { gap: 4px; }
+  .chapter-toolbar .chapter-select { padding: 6px 4px; }
+  .chapter-toolbar .toolbar-item { font-size: 12px; gap: 2px; padding: 4px 2px; }
+  .chapter-toolbar .btn-arrow { min-width: 28px; min-height: 36px; justify-content: center; }
+}
+@media (max-width: 400px) {
+  .chapter-toolbar .toolbar-label { display: none; }
 }
 
 /*nut cuon dau trang*/
