@@ -369,6 +369,15 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "e4ce7cf4bc617051a4ab33ce6e73d30f4a07fafe044684f703dc572d5a58ac1c"
+    },
+    "oan-gia-ngo-hep": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/oan-gia-ngo-hep/cover-647cc33d-ef67-4083-9c91-17710a185fec.webp",
+      "etag": "\"1b4237f20d13e880efbe2b8fbbb2dab1\"",
+      "last_modified": "Mon, 23 Nov 2026 09:17:22 GMT",
+      "cover_sha256": "270ac424c706e3e6e62f71be18d605a7e55b49d38fc4fe9bb2ad7b8bef02cc62",
+      "cover_width": 720,
+      "cover_height": 720,
+      "image_sha256": "c6cdcc17a5b32ed61a93c4e7579f83c48fbc87f077826afd4db5722b5912292e"
     }
   }
 }
