@@ -16913,6 +16913,23 @@
                     "16.jpg",
                     "17.jpg"
                 ]
+            },
+            {
+                "id": 4,
+                "title": "Chap 4 - Tôi Có Thứ Muốn Tặng Anh",
+                "createAt": "2026-11-24T12:18:55.156Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-uong-nuoc-thoi/chap4",
+                "pages": 8,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-uong-nuoc-thoi/cover-479254b3-2a69-4876-bdd0-3cb307ad2a89.webp"
