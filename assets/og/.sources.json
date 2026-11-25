@@ -387,6 +387,15 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "bfe2f14735ba9197f09f6a6a9305f738e8247116534466cb78f4ae9188e367ad"
+    },
+    "double-black": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/double-black/cover-995da59f-cc1e-422c-94d4-721fa41174b8.webp",
+      "etag": "\"e198af00d739861a85292f97239e4914\"",
+      "last_modified": "Wed, 25 Nov 2026 19:26:25 GMT",
+      "cover_sha256": "b528fe95bb0b8ea73d4e40f555989b5d0105b42eee48a3c817eab4e7020f7714",
+      "cover_width": 427,
+      "cover_height": 615,
+      "image_sha256": "adb75716bbf20fbbfb96b87eac587dbbe675e966285bdefb11128571500ea1a7"
     }
   }
 }
