@@ -83,13 +83,13 @@
       "image_sha256": "c218f9ed6b39ce66c2591cac5ae925e33d221b4aeb3bea599019adab0ae9b82c"
     },
     "cach-thuc-yeu-uong": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/cover.webp",
-      "etag": "\"fa91ff7c52150ea3e1fe09a01f3cfc11\"",
-      "last_modified": "Wed, 22 Jul 2026 18:13:15 GMT",
-      "cover_sha256": "b213266e43a279c91d21c333ad3e4839b95008307100ba2c0a5dc6d963bed310",
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/cover-2c7cba36-4972-4d76-91c5-10890305076f.webp",
+      "etag": "\"82881226960e12fdd757c2a37fb0ab99\"",
+      "last_modified": "Thu, 26 Nov 2026 16:10:36 GMT",
+      "cover_sha256": "6439f754eb73d27d6c3270bc0305a1ab68ca1d4457ded28469f04eaf4852ea59",
       "cover_width": 1920,
       "cover_height": 2668,
-      "image_sha256": "36313d1c2844e620c3e6ce12d3c0750c90e15942afae36dff145ee33bbe24d38"
+      "image_sha256": "7e8d22dc58239d634feb8fa158de8c57a0d62c9c97c474cc316310b9a3192e70"
     },
     "nhung-ieu-khong-the-cham-toi": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/cover.webp",
