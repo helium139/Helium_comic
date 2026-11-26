@@ -17450,6 +17450,30 @@
                     "94.webp",
                     "95.webp"
                 ]
+            },
+            {
+                "id": 5,
+                "title": "Chap 5 - Theo Dõi",
+                "createAt": "2026-11-26T16:19:29.957Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/double-black/chap5",
+                "pages": 15,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.jpg",
+                    "15.webp"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/double-black/cover-995da59f-cc1e-422c-94d4-721fa41174b8.webp"
