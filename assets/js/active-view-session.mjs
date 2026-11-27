@@ -4,6 +4,8 @@ export function createActiveViewSession({ doc, win, now, wallNow, schedule, canc
     let identityKnown = false, identity, ready = false, suspended = false, disposed = false;
     let generation = 0, requestId, session, activeMs = 0, visibleSince = null;
     let timer = null, busy = false, done = false, failures = 0;
+let retryFailures = 0;
+const maxRetryFailures = 5;
     const visible = () => !suspended && doc.visibilityState === 'visible' &&
         !doc.documentElement?.classList?.contains('age-gate-open');
     const clearTimer = () => { if (timer !== null) cancel(timer); timer = null; };
@@ -43,12 +45,27 @@ export function createActiveViewSession({ doc, win, now, wallNow, schedule, canc
                 session = null; activeMs = 0; visibleSince = null; requestId = makeRequestId(); arm(0);
             } else arm((session.minimumActiveMs || 10000) - activeMs);
         } catch (error) {
-            if (version !== generation || disposed) return;
-            if (session && /deadline-exceeded$/.test(error?.code || '') && wallNow() >= session.expiresAt) {
-                session = null; activeMs = 0; visibleSince = null; requestId = makeRequestId(); arm(0);
-            } else if (retryable(error)) arm(Math.min(30000, 1000 * 2 ** Math.min(failures++, 5)));
-            else { done = true; clearTimer(); visibleSince = null; onError(error); }
-        } finally {
+    if (version !== generation || disposed) return;
+
+    if (!retryable(error) || ++retryFailures > maxRetryFailures) {
+        done = true;
+        clearTimer();
+        visibleSince = null;
+        onError(error);
+    } else if (
+        session &&
+        /deadline-exceeded$/.test(error?.code || '') &&
+        wallNow() >= session.expiresAt
+    ) {
+        session = null;
+        activeMs = 0;
+        visibleSince = null;
+        requestId = makeRequestId();
+        arm(0);
+    } else {
+        arm(Math.min(30000, 1000 * 2 ** Math.min(failures++, 5)));
+    }
+} finally {
             if (version === generation) busy = false;
         }
     }
@@ -80,7 +97,7 @@ export function createActiveViewSession({ doc, win, now, wallNow, schedule, canc
         setIdentity(uid) {
             if (identityKnown && uid === identity) return;
             identityKnown = true; identity = uid; ++generation;
-            session = null; activeMs = 0; visibleSince = null; busy = false; done = false; failures = 0;
+            session = null; activeMs = 0; visibleSince = null; busy = false; done = false; failures = 0; retryFailures = 0;
             requestId = makeRequestId(); clearTimer(); pump();
         },
         dispose
