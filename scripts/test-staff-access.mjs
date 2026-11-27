@@ -1,5 +1,6 @@
 import { paginateMangas, renderPagination, MANGA_PAGE_SIZE } from '../admin/pagination.mjs';
 import { bindUploadProgress } from '../admin/upload-progress.mjs';
+import {defaultTeamView, inTeamView, renderTeamView} from '../admin/team-view.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -38,7 +39,7 @@ function dom() {
     function node(tag = 'div') {
         const classes = new Set();
         return {
-            tag, events: {}, value: '', textContent: '', get innerHTML() { return this.html || ''; }, set innerHTML(value) { this.html = value; this.children = []; }, style: {}, dataset: {}, children: [],
+            tag, parentElement: {}, events: {}, value: '', textContent: '', get innerHTML() { return this.html || ''; }, set innerHTML(value) { this.html = value; this.children = []; }, style: {}, dataset: {}, children: [],
             classList: { add: value => classes.add(value), remove: value => classes.delete(value), contains: value => classes.has(value), toggle: (value, force) => force ? classes.add(value) : classes.delete(value) },
             append(...children) { for (const child of children) this.appendChild(child); },
             appendChild(child) { child.parent = this; this.children.push(child); if (child.id) nodes.set(child.id, child); },
@@ -152,6 +153,8 @@ async function editor(file, staff, search, fixtureData = fixtures, missingContro
     d.document.getElementById = id => missingControls.includes(id) ? null : getElement(id);
     let guarded = false;
     const context = { ...d, URLSearchParams, location: { search },
+        defaultTeamView, inTeamView,
+        renderTeamView: (select, actor, teams, selected) => renderTeamView(select, actor, teams, selected, d.document),
         paginateMangas, renderPagination: (container, model, callback) => renderPagination(container, model, callback, d.document),
         requireStaff: async () => { guarded = true; return staff; },
         bindUploadProgress: root => { progressBindings++; return bindUploadProgress(root); },
@@ -290,15 +293,15 @@ test('manga manager pagination keeps search and leader scope, then resets on sea
     assert.equal(d.get('mangaGrid').children.length,MANGA_PAGE_SIZE);assert.match(d.get('manga-pagination-summary').textContent,new RegExp(`Showing 1–${MANGA_PAGE_SIZE} of 23`));
     const all=await editor('admin/manga.js',admin,'',data);
     assert.equal(all.get('mangaGrid').children.length,MANGA_PAGE_SIZE);
-    assert.match(all.get('manga-pagination-summary').textContent,new RegExp(`Showing 1–${MANGA_PAGE_SIZE} of 33`));
+    assert.match(all.get('manga-pagination-summary').textContent,new RegExp(`Showing 1–${MANGA_PAGE_SIZE} of 23`));
     all.get('manga-pagination').children.at(-1).events.click();
-    assert.equal(all.get('mangaGrid').children.length,MANGA_PAGE_SIZE);
-    assert.match(all.get('manga-pagination-summary').textContent,new RegExp(`Showing ${MANGA_PAGE_SIZE + 1}–${MANGA_PAGE_SIZE * 2} of 33`));
-    all.get('manga-pagination').children.at(-1).events.click();
-    assert.equal(all.get('mangaGrid').children.length,33 - (MANGA_PAGE_SIZE * 2));
-    assert.match(all.get('manga-pagination-summary').textContent,new RegExp(`Showing ${MANGA_PAGE_SIZE * 2 + 1}–33 of 33`));
+    assert.equal(all.get('mangaGrid').children.length,23 - MANGA_PAGE_SIZE);
+    assert.match(all.get('manga-pagination-summary').textContent,new RegExp(`Showing ${MANGA_PAGE_SIZE + 1}–23 of 23`));
     assert.equal(all.get('manga-pagination').children[0].disabled,false);
     assert.equal(all.get('manga-pagination').children.at(-1).disabled,true);
+    all.get('teamView').value='other-team';all.get('teamView').onchange();
+    assert.equal(all.get('mangaGrid').children.length,10);
+    assert.match(all.get('manga-pagination-summary').textContent,/Showing 1–10 of 10/);
 });
 
 

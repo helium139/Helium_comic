@@ -1098,6 +1098,9 @@ body::before {
 
 .toolbar-center {
   display: flex;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
   align-items: center;
   gap: 10px;
 }
@@ -1108,6 +1111,11 @@ body::before {
 
 /* Ô dropdown chọn chương */
 .chapter-select {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  max-width: 420px;
+  text-overflow: ellipsis;
   background-color: #ffffff;
   color: #333333;
   border: 1px solid #cccccc;
@@ -1122,6 +1130,23 @@ body::before {
 .toolbar-right {
   display: flex;
   gap: 20px;
+}
+
+.chapter-toolbar .toolbar-left,
+.chapter-toolbar .toolbar-right,
+.chapter-toolbar .btn-arrow { flex-shrink: 0; }
+.chapter-toolbar { gap: 12px; }
+.chapter-toolbar .toolbar-item { white-space: nowrap; }
+@media (max-width: 600px) {
+  .chapter-toolbar { padding: 0 8px; gap: 6px; }
+  .chapter-toolbar .toolbar-center { gap: 4px; }
+  .chapter-toolbar .toolbar-right { gap: 4px; }
+  .chapter-toolbar .chapter-select { padding: 6px 4px; }
+  .chapter-toolbar .toolbar-item { font-size: 12px; gap: 2px; padding: 4px 2px; }
+  .chapter-toolbar .btn-arrow { min-width: 28px; min-height: 36px; justify-content: center; }
+}
+@media (max-width: 400px) {
+  .chapter-toolbar .toolbar-label { display: none; }
 }
 
 /*nut cuon dau trang*/
@@ -1428,62 +1453,6 @@ footer p {
     gap: 10px 16px;
 }
 .admin-picks-heading h2 { margin: 16px 0; }
-.notification-button {
-    margin-left: auto;
-    max-width: 100%;
-    padding: 10px 14px;
-    border: 0;
-    border-radius: 12px;
-    background: var(--button-bg);
-    color: var(--button-text);
-    font: inherit;
-    font-size: 14px;
-    cursor: pointer;
-}
-.notification-button:hover { filter: brightness(0.96); }
-.notification-button:disabled { opacity: 0.65; cursor: default; }
-.notification-button:focus-visible { outline: 2px solid var(--text-color); outline-offset: 3px; }
-.notification-status { margin: 4px 0 12px; font-size: 13px; }
-.notification-status:empty { display: none; }
-.chapter-notification-toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(380px, calc(100% - 48px));
-    box-sizing: border-box;
-    z-index: 1000;
-    padding: 16px;
-    border-radius: 12px;
-    background: var(--button-bg);
-    color: var(--button-text);
-    box-shadow: 0 4px 18px rgba(0,0,0,.2);
-}
-.chapter-notification-toast a { color: inherit; display: block; margin-right: 20px; }
-.chapter-notification-toast button {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font-size: 20px;
-    cursor: pointer;
-}
-@media (max-width: 480px) {
-    .notification-button { font-size: 12px; padding: 9px 10px; }
-}
-
-.chapter-notification-cover {
-    float: left;
-    width: 56px;
-    height: 76px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin: 0 12px 4px 0;
-}
-.chapter-notification-toast a { display: flow-root; }
-
 /* Threaded comment actions and replies. */
 .comic-comments-section .comment-actions {
     display: flex;

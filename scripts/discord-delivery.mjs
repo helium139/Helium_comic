@@ -21,7 +21,7 @@ export function chapterEvents(current, baseline) {
         (Number(a.chapter.id) - Number(b.chapter.id) || compare(String(a.chapter.id), String(b.chapter.id))));
 }
 
-export async function deliverEvents(events, state, { ready, send, save, onDelivered = async () => {} }) {
+export async function deliverEvents(events, state, { ready, send, save }) {
     for (const event of events) {
         if (!state.delivered[event.key]) {
             await ready(event);
@@ -30,8 +30,6 @@ export async function deliverEvents(events, state, { ready, send, save, onDelive
             await save(next);
             state.delivered = next.delivered;
         }
-        // Include previously delivered Discord events so a failed Firebase handoff can retry.
-        await onDelivered(event);
     }
 }
 

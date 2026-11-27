@@ -33,7 +33,9 @@ onAuthStateChanged(auth, user => {
     return saveProgress();
 });
 
-fetch("/assets/data/data.json")
+// Do not initialize chapter images/progress/views behind the age confirmation.
+Promise.resolve(globalThis.heliumAgeGateReady)
+.then(() => fetch("/assets/data/data.json"))
 .then(res => res.json())
 .then(data => {
 
@@ -384,10 +386,10 @@ let lightOff = localStorage.getItem("lightOffState") === "true";
 function applyLightSettings() {
     if (lightOff) {
         overlay.classList.add("active");
-        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> Bật đèn';
+        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> <span class="toolbar-label">Bật đèn</span>';
     } else {
         overlay.classList.remove("active");
-        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> Tắt đèn';
+        lightBtn.innerHTML = '<i class="bx bx-bulb"></i> <span class="toolbar-label">Tắt đèn</span>';
     }
 }
 

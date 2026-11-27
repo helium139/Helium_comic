@@ -1,0 +1,14 @@
+{
+  "status": "local-migration-code-in-progress-not-deployed",
+  "replacesFreeOnlyGoal": true,
+  "productionCutoverEnabled": false,
+  "googleFunctionsToRetainUntilVerifiedCutover": ["startChapterViewSession", "recordChapterView", "getChapterViewAnalytics", "getMonthlyViewDashboard", "getMonthlyViewReports", "generateMonthlyViewReport", "retryMonthlyViewReport", "closeMonthlyViewReport", "setUserAccess"],
+  "googleFeaturesKept": ["Firebase Auth", "Firestore profiles/likes/follows/history", "comments/moderation", "mangaStats/popularity"],
+  "proposedResourcesNotCreated": ["1 Workers Paid service", "1 D1 database", "1 private ledger archive bucket"],
+  "proposedSubscriptionUSDPerMonth": 5,
+  "paidPlanActivated": false,
+  "backendSecretsOnly": ["VIEW_READER_HMAC_KEY", "GOOGLE_REPORT_CLIENT_ID", "GOOGLE_REPORT_CLIENT_SECRET", "GOOGLE_REPORT_REFRESH_TOKEN"],
+  "blockedAdapters": ["production backend OAuth supplier/IAM wiring", "CMS and retained Google privileged endpoint authority integration", "Firestore revocation mirror rules and bootstrap", "verified production import/archive/cutover"],
+  "frontendRoutingChanged": false,
+  "newResourcesRequireReviewBeforeCreation": true
+}

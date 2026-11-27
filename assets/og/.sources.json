@@ -83,13 +83,13 @@
       "image_sha256": "c218f9ed6b39ce66c2591cac5ae925e33d221b4aeb3bea599019adab0ae9b82c"
     },
     "cach-thuc-yeu-uong": {
-      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/cover.webp",
-      "etag": "\"fa91ff7c52150ea3e1fe09a01f3cfc11\"",
-      "last_modified": "Wed, 22 Jul 2026 18:13:15 GMT",
-      "cover_sha256": "b213266e43a279c91d21c333ad3e4839b95008307100ba2c0a5dc6d963bed310",
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/cach-thuc-yeu-uong/cover-2c7cba36-4972-4d76-91c5-10890305076f.webp",
+      "etag": "\"82881226960e12fdd757c2a37fb0ab99\"",
+      "last_modified": "Thu, 26 Nov 2026 16:10:36 GMT",
+      "cover_sha256": "6439f754eb73d27d6c3270bc0305a1ab68ca1d4457ded28469f04eaf4852ea59",
       "cover_width": 1920,
       "cover_height": 2668,
-      "image_sha256": "36313d1c2844e620c3e6ce12d3c0750c90e15942afae36dff145ee33bbe24d38"
+      "image_sha256": "7e8d22dc58239d634feb8fa158de8c57a0d62c9c97c474cc316310b9a3192e70"
     },
     "nhung-ieu-khong-the-cham-toi": {
       "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/nhung-ieu-khong-the-cham-toi/cover.webp",
@@ -369,6 +369,33 @@
       "cover_width": 720,
       "cover_height": 720,
       "image_sha256": "e4ce7cf4bc617051a4ab33ce6e73d30f4a07fafe044684f703dc572d5a58ac1c"
+    },
+    "oan-gia-ngo-hep": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/oan-gia-ngo-hep/cover-647cc33d-ef67-4083-9c91-17710a185fec.webp",
+      "etag": "\"1b4237f20d13e880efbe2b8fbbb2dab1\"",
+      "last_modified": "Mon, 23 Nov 2026 09:17:22 GMT",
+      "cover_sha256": "270ac424c706e3e6e62f71be18d605a7e55b49d38fc4fe9bb2ad7b8bef02cc62",
+      "cover_width": 720,
+      "cover_height": 720,
+      "image_sha256": "c6cdcc17a5b32ed61a93c4e7579f83c48fbc87f077826afd4db5722b5912292e"
+    },
+    "chi-uong-nuoc-thoi": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/chi-uong-nuoc-thoi/cover-479254b3-2a69-4876-bdd0-3cb307ad2a89.webp",
+      "etag": "\"ff509082e3c12b927446068eb29e20a3\"",
+      "last_modified": "Mon, 23 Nov 2026 16:07:50 GMT",
+      "cover_sha256": "cddf6449ddc0255e784bfa2ae6895882593eb2ada7b33761ac7667baf225d7a8",
+      "cover_width": 720,
+      "cover_height": 720,
+      "image_sha256": "bfe2f14735ba9197f09f6a6a9305f738e8247116534466cb78f4ae9188e367ad"
+    },
+    "double-black": {
+      "url": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/double-black/cover-995da59f-cc1e-422c-94d4-721fa41174b8.webp",
+      "etag": "\"e198af00d739861a85292f97239e4914\"",
+      "last_modified": "Wed, 25 Nov 2026 19:26:25 GMT",
+      "cover_sha256": "b528fe95bb0b8ea73d4e40f555989b5d0105b42eee48a3c817eab4e7020f7714",
+      "cover_width": 427,
+      "cover_height": 615,
+      "image_sha256": "adb75716bbf20fbbfb96b87eac587dbbe675e966285bdefb11128571500ea1a7"
     }
   }
 }

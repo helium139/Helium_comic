@@ -31,6 +31,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Decide whether application regression tests are needed
+        id: verification
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          run_tests=true
+          if [[ "$GITHUB_EVENT_NAME" == push && "$BEFORE_SHA" =~ ^[0-9a-f]{40}$ && ! "$BEFORE_SHA" =~ ^0+$ ]] && git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            mapfile -d '' changed < <(git diff --name-only -z "$BEFORE_SHA" "$GITHUB_SHA")
+            if (( ${#changed[@]} > 0 )); then
+              run_tests=false
+              for file in "${changed[@]}"; do
+                case "$file" in
+                  assets/data/data.json|assets/data/version.js) ;;
+                  *) run_tests=true; break ;;
+                esac
+              done
+            fi
+          fi
+          echo "run_tests=$run_tests" >> "$GITHUB_OUTPUT"
+
 
       # ==========================
       # SETUP NODE
@@ -43,51 +65,65 @@ jobs:
 
 
       - name: Install CMS verification dependency
+        if: steps.verification.outputs.run_tests == 'true'
         run: npm ci --prefix worker --ignore-scripts --no-audit --no-fund
 
       - name: Test CMS authorization without production requests
+        if: steps.verification.outputs.run_tests == 'true'
         run: node --test scripts/test-cms-auth.mjs scripts/test-worker-authorization.mjs scripts/test-team-compatibility.mjs scripts/test-staff-access.mjs
 
       - name: Install local WebP verification dependencies
+        if: steps.verification.outputs.run_tests == 'true'
         run: npm ci --prefix scripts/webp --no-audit --no-fund
 
       - name: Test WebP conversion, migration and rollback without production requests
+        if: steps.verification.outputs.run_tests == 'true'
         run: node --test scripts/test-image-conversion.mjs scripts/test-chapter-promotion.mjs scripts/webp/test-migration.mjs scripts/webp/test-rollback.mjs scripts/webp/test-cleanup-originals.mjs
 
-      - name: Test public pages, carousel, notifications and reading progress
-        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-push-notifications.mjs scripts/test-popularity-cache.mjs
-
-      - name: Test scoped dashboard statistics
-        run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs
-
       - name: Install Functions verification dependencies
+        if: steps.verification.outputs.run_tests == 'true'
         run: npm ci --prefix functions --ignore-scripts --no-audit --no-fund
 
+      - name: Test public pages, carousel, push retirement and reading progress
+        if: steps.verification.outputs.run_tests == 'true'
+        run: node --test scripts/test-admin-picks.mjs scripts/test-completed.mjs scripts/test-home-ranking.mjs scripts/test-team-pages.mjs scripts/test-reading-progress.mjs scripts/test-service-worker-retirement.mjs scripts/test-popularity-cache.mjs scripts/test-age-gate.mjs
+
+      - name: Test scoped dashboard statistics
+        if: steps.verification.outputs.run_tests == 'true'
+        run: node --test scripts/test-dashboard.mjs scripts/test-admin-pagination.mjs scripts/test-admin-comments.mjs scripts/test-admin-team-view.mjs scripts/test-chapter-edit-frontend.mjs
+
       - name: Lint Firebase Functions
+        if: steps.verification.outputs.run_tests == 'true'
         run: npm --prefix functions run lint
 
       - name: Test trusted views and reader timing
+        if: steps.verification.outputs.run_tests == 'true'
         run: node --test scripts/test-view-service.mjs scripts/test-chapter-views.mjs scripts/test-view-dashboard.mjs scripts/test-chapter-popularity.mjs
 
       - name: Test threaded comment validation and UI
+        if: steps.verification.outputs.run_tests == 'true'
         run: node --test scripts/test-comments.mjs scripts/test-firebase-session.mjs
 
       - name: Test UTC monthly reports, dashboard rollover and export safety
+        if: steps.verification.outputs.run_tests == 'true'
         run: node --test scripts/test-monthly-reports.mjs scripts/test-monthly-report-ui.mjs
 
       - name: Setup Java for Firestore emulator
+        if: steps.verification.outputs.run_tests == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
       - name: Test Firestore view and comment rules and transactions
+        if: steps.verification.outputs.run_tests == 'true'
         run: npx --yes firebase-tools@15 emulators:exec --only firestore --project demo-helium-views --config firebase.emulator.json "node --test scripts/test-view-rules.mjs scripts/test-view-firestore.mjs scripts/test-comment-firestore.mjs scripts/test-monthly-report-firestore.mjs"
 
       - name: Validate team ownership
         run: node scripts/validate-catalogue.mjs
 
       - name: Test chapter readiness without network or webhook
+        if: steps.verification.outputs.run_tests == 'true'
         run: node --test scripts/test-chapter-readiness.mjs scripts/test-discord-delivery.mjs
 
 
@@ -238,30 +274,4 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           GITHUB_TOKEN: ${{ github.token }}
-          PUSH_PAYLOAD_FILE: ${{ runner.temp }}/chapter-push-${{ github.run_id }}-${{ github.run_attempt }}.json
         run: node scripts/discord-notify.mjs
-
-      - name: Notify Firebase push backend
-        shell: bash
-        env:
-          PUSH_FUNCTION_URL: ${{ secrets.PUSH_FUNCTION_URL }}
-          CHAPTER_NOTIFY_SECRET: ${{ secrets.CHAPTER_NOTIFY_SECRET }}
-          PUSH_PAYLOAD_FILE: ${{ runner.temp }}/chapter-push-${{ github.run_id }}-${{ github.run_attempt }}.json
-        run: |
-          if [ ! -f "$PUSH_PAYLOAD_FILE" ]; then
-            echo "No new chapters to notify."
-            exit 0
-          fi
-
-          : "${PUSH_FUNCTION_URL:?PUSH_FUNCTION_URL secret is required}"
-          : "${CHAPTER_NOTIFY_SECRET:?CHAPTER_NOTIFY_SECRET secret is required}"
-
-          jq -c '.[]' "$PUSH_PAYLOAD_FILE" | while IFS= read -r payload; do
-            curl --fail-with-body --silent --show-error \
-              --proto '=https' --connect-timeout 10 --max-time 60 \
-              --request POST \
-              --header 'Content-Type: application/json' \
-              --header "x-helium-secret: $CHAPTER_NOTIFY_SECRET" \
-              --data-binary "$payload" \
-              "$PUSH_FUNCTION_URL"
-          done

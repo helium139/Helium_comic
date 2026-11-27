@@ -2,3 +2,5 @@ node_modules/
 webp-*.jsonl
 webp-*.jsonl.catalogue.json
 .env.webp
+
+docs/push-retirement-*.local.json

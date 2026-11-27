@@ -28,14 +28,12 @@ test('multi-chapter update sends all in deterministic numeric order, including r
     assert.deepEqual(chapterEvents(catalogue([11, 12, 10]), catalogue([9])).map(e => e.key), events.map(e => e.key));
 });
 
-test('same event retry skips Discord but retains Firebase handoff', async () => {
-    const h = harness(), events = chapterEvents(catalogue([10]), {}), handoff = [];
-    h.options.onDelivered = async e => handoff.push(e.key);
+test('same event retry skips Discord and preserves durable receipts', async () => {
+    const h = harness(), events = chapterEvents(catalogue([10]), {});
     await h.run(events);
     await h.run(events);
     assert.equal(h.sent.length, 1);
     assert.equal(h.ready.length, 1);
-    assert.equal(handoff.length, 2);
     const restarted = harness();
     restarted.state.delivered = h.saved.at(-1).delivered;
     await restarted.run(events);

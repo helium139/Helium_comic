@@ -22,7 +22,7 @@ try {
     const filter = document.getElementById("dashboard-team");
     const isAdmin = currentStaff.role === "admin";
     let mangaPage = 1;
-    let scope = getDashboardScope(currentStaff, "all", teams);
+    let scope = getDashboardScope(currentStaff, "heliumtg", teams);
     document.getElementById("dashboard-title").textContent = isAdmin ? "Admin Dashboard" : "Team Dashboard";
 
     if (isAdmin) {
@@ -33,7 +33,7 @@ try {
             option.textContent = team.name + (team.active === false ? " (inactive)" : "");
             filter.appendChild(option);
         }
-        filter.value = "all";
+        filter.value = "heliumtg";
         filter.disabled = false;
         document.getElementById("team-filter-container").hidden = false;
         filter.addEventListener("change", () => {
