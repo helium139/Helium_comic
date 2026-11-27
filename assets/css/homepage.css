@@ -1005,6 +1005,29 @@ body::before {
   z-index: 2000;
 }
 
+.chapter-page {
+  width: 100%;
+}
+
+.chapter-page-loading,
+.chapter-page-error {
+  margin: 0;
+  padding: 16px;
+  color: #fff;
+  text-align: center;
+}
+
+.chapter-page-retry {
+  display: block;
+  margin: 0 auto 16px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: #7d5050;
+  color: #fff;
+  cursor: pointer;
+}
+
 /* ==========================================================================
    TỐI ƯU TRÊN ĐIỆN THOẠI (MOBILE)
    ========================================================================== */

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
 import { recordPopularity } from '../functions/lib/popularity/service.mjs';
+import {createPopularityRecorder} from '../assets/js/budget-policy.mjs';
 
 const catalogue = async () => ({data: {m: {teamId:'heliumtg',chapters:[{id:0,pages:1,folder:'https://images.test/m/0'}]}},teams:[{id:'heliumtg'}],revision:'test'});
 test('guest popularity increments only mangaStats.views and preserves likes/follows', async () => {
@@ -20,7 +21,7 @@ test('guest popularity increments only mangaStats.views and preserves likes/foll
 test('popularity adapter waits for first-image success, submits once per page, and isolates failures', async () => {
     const source=(await readFile(new URL('../assets/js/chapter-popularity.js',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'').replace(/export /g,'');
     const calls=[];
-    const context={viewCallable(name) { assert.equal(name,'recordChapterPopularity'); return async data=>{calls.push(data);throw new Error('offline');}; }};
+    const context={createPopularityRecorder,OPTIONAL_POPULARITY_ENABLED:true,viewCallable(name) { assert.equal(name,'recordChapterPopularity'); return async data=>{calls.push(data);throw new Error('offline');}; }};
     vm.createContext(context);vm.runInContext(source,context);
     context.recordChapterPopularity({mangaId:'m',chapterId:0,firstImage:{naturalWidth:0}});
     assert.equal(calls.length,0);
@@ -33,8 +34,8 @@ test('popularity adapter waits for first-image success, submits once per page, a
 test('only successful chapter reader hook submits popularity; detail page and accounting stay separate',async()=>{
     const reader=await readFile(new URL('../assets/js/comicchap.js',import.meta.url),'utf8');
     const detail=await readFile(new URL('../assets/js/comicpage.js',import.meta.url),'utf8');
-    assert.match(reader,/const chapterOpened = \(\) => \{[\s\S]*?recordChapterPopularity\(\{ mangaId, chapterId, firstImage \}\)/);
-    assert.match(reader,/firstImage\?\.addEventListener\("load", chapterOpened/);
+    assert.match(reader,/index === 0 && status === "loaded" && !chapterOpened/);
+    assert.match(reader,/recordChapterPopularity\(\{ mangaId, chapterId, firstImage \}\)/);
     assert.doesNotMatch(detail,/recordChapterPopularity|chapter-popularity/);
     const service=await readFile(new URL('../functions/lib/popularity/service.mjs',import.meta.url),'utf8');
     assert.doesNotMatch(service,/analyticsScopes|chapterViewEvents|chapterViewSessions|viewDedup/);
