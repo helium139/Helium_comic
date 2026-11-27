@@ -3,6 +3,7 @@ import { startChapterViews } from "./chapter-views.js";
 import { markChapterRead, showProgressError } from "./reading-progress.js";
 import { auth, onAuthStateChanged } from "./firebase-session.js";
 import { mangaUrl, chapterUrl, getRouteParams } from "./routes.js";
+import { createChapterImageQueue, getChapterImageUrls, revealReadyPages } from "./chapter-image-queue.mjs";
 const params = getRouteParams();
 
 const mangaId = params.get("id");
@@ -125,34 +126,138 @@ document.querySelector(
             "chapter-content"
         );
 
-    for(
-    let i = 1;
-    i <= chapter.pages;
-    i++
-){
+    const pageCount = Number(chapter.pages);
+    if (!Number.isInteger(pageCount) || pageCount < 1) throw new Error("Invalid chapter page count");
+    const pageSlots = [];
+    const loadedImages = Array(pageCount).fill(null);
+    const pageStates = Array(pageCount).fill("idle");
+    const fragment = document.createDocumentFragment();
+    for (let index = 0; index < pageCount; index++) {
+        const slot = document.createElement("div");
+        slot.className = "chapter-page";
+        slot.dataset.page = String(index + 1);
+        slot.setAttribute("aria-hidden", "true");
+        pageSlots.push(slot);
+        fragment.append(slot);
+    }
+    reader.replaceChildren(fragment);
 
-    const imageUrl =
-        `${chapter.folder}/${chapter.images?.[i-1] || `${i}.jpg`}`;
-
-    reader.innerHTML += `
-        <img
-            src="${imageUrl}"
-            loading="lazy"
-            alt="page ${i}"
-        >
-    `;
-}
-
-
-    const firstImage = reader.querySelector("img");
-    const chapterOpened = () => {
-        loadedChapter = { manga };
-        saveProgress();
-        startChapterViews({ mangaId, chapterId, manga, chapter, firstImage });
-        recordChapterPopularity({ mangaId, chapterId, firstImage });
+    const imageUrls = getChapterImageUrls(chapter);
+    let firstUnrevealed = 0;
+    let chapterOpened = false;
+    const renderFailedPage = pageIndex => {
+        const message = document.createElement("p");
+        message.className = "chapter-page-error";
+        message.setAttribute("role", "status");
+        message.textContent = `Không tải được trang ${pageIndex + 1}.`;
+        const retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "chapter-page-retry";
+        retry.textContent = "Thử tải lại";
+        retry.addEventListener("click", () => queue.retry(pageIndex), { once: true });
+        pageSlots[pageIndex].replaceChildren(message, retry);
     };
-    if (firstImage?.complete && firstImage.naturalWidth > 0) chapterOpened();
-    else firstImage?.addEventListener("load", chapterOpened, { once: true });
+    const queue = createChapterImageQueue(imageUrls, {
+        onState(index, status, image, attempt) {
+            const slot = pageSlots[index];
+            pageStates[index] = status === "retrying" ? "loading" : status;
+            slot.dataset.state = status;
+
+            if (status === "loading" && image) {
+                image.alt = `Trang ${index + 1}`;
+                image.decoding = "async";
+                image.className = "chapter-page-image";
+                if (!slot.classList.contains("is-revealed") && index === firstUnrevealed &&
+                    !slot.childElementCount) {
+                    const loading = document.createElement("p");
+                    loading.className = "chapter-page-loading";
+                    loading.setAttribute("role", "status");
+                    loading.textContent = `Đang tải trang ${index + 1}…`;
+                    slot.replaceChildren(loading);
+                }
+            } else if (status === "retrying") {
+                slot.dataset.attempt = String(attempt);
+            } else if (status === "loaded") {
+                loadedImages[index] = image;
+                if (slot.classList.contains("is-revealed")) slot.replaceChildren(image);
+            } else if (status === "failed" && slot.classList.contains("is-revealed")) {
+                renderFailedPage(index);
+            }
+
+            firstUnrevealed = revealReadyPages(pageStates, firstUnrevealed, pageIndex => {
+                const revealed = pageSlots[pageIndex];
+                if (pageStates[pageIndex] === "loaded") {
+                    revealed.replaceChildren(loadedImages[pageIndex]);
+                } else {
+                    renderFailedPage(pageIndex);
+                }
+                revealed.classList.add("is-revealed");
+                revealed.setAttribute("aria-hidden", "false");
+            });
+
+            if (index === 0 && status === "loaded" && !chapterOpened) {
+                chapterOpened = true;
+                loadedChapter = { manga };
+                saveProgress();
+                const firstImage = loadedImages[0];
+                startChapterViews({ mangaId, chapterId, manga, chapter, firstImage });
+                recordChapterPopularity({ mangaId, chapterId, firstImage });
+            }
+        }
+    });
+
+    let observer;
+    let scrollFrame = 0;
+    const prioritizeViewport = () => {
+        scrollFrame = 0;
+        const viewportHeight = window.innerHeight;
+        let nearestIndex = -1;
+        let nearestDistance = Infinity;
+        for (let index = 0; index < pageSlots.length; index++) {
+            const rect = pageSlots[index].getBoundingClientRect();
+            if (rect.bottom < 0 || rect.top > viewportHeight) continue;
+            const distance = Math.abs(rect.top);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestIndex = index;
+            }
+        }
+        if (nearestIndex !== -1) queue.setPriorityIndex(nearestIndex);
+    };
+    const onScroll = () => {
+        if (!scrollFrame) scrollFrame = window.requestAnimationFrame(prioritizeViewport);
+    };
+    if ("IntersectionObserver" in window) {
+        observer = new IntersectionObserver(entries => {
+            let nearestIndex = -1;
+            let nearestDistance = Infinity;
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                const index = Number(entry.target.dataset.page) - 1;
+                const distance = Math.abs(entry.boundingClientRect.top);
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestIndex = index;
+                }
+            }
+            if (nearestIndex !== -1) queue.setPriorityIndex(nearestIndex);
+        }, { rootMargin: "100% 0px" });
+        pageSlots.forEach(slot => observer.observe(slot));
+    } else {
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll, { passive: true });
+        prioritizeViewport();
+    }
+    const cleanupImageLoading = event => {
+        if (event.persisted) return;
+        observer?.disconnect();
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onScroll);
+        if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+        queue.destroy();
+    };
+    window.addEventListener("pagehide", cleanupImageLoading);
+    queue.start();
 
     // ===== CHAP TRƯỚC / SAU =====
 

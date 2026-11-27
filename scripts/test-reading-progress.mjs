@@ -111,17 +111,23 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
     const readerSource = (await readFile(new URL('../assets/js/comicchap.js', import.meta.url), 'utf8'))
         .replace(/^import[\s\S]*?from\s*"[^"]+";\s*/gm, '');
     let authChanged;
-    let imageLoaded;
+    let updateImageState;
     let writes = 0;
-    const image = { complete: false, addEventListener(type, callback) { imageLoaded = callback; } };
+    const image = { complete: false, naturalWidth: 0 };
     const elements = new Map();
     const element = id => {
-        if (!elements.has(id)) elements.set(id, {
-            innerHTML: '', style: {}, classList: { add() {}, remove() {} },
-            addEventListener() {}, querySelector: () => image
-        });
+        if (!elements.has(id)) elements.set(id, createElement());
         return elements.get(id);
     };
+    const createElement = () => ({
+        dataset: {}, style: {}, children: [], classList: { add() {}, remove() {}, contains() { return false; } },
+        addEventListener() {}, removeEventListener() {},
+        setAttribute() {},
+        append() {},
+        replaceChildren(...children) { this.children = children; },
+        querySelector: () => image,
+        getBoundingClientRect: () => ({ top: 0, bottom: 0 })
+    });
     const chapterManga = { title: 'Test', cover: 'cover', chapters: [
         { id: 10.5, title: 'Decimal', createAt: '2026-10-18T00:00:00Z', pages: 2, folder: 'images' }
     ] };
@@ -132,9 +138,29 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
         mangaUrl: () => '/manga/m/', rawBadge, chapterUrl: () => '/manga/m/chapter/10.5/',
         localStorage: { getItem: () => '1', setItem() {} },
         fetch: async () => ({ json: async () => ({ m: chapterManga }) }),
-        document: { getElementById: element, querySelector: () => ({}), documentElement: { removeAttribute() {} } },
+        document: {
+            getElementById: element, querySelector: () => ({}), createElement,
+            createDocumentFragment: () => ({ append() {} }),
+            documentElement: { removeAttribute() {} }
+        },
         location: { href: '/manga/m/chapter/10.5/', origin: 'https://example.com' },
-        window: { addEventListener() {} },
+        window: {
+            IntersectionObserver: true, innerHeight: 800, addEventListener() {}, removeEventListener() {},
+            requestAnimationFrame: () => 1, cancelAnimationFrame() {}
+        },
+        IntersectionObserver: class { observe() {} disconnect() {} },
+        createChapterImageQueue(urls, options) {
+            updateImageState = options.onState;
+            return { start() { updateImageState(0, 'loading', image, 1); },
+                setPriorityIndex() {}, retry() { return false; }, destroy() {} };
+        },
+        getChapterImageUrls: chapter => Array.from({ length: chapter.pages }, (_, index) =>
+            `${chapter.folder}/${chapter.images?.[index] || `${index + 1}.jpg`}`),
+        revealReadyPages(states, first, reveal) {
+            let next = first;
+            while (next < states.length && ['loaded', 'failed'].includes(states[next])) reveal(next++, states[next - 1]);
+            return next;
+        },
         startChapterViews() {}, recordChapterPopularity() {},
         markChapterRead: async (uid, id, data, chapter) => {
             assert.equal(chapter, '10.5');
@@ -146,13 +172,15 @@ test('reader waits for image success and auth; duplicate callbacks and guest vis
     await authChanged({ uid: 'u' });
     await flush();
     assert.equal(writes, 0);
-    imageLoaded();
+    image.complete = true;
+    image.naturalWidth = 100;
+    updateImageState(0, 'loaded', image, 1);
     await flush();
     assert.equal(writes, 1);
     await authChanged({ uid: 'u' });
     assert.equal(writes, 1);
     await authChanged(null);
-    imageLoaded();
+    updateImageState(0, 'loaded', image, 1);
     assert.equal(writes, 1);
 });
 

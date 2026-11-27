@@ -74,6 +74,19 @@ test('network retries use the same session and start retries use the same reques
     assert.equal(h.records.length, 2); assert.equal(h.records[0].sessionId, h.records[1].sessionId);
 });
 
+test('persistent start or record failures stop after five retries, even after visibility changes', async () => {
+    for (const phase of ['start', 'record']) {
+        const h = harness({ [phase]() { throw { code: 'functions/unavailable' }; } });
+        await h.ready(); await h.advance(300000);
+        assert.equal((phase === 'start' ? h.starts : h.records).length, 6);
+        assert.equal(h.timers.size, 0);
+        h.doc.visibilityState = 'hidden'; h.doc.emit('visibilitychange');
+        h.doc.visibilityState = 'visible'; h.doc.emit('visibilitychange');
+        await h.advance(300000);
+        assert.equal((phase === 'start' ? h.starts : h.records).length, 6);
+    }
+});
+
 test('leaving before threshold does not count; old async identity sessions cannot overwrite newer ones', async () => {
     const h = harness(); await h.ready(); await h.advance(9000); h.win.emit('pagehide', { persisted: false });
     await h.advance(10000); assert.equal(h.records.length, 0);
@@ -90,7 +103,7 @@ test('detail page has no view submission; chapter hook is after first-image read
     const chapter = await readFile(new URL('../assets/js/comicchap.js', import.meta.url), 'utf8');
     assert.doesNotMatch(detail, /updateView\(|startChapterViews|recordChapterView|views:\s*increment/);
     assert.doesNotMatch(chapter, /updateChapterView|views:\s*increment|mangaStats/);
-    assert.match(chapter, /firstImage\?\.addEventListener\("load", chapterOpened/);
+    assert.match(chapter, /index === 0 && status === "loaded" && !chapterOpened/);
     assert.match(chapter, /startChapterViews\(\{ mangaId, chapterId, manga, chapter, firstImage \}\)/);
 });
 
@@ -99,7 +112,7 @@ test('reader adapter rejects missing/broken first pages, initializes once, and t
     const source = (await readFile(new URL('../assets/js/chapter-views.js', import.meta.url), 'utf8'))
         .replace(/^import .*;\r?\n/gm, '').replace(/export /g, '');
     let initialized = 0, ready = 0;
-    const context = { auth: {}, onAuthStateChanged: () => () => {}, viewCallable: () => async () => ({}),
+    const context = { createAccountingStatus: () => () => {},auth: {}, onAuthStateChanged: () => () => {}, viewCallable: () => async () => ({}),
         localStorage: { getItem: () => null, setItem() {} }, crypto: { randomUUID: () => '00000000-0000-4000-8000-000000000000' },
         document: {}, window: {}, performance: { now: () => 0 },
         createActiveViewSession() { initialized++; return { ready() { ready++; }, dispose() {} }; }
