@@ -1,4 +1,5 @@
 import { createUploadProgress } from "../admin/upload-progress.mjs";
+import { getChapterImageUrls } from "../assets/js/chapter-image-queue.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -332,7 +333,7 @@ test('chapter edit uses shared JPEG conversion threshold and stages oversized JP
     };
     vm.createContext(c);
     vm.runInContext(source.replace(/export /g, ''), c);
-    vm.runInContext(uploadSource.replace(/^import .*;\n/gm, '').replace(/export /g, ''), c);
+    vm.runInContext(uploadSource.replace(/^import .*;\r?\n/gm, '').replace(/export /g, ''), c);
     vm.runInContext(chapterSource.slice(chapterSource.indexOf('function uploadProgressOptions(')), c);
     vm.runInContext(chapterSource.slice(chapterSource.indexOf('async function saveChapter('), chapterSource.indexOf('function resetForm(){')), c);
     await c.saveChapter();
@@ -355,12 +356,9 @@ test('preview rerender releases object URLs and requests lazy image decoding', (
     created[0].onload(); assert.ok(revoked.includes('new-url'));
 });
 
-const readerSource = await readFile(new URL('../assets/js/comicchap.js', import.meta.url), 'utf8');
-for (const images of [undefined, ['1.png', '2.jpg', '3.png'], ['1.webp', '2.jpg', '3.png'], ['1-6a294080-018b-4e4a-b5d2-1d945dba7afa.webp', '2.jpg', '3.png']]) test(`reader preserves ${images ? images.join('/') : 'legacy JPG'} page paths and order`, () => {
-    const reader = { innerHTML: '' }, chapter = { folder: 'https://img.test/m/chap0', pages: 3, ...(images ? { images } : {}) };
-    const c = { chapter, document: { getElementById: () => reader } };
-    vm.createContext(c); vm.runInContext(readerSource.slice(readerSource.indexOf('    const reader ='), readerSource.indexOf('    const firstImage =')), c);
-    const paths = [...reader.innerHTML.matchAll(/src="([^"]+)"/g)].map(match => match[1]);
+for (const images of [undefined, ['1.png', '2.jpg', '3.png'], ['3.webp', '1.jpg', '2.png'], ['1-6a294080-018b-4e4a-b5d2-1d945dba7afa.webp', '2.jpg', '3.png']]) test(`reader preserves ${images ? images.join('/') : 'legacy JPG'} page paths and metadata order`, () => {
+    const chapter = { folder: 'https://img.test/m/chap0', pages: 3, ...(images ? { images } : {}) };
+    const paths = getChapterImageUrls(chapter);
     assert.deepEqual(paths, (images || ['1.jpg', '2.jpg', '3.jpg']).map(name => `${chapter.folder}/${name}`));
 });
 
