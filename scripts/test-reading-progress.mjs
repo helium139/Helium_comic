@@ -9,7 +9,7 @@ const cardSource = (await readFile(new URL('../assets/js/manga-card.js', import.
 const { rawBadge } = await import('data:text/javascript;base64,' + Buffer.from(cardSource).toString('base64'));
 
 const source = (await readFile(new URL('../assets/js/reading-progress.js', import.meta.url), 'utf8'))
-    .replace(/^import[\s\S]*?from "[^"]+";\n/gm, '')
+    .replace(/^import[\s\S]*?from "[^"]+";\r?\n/gm, '')
     .replace(/export /g, '');
 function helpers(overrides = {}) {
     const context = {
@@ -116,7 +116,7 @@ test('reader waits for age confirmation, image success and auth; duplicate callb
     let releaseAge;
     let fetches = 0;
     const ageReady = new Promise(resolve => { releaseAge = resolve; });
-    const image = { complete: false, addEventListener(type, callback) { imageLoaded = callback; } };
+    const image = { complete: false, naturalWidth: 0 };
     const elements = new Map();
     const element = id => {
         if (!elements.has(id)) elements.set(id, createElement());
@@ -142,7 +142,13 @@ test('reader waits for age confirmation, image success and auth; duplicate callb
         mangaUrl: () => '/manga/m/', rawBadge, chapterUrl: () => '/manga/m/chapter/10.5/',
         localStorage: { getItem: () => '1', setItem() {} },
         fetch: async () => { fetches++; return { json: async () => ({ m: chapterManga }) }; },
-        document: { getElementById: element, querySelector: () => ({}), documentElement: { removeAttribute() {} } },
+        document: {
+    getElementById: element,
+    querySelector: () => ({}),
+    createElement,
+    createDocumentFragment: () => ({ append() {} }),
+    documentElement: { removeAttribute() {} }
+},
         location: { href: '/manga/m/chapter/10.5/', origin: 'https://example.com' },
         window: {
             IntersectionObserver: true, innerHeight: 800, addEventListener() {}, removeEventListener() {},
@@ -191,7 +197,7 @@ test('reader waits for age confirmation, image success and auth; duplicate callb
 
 test('follow renders existing UP component, clears it after reading, and handles progress failure', async () => {
     const followSource = (await readFile(new URL('../assets/js/follow.js', import.meta.url), 'utf8'))
-        .replace(/^import .*;\n/gm, '');
+       .replace(/^import .*;\r?\n/gm, '');
     let authChanged;
     let restore;
     let progress = null;
