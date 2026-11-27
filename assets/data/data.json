@@ -17474,6 +17474,31 @@
                     "14.jpg",
                     "15.webp"
                 ]
+            },
+            {
+                "id": 6,
+                "title": "Chap 6 - Điều Tra Đột Xuất",
+                "createAt": "2026-11-27T06:12:16.258Z",
+                "folder": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/double-black/chap6",
+                "pages": 16,
+                "images": [
+                    "1.jpg",
+                    "2.jpg",
+                    "3.jpg",
+                    "4.jpg",
+                    "5.jpg",
+                    "6.jpg",
+                    "7.jpg",
+                    "8.jpg",
+                    "9.jpg",
+                    "10.jpg",
+                    "11.jpg",
+                    "12.jpg",
+                    "13.jpg",
+                    "14.jpg",
+                    "15.jpg",
+                    "16.jpg"
+                ]
             }
         ],
         "cover": "https://pub-a0cc60d51c6e4ebab81ee134d3dada9e.r2.dev/double-black/cover-995da59f-cc1e-422c-94d4-721fa41174b8.webp"
