@@ -883,3 +883,237 @@ test('failed final verification retains staging and does not commit', async () =
     assert.equal(h.commits.length, 0);
     assert.equal(h.operations.some(([op]) => op === 'delete'), false);
 });
+async function stageRecoveryPage(h, content) {
+    const form = upload('own/chap1', '1.webp');
+    form.set(
+        'file',
+        new Blob([`RIFF1234WEBP${content}`], {
+            type: 'image/webp'
+        }),
+        '1.webp'
+    );
+
+    const response = await h.call('/upload', form, leader);
+    assert.equal(response.status, 200);
+    return response.json();
+}
+
+test('new chapter recovers from conflicting orphaned numbered pages', async () => {
+    const h = harness();
+    const root = 'own/chap1';
+
+    await h.BUCKET.put(
+        `${root}/1.webp`,
+        'RIFF1234WEBPold',
+        { httpMetadata: { contentType: 'image/webp' } }
+    );
+
+    const page = await stageRecoveryPage(h, 'new');
+
+    const body = {
+        manga: 'own',
+        chapterNumber: 1,
+        title: 'Recovery',
+        imageCount: 1,
+        images: [page.key.split('/').pop()]
+    };
+
+    const response = await h.call('/new-chapter', body, leader);
+
+    assert.equal(response.status, 200);
+
+    const { chapter } = await response.json();
+
+    assert.match(
+        chapter.folder,
+        /\/own\/chap1\/_revision-\d+-\d+$/
+    );
+
+    assert.deepEqual(chapter.images, ['1.webp']);
+
+    const revision = chapter.folder.split('/').pop();
+    const finalKey = `${root}/${revision}/1.webp`;
+
+    // Old objects must remain untouched.
+    assert.equal(
+        new TextDecoder().decode(
+            h.objects.get(`${root}/1.webp`).bytes
+        ),
+        'RIFF1234WEBPold'
+    );
+
+    // New revision must contain the newly uploaded image.
+    assert.equal(
+        new TextDecoder().decode(
+            h.objects.get(finalKey).bytes
+        ),
+        'RIFF1234WEBPnew'
+    );
+
+    const saved = h.catalogue().own.chapters.find(
+        item => Number(item.id) === 1
+    );
+
+    assert.deepEqual(saved, chapter);
+
+    // Cleanup must remove staging, not final images.
+    assert.equal(h.objects.has(page.key), false);
+    assert.ok(h.objects.has(finalKey));
+
+    // Replaying the same publish must not duplicate chapters.
+    const retry = await h.call('/new-chapter', body, leader);
+
+    assert.equal(retry.status, 200);
+    assert.equal(
+        (await retry.json()).chapter.folder,
+        chapter.folder
+    );
+
+    assert.equal(h.commits.length, 1);
+
+    // A published chapter must not be silently replaced.
+    const different = await stageRecoveryPage(h, 'different');
+
+    const conflict = await h.call('/new-chapter', {
+        ...body,
+        images: [different.key.split('/').pop()]
+    }, leader);
+
+    assert.equal(conflict.status, 409);
+    assert.equal(h.commits.length, 1);
+});
+
+test('failed revision recovery preserves old and staged images', async () => {
+    const h = harness();
+
+    await h.BUCKET.put(
+        'own/chap1/1.webp',
+        'RIFF1234WEBPold',
+        { httpMetadata: { contentType: 'image/webp' } }
+    );
+
+    const page = await stageRecoveryPage(h, 'new');
+
+    h.rejectSave();
+
+    const response = await h.call('/new-chapter', {
+        manga: 'own',
+        chapterNumber: 1,
+        title: 'Recovery failure',
+        imageCount: 1,
+        images: [page.key.split('/').pop()]
+    }, leader);
+
+    assert.equal(response.status, 409);
+
+    assert.equal(
+        h.catalogue().own.chapters.some(
+            item => Number(item.id) === 1
+        ),
+        false
+    );
+
+    assert.ok(h.objects.has(page.key));
+
+    assert.equal(
+        new TextDecoder().decode(
+            h.objects.get('own/chap1/1.webp').bytes
+        ),
+        'RIFF1234WEBPold'
+    );
+
+    assert.equal(
+        h.operations.some(([operation]) => operation === 'delete'),
+        false
+    );
+});
+test('concurrent revision recovery publishes only one chapter', {
+    timeout: 10000
+}, async () => {
+    const h = harness();
+    const root = 'own/chap1';
+
+    await h.BUCKET.put(
+        `${root}/1.webp`,
+        'RIFF1234WEBPold',
+        { httpMetadata: { contentType: 'image/webp' } }
+    );
+
+    const first = await stageRecoveryPage(h, 'first');
+    const second = await stageRecoveryPage(h, 'second');
+
+    const body = {
+        manga: 'own',
+        chapterNumber: 1,
+        title: 'Concurrent recovery',
+        imageCount: 1
+    };
+
+    // Ensure both requests reach promotion before either can commit.
+    const originalPut = h.BUCKET.put.bind(h.BUCKET);
+    let arrivals = 0;
+    let release;
+    const gate = new Promise(resolve => {
+        release = resolve;
+    });
+
+    h.BUCKET.put = async (key, ...args) => {
+        if (key.startsWith(`${root}/_revision-`)) {
+            arrivals++;
+            if (arrivals === 2) release();
+            await gate;
+        }
+
+        return originalPut(key, ...args);
+    };
+
+    const responses = await Promise.all([
+        h.call('/new-chapter', {
+            ...body,
+            images: [first.key.split('/').pop()]
+        }, leader),
+
+        h.call('/new-chapter', {
+            ...body,
+            images: [second.key.split('/').pop()]
+        }, leader)
+    ]);
+
+    assert.deepEqual(
+        responses.map(r => r.status).sort(),
+        [200, 409]
+    );
+
+    const chapters = h.catalogue().own.chapters.filter(
+        chapter => Number(chapter.id) === 1
+    );
+
+    assert.equal(chapters.length, 1);
+    assert.equal(h.commits.length, 1);
+
+    const winner = responses[0].status === 200 ? 0 : 1;
+    const expected = winner === 0
+        ? 'RIFF1234WEBPfirst'
+        : 'RIFF1234WEBPsecond';
+
+    const loser = winner === 0 ? second : first;
+
+    const revision = chapters[0].folder.split('/').pop();
+    const finalKey = `${root}/${revision}/1.webp`;
+
+    assert.equal(
+        new TextDecoder().decode(
+            h.objects.get(finalKey).bytes
+        ),
+        expected
+    );
+
+    assert.equal(
+        new TextDecoder().decode(
+            h.objects.get(`${root}/1.webp`).bytes
+        ),
+        'RIFF1234WEBPold'
+    );
+
+    assert.ok(h.objects.has(loser.key));
+});

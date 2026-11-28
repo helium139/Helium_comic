@@ -577,8 +577,49 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 };
                 chapter.images = chapterImages(body.images, chapter.pages);
                 for (const name of chapter.images) if (!await env.BUCKET.head(`${slug}/chap${id}/${name}`)) fail(400, "Chapter image not uploaded");
-                chapterCleanup = { folder: `${slug}/chap${id}`, names: [...chapter.images] };
-                chapter.images = await promoteChapterPages(env.BUCKET, chapterCleanup.folder, chapter.images);
+                const root = `${slug}/chap${id}`;
+
+chapterCleanup = {
+    folder: root,
+    names: [...chapter.images],
+    destinationFolder: root
+};
+
+try {
+    chapter.images = await promoteChapterPages(
+        env.BUCKET,
+        root,
+        chapterCleanup.names
+    );
+} catch (error) {
+    // Recover only from conflicting immutable numbered pages.
+    if (
+        !(error instanceof HttpError) ||
+        error.status !== 409 ||
+        error.message !== 'Numbered page already exists with different content; published images retained'
+    ) {
+        throw error;
+    }
+
+    // Never overwrite existing objects. Publish to a new revision.
+    const revision = `${Date.now()}-${crypto.getRandomValues(new Uint32Array(1))[0]}`;
+
+    const destinationFolder = `${root}/_revision-${revision}`;
+
+    chapter.images = await promoteChapterPages(
+        env.BUCKET,
+        root,
+        chapterCleanup.names,
+        {
+            destinationFolder,
+            timeoutMs: r2TimeoutMs
+        }
+    );
+
+    chapterCleanup.destinationFolder = destinationFolder;
+}
+
+chapter.folder = `${publicBase(env)}/${chapterCleanup.destinationFolder}`;
                 manga.chapters.push(chapter);
                 manga.chapters.sort((a, b) => a.id - b.id);
                 response.chapter = chapter;
@@ -600,7 +641,14 @@ export function createWorker({ verifyToken = verifyFirebaseToken, fetchImpl = (.
                 const committed = await getFile(env, "data.json");
                 const saved = committed.data[slug]?.chapters?.find(chapter => chapter.folder === response.chapter.folder);
                 if (JSON.stringify(saved?.images) !== JSON.stringify(response.chapter.images)) throw new Error("Catalogue verification failed");
-                await cleanupChapterSources(env.BUCKET, chapterCleanup.folder, chapterCleanup.names, committed.data, publicBase(env));
+                await cleanupChapterSources(
+    env.BUCKET,
+    chapterCleanup.folder,
+    chapterCleanup.names,
+    committed.data,
+    publicBase(env),
+    chapterCleanup.destinationFolder
+);
             } catch { log({ service: "r2", operation: "chapter-staging-cleanup", outcome: "retry-required" }); }
         }
         return response;
